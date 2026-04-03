@@ -8,7 +8,7 @@
 - `pnpm --filter @hege/web db:migrate` ausfuehren
 - `pnpm --filter @hege/web db:seed` ausfuehren
 - Erwartung: Migration laeuft ohne SQL-Fehler durch
-- Erwartung: der Seed meldet erfolgreiche Anlage von `users`, `reviere`, `memberships` und `ansitz_sessions`
+- Erwartung: der Seed meldet erfolgreiche Anlage von `users`, `reviere`, `memberships`, `ansitz_sessions` und `fallwild_vorgaenge`
 
 ### TC-API-ANSITZ-00B: Neon `development` fuer Preview bootstrapen
 
@@ -37,6 +37,30 @@
 - Web-App lokal starten
 - `GET /api/v1/ansitze/live` aufrufen
 - Erwartung: nur aktive Ansitze des Dev-Reviers werden als JSON zurueckgegeben
+
+## API Fallwild
+
+### TC-API-FALLWILD-01: Fallwildliste lesen
+
+- Web-App lokal starten
+- `GET /api/v1/fallwild` aufrufen
+- Erwartung: die Antwort enthaelt die Fallwild-Vorgaenge des aktiven Reviers
+- Erwartung: jeder Eintrag liefert Standort, Wildart, Bergungsstatus und Erfassungszeitpunkt
+
+### TC-API-FALLWILD-02: Fallwildvorgang anlegen
+
+- Web-App lokal mit aktiver DB starten
+- `POST /api/v1/fallwild` mit gueltigem JSON-Body senden
+- Erwartung: der Endpunkt antwortet mit `201`
+- Erwartung: der neue Vorgang erscheint anschliessend in `GET /api/v1/fallwild`
+
+### TC-API-FALLWILD-03: CSV-Export abrufen
+
+- Web-App lokal starten
+- `GET /api/v1/fallwild/export.csv` aufrufen
+- Erwartung: der Endpunkt antwortet mit `200`
+- Erwartung: `content-type` ist `text/csv`
+- Erwartung: die CSV enthaelt mindestens Kopfzeile sowie die gespeicherten Fallwild-Vorgaenge
 
 ## Web Ansitze
 
@@ -80,6 +104,40 @@
 - Erwartung: die Erfolgsmeldung erscheint
 - Erwartung: der beendete Eintrag verschwindet nach dem Refresh aus der aktiven Tabelle
 
+## Web Fallwild
+
+### TC-WEB-FALLWILD-01: Fallwildseite liest aus der Server-Schicht
+
+- Web-App lokal starten
+- Seite `/fallwild` oeffnen
+- Erwartung: vorhandene Fallwild-Vorgaenge werden ohne direkte UI-Abhaengigkeit auf `demoData` angezeigt
+- Erwartung: Standort, Wildart, Status und Zeitpunkt werden lesbar formatiert
+
+### TC-WEB-FALLWILD-02: Fallwild im Web erfassen
+
+- Web-App mit aktiver DB starten
+- Seite `/fallwild` oeffnen
+- Formular mit Gemeinde, Lagebezeichnung, Koordinaten, Wildart und Status ausfuellen
+- `Fallwild erfassen` ausloesen
+- Erwartung: die Erfolgsmeldung erscheint
+- Erwartung: der neue Eintrag erscheint nach dem Refresh in der Liste
+- Erwartung: der API-Aufruf `POST /api/v1/fallwild` antwortet mit `201`
+
+### TC-WEB-FALLWILD-03: CSV-Export aus dem Web
+
+- Web-App lokal starten
+- Seite `/fallwild` oeffnen
+- `CSV exportieren` ausloesen
+- Erwartung: der Browser laedt eine CSV ueber `/api/v1/fallwild/export.csv`
+- Erwartung: die exportierte Datei enthaelt die sichtbaren Fallwild-Eintraege
+
+### TC-WEB-FALLWILD-04: Mobile Browserbreite bleibt bedienbar
+
+- Web-App lokal starten
+- Seite `/fallwild` in schmaler Browserbreite oeffnen
+- Erwartung: Formular, Liste und Aktionsleiste bleiben ohne horizontales Chaos bedienbar
+- Erwartung: kein Hydration- oder Konsolenfehler tritt auf
+
 ## Mobile Dashboard
 
 ### TC-MOB-DASH-01: Heute im Revier nutzt echte API
@@ -97,6 +155,28 @@
 - Startseite `Heute im Revier` oeffnen
 - Erwartung: Lade- oder Fehlerzustand wird angezeigt
 - Erwartung: die App bleibt bedienbar
+
+## Mobile Fallwild
+
+### TC-MOB-FALLWILD-01: Fallwildliste laden
+
+- App oeffnen
+- Tab `Fallwild` oeffnen
+- Erwartung: die Liste wird per `GET /api/v1/fallwild` geladen
+- Erwartung: Eintraege oder leerer Zustand werden sauber dargestellt
+
+### TC-MOB-FALLWILD-02: Manuelle Aktualisierung
+
+- Tab `Fallwild` oeffnen
+- Pull-to-Refresh oder `Aktualisieren` ausloesen
+- Erwartung: die Liste wird neu geladen, ohne dass die App abstuerzt
+
+### TC-MOB-FALLWILD-03: API nicht erreichbar
+
+- API-URL auf einen nicht erreichbaren Host setzen
+- Tab `Fallwild` oeffnen
+- Erwartung: ein Fehlerzustand wird angezeigt
+- Erwartung: die Offline-Warteschlange bleibt sichtbar
 
 ## Mobile Ansitze
 

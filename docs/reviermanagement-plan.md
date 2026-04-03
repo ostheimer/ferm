@@ -91,6 +91,23 @@ Details:
 - die technische Struktur soll spätere zusätzliche Sprachen ermöglichen
 - falls nach v1 eine erste Zweitsprache eingeführt wird, ist Englisch (`en`) die bevorzugte erste Erweiterung
 
+### Mitglieder, Rollen und Aufgaben
+
+- Mitglieder koennen mehrere Rollen gleichzeitig haben
+- Rollen sind flexibel erweiterbar, zum Beispiel Gaeste, Ausgeher, Gesellschafter, Paechter, Jagdaufseher, Jagdleiter, Schriftfuehrer oder Kassier
+- Rollen steuern, wer Informationen sieht, Aufgaben erhaelt und Aufgaben weitergeben darf
+- bestimmte Rollen koennen anderen Mitgliedern Aufgaben zuteilen
+- Aufgaben koennen einmalig, wiederkehrend oder als Projekt mit Start und Ende angelegt werden
+- Aufgaben koennen aus Protokollen oder Beschluessen entstehen
+- typische Aufgaben sind zum Beispiel Wasserungen und Fuetterungen betreuen, Hochstaende reparieren, Hochstaende bauen, Hochstaende versetzen oder Saetze und Dienste fuer Veranstaltungen
+
+### Nachrichten und Abstimmung
+
+- Rollen mit Berechtigung koennen Nachrichten an alle oder an gezielte Empfaenger senden
+- Nachrichten sollen Aufgaben und Protokollbeschluesse ergaenzen, nicht ersetzen
+- spaetere Integrationen mit WhatsApp oder Telegram werden als Kanal-Erweiterung mitgedacht
+- die fachliche Kernlogik bleibt dabei im System von `hege`, damit Nachrichten, Aufgaben und Rollen konsistent bleiben
+
 ## Aktueller Repository-Stand
 
 Bereits vorhanden:

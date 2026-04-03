@@ -1,4 +1,4 @@
-import type { AnsitzStatus, Role } from "@hege/domain";
+import type { Altersklasse, AnsitzStatus, BergungsStatus, Geschlecht, Role, Wildart } from "@hege/domain";
 import { boolean, doublePrecision, index, integer, pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
@@ -73,7 +73,37 @@ export const ansitzSessions = pgTable(
   ]
 );
 
+export const fallwildVorgaenge = pgTable(
+  "fallwild_vorgaenge",
+  {
+    id: text("id").primaryKey(),
+    revierId: text("revier_id")
+      .notNull()
+      .references(() => reviere.id),
+    reportedByMembershipId: text("reported_by_membership_id")
+      .notNull()
+      .references(() => memberships.id),
+    recordedAt: timestamp("recorded_at", { withTimezone: true, mode: "string" }).notNull(),
+    locationLat: doublePrecision("location_lat").notNull(),
+    locationLng: doublePrecision("location_lng").notNull(),
+    locationLabel: text("location_label"),
+    wildart: text("wildart").$type<Wildart>().notNull(),
+    geschlecht: text("geschlecht").$type<Geschlecht>().notNull(),
+    altersklasse: text("altersklasse").$type<Altersklasse>().notNull(),
+    bergungsStatus: text("bergungs_status").$type<BergungsStatus>().notNull(),
+    gemeinde: text("gemeinde").notNull(),
+    strasse: text("strasse"),
+    note: text("note")
+  },
+  (table) => [
+    index("fallwild_vorgaenge_revier_idx").on(table.revierId),
+    index("fallwild_vorgaenge_recorded_at_idx").on(table.recordedAt),
+    index("fallwild_vorgaenge_reported_by_idx").on(table.reportedByMembershipId)
+  ]
+);
+
 export type UserRecord = typeof users.$inferSelect;
 export type RevierRecord = typeof reviere.$inferSelect;
 export type MembershipRecord = typeof memberships.$inferSelect;
 export type AnsitzSessionRecord = typeof ansitzSessions.$inferSelect;
+export type FallwildVorgangRecord = typeof fallwildVorgaenge.$inferSelect;

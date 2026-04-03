@@ -200,3 +200,15 @@ Die erste sichtbare App-Version gilt als geliefert, wenn:
 ## Karten
 
 Kartenfunktionen in der mobilen App orientieren sich verbindlich an Google Maps. Wenn spaeter Kartensichten, Standortsuche, Marker oder Geocoding erweitert werden, sollen die Umsetzungen auf Google-Maps-kompatible APIs und SDKs abzielen.
+
+## Technischer Stand
+
+- Dashboard, Ansitze und Fallwild nutzen bereits denselben Vercel-native API-Pfad unter `https://hege.app/api/v1`
+- Manuelle Aktualisierung und Pull-to-Refresh bleiben der verbindliche Aktualisierungspfad fuer v1
+
+## Zukunftsthemen
+
+- Aufgaben, Rollen und Nachrichten sind fuer spaetere Ausbaustufen vorgesehen
+- mobile Hinweise aus WhatsApp oder Telegram werden spaeter als optionale Kanaele betrachtet
+- die mobile App zeigt solche Inhalte erst an, wenn die fachliche Rollen- und Aufgabenlogik in API und Datenmodell steht
+- geplant ist zuerst eine Inbox oder Aufgabenliste im Screen `Heute im Revier`, spaeter bei wachsendem Umfang ein eigener Aufgaben- oder Nachrichten-Screen

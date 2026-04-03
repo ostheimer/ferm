@@ -1,5 +1,5 @@
 const DEFAULT_APP_URL = "http://localhost:3000";
-const DEFAULT_API_BASE_URL = "http://localhost:4000/api";
+const DEFAULT_API_BASE_URL = "http://localhost:3000/api/v1";
 
 export function getPublicAppUrl(): string {
   const explicitUrl = process.env.NEXT_PUBLIC_APP_URL;
