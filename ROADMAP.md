@@ -14,6 +14,7 @@ Diese Datei ist der schlanke Einstiegspunkt im Repo-Root. Die vollständige Road
 2. Authentifizierung und Revier-Scope
 3. Rollenmodell serverseitig erzwingen
 4. Storage- und Medienbasis
+5. Rollen, Aufgaben und Nachrichten fachlich strukturieren
 
 ## Detaildokumente
 

@@ -69,12 +69,26 @@ docs/
 - `Revier Admin`
 - `Schriftfuehrer`
 - `Jaeger`
+- weitere Rollen wie `Gaeste`, `Ausgeher`, `Gesellschafter`, `Paechter`, `Jagdaufseher`, `Jagdleiter` oder `Kassier` sind fachlich vorgesehen
 
 ### Grundregel
 
 - `Schriftfuehrer` und `Revier Admin` arbeiten primaer im Web
 - `Jaeger` arbeitet primaer mobil
 - `Revier Admin` darf zusaetzlich Freigaben und Verwaltungsaktionen ausfuehren
+
+### Erweiterbare Rollen
+
+- Rollen sind fachlich erweiterbar, zum Beispiel um `Gaeste`, `Ausgeher`, `Gesellschafter`, `Paechter`, `Jagdaufseher`, `Jagdleiter` oder `Kassier`
+- ein Mitglied kann mehrere Rollen gleichzeitig haben
+- Rollen werden als fachliche Berechtigungsschicht verstanden, nicht als starre Einzelzuordnung
+
+### Mitgliedschaft, Rolle und Berechtigung
+
+- die `membership` bleibt die technische Zuordnung einer Person zu einem Revier
+- Rollen haengen an einer Mitgliedschaft und koennen mehrfach vergeben werden
+- Berechtigungen werden nicht frei pro Person gespeichert, sondern aus den aktiven Rollen abgeleitet
+- spaetere Sonderrechte bleiben moeglich, sollen aber als Ausnahme ueber klar benannte Policy-Regeln modelliert werden
 
 ## Domaenenmodule
 
@@ -103,12 +117,34 @@ docs/
 - Beschluesse
 - Freigabe und Veroeffentlichung
 
+### Mitglieder, Rollen, Aufgaben und Nachrichten
+
+- Mitgliedschaften koennen mehrere Rollen tragen
+- Aufgaben werden Rollen oder einzelnen Mitgliedern zugewiesen
+- Aufgaben koennen aus Protokollen, Beschluessen oder manueller Zuweisung entstehen
+- Aufgaben koennen einmalig, wiederkehrend oder als Projekt mit Start- und Enddatum gefuehrt werden
+- Nachrichten werden intern rollen- oder empfaengerbezogen modelliert
+- externe Messenger wie WhatsApp oder Telegram werden spaeter als Kanaele angedockt
+
+### Geplante Aufgabenregeln
+
+- Rollen mit Zuweisungsrecht sind mindestens `Revier Admin`, `Paechter`, `Jagdleiter`, `Jagdaufseher` und fuer protokollbezogene Beschluesse auch `Schriftfuehrer`
+- Aufgaben koennen an einzelne Mitgliedschaften, an Rollen im Revier oder an gemischte Zielgruppen adressiert werden
+- typische Aufgaben sind Wasserungen oder Fuetterungen betreuen, Hochstaende reparieren, Hochstaende bauen, Hochstaende versetzen und Dienste bei Veranstaltungen
+- Projektaufgaben tragen Start- und Enddatum, wiederkehrende Aufgaben eine Regel fuer Wiederholung und Faelligkeit
+
+### Geplante Nachrichtenkanaele
+
+- die fachliche Kernlogik speichert Nachrichten kanalneutral im eigenen Nachrichtenmodell
+- WhatsApp und Telegram sind in der ersten Ausbaustufe nur ausgehende Kanal-Adapter fuer Benachrichtigungen oder Weiterleitungen
+- eingehende Messenger-Nachrichten werden fuer v1 nicht als fuehrender Datenkanal eingeplant
+
 ## Datenhaltung
 
 ### Aktueller Stand
 
 - `apps/api` verwendet derzeit einen In-Memory-Demo-Store
-- `apps/web` besitzt bereits eine Drizzle-/Neon-Grundlage fuer `users`, `reviere`, `memberships` und `ansitz_sessions`
+- `apps/web` besitzt bereits eine Drizzle-/Neon-Grundlage fuer `users`, `reviere`, `memberships`, `ansitz_sessions` und `fallwild_vorgaenge`
 - lokale Migrationen und Seed-Skripte liegen unter `apps/web/drizzle*` und `apps/web/src/server/db`
 - lokale Infrastruktur fuer PostgreSQL/PostGIS und MinIO ist vorbereitet
 
@@ -116,6 +152,7 @@ docs/
 
 - persistente Tabellen fuer Benutzer, Reviere, Mitgliedschaften und Geraete
 - persistente Tabellen fuer Ansitze, Fallwild, Reviereinrichtungen und Protokolle
+- persistente Tabellen fuer Rollen, Aufgaben, Nachrichten und Zuordnungen
 - getrennte Asset-Verwaltung fuer Fotos und Dokumente
 - Audit-Log fuer sensible Aktionen
 
@@ -143,6 +180,7 @@ docs/
 - DNS ueber Cloudflare
 - DSGVO-konforme Datenspeicherung
 - serverseitige Rollen- und Tenant-Pruefung auf jeder fachlichen Ressource
+- Rollenpruefung spaeter auch fuer Aufgabenvergabe, Nachrichtenerstellung und Kanalwahl
 - Audit-Log fuer Freigaben, Exporte, Loeschungen und sensible Aenderungen
 - Monitoring, strukturierte Logs und Healthchecks in der produktiven Stufe
 - Karten- und Standortfunktionen werden auf Google Maps standardisiert, damit Web und Mobile dieselbe Kartenlogik nutzen
@@ -184,14 +222,14 @@ Lokales Docker-Postgres bleibt ein rein lokaler Arbeitsmodus. Es ersetzt die Neo
 
 - gemeinsames Domain-Modell vorhanden
 - API-Endpunkte fuer die Kernmodule in `apps/api` vorhanden
-- erster Vercel-native Write-Pfad fuer `me` und `ansitze` in `apps/web` vorhanden
+- erster Vercel-native Datenpfad fuer `me`, `ansitze` und `fallwild` in `apps/web` vorhanden
 - Web- und Mobile-UIs als sichtbares Grundgeruest vorhanden
 - Domain- und Env-Grundlage fuer `hege.app` vorhanden
 - produktive Persistenz, Authentifizierung und Rechtepruefung noch offen
 
 ## Naechste technische Ausbaustufe
 
-1. Dashboard- und Fallwild-Slices auf echte API und Persistenz erweitern
+1. Dashboard-Slice auf echte API und Persistenz erweitern
 2. Datenbank-Slice auf weitere Module erweitern
 3. Authentifizierung und Rollenmodell serverseitig aktivieren
 4. Demo-Store durch persistente Services ersetzen

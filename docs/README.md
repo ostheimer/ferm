@@ -34,9 +34,12 @@ Das Repository enthaelt bereits ein funktionierendes Monorepo-Grundgeruest mit:
 - Next.js-Backoffice mit Dashboard und Fachseiten
 - Expo-Mobile-App mit feldtauglichen Kernscreens
 - Shared Domain Package fuer Typen, Demo-Daten und Fachregeln
-- erstem `vercel-native` Write-Slice in `apps/web` mit Drizzle, Migrationen und Route Handlern fuer `me` und `ansitze`
+- erstem `vercel-native` Daten-Slice in `apps/web` mit Drizzle, Migrationen und Route Handlern fuer `me`, `ansitze` und `fallwild`
 - Web-Ansitzverwaltung mit Starten, Beenden und manuellem Refresh gegen die neue API
+- Web-Fallwildverwaltung mit Erfassung und CSV-Export gegen dieselbe Server-Schicht
+- Mobile-Fallwildliste mit echtem API-Refresh
 - Mobile-Dashboard mit API-basiertem Snapshot fuer Revier- und Ansitzlage
+- Rollen, Aufgaben und Nachrichten werden als naechste Planungsstufe vorbereitet, inklusive spaeterer WhatsApp-/Telegram-Kanaele
 
 Kartenfunktionen werden projektweit auf Google Maps ausgerichtet.
 

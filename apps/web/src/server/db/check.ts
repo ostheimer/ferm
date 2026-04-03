@@ -1,6 +1,9 @@
 import { sql } from "drizzle-orm";
 
+import { loadCliEnv } from "../env/load-cli-env";
 import { createDbFromPool, createPool } from "./client";
+
+loadCliEnv();
 
 async function main() {
   const pool = createPool();

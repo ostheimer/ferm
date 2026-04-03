@@ -18,11 +18,16 @@ Die erste Implementierung liefert ein funktionsfaehiges Grundgeruest mit gemeins
 
 Die bestehende NestJS-API arbeitet weiterhin mit einem In-Memory-Demo-Store. Parallel dazu ist in `apps/web` jetzt der erste `vercel-native` Datenbank-Slice angelegt:
 
-- Drizzle-Konfiguration und Migrationen fuer `users`, `reviere`, `memberships` und `ansitz_sessions`
+- Drizzle-Konfiguration und Migrationen fuer `users`, `reviere`, `memberships`, `ansitz_sessions` und `fallwild_vorgaenge`
 - Route Handler fuer `GET /api/v1/me`, `GET /api/v1/ansitze`, `GET /api/v1/ansitze/live`, `POST /api/v1/ansitze` und `PATCH /api/v1/ansitze/:id/beenden`
+- Route Handler fuer `GET /api/v1/fallwild`, `POST /api/v1/fallwild` und `GET /api/v1/fallwild/export.csv`
 - Seed-Skript auf Basis der bestehenden Demo-Daten
 - Demo-Fallback fuer lokale Read-Tests, solange keine DB aktiv ist
 - Web-Ansitzseite mit Starten, Beenden und manuellem Refresh gegen den neuen API-Pfad
+- Web-Fallwildseite mit Erfassung, CSV-Export und mobilem Layout gegen denselben API-Pfad
+- Mobile-Screens fuer Dashboard, Ansitze und Fallwild gegen den Vercel-native API-Slice
+
+Rollen, Aufgaben und Nachrichten werden als naechste fachliche Erweiterung geplant, mit spaeterer Anbindung an Messenger-Kanaele wie WhatsApp und Telegram.
 
 ## Zielbetrieb
 
@@ -94,11 +99,12 @@ pnpm typecheck
 
 ## Naechste Ausbauschritte
 
-- Dashboard- und Fallwild-Slices weiter von Demo-Daten auf echte API und Persistenz umstellen
+- Dashboard-Slice weiter von Demo-Daten auf echte API und Persistenz umstellen
 - Persistenz des Demo-Stores fuer weitere Module in PostgreSQL/PostGIS ueberfuehren
 - Authentifizierung, Mandantentrennung und Rechtepruefung serverseitig durchziehen
 - Medien-Upload, PDF-Erzeugung und Push-Notifications produktionsreif machen
 - Karten auf Google Maps fuer Web und Mobile ausrichten
+- Rollen-, Aufgaben- und Nachrichtenmodell fachlich ausarbeiten
 - Offline-Synchronisierung von der Demo-Queue auf echte Delta-Synchronisierung erweitern
 
 ## Dokumentation

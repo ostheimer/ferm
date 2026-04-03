@@ -1,0 +1,594 @@
+{
+  "id": "6aa2c7ac-0673-4f2f-a375-92056303add2",
+  "prevId": "226ee74e-b12e-45dc-ad01-dc5ff38798b3",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.ansitz_sessions": {
+      "name": "ansitz_sessions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "revier_id": {
+          "name": "revier_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "membership_id": {
+          "name": "membership_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "standort_id": {
+          "name": "standort_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "standort_name": {
+          "name": "standort_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "location_lat": {
+          "name": "location_lat",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "location_lng": {
+          "name": "location_lng",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "location_label": {
+          "name": "location_label",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "started_at": {
+          "name": "started_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "planned_end_at": {
+          "name": "planned_end_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ended_at": {
+          "name": "ended_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "note": {
+          "name": "note",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "conflict": {
+          "name": "conflict",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        }
+      },
+      "indexes": {
+        "ansitz_sessions_revier_idx": {
+          "name": "ansitz_sessions_revier_idx",
+          "columns": [
+            {
+              "expression": "revier_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "ansitz_sessions_revier_status_idx": {
+          "name": "ansitz_sessions_revier_status_idx",
+          "columns": [
+            {
+              "expression": "revier_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "ansitz_sessions_started_at_idx": {
+          "name": "ansitz_sessions_started_at_idx",
+          "columns": [
+            {
+              "expression": "started_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "ansitz_sessions_revier_id_reviere_id_fk": {
+          "name": "ansitz_sessions_revier_id_reviere_id_fk",
+          "tableFrom": "ansitz_sessions",
+          "tableTo": "reviere",
+          "columnsFrom": [
+            "revier_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "ansitz_sessions_membership_id_memberships_id_fk": {
+          "name": "ansitz_sessions_membership_id_memberships_id_fk",
+          "tableFrom": "ansitz_sessions",
+          "tableTo": "memberships",
+          "columnsFrom": [
+            "membership_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.fallwild_vorgaenge": {
+      "name": "fallwild_vorgaenge",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "revier_id": {
+          "name": "revier_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reported_by_membership_id": {
+          "name": "reported_by_membership_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "recorded_at": {
+          "name": "recorded_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "location_lat": {
+          "name": "location_lat",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "location_lng": {
+          "name": "location_lng",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "location_label": {
+          "name": "location_label",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "wildart": {
+          "name": "wildart",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "geschlecht": {
+          "name": "geschlecht",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "altersklasse": {
+          "name": "altersklasse",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bergungs_status": {
+          "name": "bergungs_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "gemeinde": {
+          "name": "gemeinde",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "strasse": {
+          "name": "strasse",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "note": {
+          "name": "note",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "fallwild_vorgaenge_revier_idx": {
+          "name": "fallwild_vorgaenge_revier_idx",
+          "columns": [
+            {
+              "expression": "revier_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "fallwild_vorgaenge_recorded_at_idx": {
+          "name": "fallwild_vorgaenge_recorded_at_idx",
+          "columns": [
+            {
+              "expression": "recorded_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "fallwild_vorgaenge_reported_by_idx": {
+          "name": "fallwild_vorgaenge_reported_by_idx",
+          "columns": [
+            {
+              "expression": "reported_by_membership_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "fallwild_vorgaenge_revier_id_reviere_id_fk": {
+          "name": "fallwild_vorgaenge_revier_id_reviere_id_fk",
+          "tableFrom": "fallwild_vorgaenge",
+          "tableTo": "reviere",
+          "columnsFrom": [
+            "revier_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fallwild_vorgaenge_reported_by_membership_id_memberships_id_fk": {
+          "name": "fallwild_vorgaenge_reported_by_membership_id_memberships_id_fk",
+          "tableFrom": "fallwild_vorgaenge",
+          "tableTo": "memberships",
+          "columnsFrom": [
+            "reported_by_membership_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.memberships": {
+      "name": "memberships",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "revier_id": {
+          "name": "revier_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "jagdzeichen": {
+          "name": "jagdzeichen",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "push_enabled": {
+          "name": "push_enabled",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        }
+      },
+      "indexes": {
+        "memberships_revier_idx": {
+          "name": "memberships_revier_idx",
+          "columns": [
+            {
+              "expression": "revier_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "memberships_user_idx": {
+          "name": "memberships_user_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "memberships_user_id_users_id_fk": {
+          "name": "memberships_user_id_users_id_fk",
+          "tableFrom": "memberships",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "memberships_revier_id_reviere_id_fk": {
+          "name": "memberships_revier_id_reviere_id_fk",
+          "tableFrom": "memberships",
+          "tableTo": "reviere",
+          "columnsFrom": [
+            "revier_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.reviere": {
+      "name": "reviere",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "tenant_key": {
+          "name": "tenant_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bundesland": {
+          "name": "bundesland",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bezirk": {
+          "name": "bezirk",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "flaeche_hektar": {
+          "name": "flaeche_hektar",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "zentrum_lat": {
+          "name": "zentrum_lat",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "zentrum_lng": {
+          "name": "zentrum_lng",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "zentrum_label": {
+          "name": "zentrum_label",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "reviere_tenant_key_unique": {
+          "name": "reviere_tenant_key_unique",
+          "columns": [
+            {
+              "expression": "tenant_key",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.users": {
+      "name": "users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "phone": {
+          "name": "phone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

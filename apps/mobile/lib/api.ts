@@ -1,4 +1,4 @@
-import type { AnsitzSession, Membership, Revier, User } from "@hege/domain";
+import type { AnsitzSession, FallwildVorgang, Membership, Revier, User } from "@hege/domain";
 
 declare const process: {
   env: Record<string, string | undefined>;
@@ -15,6 +15,8 @@ export interface ApiMeResponse {
 export interface DashboardSnapshot extends ApiMeResponse {
   ansitze: AnsitzSession[];
 }
+
+export type FallwildListItem = FallwildVorgang;
 
 export function getApiBaseUrl(): string {
   return trimTrailingSlash(process.env.EXPO_PUBLIC_API_BASE_URL ?? DEFAULT_API_BASE_URL);
@@ -36,6 +38,10 @@ export async function fetchDashboardSnapshot(): Promise<DashboardSnapshot> {
     ...meResponse,
     ansitze: ansitzeResponse
   };
+}
+
+export async function fetchFallwildList(): Promise<FallwildListItem[]> {
+  return fetchJson<FallwildListItem[]>("/v1/fallwild");
 }
 
 async function fetchJson<T>(path: string): Promise<T> {

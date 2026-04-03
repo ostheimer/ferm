@@ -446,6 +446,7 @@ p {
 }
 
 .field input,
+.field select,
 .field textarea {
   width: 100%;
   border: 1px solid rgba(25, 57, 44, 0.14);
@@ -454,6 +455,10 @@ p {
   color: var(--text);
   font: inherit;
   padding: 12px 14px;
+}
+
+.field select {
+  appearance: none;
 }
 
 .field textarea {

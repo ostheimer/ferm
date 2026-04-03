@@ -1,7 +1,10 @@
 import { demoData } from "@hege/domain";
 
+import { loadCliEnv } from "../env/load-cli-env";
 import { createDbFromPool, createPool } from "./client";
-import { ansitzSessions, memberships, reviere, users } from "./schema";
+import { ansitzSessions, fallwildVorgaenge, memberships, reviere, users } from "./schema";
+
+loadCliEnv();
 
 async function main() {
   const pool = createPool();
@@ -118,7 +121,46 @@ async function main() {
         });
     }
 
-    console.log("Seed completed for users, reviere, memberships and ansitz sessions.");
+    for (const entry of demoData.fallwild) {
+      await db
+        .insert(fallwildVorgaenge)
+        .values({
+          id: entry.id,
+          revierId: entry.revierId,
+          reportedByMembershipId: entry.reportedByMembershipId,
+          recordedAt: entry.recordedAt,
+          locationLat: entry.location.lat,
+          locationLng: entry.location.lng,
+          locationLabel: entry.location.label,
+          wildart: entry.wildart,
+          geschlecht: entry.geschlecht,
+          altersklasse: entry.altersklasse,
+          bergungsStatus: entry.bergungsStatus,
+          gemeinde: entry.gemeinde,
+          strasse: entry.strasse,
+          note: entry.note
+        })
+        .onConflictDoUpdate({
+          target: fallwildVorgaenge.id,
+          set: {
+            revierId: entry.revierId,
+            reportedByMembershipId: entry.reportedByMembershipId,
+            recordedAt: entry.recordedAt,
+            locationLat: entry.location.lat,
+            locationLng: entry.location.lng,
+            locationLabel: entry.location.label,
+            wildart: entry.wildart,
+            geschlecht: entry.geschlecht,
+            altersklasse: entry.altersklasse,
+            bergungsStatus: entry.bergungsStatus,
+            gemeinde: entry.gemeinde,
+            strasse: entry.strasse,
+            note: entry.note
+          }
+        });
+    }
+
+    console.log("Seed completed for users, reviere, memberships, ansitz sessions and fallwild.");
   } finally {
     await pool.end();
   }
