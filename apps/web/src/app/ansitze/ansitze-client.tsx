@@ -6,8 +6,13 @@ import type { ChangeEvent, FormEvent } from "react";
 import { useState, useTransition } from "react";
 
 interface AnsitzeClientProps {
-  activeAnsitze: AnsitzSession[];
+  activeAnsitze: AnsitzeClientEntry[];
 }
+
+export type AnsitzeClientEntry = AnsitzSession & {
+  plannedEndAtLabel: string;
+  startedAtLabel: string;
+};
 
 const DEFAULT_COORDINATES = {
   lat: "47.9134",
@@ -156,8 +161,8 @@ export function AnsitzeClient({ activeAnsitze }: AnsitzeClientProps) {
                       <strong>{entry.standortName}</strong>
                       <span>{entry.location.label}</span>
                     </td>
-                    <td>{new Date(entry.startedAt).toLocaleString("de-AT")}</td>
-                    <td>{entry.plannedEndAt ? new Date(entry.plannedEndAt).toLocaleString("de-AT") : "Offen"}</td>
+                    <td>{entry.startedAtLabel}</td>
+                    <td>{entry.plannedEndAtLabel}</td>
                     <td>
                       <span className={entry.conflict ? "status-pill status-danger" : "status-pill status-ok"}>
                         {entry.conflict ? "Warnung" : "Aktiv"}
