@@ -10,6 +10,14 @@
 - Erwartung: Migration laeuft ohne SQL-Fehler durch
 - Erwartung: der Seed meldet erfolgreiche Anlage von `users`, `reviere`, `memberships` und `ansitz_sessions`
 
+### TC-API-ANSITZ-00B: Neon `development` fuer Preview bootstrapen
+
+- `pnpm --filter @hege/web db:migrate` gegen den Neon-Branch `development` ausfuehren
+- `pnpm --filter @hege/web db:seed` gegen den Neon-Branch `development` ausfuehren
+- Preview-URL oeffnen und `GET /api/v1/me`, `GET /api/v1/ansitze` sowie `/ansitze` pruefen
+- Erwartung: die beiden API-Endpunkte antworten mit `200`
+- Erwartung: die Seite `/ansitze` rendert ohne Serverfehler und zeigt aktive Ansitze
+
 ### TC-API-ANSITZ-01: Dev-Kontext liefert `me`
 
 - Web-App lokal starten
