@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Header, Post, Query } from "@nestjs/common";
-import type { CreateFallwildPayload } from "@ferm/domain";
+import type { CreateFallwildPayload } from "@hege/domain";
 
 import { FallwildService } from "./fallwild.service";
 

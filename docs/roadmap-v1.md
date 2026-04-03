@@ -7,7 +7,7 @@ Diese Roadmap beschreibt die Ausbaustufen vom aktuellen Repository-Grundgerüst 
 ## Aktueller Status
 
 - Der aktuelle Code-Stand ist ein sichtbares Demo- und Integrationsgerüst.
-- Web, Mobile und API existieren bereits als Grundstruktur, aber noch nicht mit produktiver Persistenz oder Authentifizierung.
+- Web, Mobile und eine bestehende Übergangs-API existieren bereits als Grundstruktur, aber noch nicht mit produktiver Persistenz oder Authentifizierung.
 - Der nächste reale Meilenstein ist vollständig `Sprint 0`.
 
 ## Sprint 0: Fundament
@@ -17,6 +17,7 @@ Ziel: aus dem Demo-Gerüst eine produktive technische Basis machen
 Lieferumfang:
 
 - PostgreSQL/PostGIS anbinden
+- Vercel-native API-Basis in `apps/web` einziehen
 - Migrationen und Datenmodell einführen
 - Authentifizierung und Revier-Kontext einziehen
 - Rollenmodell serverseitig aktivieren
@@ -57,7 +58,7 @@ Lieferumfang:
 - Login und Revier-Auswahl
 - Heute-im-Revier-Screen
 - Ansitz starten und beenden
-- Live-Liste aktiver Ansitze
+- Liste aktiver Ansitze mit manueller Aktualisierung
 - Push-Benachrichtigungen für Ansitze
 - freigegebene Protokolle lesen
 - kritische Mobile-Flows für Login, Ansitz und Protokollanzeige automatisiert absichern

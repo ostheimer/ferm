@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
-import type { AnsitzSession } from "@ferm/domain";
+import type { AnsitzSession } from "@hege/domain";
 import type { Server } from "socket.io";
 
 @Injectable()

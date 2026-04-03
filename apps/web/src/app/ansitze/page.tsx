@@ -1,51 +1,26 @@
-import { demoData } from "@ferm/domain";
+import { listLiveAnsitze } from "../../server/modules/ansitze/queries";
+import { AnsitzeClient, type AnsitzeClientEntry } from "./ansitze-client";
 
-export default function AnsitzePage() {
-  const activeAnsitze = demoData.ansitze.filter((entry) => entry.status === "active");
+export const dynamic = "force-dynamic";
 
-  return (
-    <div className="page-stack">
-      <section className="section-card">
-        <header className="section-header">
-          <div>
-            <p className="eyebrow">Ansitzmanagement</p>
-            <h1>Aktive Ansitze und Konfliktlage</h1>
-          </div>
-          <span className="badge">{activeAnsitze.length} aktiv</span>
-        </header>
+export default async function AnsitzePage() {
+  const activeAnsitze = (await listLiveAnsitze()).map((entry) => toAnsitzeClientEntry(entry));
 
-        <div className="table-shell">
-          <table>
-            <thead>
-              <tr>
-                <th>Standort</th>
-                <th>Beginn</th>
-                <th>Geplantes Ende</th>
-                <th>Status</th>
-                <th>Notiz</th>
-              </tr>
-            </thead>
-            <tbody>
-              {activeAnsitze.map((entry) => (
-                <tr key={entry.id}>
-                  <td>
-                    <strong>{entry.standortName}</strong>
-                    <span>{entry.location.label}</span>
-                  </td>
-                  <td>{new Date(entry.startedAt).toLocaleString("de-AT")}</td>
-                  <td>{entry.plannedEndAt ? new Date(entry.plannedEndAt).toLocaleString("de-AT") : "Offen"}</td>
-                  <td>
-                    <span className={entry.conflict ? "status-pill status-danger" : "status-pill status-ok"}>
-                      {entry.conflict ? "Warnung" : "Aktiv"}
-                    </span>
-                  </td>
-                  <td>{entry.note ?? "Keine Notiz"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-    </div>
-  );
+  return <AnsitzeClient activeAnsitze={activeAnsitze} />;
+}
+
+function toAnsitzeClientEntry(entry: Awaited<ReturnType<typeof listLiveAnsitze>>[number]): AnsitzeClientEntry {
+  return {
+    ...entry,
+    startedAtLabel: formatDateTime(entry.startedAt),
+    plannedEndAtLabel: entry.plannedEndAt ? formatDateTime(entry.plannedEndAt) : "Offen"
+  };
+}
+
+function formatDateTime(value: string) {
+  return new Intl.DateTimeFormat("de-AT", {
+    dateStyle: "short",
+    timeStyle: "medium",
+    timeZone: "Europe/Vienna"
+  }).format(new Date(value));
 }

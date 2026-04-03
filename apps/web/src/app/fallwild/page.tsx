@@ -1,4 +1,6 @@
-import { demoData } from "@ferm/domain";
+import { demoData } from "@hege/domain";
+
+import { toPublicApiUrl } from "../../lib/public-urls";
 
 export default function FallwildPage() {
   return (
@@ -9,7 +11,7 @@ export default function FallwildPage() {
             <p className="eyebrow">Fallwild</p>
             <h1>Bergungen, Fotos und Export</h1>
           </div>
-          <a className="button-link" href="http://localhost:4000/api/fallwild/export.csv">
+          <a className="button-link" href={toPublicApiUrl("/fallwild/export.csv")}>
             CSV-Export
           </a>
         </header>

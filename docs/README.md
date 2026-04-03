@@ -1,13 +1,13 @@
 # Dokumentation
 
-Diese Dokumentation beschreibt den aktuellen Stand des Repositories und den geplanten Ausbau zur ersten produktiven Version von `ferm`.
+Diese Dokumentation beschreibt den aktuellen Stand des Repositories und den geplanten Ausbau zur ersten produktiven Version von `hege`.
 
 ## Einstieg
 
 - [Gesamtplan](./reviermanagement-plan.md)
 - [Architektur](./architektur.md)
-- [Backend v1 für Schriftführer](./backend-schriftfuehrer-v1.md)
-- [Mobile App v1 für Jäger](./mobile-jaeger-v1.md)
+- [Backend v1 fuer Schriftfuehrer](./backend-schriftfuehrer-v1.md)
+- [Mobile App v1 fuer Jaeger](./mobile-jaeger-v1.md)
 - [API v1](./api-v1.md)
 - [Roadmap und Sprints](./roadmap-v1.md)
 - [Umsetzungsbacklog](./umsetzungsbacklog.md)
@@ -18,30 +18,35 @@ Diese Dokumentation beschreibt den aktuellen Stand des Repositories und den gepl
 
 ## Lesereihenfolge
 
-1. Gesamtplan für Produktziel und fachlichen Zuschnitt
-2. Architektur für Systemgrenzen, Infrastruktur und technische Leitplanken
-3. Backend v1 und Mobile App v1 für die sichtbaren ersten Produktversionen
-4. API v1 für Ressourcen und Schnittstellen
-5. Roadmap für die konkrete Umsetzung in Stufen
-6. Umsetzungsbacklog und Sprint-Details für direkte Ticketplanung
-7. Agent-Workstreams für sichere Parallelisierung mehrerer Implementierer
+1. Gesamtplan fuer Produktziel und fachlichen Zuschnitt
+2. Architektur fuer Systemgrenzen, Infrastruktur und technische Leitplanken
+3. Backend v1 und Mobile App v1 fuer die sichtbaren ersten Produktversionen
+4. API v1 fuer Ressourcen und Schnittstellen
+5. Roadmap fuer die konkrete Umsetzung in Stufen
+6. Umsetzungsbacklog und Sprint-Details fuer direkte Ticketplanung
+7. Agent-Workstreams fuer sichere Parallelisierung mehrerer Implementierer
 
 ## Aktueller Implementierungsstand
 
-Das Repository enthält bereits ein funktionierendes Monorepo-Grundgerüst mit:
+Das Repository enthaelt bereits ein funktionierendes Monorepo-Grundgeruest mit:
 
-- NestJS-API für Dashboard, Ansitze, Reviereinrichtungen, Fallwild und Sitzungen
+- NestJS-API fuer Dashboard, Ansitze, Reviereinrichtungen, Fallwild und Sitzungen
 - Next.js-Backoffice mit Dashboard und Fachseiten
 - Expo-Mobile-App mit feldtauglichen Kernscreens
-- Shared Domain Package für Typen, Demo-Daten und Fachregeln
+- Shared Domain Package fuer Typen, Demo-Daten und Fachregeln
+- erstem `vercel-native` Write-Slice in `apps/web` mit Drizzle, Migrationen und Route Handlern fuer `me` und `ansitze`
+- Web-Ansitzverwaltung mit Starten, Beenden und manuellem Refresh gegen die neue API
+- Mobile-Dashboard mit API-basiertem Snapshot fuer Revier- und Ansitzlage
 
-Die fachliche Dokumentation beschreibt bereits die nächste Ausbaustufe mit echter Persistenz, Authentifizierung, Rollenprüfung und produktionsreifen Workflows.
+Kartenfunktionen werden projektweit auf Google Maps ausgerichtet.
 
-Der aktuelle Entwicklungsfokus liegt vollständig auf `Sprint 0: Fundament`. Maßgeblich dafür sind [ROADMAP.md](../ROADMAP.md), [Roadmap v1](./roadmap-v1.md) und [Sprint 0 Backlog](./sprint-0-backlog.md).
+Die fachliche Dokumentation beschreibt bereits die naechste Ausbaustufe mit echter Persistenz, Authentifizierung, Rollenpruefung und produktionsreifen Workflows.
+
+Der aktuelle Entwicklungsfokus liegt weiter auf `Sprint 0: Fundament`. Massgeblich dafuer sind [ROADMAP.md](../ROADMAP.md), [Roadmap v1](./roadmap-v1.md) und [Sprint 0 Backlog](./sprint-0-backlog.md).
 
 ## Pflegehinweis
 
-Wenn sich der tatsächliche Projektstatus ändert, sollten diese Dokumente gemeinsam aktualisiert werden:
+Wenn sich der tatsaechliche Projektstatus aendert, sollten diese Dokumente gemeinsam aktualisiert werden:
 
 - [ROADMAP.md](../ROADMAP.md)
 - [docs/README.md](./README.md)

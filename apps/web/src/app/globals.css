@@ -238,6 +238,13 @@ p {
   margin-bottom: 20px;
 }
 
+.section-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
 .section-header h1,
 .section-header h2 {
   margin: 6px 0 0;
@@ -264,6 +271,36 @@ p {
 .button-link {
   background: var(--accent-strong);
   color: #f5f1e7;
+}
+
+.button-control {
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent-strong);
+  color: #f5f1e7;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 16px;
+  font: inherit;
+}
+
+.button-control:disabled {
+  cursor: progress;
+  opacity: 0.72;
+}
+
+.button-control-secondary {
+  background: rgba(36, 73, 58, 0.12);
+  color: var(--accent-strong);
+}
+
+.button-control-danger {
+  background: rgba(157, 74, 63, 0.14);
+  color: var(--danger);
 }
 
 .status-pill {
@@ -390,6 +427,70 @@ p {
   overflow-x: auto;
 }
 
+.ansitz-form {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.field span {
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  border: 1px solid rgba(25, 57, 44, 0.14);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.76);
+  color: var(--text);
+  font: inherit;
+  padding: 12px 14px;
+}
+
+.field textarea {
+  resize: vertical;
+}
+
+.field-full {
+  grid-column: 1 / -1;
+}
+
+.form-footer {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.form-messages {
+  display: grid;
+  gap: 6px;
+}
+
+.feedback {
+  border-radius: 14px;
+  padding: 10px 12px;
+}
+
+.feedback-error {
+  background: rgba(157, 74, 63, 0.12);
+  color: var(--danger);
+}
+
+.feedback-success {
+  background: rgba(36, 73, 58, 0.12);
+  color: var(--accent-strong);
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -468,5 +569,14 @@ td span {
 
   .hero-card {
     padding: 22px;
+  }
+
+  .ansitz-form {
+    grid-template-columns: 1fr;
+  }
+
+  .form-footer {
+    align-items: stretch;
+    flex-direction: column;
   }
 }

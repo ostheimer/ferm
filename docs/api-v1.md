@@ -4,13 +4,14 @@
 
 Die erste produktive API-Version soll Web und Mobile mit einem gemeinsamen, stabilen Fachmodell bedienen. Sie wird versioniert und strikt pro Revier gescoped.
 
+Zielpfad fuer Production ist `https://hege.app/api/v1`.
+
 ## Grundprinzipien
 
-- REST für Fachressourcen
-- WebSockets für Live-Ansitze
+- REST fuer Fachressourcen
+- Vercel-native Route Handler unter `apps/web`
 - Revier-Kontext auf jeder fachlichen Ressource
-- serverseitige Rollenprüfung
-- OpenAPI-Dokumentation
+- serverseitige Rollenpruefung
 - DTO-Validierung und konsistente Fehlerformate
 
 ## Authentifizierung und Kontext
@@ -25,7 +26,7 @@ Die erste produktive API-Version soll Web und Mobile mit einem gemeinsamen, stab
 
 - der Benutzer sieht nur Ressourcen seines Reviers
 - bei Mehrfachmitgliedschaft muss der aktive Revier-Kontext gesetzt sein
-- `membership_id` wird serverseitig gegen den eingeloggten Benutzer geprüft
+- `membership_id` wird serverseitig gegen den eingeloggten Benutzer geprueft
 
 ## Ressourcen
 
@@ -38,8 +39,8 @@ Liefert:
 - aktive Ansitze
 - Konflikte
 - offene Wartungen
-- heutige Fallwild-Vorgänge
-- unveröffentlichte Protokolle
+- heutige Fallwild-Vorgaenge
+- unveroeffentlichte Protokolle
 - letzte Benachrichtigungen
 
 ### Sitzungen und Protokolle
@@ -80,21 +81,15 @@ Liefert:
 - `GET /api/v1/notifications`
 - `GET /api/v1/documents/:id/download`
 
-## WebSocket v1
+## Aktualisierung in v1
 
-Namespace oder Channel pro Revier:
-
-- `ansitze.updated`
-
-Payload:
-
-- Revier-ID
-- Liste aktiver Ansitze
-- Konfliktkennzeichen
+- aktive Ansitze werden in v1 per manueller Aktualisierung oder leichtem Polling nachgeladen
+- eine verpflichtende WebSocket-Infrastruktur ist nicht Teil des ersten Produktzuschnitts
+- Push-Benachrichtigungen bleiben fuer wichtige Ereignisse moeglich, sind aber getrennt vom Listen-Refresh zu betrachten
 
 ## Rollenregeln
 
-### Schriftführer
+### Schriftfuehrer
 
 - Sitzungen lesen und bearbeiten
 - Protokollversionen erstellen
@@ -102,28 +97,28 @@ Payload:
 
 ### Revier Admin
 
-- alle Rechte des Schriftführers
+- alle Rechte des Schriftfuehrers
 - Freigabe von Protokollen
 - Verwaltungsrechte auf Reviereinrichtungen
 
-### Jäger
+### Jaeger
 
-- Ansitze lesen und eigene Ansitze ändern
+- Ansitze lesen und eigene Ansitze aendern
 - Fallwild erfassen
 - Reviereinrichtungen lesen
-- veröffentlichte Protokolle lesen
+- veroeffentlichte Protokolle lesen
 
-## Fehlerfälle
+## Fehlerfaelle
 
-Die API muss mindestens diese Fälle sauber zurückgeben:
+Die API muss mindestens diese Faelle sauber zurueckgeben:
 
-- ungültiger Revier-Kontext
+- ungueltiger Revier-Kontext
 - fehlende Rolle
 - Ressource nicht gefunden
 - Pflichtfelder fehlen
 - Ansitz-Konfliktwarnung
 - Medien-Upload fehlgeschlagen
-- PDF noch nicht verfügbar
+- PDF noch nicht verfuegbar
 
 ## Datenmodell v1
 
@@ -146,18 +141,20 @@ Kernressourcen:
 - `notifications`
 - `audit_logs`
 
-## Übergang vom aktuellen Stand
+## Uebergang vom aktuellen Stand
 
 Aktuell sind im Repository bereits vorhanden:
 
 - Demo-Endpunkte unter `apps/api/src`
-- WebSocket-Gateway für Ansitze
 - Shared Typen und Regeln im Domain-Package
+- `GET /api/v1/me`, `GET /api/v1/ansitze` und `GET /api/v1/ansitze/live` als Vercel-native Route Handler in `apps/web`
+- Drizzle-Migration fuer den ersten Datenbank-Slice
 
-Für API v1 müssen als Nächstes folgen:
+Fuer API v1 muessen als Naechstes folgen:
 
-1. persistente Datenbankmodelle
+1. schreibende Ansitz-Endpunkte (`POST /ansitze`, `PATCH /ansitze/:id/beenden`)
 2. Auth und Guards
 3. DTO-Validierung
 4. Upload- und Download-Strecken
-5. Rollen- und Tenant-Prüfung pro Endpunkt
+5. Rollen- und Tenant-Pruefung pro Endpunkt
+6. weitere Module auf dieselbe Server-Schicht umstellen

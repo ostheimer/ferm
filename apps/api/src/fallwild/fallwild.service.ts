@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { createFallwild, type CreateFallwildPayload } from "@ferm/domain";
+import { createFallwild, type CreateFallwildPayload } from "@hege/domain";
 
 import { DemoStoreService } from "../common/demo-store.service";
 

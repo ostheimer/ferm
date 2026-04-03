@@ -16,7 +16,7 @@ Die App ist in v1 ein Einsatz- und Erfassungswerkzeug, kein vollständiges Jagdp
 - Login und Revier-Auswahl
 - Startseite `Heute im Revier`
 - Ansitz starten und beenden
-- Live-Liste aktiver Ansitze
+- Liste aktiver Ansitze mit manueller Aktualisierung
 - Warnung bei Doppelbelegung desselben Hochstands
 - Fallwild-Erfassung mit Fotos und Standort
 - Offline-Pufferung für Kernaktionen
@@ -41,6 +41,7 @@ Zweck: Einstieg und Lageüberblick
 Inhalte:
 
 - aktive Ansitze
+- manuelle Aktualisierung
 - letzte Meldungen
 - offene Offline-Synchronisierung
 - neu veröffentlichte Protokolle
@@ -195,3 +196,7 @@ Die erste sichtbare App-Version gilt als geliefert, wenn:
 - Konfliktwarnung bei Doppelbelegung wird angezeigt
 - Fallwild-Erfassung verlangt alle Pflichtfelder
 - veröffentlichte Protokolle sind lesbar und auffindbar
+
+## Karten
+
+Kartenfunktionen in der mobilen App orientieren sich verbindlich an Google Maps. Wenn spaeter Kartensichten, Standortsuche, Marker oder Geocoding erweitert werden, sollen die Umsetzungen auf Google-Maps-kompatible APIs und SDKs abzielen.

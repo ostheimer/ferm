@@ -1,4 +1,4 @@
-import type { AnsitzSession, FallwildVorgang, Reviereinrichtung } from "@ferm/domain";
+import type { AnsitzSession, FallwildVorgang, Reviereinrichtung } from "@hege/domain";
 
 interface TerritoryPanelProps {
   ansitze: AnsitzSession[];
@@ -38,7 +38,7 @@ export function TerritoryPanel({ ansitze, einrichtungen, fallwild }: TerritoryPa
           <p className="eyebrow">Kartenlage</p>
           <h2>Revier im Tagesbetrieb</h2>
         </div>
-        <span className="badge">MapLibre-ready</span>
+        <span className="badge">Google Maps geplant</span>
       </header>
 
       <div className="map-stage" aria-label="Revierkarte">

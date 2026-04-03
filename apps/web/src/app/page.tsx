@@ -1,4 +1,4 @@
-import { buildDashboardOverview, defaultRevierId, demoData } from "@ferm/domain";
+import { buildDashboardOverview, defaultRevierId, demoData } from "@hege/domain";
 
 import { MetricCard } from "../components/metric-card";
 import { TerritoryPanel } from "../components/territory-panel";
@@ -14,7 +14,7 @@ export default function DashboardPage() {
           <p className="eyebrow">Interner Leitstand</p>
           <h1>Revierbetrieb, Protokolle und Fallwild auf einen Blick.</h1>
           <p className="hero-copy">
-            Live-Ansitze, Reviereinrichtungen, Protokollfreigaben und Fallwild-Ereignisse laufen in
+            Aktive Ansitze, Reviereinrichtungen, Protokollfreigaben und Fallwild-Ereignisse laufen in
             einer Oberfläche zusammen. Das Backoffice ist für Revierleitung und Schriftführung
             ausgelegt.
           </p>

@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Patch, Post, Query } from "@nestjs/common";
-import type { EndAnsitzPayload, StartAnsitzPayload } from "@ferm/domain";
+import type { EndAnsitzPayload, StartAnsitzPayload } from "@hege/domain";
 
 import { AnsitzeService } from "./ansitze.service";
 

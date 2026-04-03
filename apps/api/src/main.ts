@@ -13,7 +13,7 @@ async function bootstrap() {
   app.setGlobalPrefix("api");
 
   const swaggerConfig = new DocumentBuilder()
-    .setTitle("ferm API")
+    .setTitle("hege API")
     .setDescription("Reviermanagement-Plattform für Jagdgesellschaften in Österreich")
     .setVersion("0.1.0")
     .build();

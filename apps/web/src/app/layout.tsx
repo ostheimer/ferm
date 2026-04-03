@@ -3,6 +3,7 @@ import { Fraunces, Manrope } from "next/font/google";
 import type { ReactNode } from "react";
 
 import { Shell } from "../components/shell";
+import { getPublicAppUrl } from "../lib/public-urls";
 import "./globals.css";
 
 const headingFont = Fraunces({
@@ -16,7 +17,8 @@ const bodyFont = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "ferm Backoffice",
+  metadataBase: new URL(getPublicAppUrl()),
+  title: "hege Backoffice",
   description: "Reviermanagement für Jagdgesellschaften in Österreich"
 };
 
