@@ -85,7 +85,9 @@ Details:
 
 - v1 ist auf Deutsch für Österreich (`de-AT`) ausgelegt
 - sichtbare Produkttexte sollen fachlich österreichische Jagdbegriffe und echte Umlaute verwenden
-- die technische Struktur soll spätere zusätzliche Sprachen ermöglichen, ohne für v1 bereits EN mitzuplanen
+- v1 liefert keine verpflichtende englische Oberfläche aus
+- die technische Struktur soll spätere zusätzliche Sprachen ermöglichen
+- falls nach v1 eine erste Zweitsprache eingeführt wird, ist Englisch (`en`) die bevorzugte erste Erweiterung
 
 ## Aktueller Repository-Stand
 

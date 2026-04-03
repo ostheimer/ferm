@@ -36,3 +36,13 @@ Das Repository enthält bereits ein funktionierendes Monorepo-Grundgerüst mit:
 - Shared Domain Package für Typen, Demo-Daten und Fachregeln
 
 Die fachliche Dokumentation beschreibt bereits die nächste Ausbaustufe mit echter Persistenz, Authentifizierung, Rollenprüfung und produktionsreifen Workflows.
+
+Der aktuelle Entwicklungsfokus liegt vollständig auf `Sprint 0: Fundament`. Maßgeblich dafür sind [ROADMAP.md](../ROADMAP.md), [Roadmap v1](./roadmap-v1.md) und [Sprint 0 Backlog](./sprint-0-backlog.md).
+
+## Pflegehinweis
+
+Wenn sich der tatsächliche Projektstatus ändert, sollten diese Dokumente gemeinsam aktualisiert werden:
+
+- [ROADMAP.md](../ROADMAP.md)
+- [docs/README.md](./README.md)
+- [docs/reviermanagement-plan.md](./reviermanagement-plan.md)

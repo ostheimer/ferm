@@ -51,6 +51,7 @@ docs/
 - v1 verwendet Deutsch für Österreich (`de-AT`) als einzige verpflichtende Produktsprache
 - sichtbare Texte in Web und Mobile werden zentral strukturierbar gehalten, damit zusätzliche Sprachen später ergänzt werden können
 - API-Codes, Statuswerte und fachliche Schlüssel bleiben sprachneutral, damit Übersetzungen nicht mit Persistenz oder Integrationen vermischt werden
+- Englisch (`en`) ist erst die bevorzugte erste Zweitsprache nach v1, nicht Bestandteil der initialen Auslieferung
 
 ## Mandanten- und Rollenmodell
 

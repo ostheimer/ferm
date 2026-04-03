@@ -112,7 +112,8 @@ Ergebnis:
 
 - v1 ist fachlich und redaktionell auf Deutsch für Österreich (`de-AT`) ausgelegt
 - Web und Mobile sollen Texte dennoch so strukturieren, dass spätere zusätzliche Sprachen möglich bleiben
-- eine verpflichtende zweisprachige Auslieferung ist nicht Teil von v1, solange keine neue Produktentscheidung getroffen wird
+- eine verpflichtende zweisprachige Auslieferung ist nicht Teil von v1
+- falls nach v1 eine erste Zweitsprache eingeführt wird, ist Englisch (`en`) die bevorzugte erste Erweiterung
 
 ## Abnahmekriterien für v1
 
