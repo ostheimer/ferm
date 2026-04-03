@@ -1,4 +1,4 @@
-import { buildDashboardOverview, defaultRevierId, demoData } from "@ferm/domain";
+import { buildDashboardOverview, defaultRevierId, demoData } from "@hege/domain";
 import { StyleSheet, Text, View } from "react-native";
 
 import { MapPreview } from "../../components/map-preview";

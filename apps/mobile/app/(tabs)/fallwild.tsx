@@ -1,4 +1,4 @@
-import { demoData } from "@ferm/domain";
+import { demoData } from "@hege/domain";
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 

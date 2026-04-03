@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const STORAGE_KEY = "ferm.offline-queue";
+const STORAGE_KEY = "hege.offline-queue";
 
 export interface OfflineOperation {
   id: string;

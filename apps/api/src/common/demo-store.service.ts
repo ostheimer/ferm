@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { createDemoSnapshot, defaultRevierId, type DemoData } from "@ferm/domain";
+import { createDemoSnapshot, defaultRevierId, type DemoData } from "@hege/domain";
 
 @Injectable()
 export class DemoStoreService {

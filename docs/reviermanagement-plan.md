@@ -2,11 +2,11 @@
 
 ## Zweck dieses Dokuments
 
-Dieses Dokument ist der zentrale Gesamtüberblick für `ferm`. Es beschreibt Produktziel, fachliche Module, sichtbare v1-Oberflächen und verweist auf die Detaildokumente.
+Dieses Dokument ist der zentrale Gesamtüberblick für `hege`. Es beschreibt Produktziel, fachliche Module, sichtbare v1-Oberflächen und verweist auf die Detaildokumente.
 
 ## Produktziel
 
-`ferm` ist als mandantenfähige SaaS pro Revier geplant. Ein Revier oder eine Jagdgesellschaft arbeitet in einem klar getrennten Datenraum.
+`hege` ist als mandantenfähige SaaS pro Revier geplant. Ein Revier oder eine Jagdgesellschaft arbeitet in einem klar getrennten Datenraum.
 
 Es gibt zwei Hauptoberflächen:
 
@@ -70,10 +70,12 @@ Details:
 
 ## Technische Leitlinien
 
-- Monorepo mit `apps/api`, `apps/web`, `apps/mobile` und `packages/domain`
+- Monorepo mit `apps/web`, `apps/mobile`, `packages/domain` und einer bestehenden Übergangs-API unter `apps/api`
 - zentrale API als fachliche Quelle für Web und Mobile
-- PostgreSQL/PostGIS und S3-kompatibler Storage als produktive Zielbasis
-- WebSockets für Live-Ansitze
+- Production-Domain `https://hege.app`
+- Vercel als Zielhost für Web und API-v1
+- PostgreSQL/PostGIS auf Neon und Cloudflare R2 als produktive Zielbasis
+- manuelle Aktualisierung oder leichtes Polling statt verpflichtender WebSockets in v1
 - Offline-Pufferung in der mobilen App für Ansitz und Fallwild
 
 Details:
@@ -96,7 +98,7 @@ Bereits vorhanden:
 - Shared Domain Package mit Typen, Demo-Daten und Fachregeln
 - sichtbares Web-Grundgerüst für Dashboard und Fachseiten
 - sichtbare Mobile-App mit Kernscreens
-- Demo-API mit REST-Ressourcen und WebSocket-Gateway
+- Demo-API mit REST-Ressourcen als Übergangspfad
 - lokale Infrastrukturdefinition für PostGIS und MinIO
 
 Noch offen:

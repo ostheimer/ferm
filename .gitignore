@@ -5,5 +5,10 @@ dist
 coverage
 .expo
 .expo-shared
+.vercel
+*.env.local
+.env*.local
+.playwright-cli
+output
 *.tsbuildinfo
 .DS_Store

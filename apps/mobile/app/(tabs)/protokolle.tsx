@@ -1,4 +1,4 @@
-import { demoData } from "@ferm/domain";
+import { demoData } from "@hege/domain";
 import { StyleSheet, Text, View } from "react-native";
 
 import { ScreenShell } from "../../components/screen-shell";

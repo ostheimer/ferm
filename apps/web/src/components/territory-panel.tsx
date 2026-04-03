@@ -1,4 +1,4 @@
-import type { AnsitzSession, FallwildVorgang, Reviereinrichtung } from "@ferm/domain";
+import type { AnsitzSession, FallwildVorgang, Reviereinrichtung } from "@hege/domain";
 
 interface TerritoryPanelProps {
   ansitze: AnsitzSession[];

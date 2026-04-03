@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { publishSitzung } from "@ferm/domain";
+import { publishSitzung } from "@hege/domain";
 
 import { DemoStoreService } from "../common/demo-store.service";
 

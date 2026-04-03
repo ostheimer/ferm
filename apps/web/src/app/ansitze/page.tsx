@@ -1,7 +1,9 @@
-import { demoData } from "@ferm/domain";
+import { listLiveAnsitze } from "../../server/modules/ansitze/queries";
 
-export default function AnsitzePage() {
-  const activeAnsitze = demoData.ansitze.filter((entry) => entry.status === "active");
+export const dynamic = "force-dynamic";
+
+export default async function AnsitzePage() {
+  const activeAnsitze = await listLiveAnsitze();
 
   return (
     <div className="page-stack">
@@ -26,22 +28,28 @@ export default function AnsitzePage() {
               </tr>
             </thead>
             <tbody>
-              {activeAnsitze.map((entry) => (
-                <tr key={entry.id}>
-                  <td>
-                    <strong>{entry.standortName}</strong>
-                    <span>{entry.location.label}</span>
-                  </td>
-                  <td>{new Date(entry.startedAt).toLocaleString("de-AT")}</td>
-                  <td>{entry.plannedEndAt ? new Date(entry.plannedEndAt).toLocaleString("de-AT") : "Offen"}</td>
-                  <td>
-                    <span className={entry.conflict ? "status-pill status-danger" : "status-pill status-ok"}>
-                      {entry.conflict ? "Warnung" : "Aktiv"}
-                    </span>
-                  </td>
-                  <td>{entry.note ?? "Keine Notiz"}</td>
+              {activeAnsitze.length === 0 ? (
+                <tr>
+                  <td colSpan={5}>Keine aktiven Ansitze vorhanden.</td>
                 </tr>
-              ))}
+              ) : (
+                activeAnsitze.map((entry) => (
+                  <tr key={entry.id}>
+                    <td>
+                      <strong>{entry.standortName}</strong>
+                      <span>{entry.location.label}</span>
+                    </td>
+                    <td>{new Date(entry.startedAt).toLocaleString("de-AT")}</td>
+                    <td>{entry.plannedEndAt ? new Date(entry.plannedEndAt).toLocaleString("de-AT") : "Offen"}</td>
+                    <td>
+                      <span className={entry.conflict ? "status-pill status-danger" : "status-pill status-ok"}>
+                        {entry.conflict ? "Warnung" : "Aktiv"}
+                      </span>
+                    </td>
+                    <td>{entry.note ?? "Keine Notiz"}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

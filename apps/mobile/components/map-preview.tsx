@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
-import type { AnsitzSession, FallwildVorgang, Reviereinrichtung } from "@ferm/domain";
+import type { AnsitzSession, FallwildVorgang, Reviereinrichtung } from "@hege/domain";
 
 import { colors } from "../lib/theme";
 

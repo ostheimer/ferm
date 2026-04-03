@@ -1,5 +1,5 @@
 {
-  "name": "@ferm/api",
+  "name": "@hege/api",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,7 +10,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@ferm/domain": "workspace:*",
+    "@hege/domain": "workspace:*",
     "@nestjs/common": "^11.1.3",
     "@nestjs/core": "^11.1.3",
     "@nestjs/platform-express": "^11.1.3",

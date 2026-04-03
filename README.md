@@ -1,39 +1,85 @@
-# ferm
+# hege
 
-Reviermanagement-Plattform für Jagdgesellschaften in Österreich. Das Repository enthält ein Monorepo mit:
+Reviermanagement-Plattform fuer Jagdgesellschaften in Oesterreich. Das Repository enthaelt ein Monorepo mit:
 
-- `apps/api`: NestJS-API mit REST-Endpunkten und WebSocket-Gateway für Live-Ansitze
-- `apps/web`: Next.js-Backoffice für Admins und Schriftführung
-- `apps/mobile`: Expo-Mobile-App für Jäger im Feld
+- `apps/api`: bestehende Uebergangs-API fuer die aktuelle Demo- und Migrationsphase
+- `apps/web`: Next.js-Backoffice fuer Admins und Schriftfuehrung
+- `apps/mobile`: Expo-Mobile-App fuer Jaeger im Feld
 - `packages/domain`: gemeinsames Domain-Modell, Demo-Daten und Fachregeln
 
 ## Stand
 
-Die erste Implementierung liefert ein funktionsfähiges Grundgerüst mit gemeinsamen Typen, Demo-Daten, API-Ressourcen und UI-Screens für:
+Die erste Implementierung liefert ein funktionsfaehiges Grundgeruest mit gemeinsamen Typen, Demo-Daten, API-Ressourcen und UI-Screens fuer:
 
 - Ansitz bekanntgeben
 - Reviereinrichtungen verwalten
 - Fallwild dokumentieren
 - Sitzungsprotokolle bereitstellen
 
-Die API arbeitet aktuell bewusst mit einem In-Memory-Demo-Store. PostgreSQL/PostGIS und S3-kompatibler Storage sind für die nächste Ausbaustufe vorbereitet.
+Die bestehende NestJS-API arbeitet weiterhin mit einem In-Memory-Demo-Store. Parallel dazu ist in `apps/web` jetzt der erste `vercel-native` Datenbank-Slice angelegt:
+
+- Drizzle-Konfiguration und Migrationen fuer `users`, `reviere`, `memberships` und `ansitz_sessions`
+- Route Handler unter `/api/v1/me`, `/api/v1/ansitze` und `/api/v1/ansitze/live`
+- Seed-Skript auf Basis der bestehenden Demo-Daten
+- Demo-Fallback fuer lokale Read-Tests, solange keine DB aktiv ist
+
+## Zielbetrieb
+
+- Production-Domain: `https://hege.app`
+- Web-Hosting: Vercel
+- API-Zielpfad: Vercel-native Route Handler unter `https://hege.app/api/v1`
+- Datenbank: Neon PostgreSQL/PostGIS
+- Storage: Cloudflare R2 ueber S3-kompatible Schnittstelle
+- DNS: Cloudflare
+
+Environment-Matrix:
+
+- `Vercel Development` -> `Neon development`
+- `Vercel Preview` -> `Neon development`
+- `Vercel Production` -> `Neon main`
+
+Preview-Deployments bekommen dabei bewusst keinen eigenen Neon-Branch pro Deployment. `Development` und `Preview` teilen sich denselben Neon-Zweig `development`.
+
+`apps/api` bleibt vorerst als Referenz und Uebergangspfad im Repository, ist aber nicht die langfristige Zielarchitektur.
 
 ## Schnellstart
 
+Kopiere zuerst die Umgebungsvariablen: `.env.example` nach `.env` (unter Windows PowerShell: `Copy-Item .env.example .env`).
+
+Fuer den neuen lokalen Web/API-Slice:
+
 ```bash
 pnpm install
-docker compose up -d
-pnpm --filter @ferm/api dev
-pnpm --filter @ferm/web dev
-pnpm --filter @ferm/mobile dev
+docker compose up -d postgres
+pnpm --filter @hege/web db:migrate
+pnpm --filter @hege/web db:seed
+pnpm --filter @hege/web dev
+pnpm --filter @hege/mobile dev
+```
+
+Fuer den bisherigen NestJS-Uebergangspfad:
+
+```bash
+pnpm --filter @hege/api dev
 ```
 
 Wichtige URLs:
 
 - Web-Backoffice: `http://localhost:3000`
-- API: `http://localhost:4000/api`
+- Vercel-native API-Slice: `http://localhost:3000/api/v1`
+- Demo-API: `http://localhost:4000/api`
 - Swagger/OpenAPI: `http://localhost:4000/api/docs`
 - MinIO-Konsole: `http://localhost:9001`
+
+Wichtige Env-Variablen:
+
+- `NEXT_PUBLIC_APP_URL` fuer kanonische Web-URLs
+- `NEXT_PUBLIC_API_BASE_URL` fuer Web-Aufrufe gegen die aktuelle API-Basis
+- `EXPO_PUBLIC_API_BASE_URL` fuer die Mobile-App gegen den Vercel-native Slice
+- `DATABASE_URL` und `DATABASE_URL_UNPOOLED` fuer Neon oder lokales Postgres
+- `DEV_*` fuer den lokalen Dev-Kontext in `apps/web`
+- `HEGE_USE_DEMO_STORE=true` als read-only Fallback ohne laufende DB
+- `S3_*` fuer lokales MinIO und spaeter R2
 
 ## Workspace-Befehle
 
@@ -43,20 +89,21 @@ pnpm test
 pnpm typecheck
 ```
 
-## Nächste Ausbauschritte
+## Naechste Ausbauschritte
 
-- Persistenz des Demo-Stores in PostgreSQL/PostGIS überführen
-- Authentifizierung, Mandantentrennung und Rechteprüfung serverseitig durchziehen
+- schreibende Ansitz-Endpunkte in `apps/web` ergaenzen
+- Persistenz des Demo-Stores fuer weitere Module in PostgreSQL/PostGIS ueberfuehren
+- Authentifizierung, Mandantentrennung und Rechtepruefung serverseitig durchziehen
 - Medien-Upload, PDF-Erzeugung und Push-Notifications produktionsreif machen
 - Karten auf MapLibre-Web und mobile Kartenbibliothek umstellen
 - Offline-Synchronisierung von der Demo-Queue auf echte Delta-Synchronisierung erweitern
 
 ## Dokumentation
 
-- [Dokumentationsübersicht](./docs/README.md)
+- [Dokumentationsuebersicht](./docs/README.md)
 - [Gesamtplan](./docs/reviermanagement-plan.md)
 - [Architektur](./docs/architektur.md)
-- [Backend v1 für Schriftführer](./docs/backend-schriftfuehrer-v1.md)
-- [Mobile App v1 für Jäger](./docs/mobile-jaeger-v1.md)
+- [Backend v1 fuer Schriftfuehrer](./docs/backend-schriftfuehrer-v1.md)
+- [Mobile App v1 fuer Jaeger](./docs/mobile-jaeger-v1.md)
 - [API v1](./docs/api-v1.md)
 - [Roadmap und Sprints](./docs/roadmap-v1.md)

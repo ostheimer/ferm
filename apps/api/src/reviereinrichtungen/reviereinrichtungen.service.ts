@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { addKontrolle, type AddKontrollePayload } from "@ferm/domain";
+import { addKontrolle, type AddKontrollePayload } from "@hege/domain";
 
 import { DemoStoreService } from "../common/demo-store.service";
 

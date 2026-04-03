@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Post, Query } from "@nestjs/common";
-import type { AddKontrollePayload } from "@ferm/domain";
+import type { AddKontrollePayload } from "@hege/domain";
 
 import { ReviereinrichtungenService } from "./reviereinrichtungen.service";
 

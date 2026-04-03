@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { endAnsitz, startAnsitz, type EndAnsitzPayload, type StartAnsitzPayload } from "@ferm/domain";
+import { endAnsitz, startAnsitz, type EndAnsitzPayload, type StartAnsitzPayload } from "@hege/domain";
 
 import { DemoStoreService } from "../common/demo-store.service";
 import { AnsitzeGateway } from "./ansitze.gateway";

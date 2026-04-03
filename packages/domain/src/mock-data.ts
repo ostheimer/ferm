@@ -21,19 +21,19 @@ export const demoData: DemoData = {
       id: "user-steyrer",
       name: "Anna Steyrer",
       phone: "+43 664 1234567",
-      email: "anna.steyrer@ferm.at"
+      email: "anna.steyrer@hege.app"
     },
     {
       id: "user-huber",
       name: "Lukas Huber",
       phone: "+43 676 1002003",
-      email: "lukas.huber@ferm.at"
+      email: "lukas.huber@hege.app"
     },
     {
       id: "user-mair",
       name: "Martin Mair",
       phone: "+43 660 7008009",
-      email: "martin.mair@ferm.at"
+      email: "martin.mair@hege.app"
     }
   ],
   memberships: [

@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "ferm Revier",
-    "slug": "ferm-revier",
-    "scheme": "ferm",
+    "name": "hege Revier",
+    "slug": "hege-revier",
+    "scheme": "hege",
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",

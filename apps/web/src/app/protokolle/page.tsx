@@ -1,4 +1,4 @@
-import { demoData } from "@ferm/domain";
+import { demoData } from "@hege/domain";
 
 export default function ProtokollePage() {
   return (
