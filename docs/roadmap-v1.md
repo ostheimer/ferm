@@ -131,3 +131,9 @@ Wenn unmittelbar weiterentwickelt wird, ist die sinnvollste Reihenfolge:
 1. Sprint 0 vollständig umsetzen
 2. danach Schriftführer-Backend bis zur Protokollfreigabe fertigstellen
 3. erst dann die mobile Offline-Fallwildstrecke produktiv machen
+
+## Detaillierte Sprint-Backlogs
+
+- [Umsetzungsbacklog](./umsetzungsbacklog.md)
+- [Sprint 0 Backlog](./sprint-0-backlog.md)
+- [Sprint 1 Backlog](./sprint-1-backlog.md)
