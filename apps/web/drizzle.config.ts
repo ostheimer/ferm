@@ -1,8 +1,9 @@
-import "dotenv/config";
-
 import { defineConfig } from "drizzle-kit";
 
 import { getServerEnv } from "./src/server/env";
+import { loadCliEnv } from "./src/server/env/load-cli-env";
+
+loadCliEnv();
 
 const env = getServerEnv();
 

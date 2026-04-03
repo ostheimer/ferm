@@ -1,7 +1,10 @@
 import { demoData } from "@hege/domain";
 
+import { loadCliEnv } from "../env/load-cli-env";
 import { createDbFromPool, createPool } from "./client";
 import { ansitzSessions, fallwildVorgaenge, memberships, reviere, users } from "./schema";
+
+loadCliEnv();
 
 async function main() {
   const pool = createPool();
