@@ -327,3 +327,9 @@ Sprint 1 ist fertig, wenn:
 - ein Revier Admin freigeben kann
 - ein PDF nach Freigabe abrufbar ist
 - Dashboard, Ansitze und Fallwild im Backoffice lesbar eingebunden sind
+
+## Multi-Agent-Schnitt
+
+Die empfohlene Parallelisierung für Sprint 1 ist separat beschrieben:
+
+- [Agent-Workstreams Sprint 1](./agent-workstreams-sprint-1.md)

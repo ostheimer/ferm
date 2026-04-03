@@ -24,3 +24,5 @@ Diese Datei ist der schlanke Einstiegspunkt im Repo-Root. Die vollständige Road
 - [Umsetzungsbacklog](./docs/umsetzungsbacklog.md)
 - [Sprint 0 Backlog](./docs/sprint-0-backlog.md)
 - [Sprint 1 Backlog](./docs/sprint-1-backlog.md)
+- [Agent-Workstreams Sprint 0](./docs/agent-workstreams-sprint-0.md)
+- [Agent-Workstreams Sprint 1](./docs/agent-workstreams-sprint-1.md)

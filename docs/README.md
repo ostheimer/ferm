@@ -13,6 +13,8 @@ Diese Dokumentation beschreibt den aktuellen Stand des Repositories und den gepl
 - [Umsetzungsbacklog](./umsetzungsbacklog.md)
 - [Sprint 0 Backlog](./sprint-0-backlog.md)
 - [Sprint 1 Backlog](./sprint-1-backlog.md)
+- [Agent-Workstreams Sprint 0](./agent-workstreams-sprint-0.md)
+- [Agent-Workstreams Sprint 1](./agent-workstreams-sprint-1.md)
 
 ## Lesereihenfolge
 
@@ -22,6 +24,7 @@ Diese Dokumentation beschreibt den aktuellen Stand des Repositories und den gepl
 4. API v1 für Ressourcen und Schnittstellen
 5. Roadmap für die konkrete Umsetzung in Stufen
 6. Umsetzungsbacklog und Sprint-Details für direkte Ticketplanung
+7. Agent-Workstreams für sichere Parallelisierung mehrerer Implementierer
 
 ## Aktueller Implementierungsstand
 

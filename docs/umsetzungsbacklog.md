@@ -25,6 +25,7 @@ Ziel: Demo-Backend durch eine produktive Kernplattform ersetzen
 Details:
 
 - [Sprint 0 Backlog](./sprint-0-backlog.md)
+- [Agent-Workstreams Sprint 0](./agent-workstreams-sprint-0.md)
 
 ### Sprint 1
 
@@ -33,6 +34,7 @@ Ziel: Schriftführer-Backend für Sitzungen und Protokolle bis zur Freigabe nutz
 Details:
 
 - [Sprint 1 Backlog](./sprint-1-backlog.md)
+- [Agent-Workstreams Sprint 1](./agent-workstreams-sprint-1.md)
 
 ## Geplante Folge-Sprints
 

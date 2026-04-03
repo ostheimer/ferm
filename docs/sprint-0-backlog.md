@@ -329,3 +329,9 @@ Sprint 0 ist fertig, wenn:
 - Dashboard, Ansitze und Sitzungen gegen persistente Daten funktionieren
 - Seeds und lokale Entwicklung reproduzierbar sind
 - die Kernverträge automatisiert geprüft werden
+
+## Multi-Agent-Schnitt
+
+Die empfohlene Parallelisierung für Sprint 0 ist separat beschrieben:
+
+- [Agent-Workstreams Sprint 0](./agent-workstreams-sprint-0.md)
