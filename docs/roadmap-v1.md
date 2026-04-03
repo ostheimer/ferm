@@ -4,6 +4,12 @@
 
 Diese Roadmap beschreibt die Ausbaustufen vom aktuellen Repository-Grundgerüst zur ersten produktiven Version für Schriftführer und Jäger.
 
+## Aktueller Status
+
+- Der aktuelle Code-Stand ist ein sichtbares Demo- und Integrationsgerüst.
+- Web, Mobile und API existieren bereits als Grundstruktur, aber noch nicht mit produktiver Persistenz oder Authentifizierung.
+- Der nächste reale Meilenstein ist vollständig `Sprint 0`.
+
 ## Sprint 0: Fundament
 
 Ziel: aus dem Demo-Gerüst eine produktive technische Basis machen
@@ -14,8 +20,9 @@ Lieferumfang:
 - Migrationen und Datenmodell einführen
 - Authentifizierung und Revier-Kontext einziehen
 - Rollenmodell serverseitig aktivieren
-- Seed-Daten für lokales Entwicklungsreviert
+- Seed-Daten für lokales Entwicklungsrevier
 - Basis für Storage und Medienverwaltung
+- API-Verträge und erste Contract-Tests für Kernressourcen aufsetzen
 
 Ergebnis:
 
@@ -35,6 +42,7 @@ Lieferumfang:
 - Versionierung
 - Freigabe durch Revier Admin
 - PDF-Erzeugung
+- Contract-Tests für Sitzungen, Freigabe und Rollenrechte
 
 Ergebnis:
 
@@ -52,6 +60,7 @@ Lieferumfang:
 - Live-Liste aktiver Ansitze
 - Push-Benachrichtigungen für Ansitze
 - freigegebene Protokolle lesen
+- kritische Mobile-Flows für Login, Ansitz und Protokollanzeige automatisiert absichern
 
 Ergebnis:
 
@@ -90,6 +99,20 @@ Lieferumfang:
 Ergebnis:
 
 - stabile v1 mit klaren Kernabläufen für Schriftführer und Jäger
+
+## Querschnittsthemen
+
+### Qualität
+
+- API-Contract-Tests starten bereits in Sprint 0 und werden in Sprint 1 erweitert
+- kritische Mobile-User-Flows werden ab Sprint 2 parallel zu den Features abgesichert
+- End-to-End-Abnahmetests bündeln die Kernabläufe in Sprint 4
+
+### Sprache und Lokalisierung
+
+- v1 ist fachlich und redaktionell auf Deutsch für Österreich (`de-AT`) ausgelegt
+- Web und Mobile sollen Texte dennoch so strukturieren, dass spätere zusätzliche Sprachen möglich bleiben
+- eine verpflichtende zweisprachige Auslieferung ist nicht Teil von v1, solange keine neue Produktentscheidung getroffen wird
 
 ## Abnahmekriterien für v1
 

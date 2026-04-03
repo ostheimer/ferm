@@ -81,6 +81,12 @@ Details:
 - [Architektur](./architektur.md)
 - [API v1](./api-v1.md)
 
+## Sprache und Lokalisierung
+
+- v1 ist auf Deutsch für Österreich (`de-AT`) ausgelegt
+- sichtbare Produkttexte sollen fachlich österreichische Jagdbegriffe und echte Umlaute verwenden
+- die technische Struktur soll spätere zusätzliche Sprachen ermöglichen, ohne für v1 bereits EN mitzuplanen
+
 ## Aktueller Repository-Stand
 
 Bereits vorhanden:
@@ -103,5 +109,6 @@ Noch offen:
 
 Die konkrete Umsetzungsreihenfolge ist hier beschrieben:
 
+- [Root-Roadmap](../ROADMAP.md)
 - [Roadmap und Sprints](./roadmap-v1.md)
 - [Dokumentationsübersicht](./README.md)
