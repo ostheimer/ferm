@@ -1,73 +1,107 @@
 # Reviermanagement-Plattform für Jäger in Österreich
 
-## Zielbild
+## Zweck dieses Dokuments
 
-`ferm` ist als mandantenfähige SaaS pro Revier geplant. Es gibt zwei Hauptoberflächen:
+Dieses Dokument ist der zentrale Gesamtüberblick für `ferm`. Es beschreibt Produktziel, fachliche Module, sichtbare v1-Oberflächen und verweist auf die Detaildokumente.
 
-- ein Web-Backoffice für Revier-Admins und Schriftführer
+## Produktziel
+
+`ferm` ist als mandantenfähige SaaS pro Revier geplant. Ein Revier oder eine Jagdgesellschaft arbeitet in einem klar getrennten Datenraum.
+
+Es gibt zwei Hauptoberflächen:
+
+- ein Web-Backoffice für Schriftführer und Revier-Admins
 - eine mobile App für Jäger im Feld
 
-Der erste Stand im Repository bildet das Zielbild als entwickelbares Monorepo ab und implementiert die Kernbereiche mit gemeinsamem Domain-Modell und Demo-Daten.
+Die Plattform soll den täglichen Revierbetrieb, die Dokumentation und die interne Abstimmung in einer gemeinsamen Lösung zusammenführen.
 
-## Fachmodule
+## Kernfunktionen
 
 ### Ansitz bekanntgeben
 
-- Jäger melden einen aktiven Ansitz mit Standort, Uhrzeit und optionaler Notiz.
-- Gleichzeitige Belegung desselben Hochstands erzeugt eine Warnung.
-- Web und Mobile zeigen aktive Ansitze und Konflikte.
-- Die API stellt Live-Daten und ein WebSocket-Gateway bereit.
+- Jäger melden, dass sie auf einem Hochstand oder an einer Position ansitzen
+- andere Mitglieder sehen aktive Ansitze im Revier
+- Doppelbelegungen erzeugen eine Warnung
 
 ### Reviereinrichtungen verwalten
 
-- Hochstände, Fütterungen und andere Einrichtungen werden georeferenziert geführt.
-- Zustand, Kontrollen und Wartungseinträge sind Teil des Modells.
-- Das Web-Backoffice zeigt Einrichtungen als Verwaltungsansicht, die App als Einsatzansicht.
+- Hochstände, Fütterungen und weitere Einrichtungen werden mit Standort und Zustand geführt
+- Kontrollen und Wartungen bleiben nachvollziehbar
 
 ### Fallwild bergen
 
-- Fallwild wird mit Zeit, Ort, Wildart, Geschlecht, Altersklasse, Status und Fotos modelliert.
-- Die Mobile-App enthält eine Offline-Warteschlange als Startpunkt für spätere Synchronisierung.
-- Die API kann Fallwild-Einträge ausgeben und als CSV exportieren.
+- KFZ-Wild wird mit Zeitpunkt, Ort, Fotos, Wildart, Geschlecht und Status dokumentiert
+- die Erfassung muss mobil und offlinefähig sein
 
 ### Sitzungsprotokolle
 
-- Sitzungen enthalten Teilnehmer, Versionen, Beschlüsse und Anhänge.
-- Freigabe wird über den Status `entwurf` zu `freigegeben` modelliert.
-- Veröffentlichte Protokolle sind als Dokument-Asset vorgesehen.
+- Sitzungen werden vorbereitet, protokolliert, versioniert und freigegeben
+- freigegebene Protokolle stehen im Web und mobil zur Verfügung
 
-## Technische Architektur
+## Erste sichtbare Versionen
 
-### Monorepo
+### Backend v1 für Schriftführer
 
-- `apps/api`: NestJS
-- `apps/web`: Next.js App Router
-- `apps/mobile`: Expo Router
-- `packages/domain`: Shared Types, Regeln, Demo-Daten
+Fokus:
 
-### Datenhaltung
+- Dashboard
+- Sitzungen
+- Protokoll-Editor
+- Freigabe
+- veröffentlichte Protokolle
 
-- Aktuell: In-Memory-Demo-Store in der API
-- Vorbereitet: PostgreSQL/PostGIS und S3-kompatibler Storage über `.env.example` und `docker-compose.yml`
+Details:
 
-### Echtzeit und Offline
+- [Backend v1 für Schriftführer](./backend-schriftfuehrer-v1.md)
 
-- Live-Ansitze werden serverseitig über ein WebSocket-Gateway publiziert.
-- Mobile Offline-Erfassungen laufen vorerst über `AsyncStorage` und eine Warteschlange.
+### Mobile App v1 für Jäger
 
-## Implementierungsstatus im Repository
+Fokus:
 
-- gemeinsames Domain-Modell für Rollen, Reviere, Ansitze, Einrichtungen, Fallwild und Sitzungen
-- Fachregeln für Konflikterkennung, Fallwild-Erstellung, Ansitz-Beendigung und Protokollfreigabe
-- NestJS-Endpunkte für Dashboard, Ansitze, Reviereinrichtungen, Fallwild und Sitzungen
-- Next.js-Backoffice mit Dashboard und Fachseiten
-- Expo-App mit tabbasierter Feldoberfläche
+- Heute-im-Revier
+- Ansitz starten und beenden
+- Fallwild erfassen
+- Reviereinrichtungen lesen
+- Protokolle lesen
+
+Details:
+
+- [Mobile App v1 für Jäger](./mobile-jaeger-v1.md)
+
+## Technische Leitlinien
+
+- Monorepo mit `apps/api`, `apps/web`, `apps/mobile` und `packages/domain`
+- zentrale API als fachliche Quelle für Web und Mobile
+- PostgreSQL/PostGIS und S3-kompatibler Storage als produktive Zielbasis
+- WebSockets für Live-Ansitze
+- Offline-Pufferung in der mobilen App für Ansitz und Fallwild
+
+Details:
+
+- [Architektur](./architektur.md)
+- [API v1](./api-v1.md)
+
+## Aktueller Repository-Stand
+
+Bereits vorhanden:
+
+- Shared Domain Package mit Typen, Demo-Daten und Fachregeln
+- sichtbares Web-Grundgerüst für Dashboard und Fachseiten
+- sichtbare Mobile-App mit Kernscreens
+- Demo-API mit REST-Ressourcen und WebSocket-Gateway
 - lokale Infrastrukturdefinition für PostGIS und MinIO
 
-## Offene nächste Schritte
+Noch offen:
 
-- echte Persistenz und Authentifizierung einziehen
-- Medien-Upload und PDF-Generierung implementieren
-- serverseitige Rechteprüfung pro Rolle ergänzen
-- echte Kartenintegration mit MapLibre im Web und auf Mobile ergänzen
-- Push-Notifications und Delta-Sync vom Demo-Modus auf produktive Jobs umstellen
+- produktive Persistenz
+- Authentifizierung und Rollenprüfung
+- Medien-Uploads und PDF-Generierung
+- produktionsreife Offline-Synchronisierung
+- echte Kartenintegration
+
+## Umsetzung
+
+Die konkrete Umsetzungsreihenfolge ist hier beschrieben:
+
+- [Roadmap und Sprints](./roadmap-v1.md)
+- [Dokumentationsübersicht](./README.md)

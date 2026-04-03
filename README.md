@@ -53,4 +53,10 @@ pnpm typecheck
 
 ## Dokumentation
 
-- [Architektur- und Produktplan](./docs/reviermanagement-plan.md)
+- [Dokumentationsübersicht](./docs/README.md)
+- [Gesamtplan](./docs/reviermanagement-plan.md)
+- [Architektur](./docs/architektur.md)
+- [Backend v1 für Schriftführer](./docs/backend-schriftfuehrer-v1.md)
+- [Mobile App v1 für Jäger](./docs/mobile-jaeger-v1.md)
+- [API v1](./docs/api-v1.md)
+- [Roadmap und Sprints](./docs/roadmap-v1.md)
