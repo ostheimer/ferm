@@ -19,9 +19,10 @@ Die erste Implementierung liefert ein funktionsfaehiges Grundgeruest mit gemeins
 Die bestehende NestJS-API arbeitet weiterhin mit einem In-Memory-Demo-Store. Parallel dazu ist in `apps/web` jetzt der erste `vercel-native` Datenbank-Slice angelegt:
 
 - Drizzle-Konfiguration und Migrationen fuer `users`, `reviere`, `memberships` und `ansitz_sessions`
-- Route Handler unter `/api/v1/me`, `/api/v1/ansitze` und `/api/v1/ansitze/live`
+- Route Handler fuer `GET /api/v1/me`, `GET /api/v1/ansitze`, `GET /api/v1/ansitze/live`, `POST /api/v1/ansitze` und `PATCH /api/v1/ansitze/:id/beenden`
 - Seed-Skript auf Basis der bestehenden Demo-Daten
 - Demo-Fallback fuer lokale Read-Tests, solange keine DB aktiv ist
+- Web-Ansitzseite mit Starten, Beenden und manuellem Refresh gegen den neuen API-Pfad
 
 ## Zielbetrieb
 
@@ -39,6 +40,8 @@ Environment-Matrix:
 - `Vercel Production` -> `Neon main`
 
 Preview-Deployments bekommen dabei bewusst keinen eigenen Neon-Branch pro Deployment. `Development` und `Preview` teilen sich denselben Neon-Zweig `development`.
+
+Kartenfunktionen werden im ganzen Produkt auf Google Maps ausgerichtet. Karten-UI, Marker, Standortsuche und spaetere Geocoding-Schritte sollen deshalb direkt auf Google-Maps-kompatible Integrationen zielen.
 
 `apps/api` bleibt vorerst als Referenz und Uebergangspfad im Repository, ist aber nicht die langfristige Zielarchitektur.
 
@@ -91,11 +94,11 @@ pnpm typecheck
 
 ## Naechste Ausbauschritte
 
-- schreibende Ansitz-Endpunkte in `apps/web` ergaenzen
+- Dashboard- und Fallwild-Slices weiter von Demo-Daten auf echte API und Persistenz umstellen
 - Persistenz des Demo-Stores fuer weitere Module in PostgreSQL/PostGIS ueberfuehren
 - Authentifizierung, Mandantentrennung und Rechtepruefung serverseitig durchziehen
 - Medien-Upload, PDF-Erzeugung und Push-Notifications produktionsreif machen
-- Karten auf MapLibre-Web und mobile Kartenbibliothek umstellen
+- Karten auf Google Maps fuer Web und Mobile ausrichten
 - Offline-Synchronisierung von der Demo-Queue auf echte Delta-Synchronisierung erweitern
 
 ## Dokumentation

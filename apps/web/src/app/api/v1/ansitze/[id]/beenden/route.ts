@@ -1,29 +1,29 @@
-import { getRequestContext } from "../../../../server/auth/context";
-import { jsonError, jsonOk } from "../../../../server/http/responses";
-import { listAnsitze } from "../../../../server/modules/ansitze/queries";
-import { startAnsitzSession } from "../../../../server/modules/ansitze/service";
-import { parseCreateAnsitzInput } from "../../../../server/modules/ansitze/schemas";
+import { getRequestContext } from "../../../../../../server/auth/context";
+import { jsonError, jsonOk } from "../../../../../../server/http/responses";
+import { endAnsitzSession } from "../../../../../../server/modules/ansitze/service";
+import { parseEndAnsitzInput } from "../../../../../../server/modules/ansitze/schemas";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
-  return jsonOk(await listAnsitze());
+interface RouteContext {
+  params: Promise<{
+    id: string;
+  }>;
 }
 
-export async function POST(request: Request) {
+export async function PATCH(request: Request, context: RouteContext) {
   try {
-    const payload = parseCreateAnsitzInput(await readJsonBody(request));
-    const { membershipId, revierId } = await getRequestContext();
+    const body = await readJsonBody(request);
+    const payload = parseEndAnsitzInput(body);
+    const { id } = await context.params;
+    const { revierId } = await getRequestContext();
 
     return jsonOk(
-      await startAnsitzSession({
-        membershipId,
+      await endAnsitzSession({
+        ansitzId: id,
         revierId,
         ...payload
-      }),
-      {
-        status: 201
-      }
+      })
     );
   } catch (error) {
     return toErrorResponse(error);
@@ -31,6 +31,10 @@ export async function POST(request: Request) {
 }
 
 async function readJsonBody(request: Request): Promise<unknown> {
+  if (!request.headers.get("content-type")?.includes("application/json")) {
+    return null;
+  }
+
   try {
     return await request.json();
   } catch {

@@ -46,6 +46,7 @@ docs/
 - Expo / React Native
 - Fokus auf Ansitz, Fallwild, Reviereinrichtungen und Protokolle
 - Offline-Faehigkeit fuer Kernablaeufe
+- Kartenfunktionen orientieren sich an Google Maps fuer mobile Karten, Marker und Standortsuche
 
 ## Sprache und Lokalisierung
 
@@ -144,6 +145,7 @@ docs/
 - serverseitige Rollen- und Tenant-Pruefung auf jeder fachlichen Ressource
 - Audit-Log fuer Freigaben, Exporte, Loeschungen und sensible Aenderungen
 - Monitoring, strukturierte Logs und Healthchecks in der produktiven Stufe
+- Karten- und Standortfunktionen werden auf Google Maps standardisiert, damit Web und Mobile dieselbe Kartenlogik nutzen
 
 ### Environment-Matrix
 
@@ -182,16 +184,16 @@ Lokales Docker-Postgres bleibt ein rein lokaler Arbeitsmodus. Es ersetzt die Neo
 
 - gemeinsames Domain-Modell vorhanden
 - API-Endpunkte fuer die Kernmodule in `apps/api` vorhanden
-- erster Vercel-native Read-Pfad fuer `me` und `ansitze` in `apps/web` vorhanden
+- erster Vercel-native Write-Pfad fuer `me` und `ansitze` in `apps/web` vorhanden
 - Web- und Mobile-UIs als sichtbares Grundgeruest vorhanden
 - Domain- und Env-Grundlage fuer `hege.app` vorhanden
 - produktive Persistenz, Authentifizierung und Rechtepruefung noch offen
 
 ## Naechste technische Ausbaustufe
 
-1. schreibende Ansitz-Endpunkte in `apps/web` ergaenzen
+1. Dashboard- und Fallwild-Slices auf echte API und Persistenz erweitern
 2. Datenbank-Slice auf weitere Module erweitern
 3. Authentifizierung und Rollenmodell serverseitig aktivieren
 4. Demo-Store durch persistente Services ersetzen
 5. Uploads, PDFs und Benachrichtigungen produktionsreif machen
-6. Kartenintegration mit echten Bibliotheken ergaenzen
+6. Google-Maps-Integration in Web und Mobile konkretisieren

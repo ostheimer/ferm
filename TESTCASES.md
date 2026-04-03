@@ -18,6 +18,14 @@
 - Erwartung: die beiden API-Endpunkte antworten mit `200`
 - Erwartung: die Seite `/ansitze` rendert ohne Serverfehler und zeigt aktive Ansitze
 
+### TC-API-ANSITZ-00C: Neon `main` fuer Production bootstrapen
+
+- `pnpm --filter @hege/web db:migrate` gegen den Neon-Branch `main` ausfuehren
+- `pnpm --filter @hege/web db:seed` gegen den Neon-Branch `main` ausfuehren
+- Production-URL oeffnen und `GET /api/v1/me`, `GET /api/v1/ansitze` sowie `/ansitze` pruefen
+- Erwartung: die beiden API-Endpunkte antworten mit `200`
+- Erwartung: die Seite `/ansitze` rendert ohne Serverfehler und zeigt aktive Ansitze
+
 ### TC-API-ANSITZ-01: Dev-Kontext liefert `me`
 
 - Web-App lokal starten
@@ -52,6 +60,43 @@
 - Web-App lokal starten
 - `/api/v1/me`, `/api/v1/ansitze/live` und `/ansitze` aufrufen
 - Erwartung: API und Seite bleiben lesbar, obwohl keine Datenbank aktiv ist
+
+### TC-WEB-ANSITZ-04: Ansitz im Web starten
+
+- Web-App mit aktiver DB starten
+- Seite `/ansitze` oeffnen
+- Formular `Neuer Ansitz` mit Standortname, Koordinaten und optionaler Notiz ausfuellen
+- `Ansitz starten` ausloesen
+- Erwartung: `POST /api/v1/ansitze` antwortet mit `201`
+- Erwartung: die Erfolgsmeldung erscheint
+- Erwartung: die Tabelle und der aktive Zaehler werden nach dem Refresh aktualisiert
+
+### TC-WEB-ANSITZ-05: Ansitz im Web beenden
+
+- Web-App mit mindestens einem aktiven Ansitz starten
+- Seite `/ansitze` oeffnen
+- Bei einem aktiven Eintrag `Beenden` ausloesen
+- Erwartung: `PATCH /api/v1/ansitze/:id/beenden` antwortet mit `200`
+- Erwartung: die Erfolgsmeldung erscheint
+- Erwartung: der beendete Eintrag verschwindet nach dem Refresh aus der aktiven Tabelle
+
+## Mobile Dashboard
+
+### TC-MOB-DASH-01: Heute im Revier nutzt echte API
+
+- App oeffnen
+- Startseite `Heute im Revier` aufrufen
+- Erwartung: Reviername und aktive Ansitze werden aus `GET /api/v1/me` und `GET /api/v1/ansitze/live` geladen
+- Erwartung: die Karte zeigt echte Daten aus der API statt `demoData`
+- Erwartung: manueller Refresh aktualisiert die Werte
+- Erwartung: die Offline-Warteschlange bleibt sichtbar
+
+### TC-MOB-DASH-02: Dashboard bei API-Fehler
+
+- API-URL auf einen nicht erreichbaren Host setzen
+- Startseite `Heute im Revier` oeffnen
+- Erwartung: Lade- oder Fehlerzustand wird angezeigt
+- Erwartung: die App bleibt bedienbar
 
 ## Mobile Ansitze
 

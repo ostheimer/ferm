@@ -196,3 +196,7 @@ Die erste sichtbare App-Version gilt als geliefert, wenn:
 - Konfliktwarnung bei Doppelbelegung wird angezeigt
 - Fallwild-Erfassung verlangt alle Pflichtfelder
 - veröffentlichte Protokolle sind lesbar und auffindbar
+
+## Karten
+
+Kartenfunktionen in der mobilen App orientieren sich verbindlich an Google Maps. Wenn spaeter Kartensichten, Standortsuche, Marker oder Geocoding erweitert werden, sollen die Umsetzungen auf Google-Maps-kompatible APIs und SDKs abzielen.

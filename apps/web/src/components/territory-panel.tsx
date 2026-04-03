@@ -38,7 +38,7 @@ export function TerritoryPanel({ ansitze, einrichtungen, fallwild }: TerritoryPa
           <p className="eyebrow">Kartenlage</p>
           <h2>Revier im Tagesbetrieb</h2>
         </div>
-        <span className="badge">MapLibre-ready</span>
+        <span className="badge">Google Maps geplant</span>
       </header>
 
       <div className="map-stage" aria-label="Revierkarte">
