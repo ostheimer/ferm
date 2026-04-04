@@ -10,9 +10,11 @@
     "db:seed": "tsx src/server/db/seed.ts",
     "db:studio": "drizzle-kit studio --config ./drizzle.config.ts",
     "dev": "next dev",
-    "lint": "tsc -p tsconfig.json --noEmit",
+    "lint": "node -e \"try { require('node:fs').unlinkSync('tsconfig.tsbuildinfo'); } catch {}\" && tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --config ./vitest.config.ts",
+    "start:e2e": "next start --hostname 127.0.0.1 -p 3200",
     "start": "next start",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "node -e \"try { require('node:fs').unlinkSync('tsconfig.tsbuildinfo'); } catch {}\" && tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@hege/domain": "workspace:*",
@@ -29,6 +31,7 @@
     "@types/react-dom": "^19.1.6",
     "dotenv": "^16.6.1",
     "drizzle-kit": "^0.31.10",
-    "tsx": "^4.20.6"
+    "tsx": "^4.20.6",
+    "vitest": "^3.2.4"
   }
 }

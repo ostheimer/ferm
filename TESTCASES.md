@@ -62,6 +62,29 @@
 - Erwartung: `content-type` ist `text/csv`
 - Erwartung: die CSV enthaelt mindestens Kopfzeile sowie die gespeicherten Fallwild-Vorgaenge
 
+## Automatisierte Web-Tests
+
+### TC-AUTO-WEB-01: Unit- und Integrationstests fuer Domain und Web
+
+- `pnpm test` ausfuehren
+- Erwartung: `@hege/domain` und `@hege/web` laufen gruen durch
+- Erwartung: Route Handler, Services und Query-Schicht in `apps/web` werden per Vitest validiert
+
+### TC-AUTO-WEB-02: E2E- und Visual-Regression lokal
+
+- `docker compose up -d postgres` sicherstellen
+- `pnpm test:e2e` ausfuehren
+- Erwartung: Playwright bootstrapt eine isolierte lokale E2E-Datenbank
+- Erwartung: Desktop- und Mobile-Projekt laufen fuer `Ansitze` und `Fallwild` ohne Browserfehler durch
+- Erwartung: Mutationserfolge fuer `Ansitz starten/beenden` sowie `Fallwild erfassen` werden browserbasiert geprueft
+- Erwartung: der CSV-Download fuer Fallwild wird automatisiert validiert
+
+### TC-AUTO-WEB-03: Screenshot-Baselines aktualisieren
+
+- `docker compose up -d postgres` sicherstellen
+- `pnpm test:e2e:update` ausfuehren
+- Erwartung: neue oder geaenderte Screenshot-Baselines werden in `apps/web/e2e/*-snapshots` geschrieben
+- Erwartung: visuelle Unterschiede fuer Desktop und Mobile koennen anschliessend im Git-Diff oder Playwright-Report reviewt werden
 ## Web Ansitze
 
 ### TC-WEB-ANSITZ-01: Ansitzseite liest aus der Server-Schicht

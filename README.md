@@ -26,6 +26,8 @@ Die bestehende NestJS-API arbeitet weiterhin mit einem In-Memory-Demo-Store. Par
 - Web-Ansitzseite mit Starten, Beenden und manuellem Refresh gegen den neuen API-Pfad
 - Web-Fallwildseite mit Erfassung, CSV-Export und mobilem Layout gegen denselben API-Pfad
 - Mobile-Screens fuer Dashboard, Ansitze und Fallwild gegen den Vercel-native API-Slice
+- automatisierten Web-Tests mit Vitest fuer Route Handler, Services und Server-Queries
+- Playwright-E2E- und Visual-Regression-Tests fuer die wichtigsten Web-Use-Cases auf Desktop und Mobile
 
 Rollen, Aufgaben und Nachrichten werden als naechste fachliche Erweiterung geplant, mit spaeterer Anbindung an Messenger-Kanaele wie WhatsApp und Telegram.
 
@@ -94,8 +96,17 @@ Wichtige Env-Variablen:
 ```bash
 pnpm build
 pnpm test
+pnpm test:e2e
+pnpm test:e2e:update
 pnpm typecheck
 ```
+
+Wichtige Testwege:
+
+- `pnpm test` fuehrt die bestehenden Unit- und Integrationstests fuer `@hege/domain` und `@hege/web` aus.
+- `pnpm test:e2e` startet Playwright gegen eine isolierte lokale E2E-Datenbank und prueft Kernfluesse in der Web-App browserbasiert.
+- `pnpm test:e2e:update` aktualisiert die Screenshot-Baselines fuer die visuellen Regressionstests in `apps/web/e2e/*-snapshots`.
+- Die E2E-Suite deckt aktuell `/ansitze` und `/fallwild` inkl. Desktop- und Mobile-Layout, Mutationserfolg und CSV-Export ab.
 
 ## Naechste Ausbauschritte
 
