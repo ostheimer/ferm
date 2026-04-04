@@ -39,6 +39,8 @@ Das Repository enthaelt bereits ein funktionierendes Monorepo-Grundgeruest mit:
 - Web-Fallwildverwaltung mit Erfassung und CSV-Export gegen dieselbe Server-Schicht
 - Mobile-Fallwildliste mit echtem API-Refresh
 - Mobile-Dashboard mit API-basiertem Snapshot fuer Revier- und Ansitzlage
+- automatisierten Web-Tests mit Vitest fuer Route Handler, Services und Queries
+- Playwright-E2E- und Visual-Regression-Tests fuer die wichtigsten Web-Use-Cases auf Desktop und Mobile
 - Rollen, Aufgaben und Nachrichten werden als naechste Planungsstufe vorbereitet, inklusive spaeterer WhatsApp-/Telegram-Kanaele
 
 Kartenfunktionen werden projektweit auf Google Maps ausgerichtet.
