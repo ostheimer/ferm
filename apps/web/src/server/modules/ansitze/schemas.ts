@@ -1,3 +1,5 @@
+import { validationError } from "../../http/validation";
+
 export interface CreateAnsitzInput {
   location: {
     label?: string;
@@ -52,7 +54,7 @@ function parseLocation(value: unknown): CreateAnsitzInput["location"] {
 
 function ensureRecord(value: unknown, message: string): Record<string, unknown> {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
-    throw new Error(message);
+    throw validationError(message);
   }
 
   return value as Record<string, unknown>;
@@ -60,7 +62,7 @@ function ensureRecord(value: unknown, message: string): Record<string, unknown> 
 
 function parseRequiredString(value: unknown, field: string): string {
   if (typeof value !== "string" || value.trim().length === 0) {
-    throw new Error(`${field} muss ein nicht-leerer String sein.`);
+    throw validationError(`${field} muss ein nicht-leerer String sein.`);
   }
 
   return value.trim();
@@ -72,7 +74,7 @@ function parseOptionalString(value: unknown, field: string): string | undefined 
   }
 
   if (typeof value !== "string") {
-    throw new Error(`${field} muss ein String sein.`);
+    throw validationError(`${field} muss ein String sein.`);
   }
 
   const trimmed = value.trim();
@@ -81,7 +83,7 @@ function parseOptionalString(value: unknown, field: string): string | undefined 
 
 function parseNumber(value: unknown, field: string): number {
   if (typeof value !== "number" || !Number.isFinite(value)) {
-    throw new Error(`${field} muss eine gueltige Zahl sein.`);
+    throw validationError(`${field} muss eine gueltige Zahl sein.`);
   }
 
   return value;
@@ -93,13 +95,13 @@ function parseOptionalIsoString(value: unknown, field: string): string | undefin
   }
 
   if (typeof value !== "string") {
-    throw new Error(`${field} muss ein ISO-Datum als String sein.`);
+    throw validationError(`${field} muss ein ISO-Datum als String sein.`);
   }
 
   const parsed = new Date(value);
 
   if (Number.isNaN(parsed.valueOf())) {
-    throw new Error(`${field} muss ein gueltiges Datum sein.`);
+    throw validationError(`${field} muss ein gueltiges Datum sein.`);
   }
 
   return parsed.toISOString();

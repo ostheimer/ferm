@@ -1,5 +1,14 @@
 export type Role = "platform-admin" | "revier-admin" | "schriftfuehrer" | "jaeger";
 
+export type ApiErrorCode =
+  | "unauthenticated"
+  | "forbidden"
+  | "not-found"
+  | "validation-error"
+  | "conflict"
+  | "service-unavailable"
+  | "internal-error";
+
 export type NotificationChannel = "push" | "in-app";
 
 export type AnsitzStatus = "active" | "completed";
@@ -23,9 +32,9 @@ export type Wildart =
   | "Hase"
   | "Muffelwild";
 
-export type Geschlecht = "männlich" | "weiblich" | "unbekannt";
+export type Geschlecht = "maennlich" | "weiblich" | "unbekannt";
 
-export type Altersklasse = "Kitz" | "Jährling" | "Adult" | "unbekannt";
+export type Altersklasse = "Kitz" | "Jaehrling" | "Adult" | "unbekannt";
 
 export type BergungsStatus = "erfasst" | "geborgen" | "entsorgt" | "an-behoerde-gemeldet";
 
@@ -42,6 +51,12 @@ export interface User {
   name: string;
   phone: string;
   email: string;
+}
+
+export interface ApiError {
+  code: ApiErrorCode;
+  message: string;
+  status: number;
 }
 
 export interface Revier {
@@ -63,6 +78,14 @@ export interface Membership {
   pushEnabled: boolean;
 }
 
+export interface MembershipSummary {
+  id: string;
+  revierId: string;
+  role: Role;
+  jagdzeichen: string;
+  revierName: string;
+}
+
 export interface Device {
   id: string;
   membershipId: string;
@@ -78,6 +101,10 @@ export interface DocumentAsset {
   contentType: string;
   url: string;
   createdAt: string;
+}
+
+export interface DocumentDownloadRef extends DocumentAsset {
+  downloadUrl: string;
 }
 
 export interface PhotoAsset {
@@ -131,6 +158,11 @@ export interface Reviereinrichtung {
   wartung: WartungsEintrag[];
 }
 
+export interface ReviereinrichtungListItem extends Reviereinrichtung {
+  letzteKontrolleAt?: string;
+  offeneWartungen: number;
+}
+
 export interface FallwildVorgang {
   id: string;
   revierId: string;
@@ -182,6 +214,24 @@ export interface Sitzung {
   publishedDocument?: DocumentAsset;
 }
 
+export interface ProtokollListItem {
+  id: string;
+  revierId: string;
+  title: string;
+  scheduledAt: string;
+  locationLabel: string;
+  status: ProtokollStatus;
+  latestVersionCreatedAt?: string;
+  summaryPreview?: string;
+  beschlussCount: number;
+  publishedDocument?: DocumentDownloadRef;
+}
+
+export interface ProtokollDetail extends ProtokollListItem {
+  participants: Teilnehmer[];
+  versions: ProtokollVersion[];
+}
+
 export interface NotificationItem {
   id: string;
   revierId: string;
@@ -200,6 +250,31 @@ export interface DashboardOverview {
   unveroeffentlichteProtokolle: number;
   letzteBenachrichtigungen: NotificationItem[];
   naechsteSitzung?: Sitzung;
+}
+
+export interface AuthContextResponse {
+  user: User;
+  membership: Membership;
+  revier: Revier;
+  activeRevierId: string;
+  availableMemberships: MembershipSummary[];
+}
+
+export interface AuthTokens {
+  accessToken: string;
+  refreshToken: string;
+  expiresAt: string;
+  refreshExpiresAt: string;
+}
+
+export interface AuthSessionResponse extends AuthContextResponse {
+  tokens: AuthTokens;
+}
+
+export interface DashboardResponse extends AuthContextResponse {
+  overview: DashboardOverview;
+  activeAnsitze: AnsitzSession[];
+  recentFallwild: FallwildVorgang[];
 }
 
 export interface DemoData {
@@ -248,4 +323,15 @@ export interface AddKontrollePayload {
   createdAt: string;
   createdByMembershipId: string;
   note?: string;
+}
+
+export interface LoginPayload {
+  email: string;
+  password: string;
+  membershipId?: string;
+}
+
+export interface RefreshSessionPayload {
+  refreshToken?: string;
+  membershipId?: string;
 }

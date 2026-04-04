@@ -1,11 +1,13 @@
 "use client";
 
+import type { AuthContextResponse } from "@hege/domain";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
 const navigation = [
   { href: "/", label: "Dashboard" },
+  { href: "/sitzungen", label: "Sitzungen" },
   { href: "/ansitze", label: "Ansitze" },
   { href: "/reviereinrichtungen", label: "Reviereinrichtungen" },
   { href: "/fallwild", label: "Fallwild" },
@@ -14,10 +16,17 @@ const navigation = [
 
 interface ShellProps {
   children: ReactNode;
+  viewer?: AuthContextResponse | null;
 }
 
-export function Shell({ children }: ShellProps) {
+export function Shell({ children, viewer }: ShellProps) {
   const pathname = usePathname();
+  const currentPath = pathname ?? "";
+  const isAuthPage = currentPath === "/login";
+
+  if (isAuthPage) {
+    return <main className="auth-layout">{children}</main>;
+  }
 
   return (
     <div className="app-shell">
@@ -32,7 +41,9 @@ export function Shell({ children }: ShellProps) {
 
         <nav className="nav-list" aria-label="Hauptnavigation">
           {navigation.map((item) => {
-            const active = pathname === item.href;
+            const active =
+              currentPath === item.href ||
+              (item.href !== "/" && currentPath.startsWith(`${item.href}/`));
 
             return (
               <Link
@@ -48,9 +59,15 @@ export function Shell({ children }: ShellProps) {
 
         <div className="sidebar-card">
           <p className="eyebrow">Betrieb</p>
-          <strong>Attersee Nord</strong>
-          <span>1.480 ha · Oberösterreich</span>
-          <span>Aktive Ansitze, Fallwild und Protokolle in einem System.</span>
+          <strong>{viewer?.revier.name ?? "Kein Revier aktiv"}</strong>
+          <span>
+            {viewer ? `${viewer.revier.flaecheHektar} ha | ${viewer.revier.bundesland}` : "Bitte anmelden."}
+          </span>
+          <span>
+            {viewer
+              ? `${viewer.user.name} | ${viewer.membership.role} | ${viewer.membership.jagdzeichen}`
+              : "Ansitze, Fallwild und Protokolle in einem System."}
+          </span>
         </div>
       </aside>
 

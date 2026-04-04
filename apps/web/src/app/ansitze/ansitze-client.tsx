@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import type { ChangeEvent, FormEvent } from "react";
 import { useState, useTransition } from "react";
 
+import { readApiErrorMessage } from "../../lib/api-error";
+
 interface AnsitzeClientProps {
   activeAnsitze: AnsitzeClientEntry[];
 }
@@ -74,8 +76,8 @@ export function AnsitzeClient({ activeAnsitze }: AnsitzeClientProps) {
     });
 
     if (!response.ok) {
-      const payload = (await response.json().catch(() => null)) as { error?: string } | null;
-      setError(payload?.error ?? "Ansitz konnte nicht gestartet werden.");
+      const payload = await response.json().catch(() => null);
+      setError(readApiErrorMessage(payload, "Ansitz konnte nicht gestartet werden."));
       return;
     }
 
@@ -101,8 +103,8 @@ export function AnsitzeClient({ activeAnsitze }: AnsitzeClientProps) {
     });
 
     if (!response.ok) {
-      const payload = (await response.json().catch(() => null)) as { error?: string } | null;
-      setError(payload?.error ?? "Ansitz konnte nicht beendet werden.");
+      const payload = await response.json().catch(() => null);
+      setError(readApiErrorMessage(payload, "Ansitz konnte nicht beendet werden."));
       return;
     }
 

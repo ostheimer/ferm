@@ -6,8 +6,8 @@ export const demoData: DemoData = {
       id: "revier-attersee",
       tenantKey: "attersee-nord",
       name: "Jagdgesellschaft Attersee Nord",
-      bundesland: "Oberösterreich",
-      bezirk: "Vöcklabruck",
+      bundesland: "Oberoesterreich",
+      bezirk: "Voecklabruck",
       flaecheHektar: 1480,
       zentrum: {
         lat: 47.9134,
@@ -108,7 +108,7 @@ export const demoData: DemoData = {
         label: "Wiesenrand"
       },
       startedAt: "2026-04-03T06:10:00+02:00",
-      note: "Kurzer Frühansitz wegen Wildschaden.",
+      note: "Kurzer Fruehansitz wegen Wildschaden.",
       status: "active",
       conflict: false
     }
@@ -149,14 +149,14 @@ export const demoData: DemoData = {
       id: "einrichtung-2",
       revierId: "revier-attersee",
       type: "fuetterung",
-      name: "Fütterung Forststraße",
+      name: "Fuetterung Forststrasse",
       status: "wartung-faellig",
       location: {
         lat: 47.9184,
         lng: 13.5219,
-        label: "Forststraße"
+        label: "Forststrasse"
       },
-      beschreibung: "Winterfütterung oberhalb der Kehre.",
+      beschreibung: "Winterfuetterung oberhalb der Kehre.",
       photos: [],
       kontrollen: [
         {
@@ -164,7 +164,7 @@ export const demoData: DemoData = {
           createdAt: "2026-04-01T07:15:00+02:00",
           createdByMembershipId: "member-jaeger",
           zustand: "wartung-faellig",
-          note: "Deckel verzogen, Nachfüllung schwierig."
+          note: "Deckel verzogen, Nachfuellung schwierig."
         }
       ],
       wartung: [
@@ -211,7 +211,7 @@ export const demoData: DemoData = {
       bergungsStatus: "geborgen",
       gemeinde: "Steinbach am Attersee",
       strasse: "L127",
-      note: "Gemeinsam mit Straßenmeisterei gesichert.",
+      note: "Gemeinsam mit Strassenmeisterei gesichert.",
       photos: [
         {
           id: "photo-fallwild-1",
@@ -226,7 +226,7 @@ export const demoData: DemoData = {
     {
       id: "sitzung-1",
       revierId: "revier-attersee",
-      title: "Frühjahrsbesprechung 2026",
+      title: "Fruehjahrsbesprechung 2026",
       scheduledAt: "2026-04-11T19:00:00+02:00",
       locationLabel: "Jagdhaus Attersee Nord",
       status: "entwurf",
@@ -250,12 +250,12 @@ export const demoData: DemoData = {
           createdAt: "2026-04-02T21:15:00+02:00",
           createdByMembershipId: "member-schrift",
           summary: "Erster Entwurf mit Themen zu Fallwild und Hochstandwartung.",
-          agenda: ["Begrüßung", "Fallwildstatistik", "Wartungsplan Hochstände"],
+          agenda: ["Begruessung", "Fallwildstatistik", "Wartungsplan Hochstaende"],
           beschluesse: [
             {
               id: "beschluss-1",
               title: "Wartung Buchenhang",
-              decision: "Kontrolle aller Leiterstände bis 20. April abschließen.",
+              decision: "Kontrolle aller Leiterstaende bis 20. April abschliessen.",
               owner: "Anna Steyrer",
               dueAt: "2026-04-20T18:00:00+02:00"
             }
@@ -263,6 +263,51 @@ export const demoData: DemoData = {
           attachments: []
         }
       ]
+    },
+    {
+      id: "sitzung-2",
+      revierId: "revier-attersee",
+      title: "Winterabschluss 2025",
+      scheduledAt: "2026-02-14T18:30:00+01:00",
+      locationLabel: "Jagdhaus Attersee Nord",
+      status: "freigegeben",
+      participants: [
+        {
+          membershipId: "member-admin",
+          anwesend: true
+        },
+        {
+          membershipId: "member-schrift",
+          anwesend: true
+        }
+      ],
+      versions: [
+        {
+          id: "version-2",
+          createdAt: "2026-02-15T08:10:00+01:00",
+          createdByMembershipId: "member-schrift",
+          summary: "Rueckblick auf die Saison und Beschluss fuer den Fruehjahrsputz.",
+          agenda: ["Rueckblick", "Abschussplan", "Fruehjahrsputz"],
+          beschluesse: [
+            {
+              id: "beschluss-2",
+              title: "Fruehjahrsputz",
+              decision: "Gemeinsamer Reviertag am 22. Maerz mit Fokus auf Hochstaende und Wege.",
+              owner: "Martin Mair",
+              dueAt: "2026-03-22T09:00:00+01:00"
+            }
+          ],
+          attachments: []
+        }
+      ],
+      publishedDocument: {
+        id: "document-sitzung-2",
+        title: "Winterabschluss 2025 Protokoll",
+        fileName: "winterabschluss-2025-protokoll.pdf",
+        contentType: "application/pdf",
+        url: "/api/v1/documents/document-sitzung-2/download",
+        createdAt: "2026-02-15T08:30:00+01:00"
+      }
     }
   ],
   notifications: [
@@ -281,6 +326,14 @@ export const demoData: DemoData = {
       title: "Fallwild geborgen",
       body: "Ein Reh an der L127 wurde dokumentiert und geborgen.",
       createdAt: "2026-04-03T06:57:00+02:00"
+    },
+    {
+      id: "notification-3",
+      revierId: "revier-attersee",
+      channel: "in-app",
+      title: "Protokoll veroeffentlicht",
+      body: "Das Protokoll Winterabschluss 2025 steht mobil zum Lesen bereit.",
+      createdAt: "2026-02-15T08:32:00+01:00"
     }
   ]
 };

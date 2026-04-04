@@ -1,11 +1,17 @@
-import { buildDashboardOverview, defaultRevierId, demoData } from "@hege/domain";
-
 import { MetricCard } from "../components/metric-card";
 import { TerritoryPanel } from "../components/territory-panel";
+import { requirePageAuth } from "../server/auth/guards";
+import { getDashboardSnapshot } from "../server/modules/dashboard/queries";
+import { listReviereinrichtungen } from "../server/modules/reviereinrichtungen/queries";
 
-export default function DashboardPage() {
-  const overview = buildDashboardOverview(demoData, defaultRevierId);
-  const activeAnsitze = demoData.ansitze.filter((entry) => entry.status === "active");
+export const dynamic = "force-dynamic";
+
+export default async function DashboardPage() {
+  const context = await requirePageAuth();
+  const [dashboard, einrichtungen] = await Promise.all([
+    getDashboardSnapshot({ context }),
+    listReviereinrichtungen()
+  ]);
 
   return (
     <div className="page-stack">
@@ -15,15 +21,15 @@ export default function DashboardPage() {
           <h1>Revierbetrieb, Protokolle und Fallwild auf einen Blick.</h1>
           <p className="hero-copy">
             Aktive Ansitze, Reviereinrichtungen, Protokollfreigaben und Fallwild-Ereignisse laufen in
-            einer Oberfläche zusammen. Das Backoffice ist für Revierleitung und Schriftführung
+            einer Oberflaeche zusammen. Das Backoffice ist fuer Revierleitung und Schriftfuehrung
             ausgelegt.
           </p>
         </div>
         <div className="hero-highlight">
           <span>Aktives Revier</span>
-          <strong>{overview.revier.name}</strong>
+          <strong>{dashboard.revier.name}</strong>
           <p>
-            {overview.revier.bundesland} · {overview.revier.bezirk} · {overview.revier.flaecheHektar} ha
+            {dashboard.revier.bundesland} | {dashboard.revier.bezirk} | {dashboard.revier.flaecheHektar} ha
           </p>
         </div>
       </section>
@@ -31,32 +37,28 @@ export default function DashboardPage() {
       <section className="metric-grid">
         <MetricCard
           label="Aktive Ansitze"
-          value={overview.aktiveAnsitze}
-          detail={`${overview.ansitzeMitKonflikt} Konflikte benötigen Aufmerksamkeit.`}
+          value={dashboard.overview.aktiveAnsitze}
+          detail={`${dashboard.overview.ansitzeMitKonflikt} Konflikte benoetigen Aufmerksamkeit.`}
         />
         <MetricCard
           label="Offene Wartungen"
-          value={overview.offeneWartungen}
+          value={dashboard.overview.offeneWartungen}
           detail="Aus Reviereinrichtungen und Kontrollmeldungen."
         />
         <MetricCard
           label="Heutige Fallwild-Bergungen"
-          value={overview.heutigeFallwildBergungen}
+          value={dashboard.overview.heutigeFallwildBergungen}
           detail="Mit Foto- und Standortdokumentation."
         />
         <MetricCard
-          label="Entwürfe"
-          value={overview.unveroeffentlichteProtokolle}
+          label="Entwuerfe"
+          value={dashboard.overview.unveroeffentlichteProtokolle}
           detail="Sitzungsprotokolle warten auf Freigabe."
         />
       </section>
 
       <div className="content-grid">
-        <TerritoryPanel
-          ansitze={activeAnsitze}
-          einrichtungen={demoData.reviereinrichtungen}
-          fallwild={demoData.fallwild}
-        />
+        <TerritoryPanel ansitze={dashboard.activeAnsitze} einrichtungen={einrichtungen} fallwild={dashboard.recentFallwild} />
 
         <section className="activity-panel">
           <header className="section-header">
@@ -67,12 +69,12 @@ export default function DashboardPage() {
           </header>
 
           <div className="timeline">
-            {overview.letzteBenachrichtigungen.map((entry) => (
+            {dashboard.overview.letzteBenachrichtigungen.map((entry) => (
               <article key={entry.id} className="timeline-item">
                 <span>{entry.channel === "push" ? "Push" : "In-App"}</span>
                 <strong>{entry.title}</strong>
                 <p>{entry.body}</p>
-                <time>{new Date(entry.createdAt).toLocaleString("de-AT")}</time>
+                <time>{formatDateTime(entry.createdAt)}</time>
               </article>
             ))}
           </div>
@@ -81,19 +83,19 @@ export default function DashboardPage() {
 
       <section className="split-panel">
         <article className="panel-card">
-          <p className="eyebrow">Nächste Sitzung</p>
-          <h2>{overview.naechsteSitzung?.title}</h2>
-          <p>{overview.naechsteSitzung?.locationLabel}</p>
-          <span>{new Date(overview.naechsteSitzung?.scheduledAt ?? "").toLocaleString("de-AT")}</span>
+          <p className="eyebrow">Naechste Sitzung</p>
+          <h2>{dashboard.overview.naechsteSitzung?.title ?? "Keine Sitzung geplant"}</h2>
+          <p>{dashboard.overview.naechsteSitzung?.locationLabel ?? "Noch kein Ort hinterlegt"}</p>
+          {dashboard.overview.naechsteSitzung ? <span>{formatDateTime(dashboard.overview.naechsteSitzung.scheduledAt)}</span> : null}
         </article>
 
         <article className="panel-card">
           <p className="eyebrow">Aktive Ansitze</p>
           <div className="simple-list">
-            {activeAnsitze.map((entry) => (
+            {dashboard.activeAnsitze.map((entry) => (
               <div key={entry.id}>
                 <strong>{entry.standortName}</strong>
-                <span>{new Date(entry.startedAt).toLocaleTimeString("de-AT", { hour: "2-digit", minute: "2-digit" })}</span>
+                <span>{formatTime(entry.startedAt)}</span>
               </div>
             ))}
           </div>
@@ -101,4 +103,20 @@ export default function DashboardPage() {
       </section>
     </div>
   );
+}
+
+function formatDateTime(value: string) {
+  return new Intl.DateTimeFormat("de-AT", {
+    dateStyle: "short",
+    timeStyle: "short",
+    timeZone: "Europe/Vienna"
+  }).format(new Date(value));
+}
+
+function formatTime(value: string) {
+  return new Intl.DateTimeFormat("de-AT", {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Europe/Vienna"
+  }).format(new Date(value));
 }

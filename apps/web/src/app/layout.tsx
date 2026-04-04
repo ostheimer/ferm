@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 import { Shell } from "../components/shell";
 import { getPublicAppUrl } from "../lib/public-urls";
+import { getOptionalAuthContext } from "../server/auth/context";
 import "./globals.css";
 
 const headingFont = Fraunces({
@@ -19,18 +20,20 @@ const bodyFont = Manrope({
 export const metadata: Metadata = {
   metadataBase: new URL(getPublicAppUrl()),
   title: "hege Backoffice",
-  description: "Reviermanagement für Jagdgesellschaften in Österreich"
+  description: "Reviermanagement fuer Jagdgesellschaften in Oesterreich"
 };
 
 interface RootLayoutProps {
   children: ReactNode;
 }
 
-export default function RootLayout({ children }: RootLayoutProps) {
+export default async function RootLayout({ children }: RootLayoutProps) {
+  const viewer = await getOptionalAuthContext();
+
   return (
     <html lang="de-AT">
       <body className={`${headingFont.variable} ${bodyFont.variable}`}>
-        <Shell>{children}</Shell>
+        <Shell viewer={viewer}>{children}</Shell>
       </body>
     </html>
   );

@@ -3,20 +3,40 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-nati
 
 import { ScreenShell } from "../../components/screen-shell";
 import { formatDateTime } from "../../lib/format";
-import { fetchFallwildList, type FallwildListItem } from "../../lib/api";
-import { readOfflineQueue } from "../../lib/offline-queue";
+import { fetchFallwildList, type CreateFallwildRequest, type FallwildListItem } from "../../lib/api";
+import {
+  syncOfflineQueue,
+  submitFallwildWithOfflineFallback,
+  useOfflineQueueSnapshot
+} from "../../lib/offline-queue";
 import { colors } from "../../lib/theme";
 
+const DEFAULT_FALLWILD_PAYLOAD: CreateFallwildRequest = {
+  recordedAt: new Date().toISOString(),
+  location: {
+    lat: 47.9184,
+    lng: 13.5219,
+    label: "Forststrasse"
+  },
+  wildart: "Fuchs",
+  geschlecht: "weiblich",
+  altersklasse: "Adult",
+  bergungsStatus: "geborgen",
+  gemeinde: "Steinbach am Attersee",
+  note: "Schnellerfassung aus der Mobile-App"
+};
+
 export default function FallwildScreen() {
+  const queue = useOfflineQueueSnapshot();
   const [fallwild, setFallwild] = useState<FallwildListItem[]>([]);
-  const [pendingQueue, setPendingQueue] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
     void loadFallwild();
-    void readOfflineQueue().then((entries) => setPendingQueue(entries.length));
   }, []);
 
   async function loadFallwild(options?: { refreshing?: boolean }) {
@@ -42,30 +62,109 @@ export default function FallwildScreen() {
     }
   }
 
+  async function handleQuickFallwild() {
+    if (isSubmitting) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    setMessage(null);
+    setError(null);
+
+    try {
+      const payload = buildQuickFallwildPayload();
+      const result = await submitFallwildWithOfflineFallback(payload);
+
+      setMessage(
+        result.mode === "sent"
+          ? "Fallwild direkt an die API gesendet."
+          : "Keine Verbindung: Fallwild wurde in die Offline-Queue gelegt."
+      );
+
+      await loadFallwild({ refreshing: true });
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : "Fallwild konnte nicht erfasst werden.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  async function handleQueueSync() {
+    setMessage(null);
+    setError(null);
+
+    try {
+      const remaining = await syncOfflineQueue();
+      setMessage(
+        remaining.length === 0
+          ? "Offline-Queue synchronisiert."
+          : `${remaining.length} Queue-Eintraege warten weiter auf Synchronisierung.`
+      );
+      await loadFallwild({ refreshing: true });
+    } catch (syncError) {
+      setError(syncError instanceof Error ? syncError.message : "Queue konnte nicht synchronisiert werden.");
+    }
+  }
+
+  const queueEntries = queue.entries.filter((entry) => entry.kind === "fallwild-create");
+
   return (
     <ScreenShell
       eyebrow="Fallwild"
       title="Bergung auch ohne Netz sauber dokumentieren."
-      subtitle="Zeitpunkt, GPS, Fotos und Wildart werden ueber die API geladen und bleiben lokal synchronisierbar."
+      subtitle="Zeitpunkt, GPS und Wildart werden ueber die API erfasst oder offline vorgemerkt."
       aside={
         <View style={styles.queueCard}>
           <Text style={styles.queueTitle}>Ausstehende Synchronisierung</Text>
-          <Text style={styles.queueValue}>{pendingQueue}</Text>
-          <Text style={styles.queueCopy}>Erfasste Vorgaenge und Fotos werden automatisch nachgereicht.</Text>
+          <Text style={styles.queueValue}>{queueEntries.length}</Text>
+          <Text style={styles.queueCopy}>Erfasste Vorgaenge werden automatisch nachgereicht.</Text>
         </View>
       }
     >
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Fallwild schnell erfassen"
+        style={[styles.primaryAction, isSubmitting ? styles.buttonDisabled : null]}
+        onPress={() => void handleQuickFallwild()}
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? (
+          <ActivityIndicator color="#fff9ef" />
+        ) : (
+          <>
+            <Text style={styles.primaryActionTitle}>Schnellerfassung starten</Text>
+            <Text style={styles.primaryActionCopy}>Legt einen Bergungsvorgang an oder merkt ihn fuer Offline-Sync vor.</Text>
+          </>
+        )}
+      </Pressable>
+
       <View style={styles.toolbar}>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Fallwild aktualisieren"
-          style={[styles.refreshButton, isRefreshing ? styles.refreshButtonDisabled : null]}
+          style={[styles.refreshButton, isRefreshing ? styles.buttonDisabled : null]}
           onPress={() => void loadFallwild({ refreshing: true })}
           disabled={isRefreshing}
         >
           {isRefreshing ? <ActivityIndicator color={colors.ink} /> : <Text style={styles.refreshButtonText}>Aktualisieren</Text>}
         </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Fallwild-Queue synchronisieren"
+          style={[styles.refreshButton, queue.isSyncing ? styles.buttonDisabled : null]}
+          onPress={() => void handleQueueSync()}
+          disabled={queue.isSyncing}
+        >
+          <Text style={styles.refreshButtonText}>{queue.isSyncing ? "Synchronisiert..." : "Queue sync"}</Text>
+        </Pressable>
       </View>
+
+      {message ? (
+        <View style={styles.infoCard}>
+          <Text style={styles.stateTitle}>Status</Text>
+          <Text style={styles.stateCopy}>{message}</Text>
+        </View>
+      ) : null}
 
       {isLoading ? (
         <View style={styles.stateCard}>
@@ -74,8 +173,23 @@ export default function FallwildScreen() {
         </View>
       ) : error ? (
         <View style={styles.stateCard}>
-          <Text style={styles.stateTitle}>API nicht erreichbar</Text>
-          <Text style={styles.stateCopy}>{`${error}. Tippe auf "Aktualisieren", sobald die Verbindung wieder steht.`}</Text>
+          <Text style={styles.stateTitle}>Fallwild nicht verfuegbar</Text>
+          <Text style={styles.stateCopy}>{error}</Text>
+        </View>
+      ) : null}
+
+      {queueEntries.length > 0 ? (
+        <View style={styles.stateCard}>
+          <Text style={styles.stateTitle}>Offline-Vormerkungen</Text>
+          {queueEntries.slice(0, 2).map((entry) => (
+            <View key={entry.id} style={styles.queueRow}>
+              <Text style={styles.queueRowTitle}>{entry.title}</Text>
+              <Text style={styles.queueRowCopy}>
+                {entry.status}
+                {entry.lastError ? ` / ${entry.lastError}` : ""}
+              </Text>
+            </View>
+          ))}
         </View>
       ) : null}
 
@@ -112,10 +226,19 @@ export default function FallwildScreen() {
   );
 }
 
+function buildQuickFallwildPayload(): CreateFallwildRequest {
+  return {
+    ...DEFAULT_FALLWILD_PAYLOAD,
+    recordedAt: new Date().toISOString()
+  };
+}
+
 const styles = StyleSheet.create({
   toolbar: {
     flexDirection: "row",
-    justifyContent: "flex-end"
+    flexWrap: "wrap",
+    justifyContent: "flex-end",
+    gap: 10
   },
   refreshButton: {
     minWidth: 132,
@@ -126,7 +249,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: colors.card
   },
-  refreshButtonDisabled: {
+  buttonDisabled: {
     opacity: 0.7
   },
   refreshButtonText: {
@@ -151,6 +274,28 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     color: "#f7f2e5"
+  },
+  primaryAction: {
+    padding: 20,
+    borderRadius: 24,
+    backgroundColor: colors.accent
+  },
+  primaryActionTitle: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#fff9ef"
+  },
+  primaryActionCopy: {
+    marginTop: 6,
+    fontSize: 14,
+    lineHeight: 20,
+    color: "#f7f2e5"
+  },
+  infoCard: {
+    gap: 6,
+    padding: 18,
+    borderRadius: 22,
+    backgroundColor: "#efe3d1"
   },
   stateCard: {
     gap: 6,
@@ -202,5 +347,18 @@ const styles = StyleSheet.create({
   badgeText: {
     color: colors.warning,
     fontWeight: "600"
+  },
+  queueRow: {
+    gap: 2
+  },
+  queueRowTitle: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: colors.ink
+  },
+  queueRowCopy: {
+    fontSize: 13,
+    lineHeight: 18,
+    color: colors.muted
   }
 });

@@ -26,7 +26,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       })
     );
   } catch (error) {
-    return toErrorResponse(error);
+    return jsonError(error);
   }
 }
 
@@ -38,26 +38,9 @@ async function readJsonBody(request: Request): Promise<unknown> {
   try {
     return await request.json();
   } catch {
-    throw withStatus("Der Request-Body muss gueltiges JSON sein.", 400);
+    throw Object.assign(new Error("Der Request-Body muss gueltiges JSON sein."), {
+      status: 400,
+      code: "validation-error"
+    });
   }
-}
-
-function toErrorResponse(error: unknown) {
-  if (error instanceof Error) {
-    return jsonError(error.message, getStatusCode(error));
-  }
-
-  return jsonError("Interner Serverfehler.", 500);
-}
-
-function getStatusCode(error: Error): number {
-  if ("status" in error && typeof error.status === "number") {
-    return error.status;
-  }
-
-  return 400;
-}
-
-function withStatus(message: string, status: number) {
-  return Object.assign(new Error(message), { status });
 }

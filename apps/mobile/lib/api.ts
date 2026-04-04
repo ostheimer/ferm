@@ -1,4 +1,28 @@
-import type { AnsitzSession, FallwildVorgang, Membership, Revier, User } from "@hege/domain";
+import type {
+  Altersklasse,
+  AnsitzSession,
+  AuthContextResponse,
+  AuthSessionResponse,
+  BergungsStatus,
+  DashboardResponse,
+  DocumentDownloadRef,
+  GeoPoint,
+  Geschlecht,
+  LoginPayload,
+  ProtokollDetail,
+  ProtokollListItem,
+  Reviereinrichtung,
+  ReviereinrichtungListItem,
+  Role,
+  FallwildVorgang,
+  Membership,
+  Revier,
+  User,
+  Wildart
+} from "@hege/domain";
+import { buildDashboardOverview, demoData } from "@hege/domain";
+
+import { clearSession, getAccessToken, getRefreshToken, saveSession } from "./session";
 
 declare const process: {
   env: Record<string, string | undefined>;
@@ -6,20 +30,61 @@ declare const process: {
 
 const DEFAULT_API_BASE_URL = "http://localhost:3000/api";
 
+export class MobileApiError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+    readonly code: string
+  ) {
+    super(message);
+  }
+}
+
 export interface ApiMeResponse {
   user: User;
   membership: Membership;
   revier: Revier;
-}
-
-export interface DashboardSnapshot extends ApiMeResponse {
-  ansitze: AnsitzSession[];
+  activeRevierId: string;
+  availableMemberships: Array<{
+    id: string;
+    revierId: string;
+    role: Role;
+    jagdzeichen: string;
+    revierName: string;
+  }>;
 }
 
 export type FallwildListItem = FallwildVorgang;
 
+export interface LoginResult extends AuthSessionResponse {}
+
+export interface CreateAnsitzRequest {
+  standortId?: string;
+  standortName: string;
+  location: GeoPoint;
+  startedAt?: string;
+  plannedEndAt?: string;
+  note?: string;
+}
+
+export interface CreateFallwildRequest {
+  recordedAt?: string;
+  location: GeoPoint;
+  wildart: Wildart;
+  geschlecht: Geschlecht;
+  altersklasse: Altersklasse;
+  bergungsStatus: BergungsStatus;
+  gemeinde: string;
+  strasse?: string;
+  note?: string;
+}
+
+export interface MutationResponse {
+  id: string;
+}
+
 export function getApiBaseUrl(): string {
-  return trimTrailingSlash(process.env.EXPO_PUBLIC_API_BASE_URL ?? DEFAULT_API_BASE_URL);
+  return normalizeBaseUrl(process.env.EXPO_PUBLIC_API_BASE_URL ?? DEFAULT_API_BASE_URL);
 }
 
 export function toApiUrl(path: string): string {
@@ -28,32 +93,341 @@ export function toApiUrl(path: string): string {
   return `${getApiBaseUrl()}${normalizedPath}`;
 }
 
-export async function fetchDashboardSnapshot(): Promise<DashboardSnapshot> {
-  const [meResponse, ansitzeResponse] = await Promise.all([
-    fetchJson<ApiMeResponse>("/v1/me"),
-    fetchJson<AnsitzSession[]>("/v1/ansitze/live")
-  ]);
+export async function loginWithCredentials(payload: LoginPayload): Promise<LoginResult> {
+  const session = await requestJson<AuthSessionResponse>("/v1/auth/login", {
+    method: "POST",
+    auth: false,
+    body: payload
+  });
 
-  return {
-    ...meResponse,
-    ansitze: ansitzeResponse
-  };
+  await saveSession(session);
+  return session;
+}
+
+export async function refreshStoredSession() {
+  const refreshToken = getRefreshToken();
+
+  if (!refreshToken) {
+    return null;
+  }
+
+  try {
+    const session = await requestJson<AuthSessionResponse>("/v1/auth/refresh", {
+      method: "POST",
+      auth: false,
+      retryOnUnauthorized: false,
+      body: {
+        refreshToken
+      }
+    });
+
+    await saveSession(session);
+    return session;
+  } catch (error) {
+    await clearSession();
+    throw error;
+  }
+}
+
+export async function logout() {
+  await clearSession();
+}
+
+export function isRecoverableMutationError(error: unknown) {
+  if (error instanceof TypeError) {
+    return true;
+  }
+
+  if (error instanceof MobileApiError) {
+    return error.status >= 500 || error.code === "service-unavailable";
+  }
+
+  return false;
+}
+
+export async function fetchCurrentUser(): Promise<ApiMeResponse> {
+  const response = await requestJson<AuthContextResponse>("/v1/me", {
+    fallback: fallbackCurrentUser
+  });
+
+  return response;
+}
+
+export async function fetchDashboardSnapshot(): Promise<DashboardResponse> {
+  return requestJson<DashboardResponse>("/v1/dashboard", {
+    fallback: fallbackDashboardSnapshot
+  });
+}
+
+export async function fetchLiveAnsitze(): Promise<AnsitzSession[]> {
+  return requestJson<AnsitzSession[]>("/v1/ansitze/live", {
+    fallback: async () => {
+      const me = await fallbackCurrentUser();
+      return fallbackLiveAnsitze(me.revier.id);
+    }
+  });
 }
 
 export async function fetchFallwildList(): Promise<FallwildListItem[]> {
-  return fetchJson<FallwildListItem[]>("/v1/fallwild");
+  return requestJson<FallwildListItem[]>("/v1/fallwild", {
+    fallback: async () => {
+      const me = await fallbackCurrentUser();
+      return fallbackFallwildList(me.revier.id);
+    }
+  });
 }
 
-async function fetchJson<T>(path: string): Promise<T> {
-  const response = await fetch(toApiUrl(path));
+export async function createAnsitz(payload: CreateAnsitzRequest): Promise<MutationResponse> {
+  return requestJson<MutationResponse>("/v1/ansitze", {
+    method: "POST",
+    body: payload
+  });
+}
+
+export async function createFallwild(payload: CreateFallwildRequest): Promise<MutationResponse> {
+  return requestJson<MutationResponse>("/v1/fallwild", {
+    method: "POST",
+    body: payload
+  });
+}
+
+export async function fetchReviereinrichtungenList(): Promise<ReviereinrichtungListItem[]> {
+  return requestJson<ReviereinrichtungListItem[]>("/v1/reviereinrichtungen", {
+    fallback: async () => {
+      const me = await fallbackCurrentUser();
+      return fallbackReviereinrichtungenList(me.revier.id);
+    }
+  });
+}
+
+export async function fetchProtokolleList(): Promise<ProtokollListItem[]> {
+  return requestJson<ProtokollListItem[]>("/v1/protokolle", {
+    fallback: async () => {
+      const me = await fallbackCurrentUser();
+      return fallbackProtokolleList(me.revier.id);
+    }
+  });
+}
+
+export async function fetchProtokollDetail(id: string): Promise<ProtokollDetail> {
+  return requestJson<ProtokollDetail>(`/v1/protokolle/${encodeURIComponent(id)}`, {
+    fallback: async () => {
+      const me = await fallbackCurrentUser();
+      const items = await fallbackProtokolleList(me.revier.id);
+      const match = items.find((entry) => entry.id === id);
+
+      if (!match) {
+        throw new MobileApiError("Protokoll wurde nicht gefunden.", 404, "not-found");
+      }
+
+      const source = demoData.sitzungen.find((entry) => entry.id === id);
+
+      if (!source) {
+        throw new MobileApiError("Protokoll wurde nicht gefunden.", 404, "not-found");
+      }
+
+      return {
+        ...match,
+        participants: source.participants,
+        versions: source.versions
+      };
+    }
+  });
+}
+
+async function requestJson<T>(
+  path: string,
+  options: {
+    method?: string;
+    headers?: HeadersInit;
+    body?: unknown;
+    auth?: boolean;
+    retryOnUnauthorized?: boolean;
+    fallback?: () => Promise<T>;
+  } = {}
+): Promise<T> {
+  const response = await performRequest(path, options);
 
   if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`);
+    if (response.status === 404 && options.fallback) {
+      return options.fallback();
+    }
+
+    if (response.status === 401 && options.auth !== false && options.retryOnUnauthorized !== false) {
+      const refreshed = await refreshStoredSession().catch(() => null);
+
+      if (refreshed) {
+        return requestJson(path, {
+          ...options,
+          retryOnUnauthorized: false
+        });
+      }
+    }
+
+    if (response.status === 401 && options.auth !== false) {
+      await clearSession();
+    }
+
+    throw await readApiError(response);
   }
 
   return (await response.json()) as T;
 }
 
+async function performRequest(
+  path: string,
+  options: {
+    method?: string;
+    headers?: HeadersInit;
+    body?: unknown;
+    auth?: boolean;
+  } = {}
+) {
+  const headers = new Headers(options.headers ?? {});
+
+  if (options.auth !== false) {
+    const accessToken = getAccessToken();
+
+    if (accessToken) {
+      headers.set("authorization", `Bearer ${accessToken}`);
+    }
+  }
+
+  let body: BodyInit | undefined;
+
+  if (options.body !== undefined) {
+    headers.set("content-type", "application/json");
+    body = JSON.stringify(options.body);
+  }
+
+  return fetch(toApiUrl(path), {
+    method: options.method ?? "GET",
+    headers,
+    body
+  });
+}
+
+async function readApiError(response: Response) {
+  const payload = (await response.json().catch(() => null)) as
+    | {
+        error?: {
+          code?: string;
+          message?: string;
+          status?: number;
+        };
+      }
+    | null;
+
+  return new MobileApiError(
+    payload?.error?.message ?? `HTTP ${response.status}`,
+    payload?.error?.status ?? response.status,
+    payload?.error?.code ?? "internal-error"
+  );
+}
+
+function normalizeBaseUrl(value: string): string {
+  const trimmed = trimTrailingSlash(value);
+
+  return trimmed.endsWith("/v1") ? trimmed.slice(0, -3) : trimmed;
+}
+
 function trimTrailingSlash(value: string): string {
   return value.endsWith("/") ? value.slice(0, -1) : value;
+}
+
+async function fallbackCurrentUser(): Promise<ApiMeResponse> {
+  const current = demoData.memberships[0];
+  const user = demoData.users.find((entry) => entry.id === current?.userId);
+  const revier = demoData.reviere.find((entry) => entry.id === current?.revierId);
+
+  if (!current || !user || !revier) {
+    throw new MobileApiError("Benutzerkontext konnte nicht geladen werden.", 500, "internal-error");
+  }
+
+  return {
+    user,
+    membership: current,
+    revier,
+    activeRevierId: current.revierId,
+    availableMemberships: demoData.memberships
+      .filter((membership) => membership.userId === user.id)
+      .map((membership) => ({
+        id: membership.id,
+        revierId: membership.revierId,
+        role: membership.role,
+        jagdzeichen: membership.jagdzeichen,
+        revierName: demoData.reviere.find((entry) => entry.id === membership.revierId)?.name ?? "Unbekannt"
+      }))
+  };
+}
+
+async function fallbackDashboardSnapshot(): Promise<DashboardResponse> {
+  const me = await fallbackCurrentUser();
+  const activeAnsitze = await fallbackLiveAnsitze(me.revier.id);
+  const recentFallwild = await fallbackFallwildList(me.revier.id);
+
+  return {
+    ...me,
+    overview: buildDashboardOverview(demoData, me.revier.id),
+    activeAnsitze,
+    recentFallwild
+  };
+}
+
+async function fallbackLiveAnsitze(revierId?: string): Promise<AnsitzSession[]> {
+  const activeRevierId = revierId ?? demoData.reviere[0]?.id;
+
+  return demoData.ansitze.filter((entry) => entry.status === "active" && entry.revierId === activeRevierId);
+}
+
+async function fallbackFallwildList(revierId?: string): Promise<FallwildListItem[]> {
+  const activeRevierId = revierId ?? demoData.reviere[0]?.id;
+
+  return demoData.fallwild.filter((entry) => entry.revierId === activeRevierId);
+}
+
+async function fallbackReviereinrichtungenList(revierId?: string): Promise<ReviereinrichtungListItem[]> {
+  const activeRevierId = revierId ?? demoData.reviere[0]?.id;
+
+  return demoData.reviereinrichtungen
+    .filter((entry) => entry.revierId === activeRevierId)
+    .map(mapReviereinrichtungToListItem);
+}
+
+async function fallbackProtokolleList(revierId?: string): Promise<ProtokollListItem[]> {
+  const activeRevierId = revierId ?? demoData.reviere[0]?.id;
+
+  return demoData.sitzungen.filter((entry) => entry.revierId === activeRevierId).map(mapSitzungToProtokollListItem);
+}
+
+function mapReviereinrichtungToListItem(entry: Reviereinrichtung): ReviereinrichtungListItem {
+  return {
+    ...entry,
+    offeneWartungen: entry.wartung.filter((wartung) => wartung.status === "offen").length,
+    letzteKontrolleAt: entry.kontrollen[0]?.createdAt
+  };
+}
+
+function mapSitzungToProtokollListItem(entry: (typeof demoData.sitzungen)[number]): ProtokollListItem {
+  const latestVersion = entry.versions[0];
+
+  return {
+    id: entry.id,
+    revierId: entry.revierId,
+    title: entry.title,
+    scheduledAt: entry.scheduledAt,
+    locationLabel: entry.locationLabel,
+    status: entry.status,
+    latestVersionCreatedAt: latestVersion?.createdAt,
+    summaryPreview: latestVersion?.summary,
+    beschlussCount: latestVersion?.beschluesse.length ?? 0,
+    publishedDocument: entry.publishedDocument ? mapPublishedDocument(entry.publishedDocument) : undefined
+  };
+}
+
+function mapPublishedDocument(document: NonNullable<(typeof demoData.sitzungen)[number]["publishedDocument"]>): DocumentDownloadRef {
+  return {
+    ...document,
+    downloadUrl: document.url
+  };
 }
