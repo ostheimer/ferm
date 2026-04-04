@@ -17,3 +17,4 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 - Root- und Web-Skripte um E2E-, Snapshot-Update- und Visual-Test-Kommandos erweitert.
 - Typecheck- und Lint-Skripte in `apps/web` gegen stale `tsconfig.tsbuildinfo` abgesichert.
 - README, Doku-Uebersicht und `TESTCASES.md` um die neue Teststrategie erweitert.
+- Produktplanung fuer Reviermeldungen, rollenbasierte Sichtbarkeit, Aufgaben, Veranstaltungen und WhatsApp-Anstoss in den Fachdokumenten erweitert.

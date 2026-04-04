@@ -2,56 +2,56 @@
 
 ## Ziel
 
-Diese Roadmap beschreibt die Ausbaustufen vom aktuellen Repository-Grundgerüst zur ersten produktiven Version für Schriftführer und Jäger.
+Diese Roadmap beschreibt die Ausbaustufen vom aktuellen Repository-Grundgeruest zur ersten produktiven Version fuer Schriftfuehrer und Jaeger.
 
 ## Aktueller Status
 
-- Der aktuelle Code-Stand ist ein sichtbares Demo- und Integrationsgerüst.
-- Web, Mobile und eine bestehende Übergangs-API existieren bereits als Grundstruktur, aber noch nicht mit produktiver Persistenz oder Authentifizierung.
-- Der nächste reale Meilenstein ist vollständig `Sprint 0`.
+- Der aktuelle Code-Stand ist ein sichtbares Demo- und Integrationsgeruest.
+- Web, Mobile und eine bestehende Uebergangs-API existieren bereits als Grundstruktur, aber noch nicht mit produktiver Persistenz oder Authentifizierung.
+- Der naechste reale Meilenstein ist vollstaendig `Sprint 0`.
 
 ## Sprint 0: Fundament
 
-Ziel: aus dem Demo-Gerüst eine produktive technische Basis machen
+Ziel: aus dem Demo-Geruest eine produktive technische Basis machen
 
 Lieferumfang:
 
 - PostgreSQL/PostGIS anbinden
 - Vercel-native API-Basis in `apps/web` einziehen
-- Migrationen und Datenmodell einführen
+- Migrationen und Datenmodell einfuehren
 - Authentifizierung und Revier-Kontext einziehen
 - Rollenmodell serverseitig aktivieren
-- Seed-Daten für lokales Entwicklungsrevier
-- Basis für Storage und Medienverwaltung
-- API-Verträge und erste Contract-Tests für Kernressourcen aufsetzen
+- Seed-Daten fuer lokales Entwicklungsrevier
+- Basis fuer Storage und Medienverwaltung
+- API-Vertraege und erste Contract-Tests fuer Kernressourcen aufsetzen
 
 Ergebnis:
 
 - persistente API-Basis mit echten Benutzern, Revieren und Mitgliedschaften
 
-## Sprint 1: Schriftführer-Backend
+## Sprint 1: Schriftfuehrer-Backend
 
-Ziel: erste nutzbare Web-Version für Sitzungen und Protokolle
+Ziel: erste nutzbare Web-Version fuer Sitzungen und Protokolle
 
 Lieferumfang:
 
-- Dashboard mit offenen Entwürfen und Revierlage
+- Dashboard mit offenen Entwuerfen und Revierlage
 - Sitzungsliste
 - Sitzungsdetail
 - Protokoll-Editor
-- Teilnehmer und Beschlüsse
+- Teilnehmer und Beschluesse
 - Versionierung
 - Freigabe durch Revier Admin
 - PDF-Erzeugung
-- Contract-Tests für Sitzungen, Freigabe und Rollenrechte
+- Contract-Tests fuer Sitzungen, Freigabe und Rollenrechte
 
 Ergebnis:
 
-- Sitzungen können von der Anlage bis zur Veröffentlichung durchlaufen werden
+- Sitzungen koennen von der Anlage bis zur Veroeffentlichung durchlaufen werden
 
-## Sprint 2: Jäger-App Kern
+## Sprint 2: Jaeger-App Kern
 
-Ziel: erste nutzbare mobile Version für den täglichen Einsatz
+Ziel: erste nutzbare mobile Version fuer den taeglichen Einsatz
 
 Lieferumfang:
 
@@ -59,17 +59,17 @@ Lieferumfang:
 - Heute-im-Revier-Screen
 - Ansitz starten und beenden
 - Liste aktiver Ansitze mit manueller Aktualisierung
-- Push-Benachrichtigungen für Ansitze
+- Push-Benachrichtigungen fuer Ansitze
 - freigegebene Protokolle lesen
-- kritische Mobile-Flows für Login, Ansitz und Protokollanzeige automatisiert absichern
+- kritische Mobile-Flows fuer Login, Ansitz und Protokollanzeige automatisiert absichern
 
 Ergebnis:
 
-- Jäger sehen die Lage im Revier und können Ansitze sauber melden
+- Jaeger sehen die Lage im Revier und koennen Ansitze sauber melden
 
 ## Sprint 3: Fallwild
 
-Ziel: Fallwild-Erfassung vollständig mobil nutzbar machen
+Ziel: Fallwild-Erfassung vollstaendig mobil nutzbar machen
 
 Lieferumfang:
 
@@ -77,62 +77,82 @@ Lieferumfang:
 - Foto-Upload
 - Offline-Warteschlange in der App
 - Wiederanlauf und Synchronisierung
-- Fallwild-Übersicht im Web
+- Fallwild-Uebersicht im Web
 - CSV-Export
 
 Ergebnis:
 
-- Fallwild kann draußen erfasst und später vollständig synchronisiert werden
+- Fallwild kann draussen erfasst und spaeter vollstaendig synchronisiert werden
 
-## Sprint 4: Reviereinrichtungen und Härtung
+## Sprint 4: Reviereinrichtungen und Haertung
 
 Ziel: die v1 fachlich und technisch stabilisieren
 
 Lieferumfang:
 
 - Reviereinrichtungen lesend in der App
-- einfache Kontroll- oder Mängelhinweise
+- einfache Kontroll- oder Maengelhinweise
 - Audit-Log
 - Monitoring und Logging
-- Fehlerbehandlung und Rechteprüfung komplett
-- Qualitäts- und Abnahmetests
+- Fehlerbehandlung und Rechtepruefung komplett
+- Qualitaets- und Abnahmetests
 
 Ergebnis:
 
-- stabile v1 mit klaren Kernabläufen für Schriftführer und Jäger
+- stabile v1 mit klaren Kernablaeufen fuer Schriftfuehrer und Jaeger
+
+## Ausbaustufe nach v1: Kommunikation, Aufgaben und Veranstaltungen
+
+Ziel: interne Zusammenarbeit und Feldrueckmeldungen strukturiert in `hege` abbilden
+
+Lieferumfang:
+
+- flexible Rollen- und Empfaengergruppen fuer Sichtbarkeit und Kommunikation
+- Reviermeldungen aus dem Feld zu Fuetterungen, Wasserungen und Hochstaenden mit Fotos und Kurztext
+- Aufgaben aus Protokollen, Beschluessen oder manueller Planung
+- Aufgabenlisten und Kalenderansicht pro Benutzer in der mobilen App
+- Veranstaltungen mit Ankuendigung, Treffpunkt, Erinnerungen und optionaler Teilnahmebestaetigung
+- WhatsApp- und spaeter Telegram-Anstoss aus der App heraus mit vorbereitetem Nachrichtentext
+- Auditierbare Zuordnung zwischen interner Nachricht, Aufgabe, Veranstaltung und externem Messenger-Anstoss
+
+Ergebnis:
+
+- Kommunikation, Organisation und Feldrueckmeldungen laufen nicht mehr nebenbei ueber private Chatverlaeufe, sondern nachvollziehbar ueber `hege`
 
 ## Querschnittsthemen
 
-### Qualität
+### Qualitaet
 
 - API-Contract-Tests starten bereits in Sprint 0 und werden in Sprint 1 erweitert
 - kritische Mobile-User-Flows werden ab Sprint 2 parallel zu den Features abgesichert
-- End-to-End-Abnahmetests bündeln die Kernabläufe in Sprint 4
+- End-to-End-Abnahmetests buendeln die Kernablaeufe in Sprint 4
+- visuelle Regressionstests werden fuer zentrale Web-Flows schrittweise ausgebaut
 
 ### Sprache und Lokalisierung
 
-- v1 ist fachlich und redaktionell auf Deutsch für Österreich (`de-AT`) ausgelegt
-- Web und Mobile sollen Texte dennoch so strukturieren, dass spätere zusätzliche Sprachen möglich bleiben
+- v1 ist fachlich und redaktionell auf Deutsch fuer Oesterreich (`de-AT`) ausgelegt
+- Web und Mobile sollen Texte dennoch so strukturieren, dass spaetere zusaetzliche Sprachen moeglich bleiben
 - eine verpflichtende zweisprachige Auslieferung ist nicht Teil von v1
-- falls nach v1 eine erste Zweitsprache eingeführt wird, ist Englisch (`en`) die bevorzugte erste Erweiterung
+- falls nach v1 eine erste Zweitsprache eingefuehrt wird, ist Englisch (`en`) die bevorzugte erste Erweiterung
 
-## Abnahmekriterien für v1
+## Abnahmekriterien fuer v1
 
-- Schriftführer kann eine Sitzung anlegen, bearbeiten und zur Freigabe bringen
-- Revier Admin kann ein Protokoll freigeben und veröffentlichen
-- Jäger kann einen Ansitz starten und beenden
-- Jäger kann Fallwild auch offline vollständig erfassen
+- Schriftfuehrer kann eine Sitzung anlegen, bearbeiten und zur Freigabe bringen
+- Revier Admin kann ein Protokoll freigeben und veroeffentlichen
+- Jaeger kann einen Ansitz starten und beenden
+- Jaeger kann Fallwild auch offline vollstaendig erfassen
 - freigegebene Protokolle sind mobil lesbar
 - alle Daten sind pro Revier getrennt
 - kritische Aktionen sind nachvollziehbar protokolliert
 
-## Empfohlene nächste Umsetzung
+## Empfohlene naechste Umsetzung
 
 Wenn unmittelbar weiterentwickelt wird, ist die sinnvollste Reihenfolge:
 
-1. Sprint 0 vollständig umsetzen
-2. danach Schriftführer-Backend bis zur Protokollfreigabe fertigstellen
+1. Sprint 0 vollstaendig umsetzen
+2. danach Schriftfuehrer-Backend bis zur Protokollfreigabe fertigstellen
 3. erst dann die mobile Offline-Fallwildstrecke produktiv machen
+4. danach Kommunikation, Aufgaben und Veranstaltungen auf die bestehende Rollen- und Rechtebasis setzen
 
 ## Detaillierte Sprint-Backlogs
 
