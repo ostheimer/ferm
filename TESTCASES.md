@@ -26,6 +26,14 @@
 - Erwartung: die beiden API-Endpunkte antworten mit `200`
 - Erwartung: die Seite `/ansitze` rendert ohne Serverfehler und zeigt aktive Ansitze
 
+### TC-API-ANSITZ-00D: Vercel-Maintenance-Lauf fuer `Neon main`
+
+- Preview oder Production mit gueltigem Admin-Access-Token und Maintenance-Key vorbereiten
+- `POST /api/internal/db-sync` aufrufen
+- Erwartung: ausstehende Drizzle-Migrationen werden ausgefuehrt und der Seed laeuft idempotent durch
+- Erwartung: die Antwort liefert Datenbankname, angewendete Migrationen und Tabellenzaehler
+- Erwartung: anschliessend antworten `POST /api/v1/auth/login`, `GET /api/v1/dashboard`, `GET /api/v1/reviereinrichtungen`, `GET /api/v1/protokolle` und `GET /api/v1/sitzungen` ohne `500`
+
 ### TC-API-ANSITZ-01: Authentifizierter Kontext liefert `me`
 
 - Web-App lokal starten
