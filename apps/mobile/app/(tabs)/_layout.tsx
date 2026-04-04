@@ -1,9 +1,21 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { Tabs } from "expo-router";
+import { Redirect, Tabs } from "expo-router";
 
+import { AppLoader } from "../../components/app-loader";
 import { colors } from "../../lib/theme";
+import { useSessionSnapshot } from "../../lib/session";
 
 export default function TabsLayout() {
+  const session = useSessionSnapshot();
+
+  if (session.status === "loading" || !session.hydrated) {
+    return <AppLoader />;
+  }
+
+  if (session.status !== "authenticated") {
+    return <Redirect href="/login" />;
+  }
+
   return (
     <Tabs
       screenOptions={{

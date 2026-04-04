@@ -1,9 +1,11 @@
 import { listFallwild } from "../../server/modules/fallwild/queries";
+import { requirePageAuth } from "../../server/auth/guards";
 import { FallwildClient, type FallwildClientEntry } from "./fallwild-client";
 
 export const dynamic = "force-dynamic";
 
 export default async function FallwildPage() {
+  await requirePageAuth();
   const entries = (await listFallwild()).map((entry) => toFallwildClientEntry(entry));
 
   return <FallwildClient entries={entries} />;

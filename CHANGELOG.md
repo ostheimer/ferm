@@ -8,13 +8,17 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 
 ### Added
 
-- Playwright-E2E- und Visual-Regression-Tests fuer die wichtigsten Web-Use-Cases in `Ansitze` und `Fallwild` auf Desktop und Mobile.
-- Isolierter lokaler E2E-Datenbank-Setup mit Seed-Reset pro Testfall fuer reproduzierbare Browser-Tests.
-- Eigene Vitest-Konfiguration fuer `apps/web`, damit Unit- und Integrationstests von Playwright getrennt laufen.
+- Echte Auth-Session mit Login, Refresh, `GET /api/v1/me` und serverseitigem Revierkontext fuer Web und App.
+- Neue API-Vertraege fuer `dashboard`, `reviereinrichtungen`, `protokolle`, `sitzungen` und `documents` auf der Web-Schicht eingefuehrt.
+- Neue Web-Flows fuer die Sitzungen-Liste, Sitzungsdetail, Freigabe und PDF-Download-Grundlage umgesetzt.
+- Mobile Session-Restore, tokenbasiertes Login und zentraler API-Client fuer die Read-Slices eingerichtet.
+- Mobile Offline-Queue mit Retry-Status fuer `Ansitz`- und `Fallwild`-Schnellmeldungen eingebaut.
 
 ### Changed
 
-- Root- und Web-Skripte um E2E-, Snapshot-Update- und Visual-Test-Kommandos erweitert.
-- Typecheck- und Lint-Skripte in `apps/web` gegen stale `tsconfig.tsbuildinfo` abgesichert.
-- README, Doku-Uebersicht und `TESTCASES.md` um die neue Teststrategie erweitert.
-- Produktplanung fuer Reviermeldungen, rollenbasierte Sichtbarkeit, Aufgaben, Veranstaltungen und WhatsApp-Anstoss in den Fachdokumenten erweitert.
+- Dashboard im Web von `demoData` auf die Server-Schicht mit Session-/Revier-Kontext umgestellt.
+- Reviereinrichtungen und Protokolle im Web auf read-only Server-Slices umgestellt.
+- Mobile-Dashboard liest `DashboardResponse` und zeigt Queue, naechste Sitzung und letzte Benachrichtigung aus der API.
+- Web-Auth, Session-Kontext und Fehlerformat auf echte Token- und JSON-Responses umgestellt.
+- Seeds und DB-Schema um Reviereinrichtungen, Kontrollen, Sitzungen, Protokollversionen, Beschluesse, Dokumente und Notifications erweitert.
+- Mobile `Ansitz` und `Fallwild` koennen Schnellmeldungen direkt senden oder bei Verbindungsfehlern in die Queue legen.

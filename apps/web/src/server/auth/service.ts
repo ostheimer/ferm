@@ -1,0 +1,303 @@
+import type {
+  AuthContextResponse,
+  AuthSessionResponse,
+  LoginPayload,
+  Membership,
+  MembershipSummary,
+  RefreshSessionPayload,
+  Revier,
+  Role,
+  User
+} from "@hege/domain";
+import { demoData } from "@hege/domain";
+import { eq } from "drizzle-orm";
+
+import { getDb } from "../db/client";
+import { memberships, reviere, type RevierRecord, users } from "../db/schema";
+import { getServerEnv } from "../env";
+import { RouteError } from "../http/errors";
+import { hashPassword, verifyPassword } from "./passwords";
+import { issueSessionTokens, type SessionTokenContext, verifyRefreshToken } from "./tokens";
+
+interface AuthenticatedMembership extends Membership {
+  revier: Revier;
+}
+
+interface DemoUserRecord extends User {
+  passwordHash: string;
+}
+
+export async function login(payload: LoginPayload): Promise<AuthSessionResponse> {
+  if (getServerEnv().useDemoStore) {
+    return loginAgainstDemoStore(payload);
+  }
+
+  const normalizedEmail = normalizeEmail(payload.email);
+  const db = getDb();
+  const [user] = await db.select().from(users).where(eq(users.email, normalizedEmail)).limit(1);
+
+  if (!user || !verifyPassword(payload.password, user.passwordHash)) {
+    throw new RouteError("E-Mail oder Passwort ist ungueltig.", 401, "unauthenticated");
+  }
+
+  const membershipsForUser = await loadMembershipsForUser(user.id);
+  const activeMembership = resolveActiveMembership(membershipsForUser, payload.membershipId);
+
+  return buildAuthenticatedSession({
+    user,
+    activeMembership,
+    allMemberships: membershipsForUser
+  });
+}
+
+export async function refreshSession(payload: RefreshSessionPayload): Promise<AuthSessionResponse> {
+  const token = payload.refreshToken;
+
+  if (!token) {
+    throw new RouteError("Refresh-Token fehlt.", 401, "unauthenticated");
+  }
+
+  const tokenContext = verifyRefreshToken(token);
+
+  if (getServerEnv().useDemoStore) {
+    const user = loadDemoUser(tokenContext.userId);
+    const membershipsForUser = loadDemoMembershipsForUser(user.id);
+    const activeMembership = resolveActiveMembership(membershipsForUser, payload.membershipId ?? tokenContext.membershipId);
+
+    return buildAuthenticatedSession({
+      user,
+      activeMembership,
+      allMemberships: membershipsForUser
+    });
+  }
+
+  const db = getDb();
+  const [user] = await db.select().from(users).where(eq(users.id, tokenContext.userId)).limit(1);
+
+  if (!user) {
+    throw new RouteError("Benutzer wurde nicht gefunden.", 401, "unauthenticated");
+  }
+
+  const membershipsForUser = await loadMembershipsForUser(user.id);
+  const activeMembership = resolveActiveMembership(membershipsForUser, payload.membershipId ?? tokenContext.membershipId);
+
+  return buildAuthenticatedSession({
+    user,
+    activeMembership,
+    allMemberships: membershipsForUser
+  });
+}
+
+export async function resolveAuthContext(context: SessionTokenContext): Promise<AuthContextResponse> {
+  if (getServerEnv().useDemoStore) {
+    const user = loadDemoUser(context.userId);
+    const membershipsForUser = loadDemoMembershipsForUser(user.id);
+    const activeMembership = resolveActiveMembership(membershipsForUser, context.membershipId);
+
+    return toAuthContextResponse(user, activeMembership, membershipsForUser);
+  }
+
+  const db = getDb();
+  const [user] = await db.select().from(users).where(eq(users.id, context.userId)).limit(1);
+
+  if (!user) {
+    throw new RouteError("Benutzer wurde nicht gefunden.", 401, "unauthenticated");
+  }
+
+  const membershipsForUser = await loadMembershipsForUser(user.id);
+  const activeMembership = resolveActiveMembership(membershipsForUser, context.membershipId);
+
+  return toAuthContextResponse(user, activeMembership, membershipsForUser);
+}
+
+export function assertRole(role: Role, allowedRoles: Role[]) {
+  if (!allowedRoles.includes(role)) {
+    throw new RouteError("Diese Aktion ist fuer die aktuelle Rolle nicht erlaubt.", 403, "forbidden");
+  }
+}
+
+export function getDefaultSeedPassword() {
+  return getServerEnv().demoPassword;
+}
+
+export function createSeedPasswordHash() {
+  return hashPassword(getDefaultSeedPassword());
+}
+
+async function loginAgainstDemoStore(payload: LoginPayload): Promise<AuthSessionResponse> {
+  const normalizedEmail = normalizeEmail(payload.email);
+  const user = loadDemoUserByEmail(normalizedEmail);
+
+  if (!user || !verifyPassword(payload.password, user.passwordHash)) {
+    throw new RouteError("E-Mail oder Passwort ist ungueltig.", 401, "unauthenticated");
+  }
+
+  const membershipsForUser = loadDemoMembershipsForUser(user.id);
+  const activeMembership = resolveActiveMembership(membershipsForUser, payload.membershipId);
+
+  return buildAuthenticatedSession({
+    user,
+    activeMembership,
+    allMemberships: membershipsForUser
+  });
+}
+
+async function loadMembershipsForUser(userId: string): Promise<AuthenticatedMembership[]> {
+  const db = getDb();
+  const rows = await db.select().from(memberships).where(eq(memberships.userId, userId));
+
+  return Promise.all(
+    rows.map(async (entry) => {
+      const [revier] = await db.select().from(reviere).where(eq(reviere.id, entry.revierId)).limit(1);
+
+      if (!revier) {
+        throw new RouteError("Revier wurde nicht gefunden.", 401, "unauthenticated");
+      }
+
+      return {
+        ...entry,
+        revier: mapRevierRecordToDomain(revier)
+      };
+    })
+  );
+}
+
+function loadDemoMembershipsForUser(userId: string): AuthenticatedMembership[] {
+  return demoData.memberships
+    .filter((entry) => entry.userId === userId)
+    .map((entry) => {
+      const revier = demoData.reviere.find((candidate) => candidate.id === entry.revierId);
+
+      if (!revier) {
+        throw new RouteError("Revier wurde nicht gefunden.", 401, "unauthenticated");
+      }
+
+      return {
+        ...entry,
+        revier
+      };
+    });
+}
+
+function resolveActiveMembership(
+  membershipsForUser: AuthenticatedMembership[],
+  membershipId?: string
+): AuthenticatedMembership {
+  if (membershipsForUser.length === 0) {
+    throw new RouteError("Fuer diesen Benutzer existiert keine aktive Mitgliedschaft.", 403, "forbidden");
+  }
+
+  if (membershipId) {
+    const match = membershipsForUser.find((entry) => entry.id === membershipId);
+
+    if (!match) {
+      throw new RouteError("Die angeforderte Mitgliedschaft gehoert nicht zum Benutzer.", 403, "forbidden");
+    }
+
+    return match;
+  }
+
+  const [firstMembership] = membershipsForUser;
+
+  if (!firstMembership) {
+    throw new RouteError("Fuer diesen Benutzer existiert keine aktive Mitgliedschaft.", 403, "forbidden");
+  }
+
+  return firstMembership;
+}
+
+function buildAuthenticatedSession({
+  user,
+  activeMembership,
+  allMemberships
+}: {
+  user: User;
+  activeMembership: AuthenticatedMembership;
+  allMemberships: AuthenticatedMembership[];
+}): AuthSessionResponse {
+  const tokens = issueSessionTokens({
+    userId: user.id,
+    membershipId: activeMembership.id,
+    revierId: activeMembership.revierId,
+    role: activeMembership.role
+  });
+
+  return {
+    ...toAuthContextResponse(user, activeMembership, allMemberships),
+    tokens
+  };
+}
+
+function toAuthContextResponse(
+  user: User,
+  activeMembership: AuthenticatedMembership,
+  allMemberships: AuthenticatedMembership[]
+): AuthContextResponse {
+  return {
+    user,
+    membership: stripAuthenticatedMembership(activeMembership),
+    revier: activeMembership.revier,
+    activeRevierId: activeMembership.revierId,
+    availableMemberships: allMemberships.map(toMembershipSummary)
+  };
+}
+
+function stripAuthenticatedMembership(value: AuthenticatedMembership): Membership {
+  return {
+    id: value.id,
+    userId: value.userId,
+    revierId: value.revierId,
+    role: value.role,
+    jagdzeichen: value.jagdzeichen,
+    pushEnabled: value.pushEnabled
+  };
+}
+
+function toMembershipSummary(value: AuthenticatedMembership): MembershipSummary {
+  return {
+    id: value.id,
+    revierId: value.revierId,
+    role: value.role,
+    jagdzeichen: value.jagdzeichen,
+    revierName: value.revier.name
+  };
+}
+
+function loadDemoUserByEmail(email: string): DemoUserRecord | undefined {
+  return demoUsers.find((entry) => entry.email === email);
+}
+
+function loadDemoUser(userId: string): DemoUserRecord {
+  const user = demoUsers.find((entry) => entry.id === userId);
+
+  if (!user) {
+    throw new RouteError("Benutzer wurde nicht gefunden.", 401, "unauthenticated");
+  }
+
+  return user;
+}
+
+function normalizeEmail(value: string) {
+  return value.trim().toLowerCase();
+}
+
+function mapRevierRecordToDomain(record: RevierRecord): Revier {
+  return {
+    id: record.id,
+    tenantKey: record.tenantKey,
+    name: record.name,
+    bundesland: record.bundesland,
+    bezirk: record.bezirk,
+    flaecheHektar: record.flaecheHektar,
+    zentrum: {
+      lat: record.zentrumLat,
+      lng: record.zentrumLng,
+      label: record.zentrumLabel ?? undefined
+    }
+  };
+}
+
+const demoUsers: DemoUserRecord[] = demoData.users.map((entry) => ({
+  ...entry,
+  passwordHash: hashPassword(getDefaultSeedPassword())
+}));

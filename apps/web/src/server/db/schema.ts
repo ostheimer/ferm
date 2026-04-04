@@ -1,11 +1,32 @@
-import type { Altersklasse, AnsitzStatus, BergungsStatus, Geschlecht, Role, Wildart } from "@hege/domain";
-import { boolean, doublePrecision, index, integer, pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import type {
+  Altersklasse,
+  AnsitzStatus,
+  BergungsStatus,
+  EinrichtungTyp,
+  EinrichtungZustand,
+  Geschlecht,
+  NotificationChannel,
+  ProtokollStatus,
+  Role,
+  Wildart
+} from "@hege/domain";
+import {
+  boolean,
+  doublePrecision,
+  index,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex
+} from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   phone: text("phone").notNull(),
-  email: text("email").notNull()
+  email: text("email").notNull(),
+  passwordHash: text("password_hash").notNull()
 });
 
 export const reviere = pgTable(
@@ -102,8 +123,188 @@ export const fallwildVorgaenge = pgTable(
   ]
 );
 
+export const notifications = pgTable(
+  "notifications",
+  {
+    id: text("id").primaryKey(),
+    revierId: text("revier_id")
+      .notNull()
+      .references(() => reviere.id),
+    channel: text("channel").$type<NotificationChannel>().notNull(),
+    title: text("title").notNull(),
+    body: text("body").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull()
+  },
+  (table) => [
+    index("notifications_revier_idx").on(table.revierId),
+    index("notifications_created_at_idx").on(table.createdAt)
+  ]
+);
+
+export const reviereinrichtungen = pgTable(
+  "reviereinrichtungen",
+  {
+    id: text("id").primaryKey(),
+    revierId: text("revier_id")
+      .notNull()
+      .references(() => reviere.id),
+    type: text("type").$type<EinrichtungTyp>().notNull(),
+    name: text("name").notNull(),
+    status: text("status").$type<EinrichtungZustand>().notNull(),
+    locationLat: doublePrecision("location_lat").notNull(),
+    locationLng: doublePrecision("location_lng").notNull(),
+    locationLabel: text("location_label"),
+    beschreibung: text("beschreibung")
+  },
+  (table) => [
+    index("reviereinrichtungen_revier_idx").on(table.revierId),
+    index("reviereinrichtungen_status_idx").on(table.status)
+  ]
+);
+
+export const reviereinrichtungKontrollen = pgTable(
+  "reviereinrichtung_kontrollen",
+  {
+    id: text("id").primaryKey(),
+    einrichtungId: text("einrichtung_id")
+      .notNull()
+      .references(() => reviereinrichtungen.id),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull(),
+    createdByMembershipId: text("created_by_membership_id")
+      .notNull()
+      .references(() => memberships.id),
+    zustand: text("zustand").$type<EinrichtungZustand>().notNull(),
+    note: text("note")
+  },
+  (table) => [
+    index("reviereinrichtung_kontrollen_einrichtung_idx").on(table.einrichtungId),
+    index("reviereinrichtung_kontrollen_created_at_idx").on(table.createdAt)
+  ]
+);
+
+export const reviereinrichtungWartungen = pgTable(
+  "reviereinrichtung_wartungen",
+  {
+    id: text("id").primaryKey(),
+    einrichtungId: text("einrichtung_id")
+      .notNull()
+      .references(() => reviereinrichtungen.id),
+    dueAt: timestamp("due_at", { withTimezone: true, mode: "string" }).notNull(),
+    status: text("status").$type<"offen" | "erledigt">().notNull(),
+    title: text("title").notNull(),
+    note: text("note")
+  },
+  (table) => [
+    index("reviereinrichtung_wartungen_einrichtung_idx").on(table.einrichtungId),
+    index("reviereinrichtung_wartungen_due_at_idx").on(table.dueAt)
+  ]
+);
+
+export const sitzungen = pgTable(
+  "sitzungen",
+  {
+    id: text("id").primaryKey(),
+    revierId: text("revier_id")
+      .notNull()
+      .references(() => reviere.id),
+    title: text("title").notNull(),
+    scheduledAt: timestamp("scheduled_at", { withTimezone: true, mode: "string" }).notNull(),
+    locationLabel: text("location_label").notNull(),
+    status: text("status").$type<ProtokollStatus>().notNull()
+  },
+  (table) => [
+    index("sitzungen_revier_idx").on(table.revierId),
+    index("sitzungen_status_idx").on(table.status),
+    index("sitzungen_scheduled_at_idx").on(table.scheduledAt)
+  ]
+);
+
+export const sitzungTeilnehmer = pgTable(
+  "sitzung_teilnehmer",
+  {
+    id: text("id").primaryKey(),
+    sitzungId: text("sitzung_id")
+      .notNull()
+      .references(() => sitzungen.id),
+    membershipId: text("membership_id")
+      .notNull()
+      .references(() => memberships.id),
+    anwesend: boolean("anwesend").notNull()
+  },
+  (table) => [
+    index("sitzung_teilnehmer_sitzung_idx").on(table.sitzungId),
+    index("sitzung_teilnehmer_membership_idx").on(table.membershipId)
+  ]
+);
+
+export const protokollVersionen = pgTable(
+  "protokoll_versionen",
+  {
+    id: text("id").primaryKey(),
+    sitzungId: text("sitzung_id")
+      .notNull()
+      .references(() => sitzungen.id),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull(),
+    createdByMembershipId: text("created_by_membership_id")
+      .notNull()
+      .references(() => memberships.id),
+    summary: text("summary").notNull(),
+    agendaText: text("agenda_text").notNull()
+  },
+  (table) => [
+    index("protokoll_versionen_sitzung_idx").on(table.sitzungId),
+    index("protokoll_versionen_created_at_idx").on(table.createdAt)
+  ]
+);
+
+export const protokollBeschluesse = pgTable(
+  "beschluesse",
+  {
+    id: text("id").primaryKey(),
+    versionId: text("version_id")
+      .notNull()
+      .references(() => protokollVersionen.id),
+    title: text("title").notNull(),
+    decision: text("decision").notNull(),
+    owner: text("owner"),
+    dueAt: timestamp("due_at", { withTimezone: true, mode: "string" })
+  },
+  (table) => [
+    index("beschluesse_version_idx").on(table.versionId),
+    index("beschluesse_due_at_idx").on(table.dueAt)
+  ]
+);
+
+export const dokumente = pgTable(
+  "dokumente",
+  {
+    id: text("id").primaryKey(),
+    sitzungId: text("sitzung_id").references(() => sitzungen.id),
+    versionId: text("version_id").references(() => protokollVersionen.id),
+    kind: text("kind").$type<"published-protocol" | "attachment">().notNull(),
+    title: text("title").notNull(),
+    fileName: text("file_name").notNull(),
+    contentType: text("content_type").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull()
+  },
+  (table) => [
+    index("dokumente_sitzung_idx").on(table.sitzungId),
+    index("dokumente_version_idx").on(table.versionId),
+    index("dokumente_kind_idx").on(table.kind)
+  ]
+);
+
 export type UserRecord = typeof users.$inferSelect;
 export type RevierRecord = typeof reviere.$inferSelect;
 export type MembershipRecord = typeof memberships.$inferSelect;
 export type AnsitzSessionRecord = typeof ansitzSessions.$inferSelect;
 export type FallwildVorgangRecord = typeof fallwildVorgaenge.$inferSelect;
+export type NotificationRecord = typeof notifications.$inferSelect;
+export type ReviereinrichtungRecord = typeof reviereinrichtungen.$inferSelect;
+export type ReviereinrichtungKontrolleRecord = typeof reviereinrichtungKontrollen.$inferSelect;
+export type ReviereinrichtungWartungRecord = typeof reviereinrichtungWartungen.$inferSelect;
+export type SitzungRecord = typeof sitzungen.$inferSelect;
+export type SitzungTeilnehmerRecord = typeof sitzungTeilnehmer.$inferSelect;
+export type ProtokollVersionRecord = typeof protokollVersionen.$inferSelect;
+export type ProtokollBeschlussRecord = typeof protokollBeschluesse.$inferSelect;
+export type DokumentRecord = typeof dokumente.$inferSelect;

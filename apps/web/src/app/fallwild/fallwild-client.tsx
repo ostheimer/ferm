@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import type { ChangeEvent, FormEvent } from "react";
 import { useState, useTransition } from "react";
 
+import { readApiErrorMessage } from "../../lib/api-error";
+
 export type FallwildClientEntry = FallwildVorgang & {
   locationLabel: string;
   recordedAtLabel: string;
@@ -76,8 +78,8 @@ export function FallwildClient({ entries }: FallwildClientProps) {
     });
 
     if (!response.ok) {
-      const payload = (await response.json().catch(() => null)) as { error?: string } | null;
-      setError(payload?.error ?? "Fallwild konnte nicht gespeichert werden.");
+      const payload = await response.json().catch(() => null);
+      setError(readApiErrorMessage(payload, "Fallwild konnte nicht gespeichert werden."));
       return;
     }
 

@@ -1,7 +1,7 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "globalEnv": ["APP_DOMAIN"],
-  "globalPassThroughEnv": ["DATABASE_URL", "DATABASE_URL_UNPOOLED"],
+  "globalPassThroughEnv": ["DATABASE_URL", "DATABASE_URL_UNPOOLED", "AUTH_TOKEN_SECRET"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

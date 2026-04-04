@@ -79,7 +79,11 @@ describe("PATCH /api/v1/ansitze/[id]/beenden", () => {
 
     expect(response.status).toBe(404);
     expect(await response.json()).toEqual({
-      error: "Ansitz wurde nicht gefunden."
+      error: {
+        code: "not-found",
+        message: "Ansitz wurde nicht gefunden.",
+        status: 404
+      }
     });
   });
 });

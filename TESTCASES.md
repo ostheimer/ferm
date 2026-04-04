@@ -26,10 +26,10 @@
 - Erwartung: die beiden API-Endpunkte antworten mit `200`
 - Erwartung: die Seite `/ansitze` rendert ohne Serverfehler und zeigt aktive Ansitze
 
-### TC-API-ANSITZ-01: Dev-Kontext liefert `me`
+### TC-API-ANSITZ-01: Authentifizierter Kontext liefert `me`
 
 - Web-App lokal starten
-- `GET /api/v1/me` aufrufen
+- `GET /api/v1/me` mit authentifizierter Session aufrufen
 - Erwartung: Benutzer, Membership und Revier werden als JSON zurueckgegeben
 
 ### TC-API-ANSITZ-02: Aktive Ansitze lesen
@@ -37,6 +37,33 @@
 - Web-App lokal starten
 - `GET /api/v1/ansitze/live` aufrufen
 - Erwartung: nur aktive Ansitze des Dev-Reviers werden als JSON zurueckgegeben
+
+### TC-API-AUTH-01: Login liefert Session und Cookies
+
+- Web-App lokal starten
+- `POST /api/v1/auth/login` mit gueltiger E-Mail und Passwort aufrufen
+- Erwartung: die Antwort enthaelt Benutzer-, Membership- und Revierkontext
+- Erwartung: `access`- und `refresh`-Cookie werden gesetzt
+
+### TC-API-AUTH-02: Refresh erneuert die Session
+
+- Web-App lokal starten
+- `POST /api/v1/auth/refresh` mit gueltigem Refresh-Token aufrufen
+- Erwartung: die Antwort enthaelt eine neue Session mit frischen Tokens
+- Erwartung: der Revierkontext bleibt erhalten
+
+### TC-API-AUTH-03: `me` liefert den aktiven Kontext
+
+- Web-App lokal starten
+- `GET /api/v1/me` mit authentifizierter Session aufrufen
+- Erwartung: Benutzer, Membership, Revier und aktive Revier-ID werden zurueckgegeben
+
+### TC-API-AUTH-04: Ungueltige Bodies liefern `400`
+
+- Web-App lokal starten
+- `POST /api/v1/auth/login` und `POST /api/v1/auth/refresh` mit ungueltigem JSON aufrufen
+- Erwartung: die Endpunkte antworten mit `400`
+- Erwartung: das Fehlerformat folgt `{ error: { code, message, status } }`
 
 ## API Fallwild
 
@@ -62,29 +89,75 @@
 - Erwartung: `content-type` ist `text/csv`
 - Erwartung: die CSV enthaelt mindestens Kopfzeile sowie die gespeicherten Fallwild-Vorgaenge
 
+## API Dashboard, Reviereinrichtungen, Protokolle und Sitzungen
+
+### TC-API-DASH-01: Dashboard-API liefert den Snapshot
+
+- Web-App lokal mit authentifizierter Session starten
+- `GET /api/v1/dashboard` aufrufen
+- Erwartung: die Antwort enthaelt `overview`, `activeAnsitze` und `recentFallwild`
+- Erwartung: der Snapshot basiert auf dem aktiven Revier aus dem Auth-Kontext
+- Erwartung: ein nicht authentifizierter Aufruf antwortet mit `401`
+
+### TC-API-REVIER-01: Reviereinrichtungen lesen
+
+- Web-App lokal starten
+- `GET /api/v1/reviereinrichtungen` aufrufen
+- Erwartung: die Antwort enthaelt die Reviereinrichtungen des aktiven Reviers
+- Erwartung: Status, letzte Kontrolle und offene Wartungen sind vorhanden
+
+### TC-API-PROT-01: Freigegebene Protokolle lesen
+
+- Web-App lokal starten
+- `GET /api/v1/protokolle` aufrufen
+- Erwartung: nur veroeffentlichte Protokolle werden zurueckgegeben
+- Erwartung: die Liste enthaelt Download-Referenz und Beschlusszaehler
+
+### TC-API-PROT-02: Protokolldetail lesen
+
+- Web-App lokal starten
+- `GET /api/v1/protokolle/:id` mit einem freigegebenen Protokoll aufrufen
+- Erwartung: Versionen, Beschluesse, Teilnehmer und Download-Referenz werden zurueckgegeben
+
+### TC-API-SITZ-01: Sitzungen auflisten
+
+- Web-App lokal starten
+- `GET /api/v1/sitzungen` aufrufen
+- Erwartung: Entwuerfe und freigegebene Sitzungen werden aufgelistet
+
+### TC-API-SITZ-02: Sitzung anlegen
+
+- Web-App mit authentifizierter `schriftfuehrer`- oder `revier-admin`-Session starten
+- `POST /api/v1/sitzungen` mit gueltigem JSON aufrufen
+- Erwartung: der Endpunkt antwortet mit `201`
+- Erwartung: die neue Sitzung erscheint anschliessend in `GET /api/v1/sitzungen`
+
+### TC-API-SITZ-03: Version anlegen und freigeben
+
+- Web-App mit authentifizierter Session starten
+- `POST /api/v1/sitzungen/:id/versionen` mit gueltigem JSON aufrufen
+- Erwartung: der Endpunkt antwortet mit `201`
+- `PATCH /api/v1/sitzungen/:id/freigeben` mit `revier-admin`-Session aufrufen
+- Erwartung: die Sitzung wird freigegeben und ein Dokument kann per `GET /api/v1/sitzungen/:id/pdf` gelesen werden
+
+### TC-API-DOC-01: Dokument-Download bereitstellen
+
+- Web-App lokal starten
+- `GET /api/v1/documents/:id/download` aufrufen
+- Erwartung: der Endpunkt antwortet mit einem Download-Dokument oder `404`
+- Erwartung: veroeffentlichte Protokolle verweisen auf diesen Download
+
 ## Automatisierte Web-Tests
 
 ### TC-AUTO-WEB-01: Unit- und Integrationstests fuer Domain und Web
 
-- `pnpm test` ausfuehren
-- Erwartung: `@hege/domain` und `@hege/web` laufen gruen durch
+- `pnpm --filter @hege/domain build` ausfuehren
+- `pnpm --filter @hege/web test` ausfuehren
+- `pnpm --filter @hege/web typecheck` ausfuehren
+- `pnpm --filter @hege/web build` ausfuehren
+- Erwartung: Domain-Build sowie Web-Test-, Typecheck- und Build-Lauf laufen gruen durch
 - Erwartung: Route Handler, Services und Query-Schicht in `apps/web` werden per Vitest validiert
 
-### TC-AUTO-WEB-02: E2E- und Visual-Regression lokal
-
-- `docker compose up -d postgres` sicherstellen
-- `pnpm test:e2e` ausfuehren
-- Erwartung: Playwright bootstrapt eine isolierte lokale E2E-Datenbank
-- Erwartung: Desktop- und Mobile-Projekt laufen fuer `Ansitze` und `Fallwild` ohne Browserfehler durch
-- Erwartung: Mutationserfolge fuer `Ansitz starten/beenden` sowie `Fallwild erfassen` werden browserbasiert geprueft
-- Erwartung: der CSV-Download fuer Fallwild wird automatisiert validiert
-
-### TC-AUTO-WEB-03: Screenshot-Baselines aktualisieren
-
-- `docker compose up -d postgres` sicherstellen
-- `pnpm test:e2e:update` ausfuehren
-- Erwartung: neue oder geaenderte Screenshot-Baselines werden in `apps/web/e2e/*-snapshots` geschrieben
-- Erwartung: visuelle Unterschiede fuer Desktop und Mobile koennen anschliessend im Git-Diff oder Playwright-Report reviewt werden
 ## Web Ansitze
 
 ### TC-WEB-ANSITZ-01: Ansitzseite liest aus der Server-Schicht
@@ -126,6 +199,46 @@
 - Erwartung: `PATCH /api/v1/ansitze/:id/beenden` antwortet mit `200`
 - Erwartung: die Erfolgsmeldung erscheint
 - Erwartung: der beendete Eintrag verschwindet nach dem Refresh aus der aktiven Tabelle
+
+## Web Dashboard
+
+### TC-WEB-DASH-01: Dashboard liest aus der Server-Schicht
+
+- Web-App lokal starten
+- Seite `/` oeffnen
+- Erwartung: der Leitstand zeigt Reviername, aktive Ansitze, offene Wartungen, heutige Fallwild-Bergungen und Entwuerfe aus der Server-Schicht
+- Erwartung: es werden keine `demoData`-Werte direkt in der Page verwendet
+- Erwartung: die Kacheln und Zeitachsen rendern ohne Serverfehler
+
+### TC-WEB-AUTH-01: Loginseite setzt die Session
+
+- Web-App lokal starten
+- Seite `/login` oeffnen
+- Gueltige Demo-Zugangsdaten eingeben und absenden
+- Erwartung: die App leitet auf das Dashboard weiter
+- Erwartung: Navigation und Revierkontext werden nach dem Login angezeigt
+
+### TC-WEB-REVIER-01: Reviereinrichtungen lesen im Web
+
+- Web-App lokal starten
+- Seite `/reviereinrichtungen` oeffnen
+- Erwartung: die Liste kommt aus der Server-Schicht
+- Erwartung: Status, letzte Kontrolle und offene Wartungen sind sichtbar
+
+### TC-WEB-PROT-01: Protokolle lesen im Web
+
+- Web-App lokal starten
+- Seite `/protokolle` oeffnen
+- Erwartung: nur freigegebene Protokolle werden angezeigt
+- Erwartung: die Detailseite `/protokolle/:id` zeigt Versionen, Beschluesse und Download-Referenz
+
+### TC-WEB-SITZ-01: Sitzungen im Web lesen und anlegen
+
+- Web-App lokal starten
+- Seite `/sitzungen` oeffnen
+- Erwartung: Entwuerfe und freigegebene Sitzungen werden angezeigt
+- Erwartung: ein neuer Entwurf kann angelegt werden
+- Erwartung: die Detailseite zeigt Stammdaten, Versionen und Freigabe-Grundlage
 
 ## Web Fallwild
 
@@ -172,6 +285,14 @@
 - Erwartung: manueller Refresh aktualisiert die Werte
 - Erwartung: die Offline-Warteschlange bleibt sichtbar
 
+### TC-MOB-AUTH-01: Session-Restore und Login
+
+- App oeffnen
+- Falls bereits eine Session gespeichert ist, App neu starten
+- Erwartung: die Session wird aus dem Storage wiederhergestellt
+- Erwartung: nicht eingeloggte User landen auf der Loginseite
+- Erwartung: ein erfolgreicher Login nutzt `POST /api/v1/auth/login` und speichert die Session lokal
+
 ### TC-MOB-DASH-02: Dashboard bei API-Fehler
 
 - API-URL auf einen nicht erreichbaren Host setzen
@@ -201,6 +322,29 @@
 - Erwartung: ein Fehlerzustand wird angezeigt
 - Erwartung: die Offline-Warteschlange bleibt sichtbar
 
+### TC-MOB-FALLWILD-04: Schnellerfassung mit Queue-Fallback
+
+- Tab `Fallwild` oeffnen
+- `Schnellerfassung starten` ausloesen
+- Erwartung: online wird der Vorgang direkt an `POST /api/v1/fallwild` gesendet
+- Erwartung: ohne Verbindung wird der Vorgang in die Offline-Queue gelegt und im Dashboard sichtbar
+
+## Mobile Reviereinrichtungen und Protokolle
+
+### TC-MOB-REV-01: Reviereinrichtungen laden
+
+- App oeffnen
+- Tab `Einrichtungen` oeffnen
+- Erwartung: die Liste wird per `GET /api/v1/reviereinrichtungen` geladen
+- Erwartung: Status und letzte Kontrolle werden angezeigt
+
+### TC-MOB-PROT-01: Protokolle lesen
+
+- App oeffnen
+- Tab `Protokolle` oeffnen
+- Erwartung: freigegebene Protokolle werden geladen
+- Erwartung: Detailinformationen und Download-Referenz sind sichtbar
+
 ## Mobile Ansitze
 
 ### TC-MOB-ANSITZ-01: Ansitzliste laden
@@ -221,3 +365,33 @@
 - API-URL auf einen nicht erreichbaren Host setzen
 - Tab `Ansitz` oeffnen
 - Erwartung: Lade- oder Fehlerzustand wird angezeigt, die App bleibt bedienbar
+
+### TC-MOB-ANSITZ-04: Schnellansitz mit Queue-Fallback
+
+- Tab `Ansitz` oeffnen
+- `Schnellansitz melden` ausloesen
+- Erwartung: online wird ein `POST /api/v1/ansitze` ausgefuehrt
+- Erwartung: ohne Verbindung wird der Ansitz in die Offline-Queue gelegt
+
+## Mobile Sitzung und Queue
+
+### TC-MOB-SITZ-01: Dashboard zeigt Queue und Sitzungskontext
+
+- App oeffnen
+- Startseite `Heute im Revier` oeffnen
+- Erwartung: Queue, naechste Sitzung und letzte Benachrichtigung werden angezeigt
+- Erwartung: der Login-Kontext stammt aus der Session und nicht aus lokalen Platzhaltern
+
+### TC-MOB-SITZ-02: Offline-Warteschlange bleibt sichtbar
+
+- App oeffnen
+- Eine vorhandene Offline-Warteschlange simulieren oder vorhandene Demo-Queue verwenden
+- Erwartung: die Warteschlange wird im Dashboard angezeigt
+- Erwartung: `Ansitz` und `Fallwild` bleiben trotz Queue-Basis bedienbar
+
+### TC-MOB-SITZ-03: Queue-Sync verarbeitet Pending und Failed Eintraege
+
+- App mit bestehender Offline-Queue oeffnen
+- Im Dashboard `Queue sync` ausloesen
+- Erwartung: erfolgreiche Eintraege verschwinden aus der Queue
+- Erwartung: fehlgeschlagene Eintraege behalten einen Fehlerstatus und koennen erneut synchronisiert werden

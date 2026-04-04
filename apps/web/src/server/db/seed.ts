@@ -1,14 +1,31 @@
 import { demoData } from "@hege/domain";
 
+import { createSeedPasswordHash } from "../auth/service";
 import { loadCliEnv } from "../env/load-cli-env";
 import { createDbFromPool, createPool } from "./client";
-import { ansitzSessions, fallwildVorgaenge, memberships, reviere, users } from "./schema";
+import {
+  ansitzSessions,
+  dokumente,
+  fallwildVorgaenge,
+  memberships,
+  notifications,
+  protokollBeschluesse,
+  protokollVersionen,
+  reviere,
+  reviereinrichtungKontrollen,
+  reviereinrichtungWartungen,
+  reviereinrichtungen,
+  sitzungen,
+  sitzungTeilnehmer,
+  users
+} from "./schema";
 
 loadCliEnv();
 
 async function main() {
   const pool = createPool();
   const db = createDbFromPool(pool);
+  const passwordHash = createSeedPasswordHash();
 
   try {
     for (const entry of demoData.reviere) {
@@ -47,14 +64,16 @@ async function main() {
           id: entry.id,
           name: entry.name,
           phone: entry.phone,
-          email: entry.email
+          email: entry.email,
+          passwordHash
         })
         .onConflictDoUpdate({
           target: users.id,
           set: {
             name: entry.name,
             phone: entry.phone,
-            email: entry.email
+            email: entry.email,
+            passwordHash
           }
         });
     }
@@ -78,6 +97,29 @@ async function main() {
             role: entry.role,
             jagdzeichen: entry.jagdzeichen,
             pushEnabled: entry.pushEnabled
+          }
+        });
+    }
+
+    for (const entry of demoData.notifications) {
+      await db
+        .insert(notifications)
+        .values({
+          id: entry.id,
+          revierId: entry.revierId,
+          channel: entry.channel,
+          title: entry.title,
+          body: entry.body,
+          createdAt: entry.createdAt
+        })
+        .onConflictDoUpdate({
+          target: notifications.id,
+          set: {
+            revierId: entry.revierId,
+            channel: entry.channel,
+            title: entry.title,
+            body: entry.body,
+            createdAt: entry.createdAt
           }
         });
     }
@@ -160,7 +202,228 @@ async function main() {
         });
     }
 
-    console.log("Seed completed for users, reviere, memberships, ansitz sessions and fallwild.");
+    for (const entry of demoData.reviereinrichtungen) {
+      await db
+        .insert(reviereinrichtungen)
+        .values({
+          id: entry.id,
+          revierId: entry.revierId,
+          type: entry.type,
+          name: entry.name,
+          status: entry.status,
+          locationLat: entry.location.lat,
+          locationLng: entry.location.lng,
+          locationLabel: entry.location.label,
+          beschreibung: entry.beschreibung
+        })
+        .onConflictDoUpdate({
+          target: reviereinrichtungen.id,
+          set: {
+            revierId: entry.revierId,
+            type: entry.type,
+            name: entry.name,
+            status: entry.status,
+            locationLat: entry.location.lat,
+            locationLng: entry.location.lng,
+            locationLabel: entry.location.label,
+            beschreibung: entry.beschreibung
+          }
+        });
+
+      for (const kontrolle of entry.kontrollen) {
+        await db
+          .insert(reviereinrichtungKontrollen)
+          .values({
+            id: kontrolle.id,
+            einrichtungId: entry.id,
+            createdAt: kontrolle.createdAt,
+            createdByMembershipId: kontrolle.createdByMembershipId,
+            zustand: kontrolle.zustand,
+            note: kontrolle.note
+          })
+          .onConflictDoUpdate({
+            target: reviereinrichtungKontrollen.id,
+            set: {
+              einrichtungId: entry.id,
+              createdAt: kontrolle.createdAt,
+              createdByMembershipId: kontrolle.createdByMembershipId,
+              zustand: kontrolle.zustand,
+              note: kontrolle.note
+            }
+          });
+      }
+
+      for (const wartung of entry.wartung) {
+        await db
+          .insert(reviereinrichtungWartungen)
+          .values({
+            id: wartung.id,
+            einrichtungId: entry.id,
+            dueAt: wartung.dueAt,
+            status: wartung.status,
+            title: wartung.title,
+            note: wartung.note
+          })
+          .onConflictDoUpdate({
+            target: reviereinrichtungWartungen.id,
+            set: {
+              einrichtungId: entry.id,
+              dueAt: wartung.dueAt,
+              status: wartung.status,
+              title: wartung.title,
+              note: wartung.note
+            }
+          });
+      }
+    }
+
+    for (const entry of demoData.sitzungen) {
+      await db
+        .insert(sitzungen)
+        .values({
+          id: entry.id,
+          revierId: entry.revierId,
+          title: entry.title,
+          scheduledAt: entry.scheduledAt,
+          locationLabel: entry.locationLabel,
+          status: entry.status
+        })
+        .onConflictDoUpdate({
+          target: sitzungen.id,
+          set: {
+            revierId: entry.revierId,
+            title: entry.title,
+            scheduledAt: entry.scheduledAt,
+            locationLabel: entry.locationLabel,
+            status: entry.status
+          }
+        });
+
+      for (const participant of entry.participants) {
+        const participantId = `${entry.id}-${participant.membershipId}`;
+
+        await db
+          .insert(sitzungTeilnehmer)
+          .values({
+            id: participantId,
+            sitzungId: entry.id,
+            membershipId: participant.membershipId,
+            anwesend: participant.anwesend
+          })
+          .onConflictDoUpdate({
+            target: sitzungTeilnehmer.id,
+            set: {
+              sitzungId: entry.id,
+              membershipId: participant.membershipId,
+              anwesend: participant.anwesend
+            }
+          });
+      }
+
+      for (const version of entry.versions) {
+        await db
+          .insert(protokollVersionen)
+          .values({
+            id: version.id,
+            sitzungId: entry.id,
+            createdAt: version.createdAt,
+            createdByMembershipId: version.createdByMembershipId,
+            summary: version.summary,
+            agendaText: version.agenda.join("\n")
+          })
+          .onConflictDoUpdate({
+            target: protokollVersionen.id,
+            set: {
+              sitzungId: entry.id,
+              createdAt: version.createdAt,
+              createdByMembershipId: version.createdByMembershipId,
+              summary: version.summary,
+              agendaText: version.agenda.join("\n")
+            }
+          });
+
+        for (const beschluss of version.beschluesse) {
+          await db
+            .insert(protokollBeschluesse)
+            .values({
+              id: beschluss.id,
+              versionId: version.id,
+              title: beschluss.title,
+              decision: beschluss.decision,
+              owner: beschluss.owner,
+              dueAt: beschluss.dueAt
+            })
+            .onConflictDoUpdate({
+              target: protokollBeschluesse.id,
+              set: {
+                versionId: version.id,
+                title: beschluss.title,
+                decision: beschluss.decision,
+                owner: beschluss.owner,
+                dueAt: beschluss.dueAt
+              }
+            });
+        }
+
+        for (const attachment of version.attachments) {
+          await db
+            .insert(dokumente)
+            .values({
+              id: attachment.id,
+              sitzungId: entry.id,
+              versionId: version.id,
+              kind: "attachment",
+              title: attachment.title,
+              fileName: attachment.fileName,
+              contentType: attachment.contentType,
+              createdAt: attachment.createdAt
+            })
+            .onConflictDoUpdate({
+              target: dokumente.id,
+              set: {
+                sitzungId: entry.id,
+                versionId: version.id,
+                kind: "attachment",
+                title: attachment.title,
+                fileName: attachment.fileName,
+                contentType: attachment.contentType,
+                createdAt: attachment.createdAt
+              }
+            });
+        }
+      }
+
+      if (entry.publishedDocument) {
+        await db
+          .insert(dokumente)
+          .values({
+            id: entry.publishedDocument.id,
+            sitzungId: entry.id,
+            versionId: entry.versions[0]?.id ?? null,
+            kind: "published-protocol",
+            title: entry.publishedDocument.title,
+            fileName: entry.publishedDocument.fileName,
+            contentType: entry.publishedDocument.contentType,
+            createdAt: entry.publishedDocument.createdAt
+          })
+          .onConflictDoUpdate({
+            target: dokumente.id,
+            set: {
+              sitzungId: entry.id,
+              versionId: entry.versions[0]?.id ?? null,
+              kind: "published-protocol",
+              title: entry.publishedDocument.title,
+              fileName: entry.publishedDocument.fileName,
+              contentType: entry.publishedDocument.contentType,
+              createdAt: entry.publishedDocument.createdAt
+            }
+          });
+      }
+    }
+
+    console.log(
+      "Seed completed for users, reviere, memberships, ansitz sessions, fallwild, notifications, reviereinrichtungen and sitzungen."
+    );
   } finally {
     await pool.end();
   }

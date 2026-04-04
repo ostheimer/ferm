@@ -1,3 +1,5 @@
+import { toApiError } from "./errors";
+
 export function jsonOk<T>(data: T, init?: ResponseInit): Response {
   return Response.json(data, {
     status: 200,
@@ -5,13 +7,22 @@ export function jsonOk<T>(data: T, init?: ResponseInit): Response {
   });
 }
 
-export function jsonError(message: string, status = 400): Response {
+export function jsonCreated<T>(data: T, init?: ResponseInit): Response {
+  return Response.json(data, {
+    status: 201,
+    ...init
+  });
+}
+
+export function jsonError(error: unknown): Response {
+  const apiError = toApiError(error);
+
   return Response.json(
     {
-      error: message
+      error: apiError
     },
     {
-      status
+      status: apiError.status
     }
   );
 }
