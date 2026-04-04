@@ -23,6 +23,8 @@ export function createDbFromPool(pool: Pool) {
   });
 }
 
+export type HegeDb = ReturnType<typeof createDbFromPool>;
+
 export function createDb(databaseUrl = getServerEnv().databaseUrl) {
   return createDbFromPool(createPool(databaseUrl));
 }
