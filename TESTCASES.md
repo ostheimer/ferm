@@ -85,7 +85,6 @@
 - `pnpm test:e2e:update` ausfuehren
 - Erwartung: neue oder geaenderte Screenshot-Baselines werden in `apps/web/e2e/*-snapshots` geschrieben
 - Erwartung: visuelle Unterschiede fuer Desktop und Mobile koennen anschliessend im Git-Diff oder Playwright-Report reviewt werden
-
 ## Web Ansitze
 
 ### TC-WEB-ANSITZ-01: Ansitzseite liest aus der Server-Schicht
