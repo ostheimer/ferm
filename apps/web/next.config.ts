@@ -1,10 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  reactStrictMode: true,
-  outputFileTracingIncludes: {
-    "/api/internal/db-sync": ["./drizzle/**/*"]
-  }
+  reactStrictMode: true
 };
 
 export default nextConfig;
