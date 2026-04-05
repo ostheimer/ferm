@@ -22,3 +22,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 - Web-Auth, Session-Kontext und Fehlerformat auf echte Token- und JSON-Responses umgestellt.
 - Seeds und DB-Schema um Reviereinrichtungen, Kontrollen, Sitzungen, Protokollversionen, Beschluesse, Dokumente und Notifications erweitert.
 - Mobile `Ansitz` und `Fallwild` koennen Schnellmeldungen direkt senden oder bei Verbindungsfehlern in die Queue legen.
+
+### Fixed
+
+- Web-Sidebar um eine sichtbare `Abmelden`-Aktion ergaenzt und den Logout-Flow ueber Cookie-Clear mit Redirect auf `/login` abgesichert.

@@ -139,6 +139,21 @@ p {
   color: rgba(245, 241, 231, 0.88);
 }
 
+.sidebar-actions {
+  margin-top: auto;
+}
+
+.sidebar-logout {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(245, 241, 231, 0.14);
+  color: #f5f1e7;
+}
+
+.sidebar-logout:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
 .main-content {
   padding: 12px 8px 24px 0;
 }
