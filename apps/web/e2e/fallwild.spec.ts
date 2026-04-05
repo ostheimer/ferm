@@ -2,14 +2,16 @@ import { readFile } from "node:fs/promises";
 
 import { expect, test } from "@playwright/test";
 
+import { loginAs } from "./support/auth";
 import { resetE2eDatabase } from "./support/reset-db";
 import { visualSnapshotOptions } from "./support/visual";
 
 test.describe("Fallwild", () => {
   test.describe.configure({ mode: "serial" });
 
-  test.beforeEach(async () => {
+  test.beforeEach(async ({ page }) => {
     await resetE2eDatabase();
+    await loginAs(page, "schriftfuehrer");
   });
 
   test("matches the visual baseline on desktop and mobile", async ({ page }, testInfo) => {

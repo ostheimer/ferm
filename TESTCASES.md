@@ -165,6 +165,20 @@
 - Erwartung: Domain-Build sowie Web-Test-, Typecheck- und Build-Lauf laufen gruen durch
 - Erwartung: Route Handler, Services und Query-Schicht in `apps/web` werden per Vitest validiert
 
+### TC-AUTO-WEB-02: Playwright fuer Auth und Sitzungen
+
+- `pnpm test:e2e -- apps/web/e2e/auth.spec.ts apps/web/e2e/sitzungen.spec.ts` ausfuehren
+- Erwartung: Login, Logout und Redirect auf `/login` laufen im Browser durch
+- Erwartung: `jaeger` wird von `/sitzungen` auf `/` umgeleitet
+- Erwartung: `schriftfuehrer` kann einen Entwurf anlegen und eine Version speichern
+- Erwartung: `revier-admin` kann freigeben und das PDF laden
+
+### TC-AUTO-WEB-03: Playwright Visual und Mutationen fuer Ansitz und Fallwild
+
+- `pnpm test:e2e -- apps/web/e2e/ansitze.spec.ts apps/web/e2e/fallwild.spec.ts` ausfuehren
+- Erwartung: Desktop- und Mobile-Viewport stimmen mit den Snapshots ueberein
+- Erwartung: Ansitz-Start/Ende, Fallwild-Erfassung und CSV-Export laufen grün durch
+
 ## Web Ansitze
 
 ### TC-WEB-ANSITZ-01: Ansitzseite liest aus der Server-Schicht
@@ -336,10 +350,11 @@
 - Erwartung: ein Fehlerzustand wird angezeigt
 - Erwartung: die Offline-Warteschlange bleibt sichtbar
 
-### TC-MOB-FALLWILD-04: Schnellerfassung mit Queue-Fallback
+### TC-MOB-FALLWILD-04: Fallwildformular mit Queue-Fallback
 
 - Tab `Fallwild` oeffnen
-- `Schnellerfassung starten` ausloesen
+- Formular mit Koordinaten, Gemeinde, Lage, Wildart und Status ausfuellen
+- `Fallwild speichern` ausloesen
 - Erwartung: online wird der Vorgang direkt an `POST /api/v1/fallwild` gesendet
 - Erwartung: ohne Verbindung wird der Vorgang in die Offline-Queue gelegt und im Dashboard sichtbar
 
@@ -380,10 +395,11 @@
 - Tab `Ansitz` oeffnen
 - Erwartung: Lade- oder Fehlerzustand wird angezeigt, die App bleibt bedienbar
 
-### TC-MOB-ANSITZ-04: Schnellansitz mit Queue-Fallback
+### TC-MOB-ANSITZ-04: Ansitzformular mit Queue-Fallback
 
 - Tab `Ansitz` oeffnen
-- `Schnellansitz melden` ausloesen
+- Formular mit Standortname, Koordinaten und Notiz ausfuellen
+- `Ansitz speichern` ausloesen
 - Erwartung: online wird ein `POST /api/v1/ansitze` ausgefuehrt
 - Erwartung: ohne Verbindung wird der Ansitz in die Offline-Queue gelegt
 

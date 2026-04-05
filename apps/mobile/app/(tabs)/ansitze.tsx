@@ -1,10 +1,21 @@
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View
+} from "react-native";
+import type { Dispatch, SetStateAction } from "react";
 
 import type { AnsitzSession } from "@hege/domain";
 
 import { ScreenShell } from "../../components/screen-shell";
 import { formatDateTime } from "../../lib/format";
+import { buildGeoPoint, trimToUndefined } from "../../lib/form-utils";
 import { fetchLiveAnsitze, type CreateAnsitzRequest } from "../../lib/api";
 import {
   syncOfflineQueue,
@@ -13,15 +24,26 @@ import {
 } from "../../lib/offline-queue";
 import { colors } from "../../lib/theme";
 
-const DEFAULT_LOCATION = {
-  lat: 47.9161,
-  lng: 13.5182,
-  label: "Mobil gemeldet"
+interface AnsitzFormState {
+  standortName: string;
+  locationLabel: string;
+  lat: string;
+  lng: string;
+  note: string;
+}
+
+const DEFAULT_FORM: AnsitzFormState = {
+  standortName: "",
+  locationLabel: "Mobil gemeldet",
+  lat: "47.9161",
+  lng: "13.5182",
+  note: ""
 };
 
 export default function AnsitzeScreen() {
   const queue = useOfflineQueueSnapshot();
   const [ansitze, setAnsitze] = useState<AnsitzSession[]>([]);
+  const [form, setForm] = useState<AnsitzFormState>(DEFAULT_FORM);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -54,7 +76,7 @@ export default function AnsitzeScreen() {
     }
   }
 
-  async function handleQuickAnsitz() {
+  async function handleSubmit() {
     if (isSubmitting) {
       return;
     }
@@ -64,7 +86,7 @@ export default function AnsitzeScreen() {
     setError(null);
 
     try {
-      const payload = buildQuickAnsitzPayload(ansitze);
+      const payload = buildAnsitzPayload(form);
       const result = await submitAnsitzWithOfflineFallback(payload);
 
       setMessage(
@@ -72,6 +94,12 @@ export default function AnsitzeScreen() {
           ? "Ansitz direkt an die API gesendet."
           : "Keine Verbindung: Ansitz wurde in die Offline-Queue gelegt."
       );
+
+      setForm({
+        ...DEFAULT_FORM,
+        lat: form.lat.trim() || DEFAULT_FORM.lat,
+        lng: form.lng.trim() || DEFAULT_FORM.lng
+      });
 
       await loadAnsitze({ refreshing: true });
     } catch (submitError) {
@@ -103,8 +131,8 @@ export default function AnsitzeScreen() {
   return (
     <ScreenShell
       eyebrow="Ansitz"
-      title="Ansitz mit einem Tap bekanntgeben."
-      subtitle="Aktive Ansitze werden ueber den zentralen API-Client geladen und offline vorgemerkt, wenn das Netz weg ist."
+      title="Ansitz mobil erfassen."
+      subtitle="Standort, Koordinaten und Notiz werden online direkt an die API gesendet oder offline vorgemerkt."
       aside={
         <View style={styles.queueCard}>
           <Text style={styles.queueTitle}>Ansitz-Queue</Text>
@@ -113,24 +141,105 @@ export default function AnsitzeScreen() {
         </View>
       }
     >
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Ansitz schnell melden"
-        style={[styles.primaryAction, isSubmitting ? styles.buttonDisabled : null]}
-        onPress={() => void handleQuickAnsitz()}
-        disabled={isSubmitting}
-      >
-        {isSubmitting ? (
-          <ActivityIndicator color="#fff9ef" />
-        ) : (
-          <>
-            <Text style={styles.primaryActionTitle}>Schnellansitz melden</Text>
-            <Text style={styles.primaryActionCopy}>
-              Legt sofort einen Ansitz an oder merkt ihn offline fuer die Synchronisierung vor.
-            </Text>
-          </>
-        )}
-      </Pressable>
+      <View style={styles.formCard}>
+        <Text style={styles.sectionLabel}>Neuer Ansitz</Text>
+        <Text style={styles.sectionCopy}>Die Erfassung bleibt bewusst knapp und funktioniert auch bei schlechter Verbindung.</Text>
+
+        <View style={styles.field}>
+          <Text style={styles.label}>Standortname</Text>
+          <TextInput
+            autoCapitalize="words"
+            placeholder="Ansitz Wiesenrand"
+            placeholderTextColor={colors.muted}
+            style={styles.input}
+            value={form.standortName}
+            onChangeText={updateField(setForm, "standortName")}
+          />
+        </View>
+
+        <View style={styles.fieldRow}>
+          <View style={[styles.field, styles.grow]}>
+            <Text style={styles.label}>Breitengrad</Text>
+            <TextInput
+              keyboardType="decimal-pad"
+              placeholder="47.9161"
+              placeholderTextColor={colors.muted}
+              style={styles.input}
+              value={form.lat}
+              onChangeText={updateField(setForm, "lat")}
+            />
+          </View>
+          <View style={[styles.field, styles.grow]}>
+            <Text style={styles.label}>Laengengrad</Text>
+            <TextInput
+              keyboardType="decimal-pad"
+              placeholder="13.5182"
+              placeholderTextColor={colors.muted}
+              style={styles.input}
+              value={form.lng}
+              onChangeText={updateField(setForm, "lng")}
+            />
+          </View>
+        </View>
+
+        <View style={styles.field}>
+          <Text style={styles.label}>Standortbezeichnung</Text>
+          <TextInput
+            placeholder="Mobil gemeldet"
+            placeholderTextColor={colors.muted}
+            style={styles.input}
+            value={form.locationLabel}
+            onChangeText={updateField(setForm, "locationLabel")}
+          />
+        </View>
+
+        <View style={styles.field}>
+          <Text style={styles.label}>Notiz</Text>
+          <TextInput
+            multiline
+            placeholder="Kurze Notiz fuer die Revierfuehrung"
+            placeholderTextColor={colors.muted}
+            style={[styles.input, styles.textArea]}
+            value={form.note}
+            onChangeText={updateField(setForm, "note")}
+          />
+        </View>
+
+        {message ? (
+          <View style={styles.infoCard}>
+            <Text style={styles.stateTitle}>Status</Text>
+            <Text style={styles.stateCopy}>{message}</Text>
+          </View>
+        ) : null}
+
+        {error ? (
+          <View style={styles.errorCard}>
+            <Text style={styles.stateTitle}>Ansitz nicht verfuegbar</Text>
+            <Text style={styles.stateCopy}>{error}</Text>
+          </View>
+        ) : null}
+
+        <View style={styles.actionRow}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Ansitz speichern"
+            style={[styles.primaryButton, isSubmitting ? styles.buttonDisabled : null]}
+            onPress={() => void handleSubmit()}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? <ActivityIndicator color={colors.surface} /> : <Text style={styles.primaryButtonText}>Ansitz speichern</Text>}
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Ansitz-Queue synchronisieren"
+            style={[styles.secondaryButton, queue.isSyncing ? styles.buttonDisabled : null]}
+            onPress={() => void handleQueueSync()}
+            disabled={queue.isSyncing}
+          >
+            <Text style={styles.secondaryButtonText}>{queue.isSyncing ? "Synchronisiert..." : "Queue sync"}</Text>
+          </Pressable>
+        </View>
+      </View>
 
       <View style={styles.toolbar}>
         <Pressable
@@ -142,33 +251,12 @@ export default function AnsitzeScreen() {
         >
           {isRefreshing ? <ActivityIndicator color={colors.ink} /> : <Text style={styles.refreshButtonText}>Aktualisieren</Text>}
         </Pressable>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Ansitz-Queue synchronisieren"
-          style={[styles.refreshButton, queue.isSyncing ? styles.buttonDisabled : null]}
-          onPress={() => void handleQueueSync()}
-          disabled={queue.isSyncing}
-        >
-          <Text style={styles.refreshButtonText}>{queue.isSyncing ? "Synchronisiert..." : "Queue sync"}</Text>
-        </Pressable>
       </View>
-
-      {message ? (
-        <View style={styles.infoCard}>
-          <Text style={styles.stateTitle}>Status</Text>
-          <Text style={styles.stateCopy}>{message}</Text>
-        </View>
-      ) : null}
 
       {isLoading ? (
         <View style={styles.stateCard}>
           <Text style={styles.stateTitle}>Ansitze werden geladen</Text>
           <Text style={styles.stateCopy}>Die aktuelle Liste wird von der API abgefragt.</Text>
-        </View>
-      ) : error ? (
-        <View style={styles.stateCard}>
-          <Text style={styles.stateTitle}>Ansitz nicht verfuegbar</Text>
-          <Text style={styles.stateCopy}>{error}</Text>
         </View>
       ) : null}
 
@@ -195,7 +283,7 @@ export default function AnsitzeScreen() {
         contentContainerStyle={styles.listContent}
         style={styles.listScroll}
       >
-        {ansitze.length === 0 && !isLoading && !error ? (
+        {!isLoading && !error && ansitze.length === 0 ? (
           <View style={styles.stateCard}>
             <Text style={styles.stateTitle}>Keine aktiven Ansitze</Text>
             <Text style={styles.stateCopy}>Sobald ein Jaeger einen Ansitz meldet, erscheint er hier.</Text>
@@ -224,15 +312,27 @@ export default function AnsitzeScreen() {
   );
 }
 
-function buildQuickAnsitzPayload(ansitze: AnsitzSession[]): CreateAnsitzRequest {
-  const template = ansitze[0];
+function updateField(
+  setForm: Dispatch<SetStateAction<AnsitzFormState>>,
+  key: keyof AnsitzFormState
+) {
+  return (value: string) => {
+    setForm((current) => ({ ...current, [key]: value }));
+  };
+}
+
+function buildAnsitzPayload(form: AnsitzFormState): CreateAnsitzRequest {
+  const standortName = form.standortName.trim();
+
+  if (!standortName) {
+    throw new Error("Bitte einen Standortnamen eingeben.");
+  }
 
   return {
-    standortName: template?.standortName ?? "Mobiler Ansitz",
-    standortId: template?.standortId,
-    location: template?.location ?? DEFAULT_LOCATION,
+    standortName,
+    location: buildGeoPoint(form.lat, form.lng, form.locationLabel, "Mobil gemeldet"),
     startedAt: new Date().toISOString(),
-    note: "Schnellmeldung aus der Mobile-App"
+    note: trimToUndefined(form.note)
   };
 }
 
@@ -252,16 +352,94 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: colors.card
   },
-  buttonDisabled: {
-    opacity: 0.7
-  },
   refreshButtonText: {
     color: colors.ink,
     fontWeight: "600"
   },
+  buttonDisabled: {
+    opacity: 0.7
+  },
   listContent: {
     gap: 12,
     paddingBottom: 24
+  },
+  formCard: {
+    gap: 14,
+    padding: 18,
+    borderRadius: 22,
+    backgroundColor: colors.card
+  },
+  sectionLabel: {
+    fontSize: 12,
+    textTransform: "uppercase",
+    letterSpacing: 1.1,
+    color: colors.muted
+  },
+  sectionCopy: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: colors.muted
+  },
+  fieldRow: {
+    flexDirection: "row",
+    gap: 12
+  },
+  field: {
+    gap: 6
+  },
+  grow: {
+    flex: 1
+  },
+  label: {
+    fontSize: 12,
+    textTransform: "uppercase",
+    letterSpacing: 1.1,
+    color: colors.muted
+  },
+  input: {
+    minHeight: 52,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#d9d2c4",
+    paddingHorizontal: 14,
+    color: colors.ink,
+    backgroundColor: colors.surface
+  },
+  textArea: {
+    minHeight: 90,
+    paddingTop: 12,
+    textAlignVertical: "top"
+  },
+  actionRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10
+  },
+  primaryButton: {
+    minHeight: 52,
+    paddingHorizontal: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 16,
+    backgroundColor: colors.accent
+  },
+  primaryButtonText: {
+    color: colors.surface,
+    fontSize: 16,
+    fontWeight: "700"
+  },
+  secondaryButton: {
+    minHeight: 52,
+    paddingHorizontal: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 16,
+    backgroundColor: "#e3dccd"
+  },
+  secondaryButtonText: {
+    color: colors.ink,
+    fontSize: 15,
+    fontWeight: "600"
   },
   stateCard: {
     gap: 6,
@@ -274,6 +452,12 @@ const styles = StyleSheet.create({
     padding: 18,
     borderRadius: 22,
     backgroundColor: "#efe3d1"
+  },
+  errorCard: {
+    gap: 6,
+    padding: 18,
+    borderRadius: 22,
+    backgroundColor: "#f0d9d4"
   },
   stateTitle: {
     fontSize: 18,
@@ -304,22 +488,6 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     color: "#f7f2e5"
   },
-  primaryAction: {
-    padding: 20,
-    borderRadius: 24,
-    backgroundColor: colors.accent
-  },
-  primaryActionTitle: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: "#fff9ef"
-  },
-  primaryActionCopy: {
-    marginTop: 6,
-    fontSize: 14,
-    lineHeight: 20,
-    color: "#f7f2e5"
-  },
   card: {
     gap: 10,
     padding: 18,
@@ -330,10 +498,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 12,
     alignItems: "flex-start"
-  },
-  grow: {
-    flex: 1,
-    gap: 4
   },
   title: {
     fontSize: 20,
