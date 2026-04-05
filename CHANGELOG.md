@@ -13,7 +13,6 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 - Neue Web-Flows fuer die Sitzungen-Liste, Sitzungsdetail, Freigabe und PDF-Download-Grundlage umgesetzt.
 - Mobile Session-Restore, tokenbasiertes Login und zentraler API-Client fuer die Read-Slices eingerichtet.
 - Mobile Offline-Queue mit Retry-Status fuer `Ansitz`- und `Fallwild`-Schnellmeldungen eingebaut.
-- Interner Maintenance-Endpunkt fuer Vercel-Laufzeiten kann ausstehende Drizzle-Migrationen plus Seed kontrolliert nachziehen.
 
 ### Changed
 
