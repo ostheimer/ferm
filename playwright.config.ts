@@ -37,7 +37,7 @@ export default defineConfig({
     command: "pnpm test:e2e:web",
     url: `${e2eBaseUrl}/icon.svg`,
     timeout: 180_000,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
     env: {
       ...process.env,
       APP_DOMAIN: "localhost",

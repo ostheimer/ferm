@@ -11,7 +11,9 @@ export async function resetE2eDatabase() {
   await client.connect();
 
   try {
-    await client.query("truncate table ansitz_sessions, fallwild_vorgaenge");
+    await client.query(
+      "truncate table dokumente, beschluesse, protokoll_versionen, sitzung_teilnehmer, sitzungen, reviereinrichtung_wartungen, reviereinrichtung_kontrollen, reviereinrichtungen, notifications, fallwild_vorgaenge, ansitz_sessions, memberships, reviere, users cascade"
+    );
   } finally {
     await client.end();
   }

@@ -1,8 +1,19 @@
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View
+} from "react-native";
+import type { Dispatch, SetStateAction } from "react";
 
 import { ScreenShell } from "../../components/screen-shell";
 import { formatDateTime } from "../../lib/format";
+import { buildGeoPoint, trimToUndefined } from "../../lib/form-utils";
 import { fetchFallwildList, type CreateFallwildRequest, type FallwildListItem } from "../../lib/api";
 import {
   syncOfflineQueue,
@@ -11,24 +22,46 @@ import {
 } from "../../lib/offline-queue";
 import { colors } from "../../lib/theme";
 
-const DEFAULT_FALLWILD_PAYLOAD: CreateFallwildRequest = {
-  recordedAt: new Date().toISOString(),
-  location: {
-    lat: 47.9184,
-    lng: 13.5219,
-    label: "Forststrasse"
-  },
+interface FallwildFormState {
+  locationLabel: string;
+  lat: string;
+  lng: string;
+  wildart: CreateFallwildRequest["wildart"];
+  geschlecht: CreateFallwildRequest["geschlecht"];
+  altersklasse: CreateFallwildRequest["altersklasse"];
+  bergungsStatus: CreateFallwildRequest["bergungsStatus"];
+  gemeinde: string;
+  strasse: string;
+  note: string;
+}
+
+const DEFAULT_FORM: FallwildFormState = {
+  locationLabel: "Forststrasse",
+  lat: "47.9184",
+  lng: "13.5219",
   wildart: "Fuchs",
   geschlecht: "weiblich",
   altersklasse: "Adult",
   bergungsStatus: "geborgen",
-  gemeinde: "Steinbach am Attersee",
-  note: "Schnellerfassung aus der Mobile-App"
+  gemeinde: "",
+  strasse: "",
+  note: ""
 };
+
+const WILDLIFE_OPTIONS: Array<CreateFallwildRequest["wildart"]> = ["Reh", "Rotwild", "Schwarzwild", "Fuchs", "Dachs", "Hase", "Muffelwild"];
+const GESCHLECHT_OPTIONS: Array<CreateFallwildRequest["geschlecht"]> = ["maennlich", "weiblich", "unbekannt"];
+const ALTERSKLASSE_OPTIONS: Array<CreateFallwildRequest["altersklasse"]> = ["Kitz", "Jaehrling", "Adult", "unbekannt"];
+const BERGUNGS_STATUS_OPTIONS: Array<CreateFallwildRequest["bergungsStatus"]> = [
+  "erfasst",
+  "geborgen",
+  "entsorgt",
+  "an-behoerde-gemeldet"
+];
 
 export default function FallwildScreen() {
   const queue = useOfflineQueueSnapshot();
   const [fallwild, setFallwild] = useState<FallwildListItem[]>([]);
+  const [form, setForm] = useState<FallwildFormState>(DEFAULT_FORM);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -62,7 +95,7 @@ export default function FallwildScreen() {
     }
   }
 
-  async function handleQuickFallwild() {
+  async function handleSubmit() {
     if (isSubmitting) {
       return;
     }
@@ -72,7 +105,7 @@ export default function FallwildScreen() {
     setError(null);
 
     try {
-      const payload = buildQuickFallwildPayload();
+      const payload = buildFallwildPayload(form);
       const result = await submitFallwildWithOfflineFallback(payload);
 
       setMessage(
@@ -80,6 +113,12 @@ export default function FallwildScreen() {
           ? "Fallwild direkt an die API gesendet."
           : "Keine Verbindung: Fallwild wurde in die Offline-Queue gelegt."
       );
+
+      setForm({
+        ...DEFAULT_FORM,
+        lat: form.lat.trim() || DEFAULT_FORM.lat,
+        lng: form.lng.trim() || DEFAULT_FORM.lng
+      });
 
       await loadFallwild({ refreshing: true });
     } catch (submitError) {
@@ -111,7 +150,7 @@ export default function FallwildScreen() {
   return (
     <ScreenShell
       eyebrow="Fallwild"
-      title="Bergung auch ohne Netz sauber dokumentieren."
+      title="Fallwild mobil erfassen."
       subtitle="Zeitpunkt, GPS und Wildart werden ueber die API erfasst oder offline vorgemerkt."
       aside={
         <View style={styles.queueCard}>
@@ -121,22 +160,142 @@ export default function FallwildScreen() {
         </View>
       }
     >
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Fallwild schnell erfassen"
-        style={[styles.primaryAction, isSubmitting ? styles.buttonDisabled : null]}
-        onPress={() => void handleQuickFallwild()}
-        disabled={isSubmitting}
-      >
-        {isSubmitting ? (
-          <ActivityIndicator color="#fff9ef" />
-        ) : (
-          <>
-            <Text style={styles.primaryActionTitle}>Schnellerfassung starten</Text>
-            <Text style={styles.primaryActionCopy}>Legt einen Bergungsvorgang an oder merkt ihn fuer Offline-Sync vor.</Text>
-          </>
-        )}
-      </Pressable>
+      <View style={styles.formCard}>
+        <Text style={styles.sectionLabel}>Neuer Fallwild-Vorgang</Text>
+        <Text style={styles.sectionCopy}>Die Erfassung bleibt im Feld schnell bedienbar und nutzt die Queue bei Verbindungsproblemen.</Text>
+
+        <View style={styles.fieldRow}>
+          <View style={[styles.field, styles.grow]}>
+            <Text style={styles.label}>Breitengrad</Text>
+            <TextInput
+              keyboardType="decimal-pad"
+              placeholder="47.9184"
+              placeholderTextColor={colors.muted}
+              style={styles.input}
+              value={form.lat}
+              onChangeText={updateField(setForm, "lat")}
+            />
+          </View>
+          <View style={[styles.field, styles.grow]}>
+            <Text style={styles.label}>Laengengrad</Text>
+            <TextInput
+              keyboardType="decimal-pad"
+              placeholder="13.5219"
+              placeholderTextColor={colors.muted}
+              style={styles.input}
+              value={form.lng}
+              onChangeText={updateField(setForm, "lng")}
+            />
+          </View>
+        </View>
+
+        <View style={styles.field}>
+          <Text style={styles.label}>Standortbezeichnung</Text>
+          <TextInput
+            placeholder="Forststrasse"
+            placeholderTextColor={colors.muted}
+            style={styles.input}
+            value={form.locationLabel}
+            onChangeText={updateField(setForm, "locationLabel")}
+          />
+        </View>
+
+        <View style={styles.field}>
+          <Text style={styles.label}>Gemeinde</Text>
+          <TextInput
+            autoCapitalize="words"
+            placeholder="Steinbach am Attersee"
+            placeholderTextColor={colors.muted}
+            style={styles.input}
+            value={form.gemeinde}
+            onChangeText={updateField(setForm, "gemeinde")}
+          />
+        </View>
+
+        <View style={styles.field}>
+          <Text style={styles.label}>Strasse oder Lage</Text>
+          <TextInput
+            autoCapitalize="words"
+            placeholder="L127"
+            placeholderTextColor={colors.muted}
+            style={styles.input}
+            value={form.strasse}
+            onChangeText={updateField(setForm, "strasse")}
+          />
+        </View>
+
+        <ChoiceGroup
+          label="Wildart"
+          options={WILDLIFE_OPTIONS}
+          value={form.wildart}
+          onChange={updateChoice(setForm, "wildart")}
+        />
+        <ChoiceGroup
+          label="Geschlecht"
+          options={GESCHLECHT_OPTIONS}
+          value={form.geschlecht}
+          onChange={updateChoice(setForm, "geschlecht")}
+        />
+        <ChoiceGroup
+          label="Altersklasse"
+          options={ALTERSKLASSE_OPTIONS}
+          value={form.altersklasse}
+          onChange={updateChoice(setForm, "altersklasse")}
+        />
+        <ChoiceGroup
+          label="Bergungsstatus"
+          options={BERGUNGS_STATUS_OPTIONS}
+          value={form.bergungsStatus}
+          onChange={updateChoice(setForm, "bergungsStatus")}
+        />
+
+        <View style={styles.field}>
+          <Text style={styles.label}>Notiz</Text>
+          <TextInput
+            multiline
+            placeholder="Kurze Dokumentation fuer die Revierleitung"
+            placeholderTextColor={colors.muted}
+            style={[styles.input, styles.textArea]}
+            value={form.note}
+            onChangeText={updateField(setForm, "note")}
+          />
+        </View>
+
+        {message ? (
+          <View style={styles.infoCard}>
+            <Text style={styles.stateTitle}>Status</Text>
+            <Text style={styles.stateCopy}>{message}</Text>
+          </View>
+        ) : null}
+
+        {error ? (
+          <View style={styles.errorCard}>
+            <Text style={styles.stateTitle}>Fallwild nicht verfuegbar</Text>
+            <Text style={styles.stateCopy}>{error}</Text>
+          </View>
+        ) : null}
+
+        <View style={styles.actionRow}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Fallwild speichern"
+            style={[styles.primaryButton, isSubmitting ? styles.buttonDisabled : null]}
+            onPress={() => void handleSubmit()}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? <ActivityIndicator color={colors.surface} /> : <Text style={styles.primaryButtonText}>Fallwild speichern</Text>}
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Fallwild-Queue synchronisieren"
+            style={[styles.secondaryButton, queue.isSyncing ? styles.buttonDisabled : null]}
+            onPress={() => void handleQueueSync()}
+            disabled={queue.isSyncing}
+          >
+            <Text style={styles.secondaryButtonText}>{queue.isSyncing ? "Synchronisiert..." : "Queue sync"}</Text>
+          </Pressable>
+        </View>
+      </View>
 
       <View style={styles.toolbar}>
         <Pressable
@@ -148,33 +307,12 @@ export default function FallwildScreen() {
         >
           {isRefreshing ? <ActivityIndicator color={colors.ink} /> : <Text style={styles.refreshButtonText}>Aktualisieren</Text>}
         </Pressable>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Fallwild-Queue synchronisieren"
-          style={[styles.refreshButton, queue.isSyncing ? styles.buttonDisabled : null]}
-          onPress={() => void handleQueueSync()}
-          disabled={queue.isSyncing}
-        >
-          <Text style={styles.refreshButtonText}>{queue.isSyncing ? "Synchronisiert..." : "Queue sync"}</Text>
-        </Pressable>
       </View>
-
-      {message ? (
-        <View style={styles.infoCard}>
-          <Text style={styles.stateTitle}>Status</Text>
-          <Text style={styles.stateCopy}>{message}</Text>
-        </View>
-      ) : null}
 
       {isLoading ? (
         <View style={styles.stateCard}>
           <Text style={styles.stateTitle}>Fallwild wird geladen</Text>
           <Text style={styles.stateCopy}>Die aktuelle Liste wird ueber die API abgefragt.</Text>
-        </View>
-      ) : error ? (
-        <View style={styles.stateCard}>
-          <Text style={styles.stateTitle}>Fallwild nicht verfuegbar</Text>
-          <Text style={styles.stateCopy}>{error}</Text>
         </View>
       ) : null}
 
@@ -193,47 +331,122 @@ export default function FallwildScreen() {
         </View>
       ) : null}
 
-      {!isLoading && !error && fallwild.length === 0 ? (
-        <View style={styles.stateCard}>
-          <Text style={styles.stateTitle}>Kein Fallwild gemeldet</Text>
-          <Text style={styles.stateCopy}>Sobald ein Vorgang erfasst ist, erscheint er hier.</Text>
-        </View>
-      ) : null}
-
-      {fallwild.map((entry) => (
-        <View key={entry.id} style={styles.card}>
-          <View style={styles.row}>
-            <View style={styles.grow}>
-              <Text style={styles.title}>
-                {entry.wildart} / {entry.gemeinde}
-              </Text>
-              <Text style={styles.copy}>
-                {entry.geschlecht}, {entry.altersklasse}
-              </Text>
-            </View>
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>{entry.bergungsStatus}</Text>
-            </View>
+      <ScrollView
+        nestedScrollEnabled
+        refreshControl={
+          <RefreshControl refreshing={isRefreshing} onRefresh={() => void loadFallwild({ refreshing: true })} />
+        }
+        contentContainerStyle={styles.listContent}
+        style={styles.listScroll}
+      >
+        {!isLoading && !error && fallwild.length === 0 ? (
+          <View style={styles.stateCard}>
+            <Text style={styles.stateTitle}>Kein Fallwild gemeldet</Text>
+            <Text style={styles.stateCopy}>Sobald ein Vorgang erfasst ist, erscheint er hier.</Text>
           </View>
+        ) : null}
 
-          <Text style={styles.copy}>{entry.location.label ?? "Ohne Standort"}</Text>
-          <Text style={styles.copy}>{formatDateTime(entry.recordedAt)}</Text>
-          {entry.note ? <Text style={styles.copy}>{entry.note}</Text> : null}
-          {entry.photos.length > 0 ? <Text style={styles.copy}>{entry.photos.length} Foto(s)</Text> : null}
-        </View>
-      ))}
+        {fallwild.map((entry) => (
+          <View key={entry.id} style={styles.card}>
+            <View style={styles.row}>
+              <View style={styles.grow}>
+                <Text style={styles.title}>
+                  {entry.wildart} / {entry.gemeinde}
+                </Text>
+                <Text style={styles.copy}>
+                  {entry.geschlecht}, {entry.altersklasse}
+                </Text>
+              </View>
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{entry.bergungsStatus}</Text>
+              </View>
+            </View>
+
+            <Text style={styles.copy}>{entry.location.label ?? "Ohne Standort"}</Text>
+            <Text style={styles.copy}>{formatDateTime(entry.recordedAt)}</Text>
+            {entry.strasse ? <Text style={styles.copy}>{entry.strasse}</Text> : null}
+            {entry.note ? <Text style={styles.copy}>{entry.note}</Text> : null}
+            {entry.photos.length > 0 ? <Text style={styles.copy}>{entry.photos.length} Foto(s)</Text> : null}
+          </View>
+        ))}
+      </ScrollView>
     </ScreenShell>
   );
 }
 
-function buildQuickFallwildPayload(): CreateFallwildRequest {
-  return {
-    ...DEFAULT_FALLWILD_PAYLOAD,
-    recordedAt: new Date().toISOString()
+function updateField(
+  setForm: Dispatch<SetStateAction<FallwildFormState>>,
+  key: keyof FallwildFormState
+) {
+  return (value: string) => {
+    setForm((current) => ({ ...current, [key]: value }));
   };
 }
 
+function updateChoice<Key extends keyof Pick<FallwildFormState, "wildart" | "geschlecht" | "altersklasse" | "bergungsStatus">>(
+  setForm: Dispatch<SetStateAction<FallwildFormState>>,
+  key: Key
+) {
+  return (value: FallwildFormState[Key]) => {
+    setForm((current) => ({ ...current, [key]: value }));
+  };
+}
+
+function buildFallwildPayload(form: FallwildFormState): CreateFallwildRequest {
+  const gemeinde = form.gemeinde.trim();
+
+  if (!gemeinde) {
+    throw new Error("Bitte eine Gemeinde eingeben.");
+  }
+
+  return {
+    recordedAt: new Date().toISOString(),
+    location: buildGeoPoint(form.lat, form.lng, form.locationLabel, "Forststrasse"),
+    wildart: form.wildart,
+    geschlecht: form.geschlecht,
+    altersklasse: form.altersklasse,
+    bergungsStatus: form.bergungsStatus,
+    gemeinde,
+    strasse: trimToUndefined(form.strasse),
+    note: trimToUndefined(form.note)
+  };
+}
+
+function ChoiceGroup<T extends string>({
+  label,
+  options,
+  value,
+  onChange
+}: {
+  label: string;
+  options: T[];
+  value: T;
+  onChange: (value: T) => void;
+}) {
+  return (
+    <View style={styles.field}>
+      <Text style={styles.label}>{label}</Text>
+      <View style={styles.choiceRow}>
+        {options.map((option) => (
+          <Pressable
+            key={option}
+            accessibilityRole="button"
+            accessibilityLabel={`${label}: ${option}`}
+            onPress={() => onChange(option)}
+            style={[styles.choiceChip, option === value ? styles.choiceChipActive : null]}
+          >
+            <Text style={[styles.choiceText, option === value ? styles.choiceTextActive : null]}>{option}</Text>
+          </Pressable>
+        ))}
+      </View>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
+  listScroll: {
+    maxHeight: 520
+  },
   toolbar: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -256,6 +469,138 @@ const styles = StyleSheet.create({
     color: colors.ink,
     fontWeight: "600"
   },
+  listContent: {
+    gap: 12,
+    paddingBottom: 24
+  },
+  formCard: {
+    gap: 14,
+    padding: 18,
+    borderRadius: 22,
+    backgroundColor: colors.card
+  },
+  sectionLabel: {
+    fontSize: 12,
+    textTransform: "uppercase",
+    letterSpacing: 1.1,
+    color: colors.muted
+  },
+  sectionCopy: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: colors.muted
+  },
+  fieldRow: {
+    flexDirection: "row",
+    gap: 12
+  },
+  field: {
+    gap: 6
+  },
+  grow: {
+    flex: 1
+  },
+  label: {
+    fontSize: 12,
+    textTransform: "uppercase",
+    letterSpacing: 1.1,
+    color: colors.muted
+  },
+  input: {
+    minHeight: 52,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#d9d2c4",
+    paddingHorizontal: 14,
+    color: colors.ink,
+    backgroundColor: colors.surface
+  },
+  textArea: {
+    minHeight: 90,
+    paddingTop: 12,
+    textAlignVertical: "top"
+  },
+  choiceRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8
+  },
+  choiceChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 999,
+    backgroundColor: "#efe7d8"
+  },
+  choiceChipActive: {
+    backgroundColor: colors.accent
+  },
+  choiceText: {
+    color: colors.ink,
+    fontSize: 13,
+    fontWeight: "600"
+  },
+  choiceTextActive: {
+    color: colors.surface
+  },
+  actionRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10
+  },
+  primaryButton: {
+    minHeight: 52,
+    paddingHorizontal: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 16,
+    backgroundColor: colors.accent
+  },
+  primaryButtonText: {
+    color: colors.surface,
+    fontSize: 16,
+    fontWeight: "700"
+  },
+  secondaryButton: {
+    minHeight: 52,
+    paddingHorizontal: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 16,
+    backgroundColor: "#e3dccd"
+  },
+  secondaryButtonText: {
+    color: colors.ink,
+    fontSize: 15,
+    fontWeight: "600"
+  },
+  stateCard: {
+    gap: 6,
+    padding: 18,
+    borderRadius: 22,
+    backgroundColor: colors.card
+  },
+  infoCard: {
+    gap: 6,
+    padding: 18,
+    borderRadius: 22,
+    backgroundColor: "#efe3d1"
+  },
+  errorCard: {
+    gap: 6,
+    padding: 18,
+    borderRadius: 22,
+    backgroundColor: "#f0d9d4"
+  },
+  stateTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: colors.ink
+  },
+  stateCopy: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: colors.muted
+  },
   queueCard: {
     gap: 8
   },
@@ -275,44 +620,6 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     color: "#f7f2e5"
   },
-  primaryAction: {
-    padding: 20,
-    borderRadius: 24,
-    backgroundColor: colors.accent
-  },
-  primaryActionTitle: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: "#fff9ef"
-  },
-  primaryActionCopy: {
-    marginTop: 6,
-    fontSize: 14,
-    lineHeight: 20,
-    color: "#f7f2e5"
-  },
-  infoCard: {
-    gap: 6,
-    padding: 18,
-    borderRadius: 22,
-    backgroundColor: "#efe3d1"
-  },
-  stateCard: {
-    gap: 6,
-    padding: 18,
-    borderRadius: 22,
-    backgroundColor: colors.card
-  },
-  stateTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: colors.ink
-  },
-  stateCopy: {
-    fontSize: 14,
-    lineHeight: 20,
-    color: colors.muted
-  },
   card: {
     gap: 6,
     padding: 18,
@@ -323,10 +630,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 12,
     alignItems: "flex-start"
-  },
-  grow: {
-    flex: 1,
-    gap: 4
   },
   title: {
     fontSize: 20,
