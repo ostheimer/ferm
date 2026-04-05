@@ -69,6 +69,14 @@ export function Shell({ children, viewer }: ShellProps) {
               : "Ansitze, Fallwild und Protokolle in einem System."}
           </span>
         </div>
+
+        {viewer ? (
+          <form action="/api/v1/auth/logout" className="sidebar-actions" method="post">
+            <button className="button-control sidebar-logout" type="submit">
+              Abmelden
+            </button>
+          </form>
+        ) : null}
       </aside>
 
       <main className="main-content">{children}</main>

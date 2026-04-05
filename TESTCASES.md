@@ -65,6 +65,13 @@
 - Erwartung: die Endpunkte antworten mit `400`
 - Erwartung: das Fehlerformat folgt `{ error: { code, message, status } }`
 
+### TC-API-AUTH-05: Logout loescht Session-Cookies
+
+- Web-App lokal starten
+- `POST /api/v1/auth/logout` mit bestehender Session ausloesen
+- Erwartung: der Endpunkt antwortet mit `303` auf `/login`
+- Erwartung: `hege_access_token` und `hege_refresh_token` werden mit `Max-Age=0` geloescht
+
 ## API Fallwild
 
 ### TC-API-FALLWILD-01: Fallwildliste lesen
@@ -217,6 +224,13 @@
 - Gueltige Demo-Zugangsdaten eingeben und absenden
 - Erwartung: die App leitet auf das Dashboard weiter
 - Erwartung: Navigation und Revierkontext werden nach dem Login angezeigt
+
+### TC-WEB-AUTH-02: Logout bringt zurueck zur Loginseite
+
+- Web-App lokal starten und mit Demo-Zugangsdaten anmelden
+- In der Sidebar `Abmelden` ausloesen
+- Erwartung: die App leitet auf `/login`
+- Erwartung: ein erneuter Aufruf von `/` verlangt wieder eine Anmeldung
 
 ### TC-WEB-REVIER-01: Reviereinrichtungen lesen im Web
 
