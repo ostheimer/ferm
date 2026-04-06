@@ -46,10 +46,10 @@ async function runSmoke(baseUrl) {
 
   await checkJsonEndpoint(baseUrl, "/api/v1/me", authHeaders, {
     label: "/api/v1/me",
-    expectedFields: ["user", "membership", "revier", "activeRevierId"]
+    expectedFields: ["user", "membership", "revier", "activeRevierId", "setupRequired"]
   });
 
-  await checkRedirect(baseUrl, "/login", authHeaders, "/app");
+  await checkRedirect(baseUrl, "/login", authHeaders, ["/app", "/app/setup"]);
 
   console.log("Preview smoke passed.");
 }
@@ -99,7 +99,7 @@ async function postJson(baseUrl, path, body) {
   };
 }
 
-async function checkRedirect(baseUrl, path, headers = {}, expectedLocation) {
+async function checkRedirect(baseUrl, path, headers = {}, expectedLocations) {
   const response = await fetch(baseUrlFor(baseUrl, path), {
     headers,
     redirect: "manual"
@@ -111,10 +111,11 @@ async function checkRedirect(baseUrl, path, headers = {}, expectedLocation) {
   );
 
   const location = response.headers.get("location") ?? "";
+  const allowedLocations = Array.isArray(expectedLocations) ? expectedLocations : [expectedLocations];
   assert.ok(location.length > 0, `Expected ${path} to send a location header.`);
   assert.ok(
-    location.endsWith(expectedLocation),
-    `Expected ${path} to redirect to ${expectedLocation}, got ${location}.`
+    allowedLocations.some((expectedLocation) => location.endsWith(expectedLocation)),
+    `Expected ${path} to redirect to one of ${allowedLocations.join(", ")}, got ${location}.`
   );
 }
 
