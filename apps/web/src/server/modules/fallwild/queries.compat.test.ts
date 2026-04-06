@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockDb } = vi.hoisted(() => ({
+const { mockDb, mockIsStorageConfigured } = vi.hoisted(() => ({
   mockDb: {
     select: vi.fn()
-  }
+  },
+  mockIsStorageConfigured: vi.fn(() => true)
 }));
 
 vi.mock("../../auth/context", () => ({
@@ -23,7 +24,8 @@ vi.mock("../../env", () => ({
 }));
 
 vi.mock("../../storage/s3", () => ({
-  buildStoragePublicUrl: vi.fn((objectKey: string) => `https://storage.example/${objectKey}`)
+  buildStoragePublicUrl: vi.fn((objectKey: string) => `https://storage.example/${objectKey}`),
+  isStorageConfigured: mockIsStorageConfigured
 }));
 
 import { fallwildVorgaenge, mediaAssets } from "../../db/schema";
@@ -32,6 +34,7 @@ import { getFallwildById, listFallwild } from "./queries";
 describe("fallwild query legacy schema compatibility", () => {
   beforeEach(() => {
     mockDb.select.mockImplementation(() => createSelectBuilder());
+    mockIsStorageConfigured.mockReturnValue(true);
   });
 
   it("returns fallwild entries without photos when media_assets is missing", async () => {
@@ -47,6 +50,16 @@ describe("fallwild query legacy schema compatibility", () => {
 
     expect(entry?.id).toBe("fallwild-1");
     expect(entry?.photos).toEqual([]);
+  });
+
+  it("returns fallwild entries without photos when storage is not configured", async () => {
+    mockIsStorageConfigured.mockReturnValue(false);
+
+    const entries = await listFallwild();
+
+    expect(entries).toHaveLength(1);
+    expect(entries[0]?.id).toBe("fallwild-1");
+    expect(entries[0]?.photos).toEqual([]);
   });
 });
 

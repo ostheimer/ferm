@@ -7,7 +7,7 @@ import { isMissingTableError } from "../../db/compat";
 import { type FallwildVorgangRecord, fallwildVorgaenge, mediaAssets } from "../../db/schema";
 import { createDemoStore } from "../../demo-store";
 import { getServerEnv } from "../../env";
-import { buildStoragePublicUrl } from "../../storage/s3";
+import { buildStoragePublicUrl, isStorageConfigured } from "../../storage/s3";
 
 export async function listFallwild(): Promise<FallwildVorgang[]> {
   if (getServerEnv().useDemoStore) {
@@ -132,6 +132,10 @@ function getFallwildFromDemoStore(fallwildId: string): FallwildVorgang | undefin
 async function attachPhotosToFallwildEntries(rows: FallwildVorgangRecord[]): Promise<FallwildVorgang[]> {
   if (rows.length === 0) {
     return [];
+  }
+
+  if (!isStorageConfigured()) {
+    return rows.map((row) => mapFallwildRowToDomain(row));
   }
 
   const db = getDb();
