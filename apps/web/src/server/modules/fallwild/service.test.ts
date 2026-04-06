@@ -201,6 +201,41 @@ describe("fallwild service", () => {
     });
   });
 
+  it("surfaces a missing media_assets table as service unavailable", async () => {
+    const service = createFallwildService({
+      repository: {
+        ...createMemoryRepository({
+          scope: {
+            fallwildId: "fallwild-1",
+            revierId: "revier-attersee",
+            tenantKey: "attersee"
+          }
+        }),
+        async countPhotos() {
+          throw Object.assign(new Error('relation "media_assets" does not exist'), {
+            code: "42P01"
+          });
+        }
+      },
+      uploadObject: vi.fn(),
+      useDemoStore: false
+    });
+
+    await expect(
+      service.uploadPhoto({
+        body: Buffer.from("photo-data"),
+        contentType: "image/jpeg",
+        fallwildId: "fallwild-1",
+        fileName: "bild.jpg",
+        reportedByMembershipId: "member-jaeger",
+        revierId: "revier-attersee"
+      })
+    ).rejects.toMatchObject({
+      message: "Fallwild-Fotos sind in dieser Umgebung noch nicht aktiviert.",
+      status: 503
+    });
+  });
+
   it("rejects mutations without a database-backed store", async () => {
     const service = createFallwildService({
       repository: createMemoryRepository(),

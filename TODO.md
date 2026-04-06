@@ -14,6 +14,7 @@
 
 - Echte Auth-Session mit Login, Refresh, `GET /api/v1/me` und Revierkontext fuer Web und App umgesetzt.
 - Login in Web und App auf E-Mail- oder Benutzername plus vierstellige PIN umgestellt und den sichtbaren Demo-Konten-Block entfernt.
+- Production-Kompatibilitaetsfallback fuer Legacy-Schema bei Login und Fallwild-Reads umgesetzt.
 - Web-Logout mit sichtbarer Sidebar-Aktion und Rueckleitung auf `/login` umgesetzt.
 - Dashboard im Web von `demoData` auf die Server-Schicht mit Session-/Revier-Kontext umgestellt.
 - Reviereinrichtungen und Protokolle im Web als read-only Server-Slices eingefuehrt.
