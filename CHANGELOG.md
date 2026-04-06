@@ -41,3 +41,4 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 ### Fixed
 
 - Web-Sidebar um eine sichtbare `Abmelden`-Aktion ergaenzt und den Logout-Flow ueber Cookie-Clear mit Redirect auf `/login` abgesichert.
+- Login-Placeholder in Web und App zeigen keine konkreten Seed-Zugangsdaten mehr an.

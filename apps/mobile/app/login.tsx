@@ -66,7 +66,7 @@ export default function LoginScreen() {
               <TextInput
                 autoCapitalize="none"
                 autoCorrect={false}
-                placeholder="Ostheimer oder andreas@ostheimer.at"
+                placeholder="E-Mail oder Benutzername eingeben"
                 placeholderTextColor={colors.muted}
                 style={styles.input}
                 value={identifier}
@@ -81,7 +81,7 @@ export default function LoginScreen() {
                 autoCorrect={false}
                 keyboardType={Platform.OS === "ios" ? "number-pad" : "numeric"}
                 maxLength={4}
-                placeholder="9526"
+                placeholder="4-stellige PIN"
                 placeholderTextColor={colors.muted}
                 secureTextEntry
                 style={styles.input}

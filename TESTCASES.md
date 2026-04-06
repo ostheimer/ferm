@@ -275,6 +275,7 @@
 - Gueltige Kennung wie `ostheimer` oder `andreas@ostheimer.at` plus vierstellige PIN eingeben und absenden
 - Erwartung: die App leitet auf das Dashboard weiter
 - Erwartung: Navigation und Revierkontext werden nach dem Login angezeigt
+- Erwartung: Placeholder und Hilfetexte zeigen keine konkreten Seed-Zugangsdaten
 
 ### TC-WEB-AUTH-02: Logout bringt zurueck zur Loginseite
 

@@ -70,7 +70,7 @@ export function LoginForm() {
             id="login-identifier"
             name="identifier"
             onChange={updateField("identifier")}
-            placeholder="Ostheimer oder andreas@ostheimer.at"
+            placeholder="E-Mail oder Benutzername eingeben"
             required
             spellCheck={false}
             type="text"
@@ -88,7 +88,7 @@ export function LoginForm() {
             name="pin"
             onChange={updateField("pin")}
             pattern="[0-9]{4}"
-            placeholder="9526"
+            placeholder="4-stellige PIN"
             required
             type="password"
             value={formValues.pin}
