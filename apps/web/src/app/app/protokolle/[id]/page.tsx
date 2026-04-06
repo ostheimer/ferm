@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { requirePageAuth } from "../../../server/auth/guards";
-import { getProtokollDetail } from "../../../server/modules/protokolle/queries";
+import { requirePageAuth } from "../../../../server/auth/guards";
+import { getProtokollDetail } from "../../../../server/modules/protokolle/queries";
 
 export const dynamic = "force-dynamic";
 
@@ -13,8 +13,8 @@ interface ProtokollDetailPageProps {
 }
 
 export default async function ProtokollDetailPage({ params }: ProtokollDetailPageProps) {
-  await requirePageAuth();
   const { id } = await params;
+  await requirePageAuth({ next: `/app/protokolle/${id}` });
   const protokoll = await getProtokollDetail(id);
 
   if (!protokoll) {
@@ -47,13 +47,13 @@ export default async function ProtokollDetailPage({ params }: ProtokollDetailPag
                 <h2>{protokoll.publishedDocument.title}</h2>
                 <p>{protokoll.publishedDocument.fileName}</p>
                 <Link className="button-link" href={protokoll.publishedDocument.downloadUrl}>
-                  PDF oeffnen
+                  PDF öffnen
                 </Link>
               </>
             ) : (
               <>
-                <h2>Kein Dokument verfuegbar</h2>
-                <p>Das Protokoll ist freigegeben, aber noch nicht mit einem Download verknuepft.</p>
+                <h2>Kein Dokument verfügbar</h2>
+                <p>Das Protokoll ist freigegeben, aber noch nicht mit einem Download verknüpft.</p>
               </>
             )}
           </article>
@@ -84,19 +84,19 @@ export default async function ProtokollDetailPage({ params }: ProtokollDetailPag
               <div className="simple-list">
                 <div>
                   <strong>Tagesordnung</strong>
-                  <span>{version.agenda.join(" · ")}</span>
+                  <span>{version.agenda.join(" | ")}</span>
                 </div>
                 {version.beschluesse.map((beschluss) => (
                   <div key={beschluss.id}>
                     <strong>{beschluss.title}</strong>
                     <span>{beschluss.decision}</span>
-                    {beschluss.owner ? <span>Zustaendig: {beschluss.owner}</span> : null}
+                    {beschluss.owner ? <span>Zuständig: {beschluss.owner}</span> : null}
                   </div>
                 ))}
                 {version.attachments.length > 0 ? (
                   <div>
-                    <strong>Anhaenge</strong>
-                    <span>{version.attachments.map((attachment) => attachment.title).join(" · ")}</span>
+                    <strong>Anhänge</strong>
+                    <span>{version.attachments.map((attachment) => attachment.title).join(" | ")}</span>
                   </div>
                 ) : null}
               </div>

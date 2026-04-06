@@ -1,8 +1,21 @@
 import { LoginForm } from "../../components/login-form";
+import { toSafePostAuthPath } from "../../lib/auth-redirects";
 import { redirectAuthenticatedUser } from "../../server/auth/guards";
 
-export default async function LoginPage() {
-  await redirectAuthenticatedUser();
+interface LoginPageProps {
+  searchParams?: Promise<{
+    next?: string | string[];
+  }>;
+}
 
-  return <LoginForm />;
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const nextTarget = toSafePostAuthPath(readSearchParam((await Promise.resolve(searchParams))?.next));
+
+  await redirectAuthenticatedUser(nextTarget);
+
+  return <LoginForm nextTarget={nextTarget} />;
+}
+
+function readSearchParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
 }

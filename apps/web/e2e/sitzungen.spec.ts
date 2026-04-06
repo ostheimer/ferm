@@ -18,14 +18,14 @@ test.describe("Sitzungen", () => {
     const updatedTitle = `${initialTitle} aktualisiert`;
 
     await loginAs(page, "schriftfuehrer");
-    await page.goto("/sitzungen");
+    await page.goto("/app/sitzungen");
 
     await page.locator("#sitzung-title").fill(initialTitle);
     await page.locator("#sitzung-scheduled-at").fill("2026-04-15T19:30");
     await page.locator("#sitzung-location").fill("E2E Jagdhaus");
     await page.getByRole("button", { name: "Sitzung anlegen" }).click();
 
-    await expect(page).toHaveURL(/\/sitzungen\/sitzung-/);
+    await expect(page).toHaveURL(/\/app\/sitzungen\/sitzung-/);
     const sitzungId = page.url().split("/").at(-1);
 
     if (!sitzungId) {
@@ -78,14 +78,14 @@ test.describe("Sitzungen", () => {
     const title = `E2E Freigabe ${suffix}`;
 
     await loginAs(page, "schriftfuehrer");
-    await page.goto("/sitzungen");
+    await page.goto("/app/sitzungen");
 
     await page.locator("#sitzung-title").fill(title);
     await page.locator("#sitzung-scheduled-at").fill("2026-04-18T18:45");
     await page.locator("#sitzung-location").fill("E2E Freigabe-Ort");
     await page.getByRole("button", { name: "Sitzung anlegen" }).click();
 
-    await expect(page).toHaveURL(/\/sitzungen\/sitzung-/);
+    await expect(page).toHaveURL(/\/app\/sitzungen\/sitzung-/);
     const sitzungId = page.url().split("/").at(-1);
 
     if (!sitzungId) {
@@ -103,7 +103,7 @@ test.describe("Sitzungen", () => {
 
     await logout(page);
     await loginAs(page, "revier-admin");
-    await page.goto(`/sitzungen/${sitzungId}`);
+    await page.goto(`/app/sitzungen/${sitzungId}`);
 
     await page.getByRole("button", { name: "Freigeben" }).click();
     await expect(page.locator(".feedback-success").filter({ hasText: "Sitzung wurde freigegeben." }).first()).toBeVisible();
@@ -131,11 +131,11 @@ test.describe("Sitzungen", () => {
     await download.saveAs(targetPath);
     expect(download.suggestedFilename()).toContain(".pdf");
 
-    await page.goto("/protokolle");
+    await page.goto("/app/protokolle");
     await expect(page.getByRole("heading", { name: title })).toBeVisible();
 
-    await page.locator(`a[href="/protokolle/${sitzungId}"]`).click();
-    await expect(page).toHaveURL(new RegExp(`/protokolle/${sitzungId}$`));
+    await page.locator(`a[href="/app/protokolle/${sitzungId}"]`).click();
+    await expect(page).toHaveURL(new RegExp(`/app/protokolle/${sitzungId}$`));
     await expect(page.getByText("Freigabe-E2E-Zusammenfassung.").first()).toBeVisible();
   });
 });

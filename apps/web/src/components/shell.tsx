@@ -6,12 +6,12 @@ import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
 const navigation = [
-  { href: "/", label: "Dashboard" },
-  { href: "/sitzungen", label: "Sitzungen" },
-  { href: "/ansitze", label: "Ansitze" },
-  { href: "/reviereinrichtungen", label: "Reviereinrichtungen" },
-  { href: "/fallwild", label: "Fallwild" },
-  { href: "/protokolle", label: "Protokolle" }
+  { href: "/app", label: "Dashboard" },
+  { href: "/app/sitzungen", label: "Sitzungen" },
+  { href: "/app/ansitze", label: "Ansitze" },
+  { href: "/app/reviereinrichtungen", label: "Reviereinrichtungen" },
+  { href: "/app/fallwild", label: "Fallwild" },
+  { href: "/app/protokolle", label: "Protokolle" }
 ];
 
 interface ShellProps {
@@ -31,19 +31,19 @@ export function Shell({ children, viewer }: ShellProps) {
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <div className="brand-block">
+        <Link href="/app" className="brand-block">
           <div className="brand-mark">h</div>
           <div>
             <p className="eyebrow">Reviermanagement</p>
             <h1>hege</h1>
           </div>
-        </div>
+        </Link>
 
         <nav className="nav-list" aria-label="Hauptnavigation">
           {navigation.map((item) => {
             const active =
               currentPath === item.href ||
-              (item.href !== "/" && currentPath.startsWith(`${item.href}/`));
+              (item.href !== "/app" && currentPath.startsWith(`${item.href}/`));
 
             return (
               <Link

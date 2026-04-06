@@ -13,7 +13,7 @@ test.describe("Ansitze", () => {
   });
 
   test("matches the visual baseline on desktop and mobile", async ({ page }, testInfo) => {
-    await page.goto("/ansitze");
+    await page.goto("/app/ansitze");
 
     await expect(page.locator("main")).toHaveScreenshot("ansitze-overview.png", visualSnapshotOptions);
 
@@ -29,7 +29,7 @@ test.describe("Ansitze", () => {
     const suffix = Date.now();
     const standortName = `E2E Ansitz ${suffix}`;
 
-    await page.goto("/ansitze");
+    await page.goto("/app/ansitze");
     await page.locator("#ansitz-standort-name").fill(standortName);
     await page.locator("#ansitz-standort-id").fill(`e2e-${suffix}`);
     await page.locator("#ansitz-location-label").fill("E2E Schneise");

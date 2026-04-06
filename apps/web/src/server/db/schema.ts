@@ -48,7 +48,8 @@ export const reviere = pgTable(
     flaecheHektar: integer("flaeche_hektar").notNull(),
     zentrumLat: doublePrecision("zentrum_lat").notNull(),
     zentrumLng: doublePrecision("zentrum_lng").notNull(),
-    zentrumLabel: text("zentrum_label")
+    zentrumLabel: text("zentrum_label"),
+    setupCompletedAt: timestamp("setup_completed_at", { withTimezone: true, mode: "string" })
   },
   (table) => [uniqueIndex("reviere_tenant_key_unique").on(table.tenantKey)]
 );

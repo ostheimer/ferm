@@ -1,0 +1,59 @@
+import { expect, test } from "@playwright/test";
+
+import { loginViaApi } from "./support/auth";
+import { resetE2eDatabase } from "./support/reset-db";
+
+test.describe("Public web and onboarding contracts", () => {
+  test.describe.configure({ mode: "serial" });
+
+  test.beforeEach(async () => {
+    await resetE2eDatabase();
+  });
+
+  test("shows the public landing with pricing CTAs for guests", async ({ page }) => {
+    await page.context().clearCookies();
+    await page.goto("/");
+
+    await expect(page).toHaveURL(/\/$/);
+    await expect(
+      page.getByRole("heading", {
+        name: "Revierbetrieb, Protokolle und Feldmeldungen in einer klaren Oberflaeche."
+      })
+    ).toBeVisible();
+    await expect(page.locator('a[href="/login"]')).toHaveCount(5);
+    await expect(page.locator('a[href="/registrieren?plan=starter"]')).toBeVisible();
+    await expect(page.locator('a[href="/registrieren?plan=revier"]')).toBeVisible();
+    await expect(page.locator('a[href="mailto:info@hege.app?subject=hege%20Organisation"]')).toBeVisible();
+  });
+
+  test("redirects authenticated users from /login to /app", async ({ page }) => {
+    await loginViaApi(page, "schriftfuehrer");
+    await page.goto("/login");
+
+    await expect(page).toHaveURL(/\/app$/);
+  });
+
+  test("redirects anonymous /app routes to /login with a next target", async ({ page }) => {
+    await page.goto("/app/sitzungen");
+
+    await expect(page).toHaveURL(/\/login\?next=%2Fapp%2Fsitzungen$/);
+  });
+
+  test("routes completed registrations to /app/setup", async ({ page }) => {
+    await page.goto("/registrieren?plan=starter");
+    await page.locator("#register-first-name").fill("Maria");
+    await page.locator("#register-last-name").fill("Tester");
+    await page.locator("#register-email").fill("maria.tester@example.at");
+    await page.locator("#register-phone").fill("+43 660 1234567");
+    await page.locator("#register-username").fill("mariatester");
+    await page.locator("#register-pin").fill("1234");
+    await page.locator("#register-jagdzeichen").fill("MT-01");
+    await page.locator("#register-revier-name").fill("Jagdgesellschaft Testtal");
+    await page.locator("#register-bundesland").fill("Oberoesterreich");
+    await page.locator("#register-bezirk").fill("Gmunden");
+    await page.getByRole("button", { name: "Revier anlegen" }).click();
+
+    await expect(page).toHaveURL(/\/app\/setup$/);
+    await expect(page.getByRole("button", { name: "Setup abschliessen" })).toBeVisible();
+  });
+});

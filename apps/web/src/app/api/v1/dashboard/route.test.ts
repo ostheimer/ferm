@@ -45,6 +45,7 @@ describe("GET /api/v1/dashboard", () => {
         }
       },
       activeRevierId: "revier-attersee",
+      setupRequired: false,
       availableMemberships: [],
       overview: {
         revier: {

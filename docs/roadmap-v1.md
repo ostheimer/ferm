@@ -50,6 +50,27 @@ Ergebnis:
 
 - Sitzungen koennen von der Anlage bis zur Veroeffentlichung durchlaufen werden, der Restfokus liegt auf Haertung und Regressionen
 
+## Sprint 1.5: Public Web und Onboarding
+
+Status: in Härtung
+
+Geliefert:
+
+- Public Landing auf `/` mit Pricing und Produktfokus
+- Pricing-CTAs auf `/login` und `/registrieren`
+- Login-Redirect auf `/app`
+- Setup- und Post-Auth-Redirects ueber die Server-Guards
+- Preview-Smoke fuer Public Landing, Login, Registrierung und `GET /api/v1/me`
+
+Restblock:
+
+- `/app`-Eintritt und Setup-Abschluss browser- und Smoke-seitig komplett absichern
+- Registrierungs- und App-Redirects in die naechste Browser-Abnahme ziehen
+
+Ergebnis:
+
+- neue Nutzer sehen zuerst die oeffentliche Produktseite und steigen danach kontrolliert in den App-Block ein
+
 ## Sprint 2: Jaeger-App Kern
 
 Status: teilweise umgesetzt

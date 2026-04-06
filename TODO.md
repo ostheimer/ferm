@@ -14,6 +14,7 @@
 
 - Echte Auth-Session mit Login, Refresh, `GET /api/v1/me` und Revierkontext fuer Web und App umgesetzt.
 - Login in Web und App auf E-Mail- oder Benutzername plus vierstellige PIN umgestellt und den sichtbaren Demo-Konten-Block entfernt.
+- Public-Web-Block mit Landing auf `/`, Pricing-CTAs, Login-/Registrieren-Einstieg und Onboarding-Redirects fuer `/app` und `/app/setup` als Sprint-1.5-Strecke dokumentiert.
 - Production-Kompatibilitaetsfallback fuer Legacy-Schema bei Login und Fallwild-Reads umgesetzt.
 - Web-Logout mit sichtbarer Sidebar-Aktion und Rueckleitung auf `/login` umgesetzt.
 - Dashboard im Web von `demoData` auf die Server-Schicht mit Session-/Revier-Kontext umgestellt.
@@ -23,9 +24,11 @@
 - Mobile Offline-Queue mit Retry-Status fuer `Ansitz` und `Fallwild` eingebaut.
 - Mobile `Ansitz`- und `Fallwild`-Tab auf echte Eingabeformulare mit Queue-Fallback umgestellt.
 - Web-E2E fuer Login, Logout, Rollen-Schutz sowie Sitzungs-Mutation und Freigabe erweitert.
+- Web-E2E und Smoke fuer Public Landing, Login, Registrierung und `/api/v1/me` erweitert.
 - Vitest fuer `@hege/web` sauber von Playwright getrennt.
 - Fallwild-Detail und Foto-Upload ueber `media_assets` und S3-kompatibles Storage eingefuehrt.
 - Preview-Smoke fuer Login, `me`, Dashboard, Reviereinrichtungen, Protokolle, Sitzungen und Dokument-Download umgesetzt.
+- Preview-Smoke auf den Public-Web-Block mit `/`, `/login`, `/registrieren` und Redirects erweitert.
 - Mobile Fallwild-Fotoauswahl mit bis zu drei Bibliotheksbildern eingefuehrt.
 - Mobile Queue auf `pending`, `syncing`, `uploading`, `failed` und `conflict` erweitert.
 - Android-Smoke-Helfer fuer Expo, `adb` und Testbild-Erzeugung hinzugefuegt.

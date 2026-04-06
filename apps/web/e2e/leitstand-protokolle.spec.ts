@@ -15,7 +15,7 @@ test.describe("Leitstand und Protokolle", () => {
   });
 
   test("renders the dashboard on desktop and mobile", async ({ page }, testInfo) => {
-    await page.goto("/");
+    await page.goto("/app");
 
     await expect(page.getByRole("heading", { name: "Revierbetrieb, Protokolle und Fallwild auf einen Blick." })).toBeVisible();
     await expect(page.locator("main")).toHaveScreenshot("dashboard-overview.png", visualSnapshotOptions);
@@ -27,7 +27,7 @@ test.describe("Leitstand und Protokolle", () => {
   });
 
   test("renders the reviereinrichtungen overview on desktop and mobile", async ({ page }, testInfo) => {
-    await page.goto("/reviereinrichtungen");
+    await page.goto("/app/reviereinrichtungen");
 
     await expect(page.getByRole("heading", { name: "Standorte, Kontrollen und Wartungen im Blick." })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Reviereinrichtungen und Status" })).toBeVisible();
@@ -40,7 +40,7 @@ test.describe("Leitstand und Protokolle", () => {
   });
 
   test("renders the protokolle list on desktop and mobile", async ({ page }, testInfo) => {
-    await page.goto("/protokolle");
+    await page.goto("/app/protokolle");
 
     await expect(page.getByRole("heading", { name: "Freigegebene Protokolle und Beschluesse" })).toBeVisible();
     await expect(page.locator('a[href="/api/v1/documents/document-sitzung-2/download"]')).toBeVisible();
@@ -54,11 +54,11 @@ test.describe("Leitstand und Protokolle", () => {
   });
 
   test("renders a published protokoll detail on desktop and mobile", async ({ page }, testInfo) => {
-    await page.goto(`/protokolle/${publishedProtokollId}`);
+    await page.goto(`/app/protokolle/${publishedProtokollId}`);
 
     await expect(page.getByRole("heading", { level: 1, name: "Winterabschluss 2025" })).toBeVisible();
     await expect(page.locator('a[href="/api/v1/documents/document-sitzung-2/download"]')).toBeVisible();
-    await expect(page.locator('a[href="/api/v1/documents/document-sitzung-2/download"]')).toHaveText("PDF oeffnen");
+    await expect(page.locator('a[href="/api/v1/documents/document-sitzung-2/download"]')).toHaveText("PDF öffnen");
     await expect(page.locator("main")).toHaveScreenshot("protokolle-detail-overview.png", visualSnapshotOptions);
 
     if (testInfo.project.name === "mobile-chromium") {
@@ -70,7 +70,7 @@ test.describe("Leitstand und Protokolle", () => {
   test("downloads the published pdf on desktop", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "desktop-chromium", "The PDF download is covered once on desktop.");
 
-    await page.goto(`/protokolle/${publishedProtokollId}`);
+    await page.goto(`/app/protokolle/${publishedProtokollId}`);
 
     const downloadPromise = page.waitForEvent("download");
     await page.locator('a[href="/api/v1/documents/document-sitzung-2/download"]').click();

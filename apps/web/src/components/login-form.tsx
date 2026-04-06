@@ -11,12 +11,16 @@ interface LoginFormValues {
   pin: string;
 }
 
+interface LoginFormProps {
+  nextTarget: string;
+}
+
 const DEFAULT_FORM_VALUES: LoginFormValues = {
   identifier: "",
   pin: ""
 };
 
-export function LoginForm() {
+export function LoginForm({ nextTarget }: LoginFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -47,8 +51,10 @@ export function LoginForm() {
       return;
     }
 
+    const session = (await response.json().catch(() => null)) as { setupRequired?: boolean } | null;
+
     startTransition(() => {
-      router.replace("/");
+      router.replace(session?.setupRequired ? "/app/setup" : nextTarget);
       router.refresh();
     });
   }

@@ -9,6 +9,7 @@ export const demoData: DemoData = {
       bundesland: "Oberoesterreich",
       bezirk: "Voecklabruck",
       flaecheHektar: 1480,
+      setupCompletedAt: "2026-04-01T09:00:00+02:00",
       zentrum: {
         lat: 47.9134,
         lng: 13.5251,
@@ -289,13 +290,13 @@ export const demoData: DemoData = {
           id: "version-2",
           createdAt: "2026-02-15T08:10:00+01:00",
           createdByMembershipId: "member-schrift",
-          summary: "Rueckblick auf die Saison und Beschluss fuer den Fruehjahrsputz.",
-          agenda: ["Rueckblick", "Abschussplan", "Fruehjahrsputz"],
+          summary: "Rückblick auf die Saison und Beschluss für den Frühjahrsputz.",
+          agenda: ["Rückblick", "Abschussplan", "Frühjahrsputz"],
           beschluesse: [
             {
               id: "beschluss-2",
-              title: "Fruehjahrsputz",
-              decision: "Gemeinsamer Reviertag am 22. Maerz mit Fokus auf Hochstaende und Wege.",
+              title: "Frühjahrsputz",
+              decision: "Gemeinsamer Reviertag am 22. März mit Fokus auf Hochstände und Wege.",
               owner: "Martin Mair",
               dueAt: "2026-03-22T09:00:00+01:00"
             }

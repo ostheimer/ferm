@@ -37,7 +37,7 @@ describe("GET /api/v1/protokolle", () => {
         locationLabel: "Jagdhaus Attersee Nord",
         status: "freigegeben",
         latestVersionCreatedAt: "2026-02-15T08:10:00+01:00",
-        summaryPreview: "Rueckblick auf die Saison.",
+        summaryPreview: "Rückblick auf die Saison.",
         beschlussCount: 1,
         publishedDocument: {
           id: "document-sitzung-2",

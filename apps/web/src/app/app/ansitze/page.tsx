@@ -1,11 +1,11 @@
-import { listLiveAnsitze } from "../../server/modules/ansitze/queries";
-import { requirePageAuth } from "../../server/auth/guards";
-import { AnsitzeClient, type AnsitzeClientEntry } from "./ansitze-client";
+import { requirePageAuth } from "../../../server/auth/guards";
+import { listLiveAnsitze } from "../../../server/modules/ansitze/queries";
+import { AnsitzeClient, type AnsitzeClientEntry } from "../../ansitze/ansitze-client";
 
 export const dynamic = "force-dynamic";
 
 export default async function AnsitzePage() {
-  await requirePageAuth();
+  await requirePageAuth({ next: "/app/ansitze" });
   const activeAnsitze = (await listLiveAnsitze()).map((entry) => toAnsitzeClientEntry(entry));
 
   return <AnsitzeClient activeAnsitze={activeAnsitze} />;

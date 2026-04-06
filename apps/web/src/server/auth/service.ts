@@ -153,7 +153,7 @@ async function loadMembershipsForUser(userId: string): Promise<AuthenticatedMemb
 
   return Promise.all(
     rows.map(async (entry) => {
-      const [revier] = await db.select().from(reviere).where(eq(reviere.id, entry.revierId)).limit(1);
+      const revier = await loadDbRevierById(entry.revierId);
 
       if (!revier) {
         throw new RouteError("Revier wurde nicht gefunden.", 401, "unauthenticated");
@@ -239,11 +239,22 @@ function toAuthContextResponse(
   allMemberships: AuthenticatedMembership[]
 ): AuthContextResponse {
   return {
-    user,
+    user: toSafeUser(user),
     membership: stripAuthenticatedMembership(activeMembership),
     revier: activeMembership.revier,
     activeRevierId: activeMembership.revierId,
+    setupRequired: !activeMembership.revier.setupCompletedAt,
     availableMemberships: allMemberships.map(toMembershipSummary)
+  };
+}
+
+function toSafeUser(user: User): User {
+  return {
+    id: user.id,
+    name: user.name,
+    phone: user.phone,
+    email: user.email,
+    username: user.username
   };
 }
 
@@ -382,7 +393,8 @@ function mapLegacyDbUserRow(row: LegacyDbUserRow): DbUserRecord {
 
 async function syncKnownSeedAuthData() {
   const db = getDb();
-  await syncSeedReviere(db);
+  const hasSetupCompletedAtColumn = await hasReviereSetupCompletedAtColumn(db);
+  await syncSeedReviere(db, hasSetupCompletedAtColumn);
   const hasUsernameColumn = await hasUsersUsernameColumn(db);
   await syncSeedUsers(db, hasUsernameColumn);
   await syncSeedMemberships(db);
@@ -403,8 +415,65 @@ async function hasUsersUsernameColumn(db: HegeDb) {
   return row?.hasUsername === true;
 }
 
-async function syncSeedReviere(db: HegeDb) {
+async function hasReviereSetupCompletedAtColumn(db: HegeDb) {
+  const result = await db.execute(sql<{ hasSetupCompletedAt: boolean }>`
+    select exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'reviere'
+        and column_name = 'setup_completed_at'
+    ) as "hasSetupCompletedAt"
+  `);
+  const row = result.rows[0] as { hasSetupCompletedAt?: boolean } | undefined;
+
+  return row?.hasSetupCompletedAt === true;
+}
+
+async function syncSeedReviere(db: HegeDb, hasSetupCompletedAtColumn: boolean) {
   for (const revier of demoData.reviere) {
+    if (hasSetupCompletedAtColumn) {
+      await db.execute(sql`
+        insert into reviere (
+          id,
+          tenant_key,
+          name,
+          bundesland,
+          bezirk,
+          flaeche_hektar,
+          zentrum_lat,
+          zentrum_lng,
+          zentrum_label,
+          setup_completed_at
+        )
+        values (
+          ${revier.id},
+          ${revier.tenantKey},
+          ${revier.name},
+          ${revier.bundesland},
+          ${revier.bezirk},
+          ${revier.flaecheHektar},
+          ${revier.zentrum.lat},
+          ${revier.zentrum.lng},
+          ${revier.zentrum.label ?? null},
+          ${revier.setupCompletedAt ?? null}
+        )
+        on conflict (id) do update
+        set
+          tenant_key = excluded.tenant_key,
+          name = excluded.name,
+          bundesland = excluded.bundesland,
+          bezirk = excluded.bezirk,
+          flaeche_hektar = excluded.flaeche_hektar,
+          zentrum_lat = excluded.zentrum_lat,
+          zentrum_lng = excluded.zentrum_lng,
+          zentrum_label = excluded.zentrum_label,
+          setup_completed_at = excluded.setup_completed_at
+      `);
+
+      continue;
+    }
+
     await db.execute(sql`
       insert into reviere (
         id,
@@ -440,6 +509,60 @@ async function syncSeedReviere(db: HegeDb) {
         zentrum_label = excluded.zentrum_label
     `);
   }
+}
+
+async function loadDbRevierById(revierId: string): Promise<RevierRecord | undefined> {
+  const db = getDb();
+
+  try {
+    const [revier] = await db.select().from(reviere).where(eq(reviere.id, revierId)).limit(1);
+
+    return revier;
+  } catch (error) {
+    if (!isMissingColumnError(error, "reviere", "setup_completed_at")) {
+      throw error;
+    }
+
+    return loadLegacyDbRevierById(revierId);
+  }
+}
+
+async function loadLegacyDbRevierById(revierId: string): Promise<RevierRecord | undefined> {
+  const db = getDb();
+  const result = await db.execute(sql<LegacyRevierRow>`
+    select
+      id,
+      tenant_key as "tenantKey",
+      name,
+      bundesland,
+      bezirk,
+      flaeche_hektar as "flaecheHektar",
+      zentrum_lat as "zentrumLat",
+      zentrum_lng as "zentrumLng",
+      zentrum_label as "zentrumLabel",
+      null::timestamptz as "setupCompletedAt"
+    from reviere
+    where id = ${revierId}
+    limit 1
+  `);
+  const row = result.rows[0] as LegacyRevierRow | undefined;
+
+  return row ? mapLegacyRevierRow(row) : undefined;
+}
+
+function mapLegacyRevierRow(row: LegacyRevierRow): RevierRecord {
+  return {
+    id: row.id,
+    tenantKey: row.tenantKey,
+    name: row.name,
+    bundesland: row.bundesland,
+    bezirk: row.bezirk,
+    flaecheHektar: row.flaecheHektar,
+    zentrumLat: row.zentrumLat,
+    zentrumLng: row.zentrumLng,
+    zentrumLabel: row.zentrumLabel,
+    setupCompletedAt: row.setupCompletedAt
+  };
 }
 
 async function syncSeedUsers(db: HegeDb, hasUsernameColumn: boolean) {
@@ -537,6 +660,7 @@ function mapRevierRecordToDomain(record: RevierRecord): Revier {
     bundesland: record.bundesland,
     bezirk: record.bezirk,
     flaecheHektar: record.flaecheHektar,
+    setupCompletedAt: record.setupCompletedAt ?? undefined,
     zentrum: {
       lat: record.zentrumLat,
       lng: record.zentrumLng,
@@ -559,4 +683,17 @@ interface LegacyDbUserRow {
   email: string;
   username: string;
   passwordHash: string;
+}
+
+interface LegacyRevierRow {
+  id: string;
+  tenantKey: string;
+  name: string;
+  bundesland: string;
+  bezirk: string;
+  flaecheHektar: number;
+  zentrumLat: number;
+  zentrumLng: number;
+  zentrumLabel: string | null;
+  setupCompletedAt: string | null;
 }

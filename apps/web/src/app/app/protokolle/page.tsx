@@ -1,12 +1,12 @@
 import Link from "next/link";
 
-import { requirePageAuth } from "../../server/auth/guards";
-import { listProtokolle } from "../../server/modules/protokolle/queries";
+import { requirePageAuth } from "../../../server/auth/guards";
+import { listProtokolle } from "../../../server/modules/protokolle/queries";
 
 export const dynamic = "force-dynamic";
 
 export default async function ProtokollePage() {
-  await requirePageAuth();
+  await requirePageAuth({ next: "/app/protokolle" });
   const protokolle = await listProtokolle();
 
   return (
@@ -55,7 +55,7 @@ export default async function ProtokollePage() {
                   ) : null}
                 </div>
 
-                <Link className="button-link" href={`/protokolle/${entry.id}`}>
+                <Link className="button-link" href={`/app/protokolle/${entry.id}`}>
                   Protokoll lesen
                 </Link>
               </article>

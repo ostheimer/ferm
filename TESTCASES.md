@@ -76,6 +76,20 @@
 - Erwartung: der Endpunkt antwortet mit `303` auf `/login`
 - Erwartung: `hege_access_token` und `hege_refresh_token` werden mit `Max-Age=0` geloescht
 
+### TC-SRV-AUTH-01: Safe Post-Auth Path wird normalisiert
+
+- Server-Unittests ausfuehren
+- Erwartung: `toSafePostAuthPath("/login")` faellt auf `/app` zurueck
+- Erwartung: `toSafePostAuthPath("/registrieren")` faellt auf `/app` zurueck
+- Erwartung: gueltige Ziele wie `/app/setup` bleiben erhalten
+
+### TC-SRV-AUTH-02: Auth-Gates lenken in App und Setup
+
+- Server-Unittests ausfuehren
+- Erwartung: unauthentifizierte Seitenaufrufe gehen auf `/login?next=...`
+- Erwartung: eingeloggte Nutzer landen auf `/app`
+- Erwartung: setup-pflichtige Nutzer landen auf `/app/setup`
+
 ## API Fallwild
 
 ### TC-API-FALLWILD-01: Fallwildliste lesen
@@ -219,7 +233,12 @@
 ### TC-AUTO-WEB-05: Preview-Smoke gegen die PR-URL
 
 - `pnpm --filter @hege/web smoke:preview -- <preview-url>` ausfuehren
-- Erwartung: `/login`, `POST /api/v1/auth/login`, `/api/v1/me`, `/api/v1/dashboard`, `/api/v1/reviereinrichtungen`, `/api/v1/protokolle`, `/sitzungen` und der Dokument-Download laufen gruen
+- Erwartung: `/`, `/login`, `/registrieren?plan=starter`, `POST /api/v1/auth/login`, `/api/v1/me` und der authentifizierte Redirect von `/login` auf `/app` laufen gruen
+
+### TC-AUTO-WEB-06: Browser-Contracts fuer Public Web und Redirects
+
+- `pnpm --filter @hege/web test` ausfuehren
+- Erwartung: Public-Landing, Pricing-CTAs, `/login`-Redirect und die Auth-Guards fuer `/app` und `/app/setup` sind abgesichert
 
 ## Web Ansitze
 
@@ -288,6 +307,46 @@
 - In der Sidebar `Abmelden` ausloesen
 - Erwartung: die App leitet auf `/login`
 - Erwartung: ein erneuter Aufruf von `/` verlangt wieder eine Anmeldung
+
+## Web Public Landing
+
+### TC-WEB-PUBLIC-01: Oeffentliche Landingseite fuer Gaeste
+
+- Web-App lokal starten
+- Seite `/` ohne Session oeffnen
+- Erwartung: die Public Landing wird angezeigt
+- Erwartung: die Hero- und Pricing-Texte sind sichtbar
+- Erwartung: keine internen Backoffice-Daten erscheinen fuer Gaeste
+
+### TC-WEB-PUBLIC-02: Pricing-CTAs zeigen auf die richtigen Ziele
+
+- Web-App lokal starten
+- Seite `/` ohne Session oeffnen
+- Erwartung: `Anmelden` zeigt auf `/login`
+- Erwartung: `Starter anlegen` zeigt auf `/registrieren?plan=starter`
+- Erwartung: `Revier starten` zeigt auf `/registrieren?plan=revier`
+- Erwartung: `Kontakt aufnehmen` zeigt auf `mailto:info@hege.app?subject=hege%20Organisation`
+
+## Web App Entry
+
+### TC-WEB-APP-01: Login mit bestehender Session landet im App-Block
+
+- Web-App lokal starten
+- gueltige Session ueber die API oder den Login-Flow setzen
+- Seite `/login` oeffnen
+- Erwartung: die App leitet auf `/app`
+
+### TC-WEB-APP-02: Setup-Abschluss fuehrt in den App-Block
+
+- Web-App mit setup-pflichtiger Session starten
+- Seite `/login` oeffnen
+- Erwartung: die App leitet auf `/app/setup`
+
+### TC-WEB-APP-03: App-Routen lenken Gaeste zur Loginseite
+
+- Web-App lokal starten
+- Seite `/app/sitzungen` ohne Session oeffnen
+- Erwartung: die App leitet auf `/login?next=/app/sitzungen`
 
 ### TC-WEB-REVIER-01: Reviereinrichtungen lesen im Web
 
