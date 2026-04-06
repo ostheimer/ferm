@@ -21,7 +21,8 @@ describe("POST /api/v1/fallwild", () => {
     mockGetRequestContext.mockReset();
     mockGetRequestContext.mockResolvedValue({
       membershipId: "member-jaeger",
-      revierId: "revier-attersee"
+      revierId: "revier-attersee",
+      role: "jaeger"
     });
   });
 
@@ -87,6 +88,37 @@ describe("POST /api/v1/fallwild", () => {
     );
 
     expect(response.status).toBe(400);
+    expect(mockCreateFallwildVorgang).not.toHaveBeenCalled();
+  });
+
+  it("returns 403 for forbidden roles", async () => {
+    mockGetRequestContext.mockResolvedValueOnce({
+      membershipId: "member-admin",
+      revierId: "revier-attersee",
+      role: "platform-admin"
+    });
+
+    const response = await POST(
+      new Request("http://localhost/api/v1/fallwild", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({
+          location: {
+            lat: 47.92,
+            lng: 13.51
+          },
+          wildart: "Fuchs",
+          geschlecht: "weiblich",
+          altersklasse: "Adult",
+          bergungsStatus: "geborgen",
+          gemeinde: "Steinbach am Attersee"
+        })
+      })
+    );
+
+    expect(response.status).toBe(403);
     expect(mockCreateFallwildVorgang).not.toHaveBeenCalled();
   });
 });

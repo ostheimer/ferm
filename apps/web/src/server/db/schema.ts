@@ -123,6 +123,31 @@ export const fallwildVorgaenge = pgTable(
   ]
 );
 
+export const mediaAssets = pgTable(
+  "media_assets",
+  {
+    id: text("id").primaryKey(),
+    revierId: text("revier_id")
+      .notNull()
+      .references(() => reviere.id),
+    entityType: text("entity_type").$type<"fallwild">().notNull(),
+    entityId: text("entity_id").notNull(),
+    uploadedByMembershipId: text("uploaded_by_membership_id")
+      .notNull()
+      .references(() => memberships.id),
+    title: text("title").notNull(),
+    objectKey: text("object_key").notNull(),
+    fileName: text("file_name").notNull(),
+    contentType: text("content_type").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull()
+  },
+  (table) => [
+    index("media_assets_revier_idx").on(table.revierId),
+    index("media_assets_entity_idx").on(table.entityType, table.entityId),
+    index("media_assets_uploaded_by_idx").on(table.uploadedByMembershipId)
+  ]
+);
+
 export const notifications = pgTable(
   "notifications",
   {
@@ -299,6 +324,7 @@ export type RevierRecord = typeof reviere.$inferSelect;
 export type MembershipRecord = typeof memberships.$inferSelect;
 export type AnsitzSessionRecord = typeof ansitzSessions.$inferSelect;
 export type FallwildVorgangRecord = typeof fallwildVorgaenge.$inferSelect;
+export type MediaAssetRecord = typeof mediaAssets.$inferSelect;
 export type NotificationRecord = typeof notifications.$inferSelect;
 export type ReviereinrichtungRecord = typeof reviereinrichtungen.$inferSelect;
 export type ReviereinrichtungKontrolleRecord = typeof reviereinrichtungKontrollen.$inferSelect;

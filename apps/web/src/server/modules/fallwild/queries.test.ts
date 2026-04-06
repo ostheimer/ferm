@@ -6,7 +6,11 @@ vi.mock("../../auth/context", () => ({
   }))
 }));
 
-import { exportFallwildCsv, mapFallwildRowToDomain } from "./queries";
+vi.mock("../../storage/s3", () => ({
+  buildStoragePublicUrl: vi.fn((objectKey: string) => `https://storage.example/${objectKey}`)
+}));
+
+import { exportFallwildCsv, mapFallwildRowToDomain, mapMediaAssetRowToPhotoAsset } from "./queries";
 
 describe("fallwild queries", () => {
   it("maps db rows to the shared domain shape", () => {
@@ -35,6 +39,28 @@ describe("fallwild queries", () => {
         label: "L127"
       },
       photos: []
+    });
+  });
+
+  it("maps media asset rows to photo assets", () => {
+    expect(
+      mapMediaAssetRowToPhotoAsset({
+        id: "photo-1",
+        revierId: "revier-attersee",
+        entityType: "fallwild",
+        entityId: "fallwild-1",
+        uploadedByMembershipId: "member-jaeger",
+        title: "Unfallstelle",
+        objectKey: "attersee/fallwild/fallwild-1/photo-1-bild.jpg",
+        fileName: "bild.jpg",
+        contentType: "image/jpeg",
+        createdAt: "2026-04-03T06:56:00.000Z"
+      })
+    ).toEqual({
+      id: "photo-1",
+      title: "Unfallstelle",
+      url: "https://storage.example/attersee/fallwild/fallwild-1/photo-1-bild.jpg",
+      createdAt: "2026-04-03T06:56:00.000Z"
     });
   });
 

@@ -11,12 +11,15 @@
     "db:studio": "drizzle-kit studio --config ./drizzle.config.ts",
     "dev": "next dev",
     "lint": "node -e \"try { require('node:fs').unlinkSync('tsconfig.tsbuildinfo'); } catch {}\" && tsc -p tsconfig.json --noEmit",
+    "storage:init": "node ./scripts/init-local-storage.mjs",
+    "smoke:preview": "node ./scripts/smoke-preview.mjs",
     "test": "vitest run --config ./vitest.config.ts",
     "start:e2e": "next start --hostname 127.0.0.1 -p 3200",
     "start": "next start",
     "typecheck": "node -e \"try { require('node:fs').unlinkSync('tsconfig.tsbuildinfo'); } catch {}\" && tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "3.1024.0",
     "@hege/domain": "workspace:*",
     "drizzle-orm": "^0.45.2",
     "next": "^15.4.6",

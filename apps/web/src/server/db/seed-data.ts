@@ -6,6 +6,7 @@ import {
   ansitzSessions,
   dokumente,
   fallwildVorgaenge,
+  mediaAssets,
   memberships,
   notifications,
   protokollBeschluesse,
@@ -20,7 +21,7 @@ import {
 } from "./schema";
 
 export const SEED_COMPLETION_MESSAGE =
-  "Seed completed for users, reviere, memberships, ansitz sessions, fallwild, notifications, reviereinrichtungen and sitzungen.";
+  "Seed completed for users, reviere, memberships, ansitz sessions, fallwild, media assets, notifications, reviereinrichtungen and sitzungen.";
 
 export async function seedDatabase(db: HegeDb) {
   const passwordHash = createSeedPasswordHash();
@@ -197,6 +198,37 @@ export async function seedDatabase(db: HegeDb) {
           note: entry.note
         }
       });
+
+    for (const photo of entry.photos) {
+      await db
+        .insert(mediaAssets)
+        .values({
+          id: photo.id,
+          revierId: entry.revierId,
+          entityType: "fallwild",
+          entityId: entry.id,
+          uploadedByMembershipId: entry.reportedByMembershipId,
+          title: photo.title,
+          objectKey: `seed/fallwild/${entry.id}/${photo.id}.jpg`,
+          fileName: `${photo.id}.jpg`,
+          contentType: "image/jpeg",
+          createdAt: photo.createdAt
+        })
+        .onConflictDoUpdate({
+          target: mediaAssets.id,
+          set: {
+            revierId: entry.revierId,
+            entityType: "fallwild",
+            entityId: entry.id,
+            uploadedByMembershipId: entry.reportedByMembershipId,
+            title: photo.title,
+            objectKey: `seed/fallwild/${entry.id}/${photo.id}.jpg`,
+            fileName: `${photo.id}.jpg`,
+            contentType: "image/jpeg",
+            createdAt: photo.createdAt
+          }
+        });
+    }
   }
 
   for (const entry of demoData.reviereinrichtungen) {

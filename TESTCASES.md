@@ -4,11 +4,13 @@
 
 ### TC-API-ANSITZ-00: Lokale Datenbank bootstrapen
 
-- `docker compose up -d postgres` ausfuehren
+- `docker compose up -d postgres minio` ausfuehren
+- `pnpm --filter @hege/web storage:init` ausfuehren
 - `pnpm --filter @hege/web db:migrate` ausfuehren
 - `pnpm --filter @hege/web db:seed` ausfuehren
 - Erwartung: Migration laeuft ohne SQL-Fehler durch
-- Erwartung: der Seed meldet erfolgreiche Anlage von `users`, `reviere`, `memberships`, `ansitz_sessions` und `fallwild_vorgaenge`
+- Erwartung: der MinIO-Bucket `hege-assets` existiert
+- Erwartung: der Seed meldet erfolgreiche Anlage von `users`, `reviere`, `memberships`, `ansitz_sessions`, `fallwild_vorgaenge` und `media_assets`
 
 ### TC-API-ANSITZ-00B: Neon `development` fuer Preview bootstrapen
 
@@ -96,6 +98,29 @@
 - Erwartung: `content-type` ist `text/csv`
 - Erwartung: die CSV enthaelt mindestens Kopfzeile sowie die gespeicherten Fallwild-Vorgaenge
 
+### TC-API-FALLWILD-04: Fallwild-Detail liefert Fotos
+
+- Web-App lokal mit authentifizierter Session starten
+- `GET /api/v1/fallwild/:id` aufrufen
+- Erwartung: die Antwort enthaelt einen vollstaendigen `FallwildVorgang`
+- Erwartung: `photos` ist vorhanden und enthaelt vorhandene Medien des aktiven Reviers
+
+### TC-API-FALLWILD-05: Foto-Upload fuer Fallwild
+
+- Web-App lokal mit `postgres` und `minio` starten
+- `POST /api/v1/fallwild/:id/fotos` als `multipart/form-data` mit einer JPEG- oder PNG-Datei senden
+- Erwartung: der Endpunkt antwortet mit `201`
+- Erwartung: `photo.url` zeigt auf den konfigurierten S3-/MinIO-Pfad
+- Erwartung: ein anschliessendes `GET /api/v1/fallwild/:id` enthaelt das hochgeladene Foto in `photos`
+
+### TC-API-FALLWILD-06: Foto-Upload validiert Typ, Groesse und Storage
+
+- Web-App lokal starten
+- `POST /api/v1/fallwild/:id/fotos` mit falschem `content-type`, zu grosser Datei oder ohne Storage-Konfiguration pruefen
+- Erwartung: ungueltiges `multipart/form-data` antwortet mit `400`
+- Erwartung: fachliche Limitverletzungen antworten mit `422`
+- Erwartung: fehlende Storage-Konfiguration antwortet mit `503`
+
 ## API Dashboard, Reviereinrichtungen, Protokolle und Sitzungen
 
 ### TC-API-DASH-01: Dashboard-API liefert den Snapshot
@@ -178,6 +203,18 @@
 - `pnpm test:e2e -- apps/web/e2e/ansitze.spec.ts apps/web/e2e/fallwild.spec.ts` ausfuehren
 - Erwartung: Desktop- und Mobile-Viewport stimmen mit den Snapshots ueberein
 - Erwartung: Ansitz-Start/Ende, Fallwild-Erfassung und CSV-Export laufen grün durch
+
+### TC-AUTO-WEB-04: Playwright fuer Leitstand, Reviereinrichtungen und Protokolle
+
+- `pnpm test:e2e -- apps/web/e2e/leitstand-protokolle.spec.ts` ausfuehren
+- Erwartung: Dashboard, Reviereinrichtungen, Protokoll-Liste und Protokoll-Detail laufen auf Desktop und Mobile-Viewport durch
+- Erwartung: der Dokument-Download liefert den erwarteten PDF-Dateinamen
+- Erwartung: es gibt keinen Horizontal-Overflow im Mobile-Viewport
+
+### TC-AUTO-WEB-05: Preview-Smoke gegen die PR-URL
+
+- `pnpm --filter @hege/web smoke:preview -- <preview-url>` ausfuehren
+- Erwartung: `/login`, `POST /api/v1/auth/login`, `/api/v1/me`, `/api/v1/dashboard`, `/api/v1/reviereinrichtungen`, `/api/v1/protokolle`, `/sitzungen` und der Dokument-Download laufen gruen
 
 ## Web Ansitze
 
@@ -358,6 +395,24 @@
 - Erwartung: online wird der Vorgang direkt an `POST /api/v1/fallwild` gesendet
 - Erwartung: ohne Verbindung wird der Vorgang in die Offline-Queue gelegt und im Dashboard sichtbar
 
+### TC-MOB-FALLWILD-05: Fallwild mit Fotos online erfassen
+
+- Tab `Fallwild` oeffnen
+- bis zu drei Fotos aus der Bibliothek auswaehlen
+- Formular absenden
+- Erwartung: zuerst wird `POST /api/v1/fallwild` ausgefuehrt
+- Erwartung: danach laufen die Foto-Uploads sequentiell ueber `POST /api/v1/fallwild/:id/fotos`
+- Erwartung: der neue Vorgang erscheint mit Fotoanzahl in der Liste
+
+### TC-MOB-FALLWILD-06: Fallwild mit Fotos offline erfassen und spaeter synchronisieren
+
+- Netzwerk deaktivieren
+- Tab `Fallwild` oeffnen und einen Vorgang mit Fotos absenden
+- Erwartung: der Create-Eintrag landet in der Queue
+- Netzwerk wieder aktivieren und `Queue sync` ausloesen
+- Erwartung: nach erfolgreichem Create entstehen nachgelagerte Foto-Upload-Eintraege
+- Erwartung: erfolgreiche Eintraege verschwinden, `failed` oder `conflict` bleiben sichtbar
+
 ## Mobile Reviereinrichtungen und Protokolle
 
 ### TC-MOB-REV-01: Reviereinrichtungen laden
@@ -425,3 +480,16 @@
 - Im Dashboard `Queue sync` ausloesen
 - Erwartung: erfolgreiche Eintraege verschwinden aus der Queue
 - Erwartung: fehlgeschlagene Eintraege behalten einen Fehlerstatus und koennen erneut synchronisiert werden
+
+### TC-MOB-SITZ-04: Queue zeigt Upload- und Konfliktstatus
+
+- App mit vorbereiteten `fallwild-photo-upload`-Eintraegen oeffnen
+- Erwartung: das Dashboard zeigt Typ, Status, letzte Fehlermeldung und Attachment-Hinweis
+- Erwartung: `failed` und `conflict` koennen sichtbar verworfen werden
+
+### TC-MOB-ANDROID-01: Android-Smoke vorbereiten
+
+- Android-Emulator oder Geraet verbinden
+- `node apps/mobile/scripts/create-test-image.mjs` ausfuehren
+- `powershell -ExecutionPolicy Bypass -File apps/mobile/scripts/android-smoke.ps1` ausfuehren
+- Erwartung: das Skript pusht ein Testbild auf das Geraet und gibt den nativen Smoke-Ablauf fuer Login, Dashboard, Ansitz, Fallwild mit Foto und Offline-Sync aus

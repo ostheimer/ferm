@@ -1,20 +1,20 @@
 # Roadmap
 
-Diese Datei ist der schlanke Einstiegspunkt im Repo-Root. Die vollständige Roadmap liegt in [docs/roadmap-v1.md](./docs/roadmap-v1.md).
+Diese Datei ist der schlanke Einstiegspunkt im Repo-Root. Die vollstaendige Roadmap liegt in [docs/roadmap-v1.md](./docs/roadmap-v1.md).
 
 ## Aktueller Status
 
-- Das Repository enthält ein sichtbares Demo-Grundgerüst für API, Web und Mobile.
-- Die erste produktive Ausbaustufe ist `Sprint 0: Fundament`.
-- Der nächste fachlich sinnvolle Schritt ist die Ablösung des Demo-Stores durch persistente Datenhaltung sowie Authentifizierung, Revier-Kontext und Rollenprüfung.
+- `Sprint 0` ist technisch abgeschlossen: Auth, Revier-Scope, Rollenpruefung, Drizzle-Schema, Seeds und produktive Route Handler laufen in `apps/web`.
+- `Sprint 1` ist weit fortgeschritten: Dashboard, Reviereinrichtungen, Protokolle, Sitzungen, Freigabe/PDF-Basis und die erste Web-E2E-Strecke sind umgesetzt.
+- `Sprint 2` und `Sprint 3` sind bereits angebrochen: Mobile Login, Dashboard, Ansitz- und Fallwild-Formulare, Read-Slices und Offline-Queue stehen; Fallwild-Fotos, Queue v2 und Android-Smokes sind der aktuelle Ausbaublock.
 
 ## Aktueller Fokus
 
-1. PostgreSQL/PostGIS und Migrationen
-2. Authentifizierung und Revier-Scope
-3. Rollenmodell serverseitig erzwingen
-4. Storage- und Medienbasis
-5. Rollen, Aufgaben und Nachrichten fachlich strukturieren
+1. Web-Haertung mit Playwright fuer Dashboard, Reviereinrichtungen, Protokolle und Dokument-Download
+2. Fallwild-Detail und Foto-Upload ueber S3-kompatibles Storage
+3. Mobile Queue v2 mit separaten Foto-Uploads, Retry- und Konfliktstatus
+4. Preview-Smoke und Android-Smoke als reproduzierbare Abnahmewege
+5. Danach Rollen, Aufgaben, Nachrichten und Veranstaltungen
 
 ## Detaildokumente
 

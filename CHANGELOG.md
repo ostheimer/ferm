@@ -14,6 +14,11 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 - Mobile Session-Restore, tokenbasiertes Login und zentraler API-Client fuer die Read-Slices eingerichtet.
 - Mobile Offline-Queue mit Retry-Status fuer `Ansitz`- und `Fallwild`-Schnellmeldungen eingebaut.
 - Playwright deckt jetzt Login, Logout, Rollen-Schutz sowie Sitzungs-Mutation und Freigabe im Web ab.
+- Fallwild-Detail und Foto-Upload ueber `GET /api/v1/fallwild/:id` und `POST /api/v1/fallwild/:id/fotos` plus `media_assets` eingefuehrt.
+- S3-kompatible Storage-Schicht fuer lokales MinIO und spaeteres R2 eingebaut.
+- Preview-Smoke-Skript fuer Login, `me`, Dashboard, Reviereinrichtungen, Protokolle, Sitzungen und Dokument-Download hinzugefuegt.
+- Mobile Fallwild-Fotoauswahl ueber `expo-image-picker` mit bis zu drei Bibliotheksbildern eingefuehrt.
+- Android-Smoke-Helfer fuer Expo, Testbild-Erzeugung und `adb`-basierte Ablaufpruefung ergaenzt.
 
 ### Changed
 
@@ -25,6 +30,10 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 - Mobile `Ansitz` und `Fallwild` koennen Schnellmeldungen direkt senden oder bei Verbindungsfehlern in die Queue legen.
 - Mobile `Ansitz` und `Fallwild` wurden auf echte Eingabeformulare mit Queue-Fallback umgestellt.
 - Der lokale Playwright-Harness setzt die E2E-Datenbank jetzt vollstaendig zurueck und startet die Web-App ohne Wiederverwendung alter Test-Server.
+- Seeds und DB-Schema erweitern Fallwild jetzt um `media_assets` als generische Medienbasis.
+- Die Mobile-Offline-Queue verarbeitet Fallwild jetzt als Create-zu-Upload-Kette mit `pending`, `syncing`, `uploading`, `failed` und `conflict`.
+- Das Mobile-Dashboard zeigt Queue-Typ, Status, Fehlermeldung und Verwerf-Aktion fuer fehlgeschlagene Eintraege.
+- Der lokale Schnellstart fuer Web/API umfasst jetzt auch ein wiederholbares Storage-Setup fuer MinIO.
 
 ### Fixed
 
