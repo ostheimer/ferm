@@ -12,6 +12,7 @@ describe("auth service", () => {
     expect(session.user.email).toBe("andreas@ostheimer.at");
     expect(session.user.name).toBe("Andreas Ostheimer");
     expect(session.membership.role).toBe("revier-admin");
+    expect(session.user).not.toHaveProperty("passwordHash");
   });
 
   it("logs a seeded user in with email and pin", async () => {
@@ -22,6 +23,7 @@ describe("auth service", () => {
 
     expect(session.user.name).toBe("Martin Mair");
     expect(session.membership.role).toBe("schriftfuehrer");
+    expect(session.user).not.toHaveProperty("passwordHash");
   });
 
   it("rejects invalid pins", async () => {

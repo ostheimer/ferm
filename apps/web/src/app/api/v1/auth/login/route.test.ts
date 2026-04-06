@@ -51,7 +51,10 @@ describe("POST /api/v1/auth/login", () => {
     );
 
     expect(response.status).toBe(200);
-    expect((await response.json()).user.id).toBe("user-mair");
+    const json = await response.json();
+
+    expect(json.user.id).toBe("user-mair");
+    expect(json.user).not.toHaveProperty("passwordHash");
     expect(response.headers.get("set-cookie")).toContain("hege_access_token=");
     expect(mockLogin).toHaveBeenCalledWith({
       identifier: "ostheimer",

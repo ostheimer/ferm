@@ -239,12 +239,22 @@ function toAuthContextResponse(
   allMemberships: AuthenticatedMembership[]
 ): AuthContextResponse {
   return {
-    user,
+    user: toSafeUser(user),
     membership: stripAuthenticatedMembership(activeMembership),
     revier: activeMembership.revier,
     activeRevierId: activeMembership.revierId,
     setupRequired: !activeMembership.revier.setupCompletedAt,
     availableMemberships: allMemberships.map(toMembershipSummary)
+  };
+}
+
+function toSafeUser(user: User): User {
+  return {
+    id: user.id,
+    name: user.name,
+    phone: user.phone,
+    email: user.email,
+    username: user.username
   };
 }
 
