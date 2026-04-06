@@ -43,3 +43,4 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 - Web-Sidebar um eine sichtbare `Abmelden`-Aktion ergaenzt und den Logout-Flow ueber Cookie-Clear mit Redirect auf `/login` abgesichert.
 - Login-Placeholder in Web und App zeigen keine konkreten Seed-Zugangsdaten mehr an.
 - Production-Fallback fuer Legacy-Schema eingebaut, damit Login ohne `users.username` und Fallwild-Reads ohne `media_assets` nicht mehr mit `500` scheitern.
+- Fallwild-Reads brechen ohne konfigurierte Storage-Public-URL nicht mehr mit `500`, sondern liefern `photos: []`.

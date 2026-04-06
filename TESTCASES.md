@@ -85,6 +85,7 @@
 - Erwartung: die Antwort enthaelt die Fallwild-Vorgaenge des aktiven Reviers
 - Erwartung: jeder Eintrag liefert Standort, Wildart, Bergungsstatus und Erfassungszeitpunkt
 - Erwartung: fehlt `media_assets` in einer Legacy-DB noch, antwortet der Endpunkt weiter mit leerem `photos`-Array statt `500`
+- Erwartung: fehlt die Storage-Public-URL fuer vorhandene Fotos, antwortet der Endpunkt ebenfalls mit leerem `photos`-Array statt `500`
 
 ### TC-API-FALLWILD-02: Fallwildvorgang anlegen
 
