@@ -7,13 +7,13 @@ import { useState, useTransition } from "react";
 import { readApiErrorMessage } from "../lib/api-error";
 
 interface LoginFormValues {
-  email: string;
-  password: string;
+  identifier: string;
+  pin: string;
 }
 
 const DEFAULT_FORM_VALUES: LoginFormValues = {
-  email: "martin.mair@hege.app",
-  password: "hege-demo-2026"
+  identifier: "",
+  pin: ""
 };
 
 export function LoginForm() {
@@ -58,35 +58,40 @@ export function LoginForm() {
       <div className="login-copy">
         <p className="eyebrow">Anmeldung</p>
         <h1>Backoffice und App jetzt mit echter Session.</h1>
-        <p>
-          Melde dich mit einer Demo-Adresse an. Standardpasswort fuer lokale Seeds und Vorschau ist
-          <strong> hege-demo-2026</strong>.
-        </p>
+        <p>Melde dich mit E-Mail oder Benutzername und deiner vierstelligen PIN an.</p>
       </div>
 
       <form className="login-form" onSubmit={(event) => void handleSubmit(event)}>
-        <label className="field" htmlFor="login-email">
-          <span>E-Mail</span>
+        <label className="field" htmlFor="login-identifier">
+          <span>E-Mail oder Benutzername</span>
           <input
-            id="login-email"
-            name="email"
-            onChange={updateField("email")}
-            placeholder="martin.mair@hege.app"
+            autoCapitalize="none"
+            autoComplete="username"
+            id="login-identifier"
+            name="identifier"
+            onChange={updateField("identifier")}
+            placeholder="E-Mail oder Benutzername eingeben"
             required
-            type="email"
-            value={formValues.email}
+            spellCheck={false}
+            type="text"
+            value={formValues.identifier}
           />
         </label>
 
-        <label className="field" htmlFor="login-password">
-          <span>Passwort</span>
+        <label className="field" htmlFor="login-pin">
+          <span>PIN</span>
           <input
-            id="login-password"
-            name="password"
-            onChange={updateField("password")}
+            autoComplete="current-password"
+            id="login-pin"
+            inputMode="numeric"
+            maxLength={4}
+            name="pin"
+            onChange={updateField("pin")}
+            pattern="[0-9]{4}"
+            placeholder="4-stellige PIN"
             required
             type="password"
-            value={formValues.password}
+            value={formValues.pin}
           />
         </label>
 
@@ -99,13 +104,6 @@ export function LoginForm() {
           </button>
         </div>
       </form>
-
-      <div className="login-helper">
-        <strong>Demo-Konten</strong>
-        <span>anna.steyrer@hege.app · Revier Admin</span>
-        <span>martin.mair@hege.app · Schriftfuehrer</span>
-        <span>lukas.huber@hege.app · Jaeger</span>
-      </div>
     </section>
   );
 }

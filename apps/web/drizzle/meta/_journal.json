@@ -29,6 +29,13 @@
       "when": 1775432420065,
       "tag": "0003_flaky_manta",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1775470046482,
+      "tag": "0004_silent_retro_girl",
+      "breakpoints": true
     }
   ]
 }

@@ -43,7 +43,7 @@
 ### TC-API-AUTH-01: Login liefert Session und Cookies
 
 - Web-App lokal starten
-- `POST /api/v1/auth/login` mit gueltiger E-Mail und Passwort aufrufen
+- `POST /api/v1/auth/login` mit gueltiger Kennung und vierstelliger PIN aufrufen
 - Erwartung: die Antwort enthaelt Benutzer-, Membership- und Revierkontext
 - Erwartung: `access`- und `refresh`-Cookie werden gesetzt
 
@@ -272,9 +272,10 @@
 
 - Web-App lokal starten
 - Seite `/login` oeffnen
-- Gueltige Demo-Zugangsdaten eingeben und absenden
+- Gueltige Kennung wie `ostheimer` oder `andreas@ostheimer.at` plus vierstellige PIN eingeben und absenden
 - Erwartung: die App leitet auf das Dashboard weiter
 - Erwartung: Navigation und Revierkontext werden nach dem Login angezeigt
+- Erwartung: Placeholder und Hilfetexte zeigen keine konkreten Seed-Zugangsdaten
 
 ### TC-WEB-AUTH-02: Logout bringt zurueck zur Loginseite
 
@@ -356,7 +357,7 @@
 - Falls bereits eine Session gespeichert ist, App neu starten
 - Erwartung: die Session wird aus dem Storage wiederhergestellt
 - Erwartung: nicht eingeloggte User landen auf der Loginseite
-- Erwartung: ein erfolgreicher Login nutzt `POST /api/v1/auth/login` und speichert die Session lokal
+- Erwartung: ein erfolgreicher Login nutzt `POST /api/v1/auth/login` mit Kennung plus PIN und speichert die Session lokal
 
 ### TC-MOB-DASH-02: Dashboard bei API-Fehler
 

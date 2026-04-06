@@ -2,19 +2,19 @@ import { expect, type Page } from "@playwright/test";
 
 type DemoUserRole = "revier-admin" | "schriftfuehrer" | "jaeger";
 
-const DEMO_PASSWORD = "hege-demo-2026";
+const DEMO_PIN = "9526";
 
-const credentialsByRole: Record<DemoUserRole, { email: string; name: string }> = {
+const credentialsByRole: Record<DemoUserRole, { identifier: string; name: string }> = {
   "revier-admin": {
-    email: "anna.steyrer@hege.app",
-    name: "Anna Steyrer"
+    identifier: "ostheimer",
+    name: "Andreas Ostheimer"
   },
   schriftfuehrer: {
-    email: "martin.mair@hege.app",
+    identifier: "martin.mair@hege.app",
     name: "Martin Mair"
   },
   jaeger: {
-    email: "lukas.huber@hege.app",
+    identifier: "lukas.huber@hege.app",
     name: "Lukas Huber"
   }
 };
@@ -26,8 +26,8 @@ export async function loginAs(page: Page, role: DemoUserRole) {
   await page.goto("/login");
   await expect(page).toHaveURL(/\/login$/);
 
-  await page.locator("#login-email").fill(credentials.email);
-  await page.locator("#login-password").fill(DEMO_PASSWORD);
+  await page.locator("#login-identifier").fill(credentials.identifier);
+  await page.locator("#login-pin").fill(DEMO_PIN);
   await page.getByRole("button", { name: "Anmelden" }).click();
 
   await expect(page).toHaveURL(/\/$/);

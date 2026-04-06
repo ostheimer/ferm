@@ -63,6 +63,7 @@ export async function seedDatabase(db: HegeDb) {
         name: entry.name,
         phone: entry.phone,
         email: entry.email,
+        username: entry.username ?? entry.email.split("@")[0] ?? entry.id,
         passwordHash
       })
       .onConflictDoUpdate({
@@ -71,6 +72,7 @@ export async function seedDatabase(db: HegeDb) {
           name: entry.name,
           phone: entry.phone,
           email: entry.email,
+          username: entry.username ?? entry.email.split("@")[0] ?? entry.id,
           passwordHash
         }
       });

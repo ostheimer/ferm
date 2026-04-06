@@ -24,6 +24,7 @@ Die bestehende NestJS-API bleibt als Referenzpfad im Repository. Die produktive 
 - Fallwild-Detail und Foto-Upload ueber `GET /api/v1/fallwild/:id` und `POST /api/v1/fallwild/:id/fotos`
 - S3-kompatible Storage-Schicht fuer lokales MinIO und spaeteres Cloudflare R2
 - Seed-Skript auf Basis der bestehenden Demo-Daten
+- Login in Web und App ueber E-Mail oder Benutzername plus vierstellige PIN
 - Demo-Fallback fuer lokale Read-Tests, solange keine DB aktiv ist
 - Web-Ansitzseite mit Starten, Beenden und manuellem Refresh gegen den neuen API-Pfad
 - Web-Fallwildseite mit Erfassung, CSV-Export und mobilem Layout gegen denselben API-Pfad

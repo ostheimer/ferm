@@ -18,6 +18,17 @@ test.describe("Auth und geschuetzte Routen", () => {
     await expect(page.getByRole("button", { name: "Anmelden" })).toBeVisible();
   });
 
+  test("does not leak seeded credentials on the login form", async ({ page }) => {
+    await page.context().clearCookies();
+    await page.goto("/login");
+
+    await expect(page.locator("#login-identifier")).not.toHaveAttribute(
+      "placeholder",
+      /ostheimer|andreas@ostheimer\.at/i
+    );
+    await expect(page.locator("#login-pin")).not.toHaveAttribute("placeholder", /9526/);
+  });
+
   test("logs in and out with the visible sidebar action", async ({ page }) => {
     await loginAs(page, "schriftfuehrer");
     await expect(page.getByRole("button", { name: "Abmelden" })).toBeVisible();

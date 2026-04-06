@@ -2,8 +2,8 @@
 
 import assert from "node:assert/strict";
 
-const DEMO_EMAIL = "martin.mair@hege.app";
-const DEMO_PASSWORD = "hege-demo-2026";
+const DEMO_IDENTIFIER = "ostheimer";
+const DEMO_PIN = "9526";
 const publishedProtokollId = "sitzung-2";
 const publishedDocumentId = "document-sitzung-2";
 
@@ -24,8 +24,8 @@ async function runSmoke(baseUrl) {
   });
 
   const login = await postJson(baseUrl, "/api/v1/auth/login", {
-    email: DEMO_EMAIL,
-    password: DEMO_PASSWORD
+    identifier: DEMO_IDENTIFIER,
+    pin: DEMO_PIN
   });
 
   assert.equal(login.status, 200, `Expected /api/v1/auth/login to return 200, got ${login.status}.`);

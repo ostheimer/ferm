@@ -43,8 +43,8 @@ describe("POST /api/v1/auth/login", () => {
           "content-type": "application/json"
         },
         body: JSON.stringify({
-          email: "martin.mair@hege.app",
-          password: "hege-demo-2026"
+          identifier: "ostheimer",
+          pin: "9526"
         })
       })
     );
@@ -52,6 +52,11 @@ describe("POST /api/v1/auth/login", () => {
     expect(response.status).toBe(200);
     expect((await response.json()).user.id).toBe("user-mair");
     expect(response.headers.get("set-cookie")).toContain("hege_access_token=");
+    expect(mockLogin).toHaveBeenCalledWith({
+      identifier: "ostheimer",
+      membershipId: undefined,
+      pin: "9526"
+    });
   });
 
   it("returns 400 for invalid bodies", async () => {
@@ -62,8 +67,8 @@ describe("POST /api/v1/auth/login", () => {
           "content-type": "application/json"
         },
         body: JSON.stringify({
-          email: "",
-          password: ""
+          identifier: "",
+          pin: ""
         })
       })
     );
@@ -72,7 +77,32 @@ describe("POST /api/v1/auth/login", () => {
     expect(await response.json()).toEqual({
       error: {
         code: "validation-error",
-        message: "email muss ein nicht-leerer String sein.",
+        message: "identifier muss ein nicht-leerer String sein.",
+        status: 400
+      }
+    });
+    expect(mockLogin).not.toHaveBeenCalled();
+  });
+
+  it("returns 400 for invalid pins", async () => {
+    const response = await POST(
+      new Request("http://localhost/api/v1/auth/login", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({
+          identifier: "ostheimer",
+          pin: "95"
+        })
+      })
+    );
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({
+      error: {
+        code: "validation-error",
+        message: "pin muss eine vierstellige PIN sein.",
         status: 400
       }
     });

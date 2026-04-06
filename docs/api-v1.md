@@ -23,6 +23,12 @@ Zielpfad fuer Production ist `https://hege.app/api/v1`.
 - `POST /api/v1/auth/logout`
 - `GET /api/v1/me`
 
+`POST /api/v1/auth/login` akzeptiert:
+
+- `identifier` als E-Mail oder Benutzername
+- `pin` als vierstellige Zeichenkette
+- optional `membershipId`
+
 ### Revier-Scope
 
 - der Benutzer sieht nur Ressourcen seines Reviers
