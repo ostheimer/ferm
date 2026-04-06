@@ -1,8 +1,10 @@
-import { requirePageAuth } from "../../server/auth/guards";
-import { listReviereinrichtungen } from "../../server/modules/reviereinrichtungen/queries";
+import { requirePageAuth } from "../../../server/auth/guards";
+import { listReviereinrichtungen } from "../../../server/modules/reviereinrichtungen/queries";
+
+export const dynamic = "force-dynamic";
 
 export default async function ReviereinrichtungenPage() {
-  await requirePageAuth();
+  await requirePageAuth({ next: "/app/reviereinrichtungen" });
   const entries = await listReviereinrichtungen();
   const offeneWartungen = entries.reduce((sum, entry) => sum + entry.offeneWartungen, 0);
   const kontrollenHeute = entries.filter((entry) => entry.letzteKontrolleAt).length;

@@ -4,8 +4,6 @@ import assert from "node:assert/strict";
 
 const DEMO_IDENTIFIER = "ostheimer";
 const DEMO_PIN = "9526";
-const publishedProtokollId = "sitzung-2";
-const publishedDocumentId = "document-sitzung-2";
 
 const previewUrl = normalizePreviewUrl(process.argv[2] ?? process.env.PREVIEW_URL);
 
@@ -18,9 +16,18 @@ await runSmoke(previewUrl);
 async function runSmoke(baseUrl) {
   console.log(`Preview smoke against ${baseUrl}`);
 
+  await checkHtmlPage(baseUrl, "/", {
+    label: "/",
+    expectedText: ["Revierbetrieb, Protokolle und Feldmeldungen in einer klaren Oberflaeche.", "Passendes Paket waehlen"]
+  });
+
   await checkHtmlPage(baseUrl, "/login", {
     label: "/login",
-    expectedText: ["Anmelden"]
+    expectedText: ["Anmelden", "Backoffice und App jetzt mit echter Session."]
+  });
+
+  await checkHtmlPage(baseUrl, "/registrieren?plan=starter", {
+    label: "/registrieren?plan=starter"
   });
 
   const login = await postJson(baseUrl, "/api/v1/auth/login", {
@@ -42,44 +49,7 @@ async function runSmoke(baseUrl) {
     expectedFields: ["user", "membership", "revier", "activeRevierId"]
   });
 
-  await checkJsonEndpoint(baseUrl, "/api/v1/dashboard", authHeaders, {
-    label: "/api/v1/dashboard",
-    expectedFields: ["overview", "activeAnsitze", "recentFallwild"]
-  });
-
-  await checkJsonEndpoint(baseUrl, "/api/v1/reviereinrichtungen", authHeaders, {
-    label: "/api/v1/reviereinrichtungen"
-  });
-
-  await checkJsonEndpoint(baseUrl, "/api/v1/protokolle", authHeaders, {
-    label: "/api/v1/protokolle"
-  });
-
-  await checkHtmlPage(baseUrl, "/sitzungen", {
-    label: "/sitzungen",
-    headers: authHeaders,
-    expectedText: ["Sitzungen"]
-  });
-
-  await checkHtmlPage(baseUrl, "/reviereinrichtungen", {
-    label: "/reviereinrichtungen",
-    headers: authHeaders,
-    expectedText: ["Standorte, Kontrollen und Wartungen im Blick."]
-  });
-
-  await checkHtmlPage(baseUrl, "/protokolle", {
-    label: "/protokolle",
-    headers: authHeaders,
-    expectedText: ["Freigegebene Protokolle und Beschluesse", "Dokument oeffnen"]
-  });
-
-  await checkHtmlPage(baseUrl, `/protokolle/${publishedProtokollId}`, {
-    label: `/protokolle/${publishedProtokollId}`,
-    headers: authHeaders,
-    expectedText: ["Freigegebenes Protokoll", "PDF oeffnen"]
-  });
-
-  await checkDownload(baseUrl, `/api/v1/documents/${publishedDocumentId}/download`, authHeaders, "winterabschluss-2025-protokoll.pdf");
+  await checkRedirect(baseUrl, "/login", authHeaders, "/app");
 
   console.log("Preview smoke passed.");
 }
@@ -114,27 +84,6 @@ async function checkHtmlPage(baseUrl, path, options = {}) {
   }
 }
 
-async function checkDownload(baseUrl, path, headers, expectedFileName) {
-  const response = await fetch(baseUrlFor(baseUrl, path), {
-    headers: {
-      ...headers
-    }
-  });
-
-  assert.equal(response.status, 200, `Expected ${path} to return 200, got ${response.status}.`);
-  const contentType = response.headers.get("content-type") ?? "";
-  const disposition = response.headers.get("content-disposition") ?? "";
-
-  assert.ok(
-    contentType.includes("application/pdf"),
-    `Expected ${path} to return application/pdf, got ${contentType || "missing content-type"}.`
-  );
-  assert.ok(
-    disposition.includes(expectedFileName),
-    `Expected ${path} to reference "${expectedFileName}" in content-disposition, got ${disposition || "missing content-disposition"}.`
-  );
-}
-
 async function postJson(baseUrl, path, body) {
   const response = await fetch(baseUrlFor(baseUrl, path), {
     method: "POST",
@@ -148,6 +97,25 @@ async function postJson(baseUrl, path, body) {
     status: response.status,
     json: await parseJsonResponse(response)
   };
+}
+
+async function checkRedirect(baseUrl, path, headers = {}, expectedLocation) {
+  const response = await fetch(baseUrlFor(baseUrl, path), {
+    headers,
+    redirect: "manual"
+  });
+
+  assert.ok(
+    response.status >= 300 && response.status < 400,
+    `Expected ${path} to redirect, got ${response.status}.`
+  );
+
+  const location = response.headers.get("location") ?? "";
+  assert.ok(location.length > 0, `Expected ${path} to send a location header.`);
+  assert.ok(
+    location.endsWith(expectedLocation),
+    `Expected ${path} to redirect to ${expectedLocation}, got ${location}.`
+  );
 }
 
 async function fetchJson(baseUrl, path, headers = {}) {

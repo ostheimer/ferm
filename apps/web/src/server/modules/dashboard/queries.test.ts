@@ -29,15 +29,16 @@ function createDemoAuthContext(): AuthContextResponse {
   const membership = demoData.memberships[0]!;
   const revier = demoData.reviere[0]!;
 
-  return {
-    user,
-    membership,
-    revier,
-    activeRevierId: revier.id,
-    availableMemberships: demoData.memberships.map((membership) => ({
-      id: membership.id,
-      revierId: membership.revierId,
-      role: membership.role,
+    return {
+      user,
+      membership,
+      revier,
+      activeRevierId: revier.id,
+      setupRequired: false,
+      availableMemberships: demoData.memberships.map((membership) => ({
+        id: membership.id,
+        revierId: membership.revierId,
+        role: membership.role,
       jagdzeichen: membership.jagdzeichen,
       revierName: demoData.reviere.find((reier) => reier.id === membership.revierId)?.name ?? ""
     }))

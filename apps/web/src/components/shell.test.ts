@@ -56,6 +56,7 @@ const viewer: AuthContextResponse = {
     }
   },
   activeRevierId: "revier-attersee",
+  setupRequired: false,
   availableMemberships: []
 };
 

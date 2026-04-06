@@ -27,6 +27,7 @@ describe("POST /api/v1/auth/login", () => {
         id: "revier-attersee"
       },
       activeRevierId: "revier-attersee",
+      setupRequired: false,
       availableMemberships: [],
       tokens: {
         accessToken: "access-token",

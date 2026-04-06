@@ -38,7 +38,8 @@ export async function seedDatabase(db: HegeDb) {
         flaecheHektar: entry.flaecheHektar,
         zentrumLat: entry.zentrum.lat,
         zentrumLng: entry.zentrum.lng,
-        zentrumLabel: entry.zentrum.label
+        zentrumLabel: entry.zentrum.label,
+        setupCompletedAt: entry.setupCompletedAt ?? null
       })
       .onConflictDoUpdate({
         target: reviere.id,
@@ -50,7 +51,8 @@ export async function seedDatabase(db: HegeDb) {
           flaecheHektar: entry.flaecheHektar,
           zentrumLat: entry.zentrum.lat,
           zentrumLng: entry.zentrum.lng,
-          zentrumLabel: entry.zentrum.label
+          zentrumLabel: entry.zentrum.label,
+          setupCompletedAt: entry.setupCompletedAt ?? null
         }
       });
   }

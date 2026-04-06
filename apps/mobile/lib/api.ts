@@ -42,19 +42,7 @@ export class MobileApiError extends Error {
   }
 }
 
-export interface ApiMeResponse {
-  user: User;
-  membership: Membership;
-  revier: Revier;
-  activeRevierId: string;
-  availableMemberships: Array<{
-    id: string;
-    revierId: string;
-    role: Role;
-    jagdzeichen: string;
-    revierName: string;
-  }>;
-}
+export type ApiMeResponse = AuthContextResponse;
 
 export type FallwildListItem = FallwildVorgang;
 
@@ -398,6 +386,7 @@ async function fallbackCurrentUser(): Promise<ApiMeResponse> {
     user,
     membership: current,
     revier,
+    setupRequired: !revier.setupCompletedAt,
     activeRevierId: current.revierId,
     availableMemberships: demoData.memberships
       .filter((membership) => membership.userId === user.id)

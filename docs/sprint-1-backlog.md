@@ -28,6 +28,26 @@ Sprint 1 setzt Sprint 0 als abgeschlossen voraus.
 - manuelle Abnahme fuer Desktop und Mobile-Viewport
 - Dokumentation und Testfaelle auf den aktuellen Implementierungsstand ziehen
 
+## Sprint 1.5: Public Web und Onboarding
+
+### Ziel
+
+Die oeffentliche Produktseite und der erste Onboarding-Einstieg sind browserseitig und per Smoke abgesichert.
+
+### Tasks
+
+- Public Landing auf `/` mit Pricing-CTAs und Login-Zugang absichern
+- Login-Redirect auf `/app` und Setup-Redirect auf `/app/setup` testen
+- `toSafePostAuthPath` und die Auth-Guards fuer `/login`, `/registrieren` und `/app`-Ziele absichern
+- Preview-Smoke um `/`, `/login`, `/registrieren` und `GET /api/v1/me` erweitern
+
+Akzeptanzkriterien:
+
+- Gaeste sehen zuerst die Public Landing
+- Pricing-CTAs zeigen auf die richtigen Ziele
+- eingeloggte Nutzer landen im App-Block
+- die Setup-Strecke ist als Redirect-Contract dokumentiert
+
 ## Nicht in Scope
 
 - neue Fachmodule wie Aufgaben, Nachrichten oder Veranstaltungen
@@ -37,10 +57,11 @@ Sprint 1 setzt Sprint 0 als abgeschlossen voraus.
 
 ## Reihenfolge fuer den Restblock
 
-1. Web-E2E fuer Dashboard, Reviereinrichtungen, Protokolle und Downloads schliessen
-2. Preview-Smoke als festen Zwischencheck zwischen Local und Production verankern
-3. Dokumentation, TESTCASES und manuelle Abnahme angleichen
-4. danach Sprint-3-Medien- und Queue-Themen auf denselben Haertungsstandard ziehen
+1. Public-Web- und Onboarding-Contracts schliessen
+2. Web-E2E fuer Dashboard, Reviereinrichtungen, Protokolle und Downloads schliessen
+3. Preview-Smoke als festen Zwischencheck zwischen Local und Production verankern
+4. Dokumentation, TESTCASES und manuelle Abnahme angleichen
+5. danach Sprint-3-Medien- und Queue-Themen auf denselben Haertungsstandard ziehen
 
 ## Epic S1-H1: Web-Haertung
 
@@ -106,6 +127,8 @@ Wahrscheinlich neu oder stark betroffen:
 - `apps/web/e2e`
 - `apps/web/scripts`
 - `apps/web/src/app/page.tsx`
+- `apps/web/src/components/public-landing.tsx`
+- `apps/web/src/lib/auth-redirects.ts`
 - `apps/web/src/app/reviereinrichtungen/page.tsx`
 - `apps/web/src/app/protokolle/page.tsx`
 - `apps/web/src/app/protokolle/[id]/page.tsx`

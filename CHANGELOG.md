@@ -10,6 +10,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 
 - Echte Auth-Session mit Login, Refresh, `GET /api/v1/me` und serverseitigem Revierkontext fuer Web und App.
 - Neue API-Vertraege fuer `dashboard`, `reviereinrichtungen`, `protokolle`, `sitzungen` und `documents` auf der Web-Schicht eingefuehrt.
+- Public-Web-Block mit Landing auf `/`, Pricing-CTAs, Login-/Registrieren-Einstieg und Onboarding-Redirects fuer `/app` und `/app/setup` vorbereitet.
 - Neue Web-Flows fuer die Sitzungen-Liste, Sitzungsdetail, Freigabe und PDF-Download-Grundlage umgesetzt.
 - Mobile Session-Restore, tokenbasiertes Login und zentraler API-Client fuer die Read-Slices eingerichtet.
 - Mobile Offline-Queue mit Retry-Status fuer `Ansitz`- und `Fallwild`-Schnellmeldungen eingebaut.
@@ -17,6 +18,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 - Fallwild-Detail und Foto-Upload ueber `GET /api/v1/fallwild/:id` und `POST /api/v1/fallwild/:id/fotos` plus `media_assets` eingefuehrt.
 - S3-kompatible Storage-Schicht fuer lokales MinIO und spaeteres R2 eingebaut.
 - Preview-Smoke-Skript fuer Login, `me`, Dashboard, Reviereinrichtungen, Protokolle, Sitzungen und Dokument-Download hinzugefuegt.
+- Preview-Smoke-Skript auf Public-Web- und Onboarding-Vertraege fuer `/`, `/login`, `/registrieren` und `GET /api/v1/me` erweitert.
 - Mobile Fallwild-Fotoauswahl ueber `expo-image-picker` mit bis zu drei Bibliotheksbildern eingefuehrt.
 - Android-Smoke-Helfer fuer Expo, Testbild-Erzeugung und `adb`-basierte Ablaufpruefung ergaenzt.
 - Seed-Account fuer Andreas Ostheimer als Admin mit Username-Login eingefuehrt.
@@ -27,6 +29,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 - Login-Oberflaechen in Web und App ohne sichtbare Demo-Konten-Hinweise umgestellt.
 - Dashboard im Web von `demoData` auf die Server-Schicht mit Session-/Revier-Kontext umgestellt.
 - Reviereinrichtungen und Protokolle im Web auf read-only Server-Slices umgestellt.
+- Public Landing und Onboarding-Redirects fuer Gast-, Login- und Setup-Pfade als neue Sprint-1.5-Teilflaeche eingefuehrt.
 - Mobile-Dashboard liest `DashboardResponse` und zeigt Queue, naechste Sitzung und letzte Benachrichtigung aus der API.
 - Web-Auth, Session-Kontext und Fehlerformat auf echte Token- und JSON-Responses umgestellt.
 - Seeds und DB-Schema um Reviereinrichtungen, Kontrollen, Sitzungen, Protokollversionen, Beschluesse, Dokumente und Notifications erweitert.

@@ -1,4 +1,5 @@
 export type Role = "platform-admin" | "revier-admin" | "schriftfuehrer" | "jaeger";
+export type PublicPlanKey = "starter" | "revier" | "organisation";
 
 export type ApiErrorCode =
   | "unauthenticated"
@@ -68,6 +69,7 @@ export interface Revier {
   bezirk: string;
   flaecheHektar: number;
   zentrum: GeoPoint;
+  setupCompletedAt?: string;
 }
 
 export interface Membership {
@@ -258,6 +260,7 @@ export interface AuthContextResponse {
   membership: Membership;
   revier: Revier;
   activeRevierId: string;
+  setupRequired: boolean;
   availableMemberships: MembershipSummary[];
 }
 
@@ -335,4 +338,25 @@ export interface LoginPayload {
 export interface RefreshSessionPayload {
   refreshToken?: string;
   membershipId?: string;
+}
+
+export interface PublicRegistrationPayload {
+  firstName: string;
+  lastName: string;
+  email: string;
+  username: string;
+  phone: string;
+  pin: string;
+  jagdzeichen: string;
+  revierName: string;
+  bundesland: string;
+  bezirk: string;
+  planKey: Exclude<PublicPlanKey, "organisation">;
+}
+
+export interface CompleteRevierSetupPayload {
+  revierName: string;
+  bundesland: string;
+  bezirk: string;
+  flaecheHektar: number;
 }

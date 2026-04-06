@@ -15,7 +15,7 @@ test.describe("Fallwild", () => {
   });
 
   test("matches the visual baseline on desktop and mobile", async ({ page }, testInfo) => {
-    await page.goto("/fallwild");
+    await page.goto("/app/fallwild");
 
     await expect(page.locator("main")).toHaveScreenshot("fallwild-overview.png", visualSnapshotOptions);
 
@@ -31,7 +31,7 @@ test.describe("Fallwild", () => {
     const suffix = Date.now();
     const gemeinde = `E2E Gemeinde ${suffix}`;
 
-    await page.goto("/fallwild");
+    await page.goto("/app/fallwild");
     await page.locator("#fallwild-gemeinde").fill(gemeinde);
     await page.locator("#fallwild-strasse").fill("E2E-Landesstrasse");
     await page.locator("#fallwild-location-label").fill("E2E Kurve");

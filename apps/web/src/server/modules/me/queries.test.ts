@@ -21,6 +21,7 @@ describe("getCurrentUser", () => {
       membership: { id: "member-jaeger" },
       revier: { id: "revier-attersee" },
       activeRevierId: "revier-attersee",
+      setupRequired: false,
       availableMemberships: []
     });
 
