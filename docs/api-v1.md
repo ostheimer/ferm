@@ -20,6 +20,7 @@ Zielpfad fuer Production ist `https://hege.app/api/v1`.
 
 - `POST /api/v1/auth/login`
 - `POST /api/v1/auth/refresh`
+- `POST /api/v1/auth/logout`
 - `GET /api/v1/me`
 
 ### Revier-Scope
@@ -76,6 +77,49 @@ Liefert:
 - `POST /api/v1/fallwild/:id/fotos`
 - `GET /api/v1/fallwild/export.csv`
 
+#### `GET /api/v1/fallwild/:id`
+
+Liefert einen vollstaendigen `FallwildVorgang` des aktiven Reviers inklusive `photos`.
+
+Antwort:
+
+- `200` mit `FallwildVorgang`
+- `404` wenn der Vorgang im aktiven Revier nicht existiert
+- `403` wenn die Rolle nicht lesen darf
+
+#### `POST /api/v1/fallwild/:id/fotos`
+
+Akzeptiert genau eine Datei pro Request als `multipart/form-data`.
+
+Request:
+
+- Feld `file` ist verpflichtend
+- Feld `title` ist optional
+- erlaubt sind `image/jpeg` und `image/png`
+- maximal `10 MB` pro Datei
+- maximal `3` Fotos pro Fallwild-Vorgang
+
+Antwort:
+
+- `201` mit `{ photo: PhotoAsset }`
+- `400` fuer ungueltiges `multipart/form-data`, leere Datei oder falsche Felder
+- `422` fuer Ueberschreitung des Foto-Limits oder fachlich ungueltige Uploads
+- `403` fuer fehlende Rolle
+- `404` fuer fehlenden oder fremden Fallwild-Vorgang
+- `503` wenn Storage nicht konfiguriert ist
+
+Rollen:
+
+- `jaeger`
+- `schriftfuehrer`
+- `revier-admin`
+
+Storage-Vertrag:
+
+- lokal ueber MinIO mit `S3_*`-Variablen
+- Preview und Production ueber dieselbe S3-kompatible Schicht gegen Cloudflare R2
+- Upload-Key-Schema: `<tenantKey>/fallwild/<fallwildId>/<photoId>-<sanitized-file-name>`
+
 ### Dokumente und Benachrichtigungen
 
 - `GET /api/v1/notifications`
@@ -92,23 +136,6 @@ Diese Ressourcen sind fuer die naechste Ausbaustufe vorgesehen und werden fachli
 - `PATCH /api/v1/tasks/:id`
 - `GET /api/v1/messages`
 - `POST /api/v1/messages`
-
-Planungsrahmen:
-
-- Mitglieder koennen mehrere Rollen gleichzeitig haben
-- Rollen sind flexibel erweiterbar
-- Aufgaben koennen aus Protokollen, Beschluessen oder manueller Vergabe entstehen
-- Aufgaben koennen einmalig, wiederkehrend oder als Projekt mit Start und Ende gefuehrt werden
-- Nachrichten koennen an Rollen, einzelne Mitglieder oder Zielgruppen adressiert werden
-- WhatsApp und Telegram bleiben kanaelseitige Integrationen ausserhalb der fachlichen Kernlogik
-- die fachliche API bleibt dabei kanalneutral; Messenger werden spaeter nur ueber Adapter oder Jobs angebunden
-
-## Aktualisierung in v1
-
-- aktive Ansitze werden in v1 per manueller Aktualisierung oder leichtem Polling nachgeladen
-- eine verpflichtende WebSocket-Infrastruktur ist nicht Teil des ersten Produktzuschnitts
-- Push-Benachrichtigungen bleiben fuer wichtige Ereignisse moeglich, sind aber getrennt vom Listen-Refresh zu betrachten
-- Rollen-, Aufgaben- und Nachrichtenfunktionen werden stufenweise ergaenzt und nicht mit dem ersten Ansitz-Slice vermischt
 
 ## Rollenregeln
 
@@ -127,20 +154,23 @@ Planungsrahmen:
 ### Jaeger
 
 - Ansitze lesen und eigene Ansitze aendern
-- Fallwild erfassen
+- Fallwild erfassen und Fallwild-Fotos hochladen
 - Reviereinrichtungen lesen
 - veroeffentlichte Protokolle lesen
 
-### Ausbaustufe Rollen und Aufgaben
-
-- Rollen sind mehrfach pro Mitglied moeglich
-- eine Person kann mehrere Rollen gleichzeitig tragen
-- Rollen mit Zuweisungsrecht koennen Aufgaben an andere Mitglieder delegieren
-- Aufgaben koennen mit Protokollbeschluessen verknuepft werden
-- Rollen mit Zuweisungsrecht sind mindestens `Revier Admin`, `Paechter`, `Jagdleiter`, `Jagdaufseher` und fuer protokollnahe Aufgaben `Schriftfuehrer`
-- typische Aufgaben sind Wasserungen oder Fuetterungen betreuen, Hochstaende reparieren, bauen oder versetzen sowie Dienste bei Veranstaltungen
-
 ## Fehlerfaelle
+
+Das Fehlerformat bleibt:
+
+- `{ error: { code, message, status } }`
+
+Wichtige Fehlercodes:
+
+- `unauthorized`
+- `forbidden`
+- `not-found`
+- `validation-error`
+- `service-unavailable`
 
 Die API muss mindestens diese Faelle sauber zurueckgeben:
 
@@ -173,21 +203,18 @@ Kernressourcen:
 - `notifications`
 - `audit_logs`
 
-## Uebergang vom aktuellen Stand
+## Aktueller Stand im Repository
 
-Aktuell sind im Repository bereits vorhanden:
+Bereits produktiv ueber `apps/web` vorhanden:
 
-- Demo-Endpunkte unter `apps/api/src`
-- Shared Typen und Regeln im Domain-Package
-- `GET /api/v1/me`, `GET /api/v1/ansitze`, `GET /api/v1/ansitze/live`, `POST /api/v1/ansitze` und `PATCH /api/v1/ansitze/:id/beenden` als Vercel-native Route Handler in `apps/web`
-- `GET /api/v1/fallwild`, `POST /api/v1/fallwild` und `GET /api/v1/fallwild/export.csv` als Vercel-native Route Handler in `apps/web`
-- Drizzle-Migration fuer den ersten Datenbank-Slice
+- `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `reviereinrichtungen`, `protokolle`, `sitzungen` und `documents`
+- Drizzle-Migrationen fuer Auth, Ansitze, Fallwild, `media_assets`, Reviereinrichtungen, Sitzungen, Protokolle, Dokumente und Notifications
+- S3-kompatible Storage-Schicht fuer lokales MinIO und spaeteres R2
 
-Fuer API v1 muessen als Naechstes folgen:
+`apps/api` bleibt als Referenz und Uebergangspfad im Repository, ist aber nicht die produktive Zielarchitektur.
 
-1. Dashboard-Endpunkte und weitere Module auf dieselbe Server-Schicht umstellen
-2. Auth und Guards
-3. Detail-, Foto- und Download-Strecken fuer Fallwild und Dokumente
-4. Rollen- und Tenant-Pruefung pro Endpunkt
-5. Aufgaben- und Nachrichten-Ressourcen in derselben API-Linie modellieren
-6. Upload- und Download-Strecken produktionsreif machen
+## Naechste API-Themen
+
+1. Medien- und Queue-Haertung ueber Preview und Android-Smoke absichern
+2. Rollen-, Aufgaben- und Nachrichten-Ressourcen auf dieselbe API-Linie heben
+3. weitere Mobile-Mutationen und Konfliktbehandlung auf denselben Fehlervertrag bringen

@@ -1,6 +1,12 @@
 import type { FallwildVorgang } from "@hege/domain";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
+import type {
+  FallwildPhotoInsert,
+  FallwildPhotoRecord,
+  FallwildRepository,
+  FallwildUploadScope
+} from "./repository";
 import { createFallwildService } from "./service";
 
 describe("fallwild service", () => {
@@ -32,6 +38,169 @@ describe("fallwild service", () => {
     });
   });
 
+  it("uploads a photo and persists the media asset", async () => {
+    const uploadObject = vi.fn(async (input: any) => ({
+      objectKey: input.key,
+      publicUrl: `https://storage.example/${input.key}`
+    }));
+    const repository = createMemoryRepository({
+      scope: {
+        fallwildId: "fallwild-1",
+        revierId: "revier-attersee",
+        tenantKey: "attersee"
+      }
+    });
+    const service = createFallwildService({
+      generatePhotoId: () => "photo-abc",
+      getNow: () => "2026-04-04T06:10:00.000Z",
+      repository,
+      uploadObject,
+      useDemoStore: false
+    });
+
+    const result = await service.uploadPhoto({
+      body: Buffer.from("photo-data"),
+      contentType: "image/jpeg",
+      fallwildId: "fallwild-1",
+      fileName: "Unfallstelle Attersee.jpg",
+      reportedByMembershipId: "member-jaeger",
+      revierId: "revier-attersee",
+      title: "Unfallstelle"
+    });
+
+    expect(uploadObject).toHaveBeenCalledWith({
+      key: "attersee/fallwild/fallwild-1/photo-abc-Unfallstelle-Attersee.jpg",
+      body: Buffer.from("photo-data"),
+      contentType: "image/jpeg"
+    });
+    expect(result).toEqual({
+      id: "photo-abc",
+      title: "Unfallstelle",
+      url: "https://storage.example/attersee/fallwild/fallwild-1/photo-abc-Unfallstelle-Attersee.jpg",
+      createdAt: "2026-04-04T06:10:00.000Z"
+    });
+    expect(repository.insertedPhotos).toHaveLength(1);
+    expect(repository.insertedPhotos[0]).toMatchObject({
+      entityId: "fallwild-1",
+      objectKey: "attersee/fallwild/fallwild-1/photo-abc-Unfallstelle-Attersee.jpg",
+      title: "Unfallstelle"
+    });
+  });
+
+  it("rejects uploads after three stored photos", async () => {
+    const service = createFallwildService({
+      repository: createMemoryRepository({
+        scope: {
+          fallwildId: "fallwild-1",
+          revierId: "revier-attersee",
+          tenantKey: "attersee"
+        },
+        existingPhotos: 3
+      }),
+      uploadObject: vi.fn(),
+      useDemoStore: false
+    });
+
+    await expect(
+      service.uploadPhoto({
+        body: Buffer.from("photo-data"),
+        contentType: "image/png",
+        fallwildId: "fallwild-1",
+        fileName: "bild.png",
+        reportedByMembershipId: "member-jaeger",
+        revierId: "revier-attersee"
+      })
+    ).rejects.toMatchObject({
+      message: "Maximal drei Fotos pro Fallwild-Vorgang sind erlaubt.",
+      status: 422
+    });
+  });
+
+  it("rejects unsupported photo content types", async () => {
+    const service = createFallwildService({
+      repository: createMemoryRepository({
+        scope: {
+          fallwildId: "fallwild-1",
+          revierId: "revier-attersee",
+          tenantKey: "attersee"
+        }
+      }),
+      uploadObject: vi.fn(),
+      useDemoStore: false
+    });
+
+    await expect(
+      service.uploadPhoto({
+        body: Buffer.from("photo-data"),
+        contentType: "application/pdf",
+        fallwildId: "fallwild-1",
+        fileName: "bild.pdf",
+        reportedByMembershipId: "member-jaeger",
+        revierId: "revier-attersee"
+      })
+    ).rejects.toMatchObject({
+      message: "Nur JPEG- und PNG-Dateien sind erlaubt.",
+      status: 422
+    });
+  });
+
+  it("rejects uploads for missing fallwild entries", async () => {
+    const service = createFallwildService({
+      repository: createMemoryRepository({
+        scope: undefined
+      }),
+      uploadObject: vi.fn(),
+      useDemoStore: false
+    });
+
+    await expect(
+      service.uploadPhoto({
+        body: Buffer.from("photo-data"),
+        contentType: "image/jpeg",
+        fallwildId: "fallwild-1",
+        fileName: "bild.jpg",
+        reportedByMembershipId: "member-jaeger",
+        revierId: "revier-attersee"
+      })
+    ).rejects.toMatchObject({
+      message: "Fallwild-Vorgang wurde nicht gefunden.",
+      status: 404
+    });
+  });
+
+  it("surfaces storage failures as service unavailable", async () => {
+    const service = createFallwildService({
+      repository: createMemoryRepository({
+        scope: {
+          fallwildId: "fallwild-1",
+          revierId: "revier-attersee",
+          tenantKey: "attersee"
+        }
+      }),
+      uploadObject: vi.fn(async () => {
+        throw Object.assign(new Error("Storage ist nicht konfiguriert."), {
+          status: 503,
+          code: "service-unavailable"
+        });
+      }),
+      useDemoStore: false
+    });
+
+    await expect(
+      service.uploadPhoto({
+        body: Buffer.from("photo-data"),
+        contentType: "image/jpeg",
+        fallwildId: "fallwild-1",
+        fileName: "bild.jpg",
+        reportedByMembershipId: "member-jaeger",
+        revierId: "revier-attersee"
+      })
+    ).rejects.toMatchObject({
+      message: "Storage ist nicht konfiguriert.",
+      status: 503
+    });
+  });
+
   it("rejects mutations without a database-backed store", async () => {
     const service = createFallwildService({
       repository: createMemoryRepository(),
@@ -56,13 +225,52 @@ describe("fallwild service", () => {
   });
 });
 
-function createMemoryRepository() {
+function createMemoryRepository({
+  existingPhotos = 0,
+  scope
+}: {
+  existingPhotos?: number;
+  scope?: FallwildUploadScope;
+} = {}): FallwildRepository & {
+  insertedPhotos: FallwildPhotoRecord[];
+} {
   const store: FallwildVorgang[] = [];
+  const insertedPhotos: FallwildPhotoRecord[] = Array.from({ length: existingPhotos }, (_, index) => ({
+    contentType: "image/jpeg",
+    createdAt: `2026-04-04T06:0${index}:00.000Z`,
+    entityId: "fallwild-1",
+    entityType: "fallwild",
+    fileName: `bild-${index}.jpg`,
+    id: `photo-existing-${index}`,
+    objectKey: `attersee/fallwild/fallwild-1/photo-existing-${index}-bild-${index}.jpg`,
+    revierId: "revier-attersee",
+    title: `Bild ${index + 1}`,
+    uploadedByMembershipId: "member-jaeger"
+  }));
 
   return {
+    insertedPhotos,
     async insert(entry: FallwildVorgang) {
       store.unshift(entry);
       return entry;
+    },
+    async countPhotos(fallwildId: string) {
+      return insertedPhotos.filter((entry) => entry.entityId === fallwildId).length;
+    },
+    async findUploadScope(fallwildId: string, revierId: string) {
+      if (!scope || scope.fallwildId !== fallwildId || scope.revierId !== revierId) {
+        return undefined;
+      }
+
+      return scope;
+    },
+    async insertPhoto(entry: FallwildPhotoInsert) {
+      const row: FallwildPhotoRecord = {
+        ...entry,
+        entityType: "fallwild"
+      };
+      insertedPhotos.unshift(row);
+      return row;
     }
   };
 }

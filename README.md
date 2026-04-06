@@ -9,25 +9,30 @@ Reviermanagement-Plattform fuer Jagdgesellschaften in Oesterreich. Das Repositor
 
 ## Stand
 
-Die erste Implementierung liefert ein funktionsfaehiges Grundgeruest mit gemeinsamen Typen, Demo-Daten, API-Ressourcen und UI-Screens fuer:
+Die erste produktive Ausbaustufe liefert jetzt gemeinsame Typen, persistente Route Handler in `apps/web` und nutzbare UI-Screens fuer:
 
 - Ansitz bekanntgeben
-- Reviereinrichtungen verwalten
+- Reviereinrichtungen lesen
 - Fallwild dokumentieren
-- Sitzungsprotokolle bereitstellen
+- Fallwild-Fotos hochladen
+- Sitzungen und Protokolle bearbeiten und lesen
 
-Die bestehende NestJS-API arbeitet weiterhin mit einem In-Memory-Demo-Store. Parallel dazu ist in `apps/web` jetzt der erste `vercel-native` Datenbank-Slice angelegt:
+Die bestehende NestJS-API bleibt als Referenzpfad im Repository. Die produktive Linie laeuft aber in `apps/web` ueber Vercel-native Route Handler und Drizzle:
 
-- Drizzle-Konfiguration und Migrationen fuer `users`, `reviere`, `memberships`, `ansitz_sessions` und `fallwild_vorgaenge`
-- Route Handler fuer `GET /api/v1/me`, `GET /api/v1/ansitze`, `GET /api/v1/ansitze/live`, `POST /api/v1/ansitze` und `PATCH /api/v1/ansitze/:id/beenden`
-- Route Handler fuer `GET /api/v1/fallwild`, `POST /api/v1/fallwild` und `GET /api/v1/fallwild/export.csv`
+- Drizzle-Konfiguration und Migrationen fuer Auth, Ansitze, Fallwild, `media_assets`, Reviereinrichtungen, Sitzungen, Protokolle, Dokumente und Notifications
+- Route Handler fuer `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `reviereinrichtungen`, `protokolle`, `sitzungen` und `documents`
+- Fallwild-Detail und Foto-Upload ueber `GET /api/v1/fallwild/:id` und `POST /api/v1/fallwild/:id/fotos`
+- S3-kompatible Storage-Schicht fuer lokales MinIO und spaeteres Cloudflare R2
 - Seed-Skript auf Basis der bestehenden Demo-Daten
 - Demo-Fallback fuer lokale Read-Tests, solange keine DB aktiv ist
 - Web-Ansitzseite mit Starten, Beenden und manuellem Refresh gegen den neuen API-Pfad
 - Web-Fallwildseite mit Erfassung, CSV-Export und mobilem Layout gegen denselben API-Pfad
-- Mobile-Screens fuer Dashboard, Ansitze und Fallwild gegen den Vercel-native API-Slice
+- Web-Dashboard, Reviereinrichtungen, Protokolle und Sitzungen gegen dieselbe Server-Schicht
+- Mobile-Screens fuer Dashboard, Ansitze, Fallwild, Reviereinrichtungen und Protokolle gegen denselben API-Slice
+- Mobile Fallwild-Fotoauswahl mit Queue-Weitergabe fuer spaetere Uploads
 - automatisierten Web-Tests mit Vitest fuer Route Handler, Services und Server-Queries
-- Playwright-E2E- und Visual-Regression-Tests fuer die wichtigsten Web-Use-Cases auf Desktop und Mobile
+- Playwright-E2E- und Visual-Regression-Tests fuer Auth, Sitzungen, Dashboard, Reviereinrichtungen und Protokolle auf Desktop und Mobile
+- Preview-Smoke fuer die wichtigsten Web- und API-Pfade
 
 Rollen, Aufgaben und Nachrichten werden als naechste fachliche Erweiterung geplant, mit spaeterer Anbindung an Messenger-Kanaele wie WhatsApp und Telegram.
 
@@ -60,7 +65,8 @@ Fuer den neuen lokalen Web/API-Slice:
 
 ```bash
 pnpm install
-docker compose up -d postgres
+docker compose up -d postgres minio
+pnpm --filter @hege/web storage:init
 pnpm --filter @hege/web db:migrate
 pnpm --filter @hege/web db:seed
 pnpm --filter @hege/web dev
@@ -106,17 +112,17 @@ Wichtige Testwege:
 - `pnpm test` fuehrt die bestehenden Unit- und Integrationstests fuer `@hege/domain` und `@hege/web` aus.
 - `pnpm test:e2e` startet Playwright gegen eine isolierte lokale E2E-Datenbank und prueft Kernfluesse in der Web-App browserbasiert.
 - `pnpm test:e2e:update` aktualisiert die Screenshot-Baselines fuer die visuellen Regressionstests in `apps/web/e2e/*-snapshots`.
-- Die E2E-Suite deckt aktuell `/ansitze` und `/fallwild` inkl. Desktop- und Mobile-Layout, Mutationserfolg und CSV-Export ab.
+- `pnpm --filter @hege/web smoke:preview -- <preview-url>` prueft die Kernrouten gegen einen Preview-Deploy.
+- Die E2E-Suite deckt aktuell Auth, Sitzungen, Dashboard, Reviereinrichtungen, Protokolle, `/ansitze` und `/fallwild` inkl. Desktop- und Mobile-Layout ab.
 
 ## Naechste Ausbauschritte
 
-- Dashboard-Slice weiter von Demo-Daten auf echte API und Persistenz umstellen
-- Persistenz des Demo-Stores fuer weitere Module in PostgreSQL/PostGIS ueberfuehren
-- Authentifizierung, Mandantentrennung und Rechtepruefung serverseitig durchziehen
-- Medien-Upload, PDF-Erzeugung und Push-Notifications produktionsreif machen
+- Preview-Smoke als festen PR-Check automatisieren
+- nativen Android-Smoke fuer Expo reproduzierbar durchlaufen
+- Medien-Upload, PDF-Erzeugung und Queue-Sync weiter haerten
 - Karten auf Google Maps fuer Web und Mobile ausrichten
 - Rollen-, Aufgaben- und Nachrichtenmodell fachlich ausarbeiten
-- Offline-Synchronisierung von der Demo-Queue auf echte Delta-Synchronisierung erweitern
+- Offline-Synchronisierung von der aktuellen Queue auf robustere Konflikt- und Medien-Szenarien erweitern
 
 ## Dokumentation
 

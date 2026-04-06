@@ -1,6 +1,12 @@
 const LOCAL_DATABASE_URL = "postgresql://hege:hege@127.0.0.1:5432/hege";
 const LOCAL_AUTH_SECRET = "hege-local-auth-secret-change-me";
 const LOCAL_DEMO_PASSWORD = "hege-demo-2026";
+const LOCAL_S3_ENDPOINT = "http://127.0.0.1:9000";
+const LOCAL_S3_REGION = "eu-central-1";
+const LOCAL_S3_BUCKET = "hege-assets";
+const LOCAL_S3_PUBLIC_BASE_URL = "http://127.0.0.1:9000/hege-assets";
+const LOCAL_S3_ACCESS_KEY = "minioadmin";
+const LOCAL_S3_SECRET_KEY = "minioadmin";
 
 export interface ServerEnv {
   databaseUrl: string;
@@ -8,6 +14,12 @@ export interface ServerEnv {
   useDemoStore: boolean;
   authTokenSecret: string;
   demoPassword: string;
+  s3Endpoint?: string;
+  s3Region?: string;
+  s3Bucket?: string;
+  s3PublicBaseUrl?: string;
+  s3AccessKey?: string;
+  s3SecretKey?: string;
 }
 
 export function getServerEnv(): ServerEnv {
@@ -16,13 +28,25 @@ export function getServerEnv(): ServerEnv {
   const useDemoStore = process.env.HEGE_USE_DEMO_STORE === "true" || process.env.NODE_ENV === "test";
   const authTokenSecret = process.env.AUTH_TOKEN_SECRET ?? fallbackAuthSecret();
   const demoPassword = process.env.HEGE_DEMO_PASSWORD ?? LOCAL_DEMO_PASSWORD;
+  const s3Endpoint = resolveStorageEnv("S3_ENDPOINT", LOCAL_S3_ENDPOINT);
+  const s3Region = resolveStorageEnv("S3_REGION", LOCAL_S3_REGION);
+  const s3Bucket = resolveStorageEnv("S3_BUCKET", LOCAL_S3_BUCKET);
+  const s3PublicBaseUrl = resolveStorageEnv("S3_PUBLIC_BASE_URL", LOCAL_S3_PUBLIC_BASE_URL);
+  const s3AccessKey = resolveStorageEnv("S3_ACCESS_KEY", LOCAL_S3_ACCESS_KEY);
+  const s3SecretKey = resolveStorageEnv("S3_SECRET_KEY", LOCAL_S3_SECRET_KEY);
 
   return {
     databaseUrl,
     migrationDatabaseUrl,
     useDemoStore,
     authTokenSecret,
-    demoPassword
+    demoPassword,
+    s3Endpoint,
+    s3Region,
+    s3Bucket,
+    s3PublicBaseUrl,
+    s3AccessKey,
+    s3SecretKey
   };
 }
 
@@ -32,4 +56,18 @@ function fallbackAuthSecret() {
   }
 
   return LOCAL_AUTH_SECRET;
+}
+
+function resolveStorageEnv(name: keyof NodeJS.ProcessEnv, fallbackValue: string) {
+  const value = process.env[name];
+
+  if (typeof value === "string" && value.length > 0) {
+    return value;
+  }
+
+  if (process.env.VERCEL_ENV) {
+    return undefined;
+  }
+
+  return fallbackValue;
 }

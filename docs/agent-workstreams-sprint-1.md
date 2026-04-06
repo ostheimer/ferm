@@ -2,278 +2,193 @@
 
 ## Ziel
 
-Dieses Dokument schneidet Sprint 1 so, dass mehrere Agents parallel am Schriftführer-Backend arbeiten können, ohne sich über Web- und API-Hotspots gegenseitig zu blockieren.
+Dieses Dokument schneidet den aktuellen Sprint-1-Restblock so, dass mehrere Agents parallel an Web-Haertung, Medienbasis und Mobile-Queue arbeiten koennen, ohne sich an gemeinsamen Hotspots gegenseitig zu blockieren.
 
-Sprint 1 setzt voraus, dass Sprint 0 einen stabilen `Foundation Freeze` geliefert hat.
+Sprint 1 setzt voraus, dass Sprint 0 einen stabilen `Foundation Freeze` geliefert hat. Dieser Zustand ist erreicht.
 
-## Voraussetzungen aus Sprint 0
+## Voraussetzungen
 
-Vor Sprint 1 müssen stabil vorliegen:
+Vor diesen Workstreams muessen stabil vorliegen:
 
-- Login und Session-Verhalten
-- Rollen und Revier-Scope
-- Sitzungs- und Dashboard-Basisverträge
-- Storage-Basis für Dokumente
-- Test- und Seed-Infrastruktur
-
-Ohne diese Voraussetzungen werden die Workstreams in Sprint 1 nicht unabhängig genug.
+- Login, Session-Verhalten und Revier-Scope
+- Rollenpruefung in `apps/web`
+- Dashboard-, Protokoll-, Sitzungs- und Dokument-Basisvertraege
+- Drizzle-Schema, Seeds und E2E-Infrastruktur
 
 ## Single-Writer-Zonen
 
-Diese Bereiche sollten in Sprint 1 jeweils nur von einem Agent gleichzeitig verändert werden:
+Diese Bereiche sollten nur von einem Agent gleichzeitig veraendert werden:
 
-- `apps/api/src/sitzungen`
-- `apps/api/src/dashboard`
-- zentrale Web-Session- und Auth-Utilities
-- zentrale Web-Navigation oder Shell-Komponenten
-- PDF-/Dokument-Service
+- `apps/web/src/server/env.ts`
+- `apps/web/src/server/storage`
+- `apps/web/src/server/db/schema.ts`, Migrationen und Seeds
+- `apps/mobile/lib/api.ts`
+- `apps/mobile/lib/offline-queue.ts`
+- globale Web-Shell oder Navigation
 
-## Workstream A: Sitzungs- und Protokoll-API
+## Workstream A: Web-Haertung und Preview-Smoke
 
 ### Ziel
 
-Die Fach-API für Schriftführer wird vollständig und belastbar.
+Das Web ist fuer Dashboard, Reviereinrichtungen, Protokolle und Dokument-Downloads reproduzierbar abgesichert.
 
 ### Ownership
 
-- `apps/api/src/sitzungen`
-- zugehörige DTOs
-- Statuslogik, Versionierung und Beschlüsse
+- `apps/web/e2e`
+- `apps/web/scripts`
+- Testdoku fuer Web und Preview
 
 ### Aufgaben
 
-- Sitzungsliste, Detail, Anlage und Bearbeitung vervollständigen
-- Versionen und Beschlüsse produktiv modellieren
-- Statusübergänge für Freigabe absichern
-- API-Verträge für den Web-Editor stabil halten
+- Playwright fuer `/`, `/reviereinrichtungen`, `/protokolle` und `/protokolle/:id`
+- Dokument-Download inklusive Dateiname absichern
+- `smoke:preview` fuer Login, `me`, Dashboard, Reviereinrichtungen, Protokolle und Sitzungen
+
+### Darf nicht aendern
+
+- Storage- oder Queue-Fachlogik
+- globale Mobile-Utilities
+
+## Workstream B: Fallwild-Medien-API
+
+### Ziel
+
+Fallwild-Detail und Foto-Upload laufen produktiv ueber die Web-Server-Schicht.
+
+### Ownership
+
+- `apps/web/src/app/api/v1/fallwild`
+- `apps/web/src/server/modules/fallwild`
+- `apps/web/src/server/storage`
+
+### Aufgaben
+
+- `GET /api/v1/fallwild/:id`
+- `POST /api/v1/fallwild/:id/fotos`
+- `media_assets` auf `PhotoAsset` mappen
+- S3-kompatiblen Upload fuer MinIO lokal und R2 in Preview/Production verwenden
 
 ### Blockiert andere Workstreams bis
 
-- Detail- und Save-Verträge für Sitzungen stabil sind
-- Freigabevertrag definiert ist
+- Upload-Vertrag und Fehlerfaelle dokumentiert sind
+- `media_assets`-Schema und Seed stabil sind
 
-### Übergabeartefakte
-
-- stabile Sitzungs-Endpoints
-- dokumentierte Save- und Read-Modelle
-- Fehlerfälle für Formular-Handling
-
-## Workstream B: Web-Plattform für Schriftführer
+## Workstream C: Mobile Queue v2
 
 ### Ziel
 
-Das Web erhält Login, Session, Revier-Kontext und eine belastbare Navigationsstruktur.
+Die App verarbeitet Fachdaten und Foto-Uploads als getrennte Queue-Operationen mit sichtbaren Status.
 
 ### Ownership
 
-- `apps/web/src/app/layout.tsx`
-- Shell- und Navigationskomponenten
-- Web-Auth- und Session-Utilities
-- geschützte Routenstruktur
+- `apps/mobile/lib/offline-queue.ts`
+- Queue-Darstellung im Dashboard
 
 ### Aufgaben
 
-- Login-Flow integrieren
-- Session-Handling und Revier-Kontext aufbauen
-- Dashboard, Sitzungsliste und Detailrouten strukturieren
+- neue Operation `fallwild-photo-upload`
+- Status `pending`, `syncing`, `uploading`, `failed`, `conflict`
+- Create-zu-Upload-Kette fuer Offline-Fallwild
+- Verwerfen fuer `failed` und `conflict`
 
-### Abhängigkeiten
+### Darf nicht aendern
 
-- braucht Auth aus Sprint 0
-- sollte möglichst früh mit `Workstream A` die Sitzungsrouten abstimmen
+- Fotoauswahl-UI im Fallwild-Tab
+- Server-Storage oder Route Handler
 
-### Darf nicht ändern
-
-- Sitzungs-API-Verträge eigenständig anpassen
-- PDF-Generierung
-
-### Übergabeartefakte
-
-- geschütztes Web-Grundgerüst
-- API-Client-Basis
-- stabile Routingstruktur für Schriftführer
-
-## Workstream C: Protokoll-Editor und Fachformulare
+## Workstream D: Mobile Fallwild-Foto-Flow
 
 ### Ziel
 
-Der eigentliche Arbeitsbereich des Schriftführers wird umgesetzt.
+Fallwild kann online und offline mit bis zu drei Bibliotheksfotos erfasst werden.
 
 ### Ownership
 
-- neue Editor- und Formular-Komponenten unter `apps/web/src/components`
-- Sitzungsdetail-UI
-- Beschluss- und Teilnehmerformulare
+- `apps/mobile/app/(tabs)/fallwild.tsx`
+- `apps/mobile/lib/api.ts`
+- Mobile-Paketabhaengigkeiten
 
 ### Aufgaben
 
-- Formular für Sitzung anlegen und bearbeiten
-- Protokoll-Inhalt bearbeiten
-- Beschlüsse und Teilnehmer pflegen
-- Versionen sichtbar machen
+- `expo-image-picker` fuer Bibliotheksauswahl integrieren
+- lokale Vorschau und Entfernen vor dem Submit
+- Online-Create gefolgt von sequentiellen Uploads
+- verbleibende Fotos bei recoverable errors an die Queue uebergeben
 
-### Abhängigkeiten
+### Darf nicht aendern
 
-- braucht Session- und Routingbasis aus `Workstream B`
-- braucht Save- und Read-Verträge aus `Workstream A`
+- Queue-Core ausserhalb der abgesprochenen API
 
-### Darf nicht ändern
-
-- globale Web-Auth-Logik
-- API-Verträge ohne Rücksprache
-
-### Übergabeartefakte
-
-- funktionsfähiger Editor-Flow
-- nachvollziehbare Formularvalidierung
-- sichtbare Versionshistorie
-
-## Workstream D: Freigabe, Veröffentlichung und Dokumente
+## Workstream E: Android-Smoke und Testbarkeit
 
 ### Ziel
 
-Der Schritt von `Entwurf` zu `Freigegeben` wird vollständig sichtbar und nutzbar.
+Die Mobile-Abnahme ist auf Windows mit Android-Emulator oder Geraet reproduzierbar dokumentiert.
 
 ### Ownership
 
-- PDF- und Dokument-Service im API-Bereich
-- veröffentlichte Protokollansicht im Web
-- Freigabe-UI im Web
+- `apps/mobile/scripts`
+- `TESTCASES.md`
+- stabile `testID`- und `accessibilityLabel`-Oberflaechen
 
 ### Aufgaben
 
-- Freigabeaktion im Web
-- veröffentlichte Lesedarstellung
-- PDF-Generierung und Download
-- Dokumentablage und Dateibenennung standardisieren
-
-### Abhängigkeiten
-
-- braucht Freigabe-API aus `Workstream A`
-- braucht Session- und Routingstruktur aus `Workstream B`
-
-### Darf nicht ändern
-
-- Editor-Grundlogik
-- globale Navigation
-
-### Übergabeartefakte
-
-- klickbarer Freigabe-Flow
-- PDF-Download
-- lesbare veröffentlichte Ansicht
-
-## Workstream E: Dashboard und Lagekontext
-
-### Ziel
-
-Das Schriftführer-Backend zeigt nicht nur Protokolle, sondern auch den operativen Revierkontext.
-
-### Ownership
-
-- `apps/api/src/dashboard`
-- Dashboard-Ansichten im Web
-- Read-only-Ansichten für Ansitze und Fallwild
-
-### Aufgaben
-
-- Dashboard gegen echte Daten anbinden
-- Ansitze und Fallwild lesend integrieren
-- Kacheln, Listen und Kontextbereiche für Schriftführer vervollständigen
-
-### Abhängigkeiten
-
-- braucht Dashboard- und Lesedaten aus API
-- kann weitgehend parallel zu `Workstream C` arbeiten
-
-### Übergabeartefakte
-
-- produktives Dashboard
-- lesbarer Lageüberblick ohne Fachbearbeitung
-
-## Workstream F: Tests und Abnahme
-
-### Ziel
-
-Die Sprint-1-Flows werden früh und nicht erst am Ende abgesichert.
-
-### Ownership
-
-- Web-Flow-Tests
-- API-Contract-Tests für Sprint-1-Endpunkte
-- manuelle Abnahmeskripte
-
-### Aufgaben
-
-- Contract-Tests für Sitzungsdetail, Versionen, Freigabe und PDF
-- UI-Flow-Tests für Login, Anlage, Bearbeitung und Freigabe
-- manuelle Abnahme-Checkliste pflegen
-
-### Abhängigkeiten
-
-- kann mit Testgerüst früh starten
-- finale Assertions hängen an `Workstream A`, `C` und `D`
-
-### Darf nicht ändern
-
-- Fachlogik als Nebeneffekt groß umbauen
+- Smoke-Skript fuer Android-Emulator oder Geraet
+- Testbild zur Laufzeit erzeugen und auf das Geraet schieben
+- Login, Dashboard, Fallwild mit Foto, Offline-Sync und Ansitz als nativen Check beschreiben
 
 ## Empfohlene Parallelisierung
+
+### Phase 0
+
+- Main Agent zieht Schema, Seeds, Storage-Env und Root-Doku auf denselben Stand
 
 ### Phase 1
 
 - Workstream A und B starten sofort
-- Workstream F setzt Testgerüst und Abnahme-Checkliste auf
+- Workstream E friert Testbarkeit und Android-Smoke ein
 
 ### Phase 2
 
-- nach Stabilisierung der Detailverträge startet Workstream C
-- Workstream E kann parallel Dashboard und Lageansichten aufbauen
-
-### Phase 3
-
-- nach Freigabevertrag startet Workstream D
-- Workstream F zieht finale Tests und Regressionen nach
+- nach Upload- und Fehler-Freeze starten Workstream C und D parallel
 
 ## Gemeinsame Checkpoints
 
-### Checkpoint 1: API Freeze für Editor
+### Checkpoint 1: Medien-Freeze
 
 Pflicht:
 
-- Sitzungsliste und Sitzungsdetail stabil
-- Save-Modell stabil
-- Rollenfehler dokumentiert
+- `media_assets`-Schema und Seed stabil
+- Fallwild-Detail und Foto-Upload dokumentiert
+- Storage fuer Local und Preview geklaert
 
-### Checkpoint 2: UI Freeze für Freigabe
-
-Pflicht:
-
-- Editor-Layout und Navigation stabil
-- Freigabe-Endpoint stabil
-- Dokument-Service bereit
-
-### Checkpoint 3: Sprint-1-Abnahme
+### Checkpoint 2: Queue-Freeze
 
 Pflicht:
 
-- Sitzung kann angelegt werden
-- Protokoll kann gespeichert werden
-- Revier Admin kann freigeben
-- PDF ist abrufbar
-- Dashboard und Lagekontext sind sichtbar
+- Offline-Create erzeugt bei Bedarf nachgelagerte Foto-Upload-Eintraege
+- Queue-Status und Verwerf-Flow sind sichtbar
+
+### Checkpoint 3: Sprint-1/3-Abnahme
+
+Pflicht:
+
+- Web-E2E fuer Dashboard, Reviereinrichtungen, Protokolle und Download gruen
+- Preview-Smoke gegen die PR-URL gruen
+- Fallwild-Foto-Upload lokal funktional geprueft
+- Android-Smoke ist dokumentiert und reproduzierbar
 
 ## Was nicht parallelisiert werden sollte
 
-- gleichzeitige Änderungen an `apps/api/src/sitzungen`
-- gleichzeitige Änderungen an der Web-Shell oder globalem Layout
-- gleichzeitige Änderungen am Freigabe- und PDF-Service
+- gleichzeitige Aenderungen an `env`, Storage, Schema oder Seeds
+- gleichzeitige Aenderungen an `apps/mobile/lib/api.ts` und `apps/mobile/lib/offline-queue.ts`
+- gleichzeitige Aenderungen an globaler Web-Navigation und Dokument-Service
 
-## Übergang zu Sprint 2
+## Uebergang zum naechsten Block
 
-Sprint 2 kann sauber starten, wenn Sprint 1 diese stabilen Artefakte hinterlässt:
+Der naechste Fachblock startet erst danach:
 
-- veröffentlichte Protokolle als lesbare Ressource
-- belastbare Session- und Revierkontext-Mechanik im Web
-- stabile Dokument-Downloads
-- klare API-Verträge, die später auch mobil konsumiert werden können
+- Rollen- und Empfaengergruppen
+- Nachrichten
+- Aufgaben
+- Veranstaltungen

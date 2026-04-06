@@ -2,28 +2,27 @@
 
 ## Ziel
 
-Diese Roadmap beschreibt die Ausbaustufen vom aktuellen Repository-Grundgeruest zur ersten produktiven Version fuer Schriftfuehrer und Jaeger.
+Diese Roadmap beschreibt die Ausbaustufen vom Repository-Grundgeruest zur ersten produktiven Version fuer Schriftfuehrer und Jaeger.
 
 ## Aktueller Status
 
-- Der aktuelle Code-Stand ist ein sichtbares Demo- und Integrationsgeruest.
-- Web, Mobile und eine bestehende Uebergangs-API existieren bereits als Grundstruktur, aber noch nicht mit produktiver Persistenz oder Authentifizierung.
-- Der naechste reale Meilenstein ist vollstaendig `Sprint 0`.
+- `Sprint 0` ist abgeschlossen. Auth, Session, Revier-Scope, Rollenpruefung, Drizzle-Migrationen, Seeds und produktive Route Handler liegen in `apps/web`.
+- `Sprint 1` ist weit fortgeschritten. Dashboard, Reviereinrichtungen, Protokolle, Sitzungen, Freigabe/PDF-Basis und die erste E2E-Abdeckung sind umgesetzt.
+- `Sprint 2` ist teilweise umgesetzt. Mobile Login, Session-Restore, Dashboard, Ansitz- und Fallwild-Formulare, Reviereinrichtungen und Protokolle lesen bereits dieselbe API.
+- `Sprint 3` ist aktiv. Fallwild anlegen, exportieren und offline vormerken funktioniert schon; Foto-Upload, Medien-Storage und Queue v2 sind der aktuelle Ausbau.
 
 ## Sprint 0: Fundament
 
-Ziel: aus dem Demo-Geruest eine produktive technische Basis machen
+Status: abgeschlossen
 
-Lieferumfang:
+Geliefert:
 
-- PostgreSQL/PostGIS anbinden
-- Vercel-native API-Basis in `apps/web` einziehen
-- Migrationen und Datenmodell einfuehren
-- Authentifizierung und Revier-Kontext einziehen
-- Rollenmodell serverseitig aktivieren
+- PostgreSQL/PostGIS ueber Drizzle an `apps/web` angebunden
+- Authentifizierung, Refresh und `GET /api/v1/me`
+- aktiver Revier-Kontext und serverseitige Rollenpruefung
 - Seed-Daten fuer lokales Entwicklungsrevier
-- Basis fuer Storage und Medienverwaltung
-- API-Vertraege und erste Contract-Tests fuer Kernressourcen aufsetzen
+- produktive Route Handler fuer Dashboard, Ansitze, Fallwild, Reviereinrichtungen, Protokolle und Sitzungen
+- Dokument- und PDF-Download-Basis
 
 Ergebnis:
 
@@ -31,71 +30,73 @@ Ergebnis:
 
 ## Sprint 1: Schriftfuehrer-Backend
 
-Ziel: erste nutzbare Web-Version fuer Sitzungen und Protokolle
+Status: weit fortgeschritten
 
-Lieferumfang:
+Geliefert:
 
 - Dashboard mit offenen Entwuerfen und Revierlage
-- Sitzungsliste
-- Sitzungsdetail
-- Protokoll-Editor
-- Teilnehmer und Beschluesse
-- Versionierung
-- Freigabe durch Revier Admin
-- PDF-Erzeugung
-- Contract-Tests fuer Sitzungen, Freigabe und Rollenrechte
+- Sitzungsliste und Sitzungsdetail
+- Protokollversionen, Freigabe-Flow und PDF-Grundlage
+- Protokoll-Leseansicht und Dokument-Download
+- Web-E2E fuer Auth, Rollen und Sitzungs-Mutationen
+
+Restblock:
+
+- Web-Haertung fuer Dashboard, Reviereinrichtungen, Protokolle und Dokument-Download
+- Preview-Smoke standardisieren und in den PR-Ablauf ziehen
+- Dokumentation und manuelle Abnahme auf denselben Stand bringen
 
 Ergebnis:
 
-- Sitzungen koennen von der Anlage bis zur Veroeffentlichung durchlaufen werden
+- Sitzungen koennen von der Anlage bis zur Veroeffentlichung durchlaufen werden, der Restfokus liegt auf Haertung und Regressionen
 
 ## Sprint 2: Jaeger-App Kern
 
-Ziel: erste nutzbare mobile Version fuer den taeglichen Einsatz
+Status: teilweise umgesetzt
 
-Lieferumfang:
+Geliefert:
 
-- Login und Revier-Auswahl
-- Heute-im-Revier-Screen
-- Ansitz starten und beenden
-- Liste aktiver Ansitze mit manueller Aktualisierung
-- Push-Benachrichtigungen fuer Ansitze
-- freigegebene Protokolle lesen
-- kritische Mobile-Flows fuer Login, Ansitz und Protokollanzeige automatisiert absichern
+- Login und Session-Restore
+- Heute-im-Revier-Screen mit Queue-Anzeige
+- Ansitz-Formular mit Queue-Fallback
+- Fallwild-Formular mit Queue-Fallback
+- freigegebene Protokolle und Reviereinrichtungen lesend in der App
 
-Ergebnis:
+Restblock:
 
-- Jaeger sehen die Lage im Revier und koennen Ansitze sauber melden
-
-## Sprint 3: Fallwild
-
-Ziel: Fallwild-Erfassung vollstaendig mobil nutzbar machen
-
-Lieferumfang:
-
-- strukturierte Fallwild-API
-- Foto-Upload
-- Offline-Warteschlange in der App
-- Wiederanlauf und Synchronisierung
-- Fallwild-Uebersicht im Web
-- CSV-Export
+- nativer Android-Smoke als kanonischer Geraetetest
+- Device-/Emulator-Abnahme fuer die aktuellen Kernflows
 
 Ergebnis:
 
-- Fallwild kann draussen erfasst und spaeter vollstaendig synchronisiert werden
+- Jaeger sehen die Lage im Revier und koennen Ansitze sowie Fallwild bereits mobil erfassen
+
+## Sprint 3: Fallwild und Medien
+
+Status: aktiv
+
+Lieferumfang dieses Blocks:
+
+- `GET /api/v1/fallwild/:id`
+- `POST /api/v1/fallwild/:id/fotos`
+- S3-kompatible Storage-Schicht fuer MinIO lokal und R2 in Preview/Production
+- `media_assets` als generische Medienbasis
+- Queue v2 mit separaten Foto-Uploads, Retry und Konfliktstatus
+- Fotoauswahl aus der Bibliothek in der App
+
+Ergebnis:
+
+- Fallwild kann draussen erfasst, mit Fotos vorgemerkt und spaeter synchronisiert werden
 
 ## Sprint 4: Reviereinrichtungen und Haertung
 
-Ziel: die v1 fachlich und technisch stabilisieren
+Status: geplant
 
 Lieferumfang:
 
-- Reviereinrichtungen lesend in der App
-- einfache Kontroll- oder Maengelhinweise
-- Audit-Log
-- Monitoring und Logging
-- Fehlerbehandlung und Rechtepruefung komplett
-- Qualitaets- und Abnahmetests
+- Reviereinrichtungen lesend und spaeter mit Kontrollhinweisen in der App
+- Audit-Log, Monitoring und Logging
+- Fehlerbehandlung, Rechtepruefung und Abnahmeverfahren komplett
 
 Ergebnis:
 
@@ -113,34 +114,33 @@ Lieferumfang:
 - Aufgabenlisten und Kalenderansicht pro Benutzer in der mobilen App
 - Veranstaltungen mit Ankuendigung, Treffpunkt, Erinnerungen und optionaler Teilnahmebestaetigung
 - WhatsApp- und spaeter Telegram-Anstoss aus der App heraus mit vorbereitetem Nachrichtentext
-- Auditierbare Zuordnung zwischen interner Nachricht, Aufgabe, Veranstaltung und externem Messenger-Anstoss
+- auditierbare Zuordnung zwischen interner Nachricht, Aufgabe, Veranstaltung und externem Messenger-Anstoss
 
 Ergebnis:
 
-- Kommunikation, Organisation und Feldrueckmeldungen laufen nicht mehr nebenbei ueber private Chatverlaeufe, sondern nachvollziehbar ueber `hege`
+- Kommunikation, Organisation und Feldrueckmeldungen laufen nachvollziehbar ueber `hege`
 
 ## Querschnittsthemen
 
 ### Qualitaet
 
-- API-Contract-Tests starten bereits in Sprint 0 und werden in Sprint 1 erweitert
-- kritische Mobile-User-Flows werden ab Sprint 2 parallel zu den Features abgesichert
-- End-to-End-Abnahmetests buendeln die Kernablaeufe in Sprint 4
-- visuelle Regressionstests werden fuer zentrale Web-Flows schrittweise ausgebaut
+- API-Contract-Tests starteten in Sprint 0 und werden in Sprint 1/3 weitergezogen
+- Web-E2E und visuelle Regressionstests sichern Desktop und Mobile-Viewport ab
+- Mobile-Smokes werden zuerst auf Android reproduzierbar gemacht
+- Preview-Smoke dient als Standard-Check zwischen Local und Production
 
 ### Sprache und Lokalisierung
 
 - v1 ist fachlich und redaktionell auf Deutsch fuer Oesterreich (`de-AT`) ausgelegt
-- Web und Mobile sollen Texte dennoch so strukturieren, dass spaetere zusaetzliche Sprachen moeglich bleiben
+- Web und Mobile sollen Texte so strukturieren, dass spaetere weitere Sprachen moeglich bleiben
 - eine verpflichtende zweisprachige Auslieferung ist nicht Teil von v1
-- falls nach v1 eine erste Zweitsprache eingefuehrt wird, ist Englisch (`en`) die bevorzugte erste Erweiterung
 
 ## Abnahmekriterien fuer v1
 
 - Schriftfuehrer kann eine Sitzung anlegen, bearbeiten und zur Freigabe bringen
 - Revier Admin kann ein Protokoll freigeben und veroeffentlichen
 - Jaeger kann einen Ansitz starten und beenden
-- Jaeger kann Fallwild auch offline vollstaendig erfassen
+- Jaeger kann Fallwild auch mit Fotos offline erfassen und spaeter synchronisieren
 - freigegebene Protokolle sind mobil lesbar
 - alle Daten sind pro Revier getrennt
 - kritische Aktionen sind nachvollziehbar protokolliert
@@ -149,10 +149,9 @@ Ergebnis:
 
 Wenn unmittelbar weiterentwickelt wird, ist die sinnvollste Reihenfolge:
 
-1. Sprint 0 vollstaendig umsetzen
-2. danach Schriftfuehrer-Backend bis zur Protokollfreigabe fertigstellen
-3. erst dann die mobile Offline-Fallwildstrecke produktiv machen
-4. danach Kommunikation, Aufgaben und Veranstaltungen auf die bestehende Rollen- und Rechtebasis setzen
+1. Sprint 1 Haertung und Sprint 3 Medien-/Queue-Block abschliessen
+2. Android-Smoke und manuelle Device-Abnahme standardisieren
+3. danach Rollen-, Aufgaben-, Nachrichten- und Veranstaltungslogik auf die bestehende Rechtebasis setzen
 
 ## Detaillierte Sprint-Backlogs
 

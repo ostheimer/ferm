@@ -9,6 +9,7 @@ import type {
   GeoPoint,
   Geschlecht,
   LoginPayload,
+  PhotoAsset,
   ProtokollDetail,
   ProtokollListItem,
   Reviereinrichtung,
@@ -22,6 +23,7 @@ import type {
 } from "@hege/domain";
 import { buildDashboardOverview, demoData } from "@hege/domain";
 
+import type { LocalPendingPhoto } from "./offline-queue";
 import { clearSession, getAccessToken, getRefreshToken, saveSession } from "./session";
 
 declare const process: {
@@ -77,6 +79,10 @@ export interface CreateFallwildRequest {
   gemeinde: string;
   strasse?: string;
   note?: string;
+}
+
+export interface FallwildPhotoUploadResponse {
+  photo: PhotoAsset;
 }
 
 export interface MutationResponse {
@@ -177,6 +183,22 @@ export async function fetchFallwildList(): Promise<FallwildListItem[]> {
   });
 }
 
+export async function fetchFallwildDetail(id: string): Promise<FallwildListItem> {
+  return requestJson<FallwildListItem>(`/v1/fallwild/${encodeURIComponent(id)}`, {
+    fallback: async () => {
+      const me = await fallbackCurrentUser();
+      const entries = await fallbackFallwildList(me.revier.id);
+      const match = entries.find((entry) => entry.id === id);
+
+      if (!match) {
+        throw new MobileApiError("Fallwild wurde nicht gefunden.", 404, "not-found");
+      }
+
+      return match;
+    }
+  });
+}
+
 export async function createAnsitz(payload: CreateAnsitzRequest): Promise<MutationResponse> {
   return requestJson<MutationResponse>("/v1/ansitze", {
     method: "POST",
@@ -188,6 +210,30 @@ export async function createFallwild(payload: CreateFallwildRequest): Promise<Mu
   return requestJson<MutationResponse>("/v1/fallwild", {
     method: "POST",
     body: payload
+  });
+}
+
+export async function uploadFallwildPhoto(
+  fallwildId: string,
+  attachment: LocalPendingPhoto
+): Promise<FallwildPhotoUploadResponse> {
+  const formData = new FormData();
+  formData.append(
+    "file",
+    {
+      uri: attachment.uri,
+      name: attachment.fileName,
+      type: attachment.mimeType
+    } as never
+  );
+
+  if (attachment.title) {
+    formData.append("title", attachment.title);
+  }
+
+  return requestJson<FallwildPhotoUploadResponse>(`/v1/fallwild/${encodeURIComponent(fallwildId)}/fotos`, {
+    method: "POST",
+    body: formData
   });
 }
 
@@ -296,8 +342,12 @@ async function performRequest(
   let body: BodyInit | undefined;
 
   if (options.body !== undefined) {
-    headers.set("content-type", "application/json");
-    body = JSON.stringify(options.body);
+    if (options.body instanceof FormData) {
+      body = options.body;
+    } else {
+      headers.set("content-type", "application/json");
+      body = JSON.stringify(options.body);
+    }
   }
 
   return fetch(toApiUrl(path), {

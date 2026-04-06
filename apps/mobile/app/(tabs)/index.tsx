@@ -7,7 +7,12 @@ import { MapPreview } from "../../components/map-preview";
 import { MetricTile } from "../../components/metric-tile";
 import { ScreenShell } from "../../components/screen-shell";
 import { fetchDashboardSnapshot, logout } from "../../lib/api";
-import { syncOfflineQueue, useOfflineQueueSnapshot } from "../../lib/offline-queue";
+import {
+  discardOfflineQueueEntry,
+  syncOfflineQueue,
+  useOfflineQueueSnapshot,
+  type OfflineOperation
+} from "../../lib/offline-queue";
 import { colors } from "../../lib/theme";
 
 export default function DashboardScreen() {
@@ -18,6 +23,7 @@ export default function DashboardScreen() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [queueMessage, setQueueMessage] = useState<string | null>(null);
+  const [discardingEntryId, setDiscardingEntryId] = useState<string | null>(null);
 
   useEffect(() => {
     void loadDashboard();
@@ -59,6 +65,20 @@ export default function DashboardScreen() {
       await loadDashboard({ refreshing: true });
     } catch (syncError) {
       setQueueMessage(syncError instanceof Error ? syncError.message : "Queue konnte nicht synchronisiert werden.");
+    }
+  }
+
+  async function handleDiscardEntry(entryId: string) {
+    setDiscardingEntryId(entryId);
+    setQueueMessage(null);
+
+    try {
+      await discardOfflineQueueEntry(entryId);
+      setQueueMessage("Queue-Eintrag verworfen.");
+    } catch (discardError) {
+      setQueueMessage(discardError instanceof Error ? discardError.message : "Queue-Eintrag konnte nicht verworfen werden.");
+    } finally {
+      setDiscardingEntryId(null);
     }
   }
 
@@ -173,29 +193,51 @@ export default function DashboardScreen() {
           ) : null}
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Offline-Queue</Text>
-            {queueEntries.length === 0 ? (
-              <Text style={styles.cardCopy}>Keine offenen Offline-Aktionen.</Text>
-            ) : (
-              queueEntries.slice(0, 3).map((entry) => (
-                <View key={entry.id} style={styles.queueRow}>
-                  <View style={styles.queueRowCopy}>
-                    <Text style={styles.queueRowTitle}>{entry.title}</Text>
-                    <Text style={styles.queueRowMeta}>
-                      {entry.kind === "ansitz-create" ? "Ansitz" : "Fallwild"} / Versuch {entry.attemptCount + 1}
-                    </Text>
-                    {entry.lastError ? <Text style={styles.queueRowMeta}>{entry.lastError}</Text> : null}
-                  </View>
+          {queueEntries.length === 0 ? (
+            <Text style={styles.cardCopy}>Keine offenen Offline-Aktionen.</Text>
+          ) : (
+            queueEntries.slice(0, 3).map((entry) => (
+              <View key={entry.id} style={styles.queueRow}>
+                <View style={styles.queueRowCopy}>
+                  <Text style={styles.queueRowTitle}>{entry.title}</Text>
+                  <Text style={styles.queueRowMeta}>
+                    {getQueueEntryKindLabel(entry.kind)} / {getQueueEntryStatusLabel(entry.status)} / Versuch {entry.attemptCount + 1}
+                  </Text>
+                  <Text style={styles.queueRowMeta}>{getQueueEntryAttachmentHint(entry)}</Text>
+                  {entry.lastError ? <Text style={styles.queueRowMeta}>{entry.lastError}</Text> : null}
+                </View>
+                <View style={styles.queueRowActions}>
                   <View
                     style={[
                       styles.queueBadge,
-                      entry.status === "failed" ? styles.queueBadgeFailed : styles.queueBadgePending
+                      entry.status === "failed"
+                        ? styles.queueBadgeFailed
+                        : entry.status === "conflict"
+                          ? styles.queueBadgeConflict
+                          : entry.status === "uploading"
+                            ? styles.queueBadgeUploading
+                            : styles.queueBadgePending
                     ]}
                   >
                     <Text style={styles.queueBadgeText}>{entry.status}</Text>
                   </View>
+                  {entry.status === "failed" || entry.status === "conflict" ? (
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={`Queue-Eintrag ${entry.title} verwerfen`}
+                      style={[styles.discardButton, discardingEntryId === entry.id ? styles.buttonDisabled : null]}
+                      onPress={() => void handleDiscardEntry(entry.id)}
+                      disabled={discardingEntryId === entry.id}
+                    >
+                      <Text style={styles.discardButtonText}>
+                        {discardingEntryId === entry.id ? "..." : "Verwerfen"}
+                      </Text>
+                    </Pressable>
+                  ) : null}
                 </View>
-              ))
-            )}
+              </View>
+            ))
+          )}
           </View>
         </>
       ) : null}
@@ -349,6 +391,10 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     color: colors.muted
   },
+  queueRowActions: {
+    gap: 8,
+    alignItems: "flex-end"
+  },
   queueBadge: {
     paddingHorizontal: 12,
     paddingVertical: 8,
@@ -360,8 +406,67 @@ const styles = StyleSheet.create({
   queueBadgeFailed: {
     backgroundColor: "#f0d9d4"
   },
+  queueBadgeConflict: {
+    backgroundColor: "#f4d9bf"
+  },
+  queueBadgeUploading: {
+    backgroundColor: "#d8e4ee"
+  },
   queueBadgeText: {
     fontWeight: "600",
     color: colors.ink
+  },
+  discardButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 999,
+    backgroundColor: colors.card
+  },
+  discardButtonText: {
+    fontWeight: "600",
+    color: colors.muted
   }
 });
+
+function getQueueEntryKindLabel(kind: string) {
+  switch (kind) {
+    case "ansitz-create":
+      return "Ansitz";
+    case "fallwild-create":
+      return "Fallwild";
+    case "fallwild-photo-upload":
+      return "Foto";
+    default:
+      return kind;
+  }
+}
+
+function getQueueEntryStatusLabel(status: string) {
+  switch (status) {
+    case "pending":
+      return "wartet";
+    case "syncing":
+      return "synchronisiert";
+    case "uploading":
+      return "upload";
+    case "failed":
+      return "fehlgeschlagen";
+    case "conflict":
+      return "Konflikt";
+    default:
+      return status;
+  }
+}
+
+function getQueueEntryAttachmentHint(entry: OfflineOperation) {
+  switch (entry.kind) {
+    case "fallwild-photo-upload":
+      return `Anhang: ${entry.attachment.fileName}`;
+    case "fallwild-create":
+      return entry.payload.attachments && entry.payload.attachments.length > 0
+        ? `${entry.payload.attachments.length} Foto(s) vorgemerkt`
+        : "Ohne Anhang";
+    default:
+      return "Ohne Anhang";
+  }
+}

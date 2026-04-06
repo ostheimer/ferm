@@ -1,8 +1,19 @@
-import type { FallwildVorgang } from "@hege/domain";
+import type { FallwildVorgang, PhotoAsset } from "@hege/domain";
 import { randomUUID } from "crypto";
 
 import { getServerEnv } from "../../env";
-import { createDbFallwildRepository, type FallwildRepository } from "./repository";
+import { putStorageObject } from "../../storage/s3";
+import {
+  deriveFallwildPhotoTitle,
+  FALLWILD_MAX_PHOTO_COUNT,
+  isAllowedFallwildPhotoContentType,
+  sanitizeFallwildPhotoFileName
+} from "./media";
+import {
+  createDbFallwildRepository,
+  type FallwildPhotoRecord,
+  type FallwildRepository
+} from "./repository";
 import type { CreateFallwildInput } from "./schemas";
 
 export class FallwildServiceError extends Error {
@@ -19,17 +30,31 @@ interface CreateFallwildCommand extends CreateFallwildInput {
   revierId: string;
 }
 
+export interface UploadFallwildPhotoCommand {
+  body: Buffer;
+  contentType: string;
+  fallwildId: string;
+  fileName: string;
+  reportedByMembershipId: string;
+  revierId: string;
+  title?: string;
+}
+
 interface FallwildServiceOptions {
   generateId?: () => string;
+  generatePhotoId?: () => string;
   getNow?: () => string;
   repository?: FallwildRepository;
+  uploadObject?: typeof putStorageObject;
   useDemoStore?: boolean;
 }
 
 export function createFallwildService({
   repository = createDbFallwildRepository(),
   generateId = () => `fallwild-${randomUUID()}`,
+  generatePhotoId = () => `photo-${randomUUID()}`,
   getNow = () => new Date().toISOString(),
+  uploadObject = putStorageObject,
   useDemoStore = getServerEnv().useDemoStore
 }: FallwildServiceOptions = {}) {
   return {
@@ -53,6 +78,52 @@ export function createFallwildService({
         note: command.note,
         photos: []
       });
+    },
+
+    async uploadPhoto(command: UploadFallwildPhotoCommand): Promise<PhotoAsset> {
+      assertMutationsEnabled(useDemoStore);
+
+      if (!isAllowedFallwildPhotoContentType(command.contentType)) {
+        throw new FallwildServiceError("Nur JPEG- und PNG-Dateien sind erlaubt.", 422);
+      }
+
+      const scope = await repository.findUploadScope(command.fallwildId, command.revierId);
+
+      if (!scope) {
+        throw new FallwildServiceError("Fallwild-Vorgang wurde nicht gefunden.", 404);
+      }
+
+      const photoCount = await repository.countPhotos(command.fallwildId);
+
+      if (photoCount >= FALLWILD_MAX_PHOTO_COUNT) {
+        throw new FallwildServiceError("Maximal drei Fotos pro Fallwild-Vorgang sind erlaubt.", 422);
+      }
+
+      const photoId = generatePhotoId();
+      const fileName = sanitizeFallwildPhotoFileName(command.fileName);
+      const objectKey = `${scope.tenantKey}/fallwild/${command.fallwildId}/${photoId}-${fileName}`;
+      const title = normalizePhotoTitle(command.title, command.fileName);
+      const createdAt = getNow();
+
+      const storedObject = await uploadObject({
+        key: objectKey,
+        body: command.body,
+        contentType: command.contentType
+      });
+
+      const row = await repository.insertPhoto({
+        id: photoId,
+        revierId: scope.revierId,
+        entityId: command.fallwildId,
+        uploadedByMembershipId: command.reportedByMembershipId,
+        title,
+        objectKey: storedObject.objectKey,
+        fileName: command.fileName,
+        contentType: command.contentType,
+        createdAt
+      });
+
+      return mapPhotoRecordToDomain(row, storedObject.publicUrl);
     }
   };
 }
@@ -63,8 +134,33 @@ export async function createFallwildVorgang(command: CreateFallwildCommand) {
   return defaultService.create(command);
 }
 
+export async function uploadFallwildPhoto(command: UploadFallwildPhotoCommand) {
+  return defaultService.uploadPhoto(command);
+}
+
 function assertMutationsEnabled(useDemoStore: boolean) {
   if (useDemoStore) {
     throw new FallwildServiceError("Fallwild-Mutationen benoetigen eine aktive Datenbank.", 503);
   }
+}
+
+function normalizePhotoTitle(title: string | undefined, fileName: string) {
+  if (typeof title === "string") {
+    const trimmed = title.trim();
+
+    if (trimmed.length > 0) {
+      return trimmed;
+    }
+  }
+
+  return deriveFallwildPhotoTitle(fileName);
+}
+
+function mapPhotoRecordToDomain(record: FallwildPhotoRecord, url: string): PhotoAsset {
+  return {
+    id: record.id,
+    title: record.title,
+    url,
+    createdAt: record.createdAt
+  };
 }

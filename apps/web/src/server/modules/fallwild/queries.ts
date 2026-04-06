@@ -1,11 +1,12 @@
-import type { FallwildVorgang } from "@hege/domain";
-import { desc, eq } from "drizzle-orm";
+import type { FallwildVorgang, PhotoAsset } from "@hege/domain";
+import { and, desc, eq, inArray } from "drizzle-orm";
 
 import { getRequestContext } from "../../auth/context";
 import { getDb } from "../../db/client";
-import { type FallwildVorgangRecord, fallwildVorgaenge } from "../../db/schema";
+import { type FallwildVorgangRecord, fallwildVorgaenge, mediaAssets } from "../../db/schema";
 import { createDemoStore } from "../../demo-store";
 import { getServerEnv } from "../../env";
+import { buildStoragePublicUrl } from "../../storage/s3";
 
 export async function listFallwild(): Promise<FallwildVorgang[]> {
   if (getServerEnv().useDemoStore) {
@@ -20,7 +21,28 @@ export async function listFallwild(): Promise<FallwildVorgang[]> {
     .where(eq(fallwildVorgaenge.revierId, revierId))
     .orderBy(desc(fallwildVorgaenge.recordedAt));
 
-  return rows.map(mapFallwildRowToDomain);
+  return attachPhotosToFallwildEntries(rows);
+}
+
+export async function getFallwildById(fallwildId: string): Promise<FallwildVorgang | undefined> {
+  if (getServerEnv().useDemoStore) {
+    return getFallwildFromDemoStore(fallwildId);
+  }
+
+  const db = getDb();
+  const { revierId } = await getRequestContext();
+  const [row] = await db
+    .select()
+    .from(fallwildVorgaenge)
+    .where(and(eq(fallwildVorgaenge.revierId, revierId), eq(fallwildVorgaenge.id, fallwildId)))
+    .limit(1);
+
+  if (!row) {
+    return undefined;
+  }
+
+  const [entry] = await attachPhotosToFallwildEntries([row]);
+  return entry;
 }
 
 export function mapFallwildRowToDomain(record: FallwildVorgangRecord): FallwildVorgang {
@@ -42,6 +64,15 @@ export function mapFallwildRowToDomain(record: FallwildVorgangRecord): FallwildV
     strasse: record.strasse ?? undefined,
     note: record.note ?? undefined,
     photos: []
+  };
+}
+
+export function mapMediaAssetRowToPhotoAsset(record: MediaAssetRecord): PhotoAsset {
+  return {
+    id: record.id,
+    title: record.title,
+    url: buildStoragePublicUrl(record.objectKey),
+    createdAt: record.createdAt
   };
 }
 
@@ -90,6 +121,44 @@ function listFallwildFromDemoStore(): FallwildVorgang[] {
     .sort((left, right) => right.recordedAt.localeCompare(left.recordedAt));
 }
 
+function getFallwildFromDemoStore(fallwildId: string): FallwildVorgang | undefined {
+  const store = createDemoStore();
+  const revierId = process.env.DEV_REVIER_ID ?? "revier-attersee";
+
+  return store.fallwild.find((entry) => entry.revierId === revierId && entry.id === fallwildId);
+}
+
+async function attachPhotosToFallwildEntries(rows: FallwildVorgangRecord[]): Promise<FallwildVorgang[]> {
+  if (rows.length === 0) {
+    return [];
+  }
+
+  const db = getDb();
+  const entryIds = rows.map((row) => row.id);
+  const photoRows = await db
+    .select()
+    .from(mediaAssets)
+    .where(and(eq(mediaAssets.entityType, "fallwild"), inArray(mediaAssets.entityId, entryIds)))
+    .orderBy(desc(mediaAssets.createdAt));
+
+  const photosByEntryId = new Map<string, PhotoAsset[]>();
+
+  for (const photoRow of photoRows) {
+    const photos = photosByEntryId.get(photoRow.entityId) ?? [];
+    photos.push(mapMediaAssetRowToPhotoAsset(photoRow));
+    photosByEntryId.set(photoRow.entityId, photos);
+  }
+
+  return rows.map((row) => {
+    const base = mapFallwildRowToDomain(row);
+
+    return {
+      ...base,
+      photos: photosByEntryId.get(row.id) ?? []
+    };
+  });
+}
+
 function escapeCsvCell(value: string): string {
   if (value.includes(",") || value.includes("\"") || value.includes("\n")) {
     return `"${value.replaceAll("\"", "\"\"")}"`;
@@ -97,3 +166,5 @@ function escapeCsvCell(value: string): string {
 
   return value;
 }
+
+type MediaAssetRecord = typeof mediaAssets.$inferSelect;
