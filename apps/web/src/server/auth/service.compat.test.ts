@@ -61,6 +61,39 @@ describe("auth service legacy schema compatibility", () => {
     expect(context.user.username).toBe("ostheimer");
     expect(context.revier.name).toBe("Jagdgesellschaft Attersee Nord");
   });
+
+  it("repairs known seed users on legacy schemas before retrying login", async () => {
+    let callCount = 0;
+    mockDb.execute.mockImplementation(async () => {
+      callCount += 1;
+
+      if (callCount === 1) {
+        return { rows: [] };
+      }
+
+      if (callCount === 2) {
+        return {
+          rows: [{ hasUsername: false }]
+        };
+      }
+
+      if (callCount >= 8) {
+        return {
+          rows: [createLegacyUserRow()]
+        };
+      }
+
+      return { rows: [] };
+    });
+
+    const session = await login({
+      identifier: "ostheimer",
+      pin: "9526"
+    });
+
+    expect(session.user.email).toBe("andreas@ostheimer.at");
+    expect(mockDb.execute).toHaveBeenCalled();
+  });
 });
 
 function createSelectBuilder() {
