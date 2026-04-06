@@ -12,7 +12,7 @@ import type {
 import { demoData } from "@hege/domain";
 import { eq, or, sql } from "drizzle-orm";
 
-import { getDb } from "../db/client";
+import { getDb, type HegeDb } from "../db/client";
 import { isMissingColumnError } from "../db/compat";
 import { memberships, reviere, type RevierRecord, users } from "../db/schema";
 import { getServerEnv } from "../env";
@@ -34,9 +34,16 @@ export async function login(payload: LoginPayload): Promise<AuthSessionResponse>
   }
 
   const normalizedIdentifier = normalizeIdentifier(payload.identifier);
-  const user = await loadDbUserByIdentifier(normalizedIdentifier);
+  let user = await loadDbUserByIdentifier(normalizedIdentifier);
+  let isValidPin = user ? verifyPassword(payload.pin, user.passwordHash) : false;
 
-  if (!user || !verifyPassword(payload.pin, user.passwordHash)) {
+  if ((!user || !isValidPin) && isKnownSeedIdentifier(normalizedIdentifier)) {
+    await syncKnownSeedAuthData();
+    user = await loadDbUserByIdentifier(normalizedIdentifier);
+    isValidPin = user ? verifyPassword(payload.pin, user.passwordHash) : false;
+  }
+
+  if (!user || !isValidPin) {
     throw new RouteError("E-Mail, Benutzername oder PIN ist ungueltig.", 401, "unauthenticated");
   }
 
@@ -281,6 +288,12 @@ function normalizeIdentifier(value: string) {
   return value.trim().toLowerCase();
 }
 
+function isKnownSeedIdentifier(identifier: string) {
+  return demoUsers.some(
+    (entry) => normalizeIdentifier(entry.email) === identifier || normalizeIdentifier(entry.username ?? "") === identifier
+  );
+}
+
 async function loadDbUserByIdentifier(identifier: string): Promise<DbUserRecord | undefined> {
   const db = getDb();
 
@@ -365,6 +378,155 @@ function mapLegacyDbUserRow(row: LegacyDbUserRow): DbUserRecord {
     username: normalizeIdentifier(row.username),
     passwordHash: row.passwordHash
   };
+}
+
+async function syncKnownSeedAuthData() {
+  const db = getDb();
+  await syncSeedReviere(db);
+  const hasUsernameColumn = await hasUsersUsernameColumn(db);
+  await syncSeedUsers(db, hasUsernameColumn);
+  await syncSeedMemberships(db);
+}
+
+async function hasUsersUsernameColumn(db: HegeDb) {
+  const result = await db.execute(sql<{ hasUsername: boolean }>`
+    select exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'users'
+        and column_name = 'username'
+    ) as "hasUsername"
+  `);
+  const row = result.rows[0] as { hasUsername?: boolean } | undefined;
+
+  return row?.hasUsername === true;
+}
+
+async function syncSeedReviere(db: HegeDb) {
+  for (const revier of demoData.reviere) {
+    await db.execute(sql`
+      insert into reviere (
+        id,
+        tenant_key,
+        name,
+        bundesland,
+        bezirk,
+        flaeche_hektar,
+        zentrum_lat,
+        zentrum_lng,
+        zentrum_label
+      )
+      values (
+        ${revier.id},
+        ${revier.tenantKey},
+        ${revier.name},
+        ${revier.bundesland},
+        ${revier.bezirk},
+        ${revier.flaecheHektar},
+        ${revier.zentrum.lat},
+        ${revier.zentrum.lng},
+        ${revier.zentrum.label ?? null}
+      )
+      on conflict (id) do update
+      set
+        tenant_key = excluded.tenant_key,
+        name = excluded.name,
+        bundesland = excluded.bundesland,
+        bezirk = excluded.bezirk,
+        flaeche_hektar = excluded.flaeche_hektar,
+        zentrum_lat = excluded.zentrum_lat,
+        zentrum_lng = excluded.zentrum_lng,
+        zentrum_label = excluded.zentrum_label
+    `);
+  }
+}
+
+async function syncSeedUsers(db: HegeDb, hasUsernameColumn: boolean) {
+  for (const user of demoUsers) {
+    if (hasUsernameColumn) {
+      await db.execute(sql`
+        insert into users (
+          id,
+          name,
+          phone,
+          email,
+          username,
+          password_hash
+        )
+        values (
+          ${user.id},
+          ${user.name},
+          ${user.phone},
+          ${user.email},
+          ${user.username ?? normalizeIdentifier(user.email.split("@")[0] ?? user.id)},
+          ${user.passwordHash}
+        )
+        on conflict (id) do update
+        set
+          name = excluded.name,
+          phone = excluded.phone,
+          email = excluded.email,
+          username = excluded.username,
+          password_hash = excluded.password_hash
+      `);
+
+      continue;
+    }
+
+    await db.execute(sql`
+      insert into users (
+        id,
+        name,
+        phone,
+        email,
+        password_hash
+      )
+      values (
+        ${user.id},
+        ${user.name},
+        ${user.phone},
+        ${user.email},
+        ${user.passwordHash}
+      )
+      on conflict (id) do update
+      set
+        name = excluded.name,
+        phone = excluded.phone,
+        email = excluded.email,
+        password_hash = excluded.password_hash
+    `);
+  }
+}
+
+async function syncSeedMemberships(db: HegeDb) {
+  for (const membership of demoData.memberships) {
+    await db.execute(sql`
+      insert into memberships (
+        id,
+        user_id,
+        revier_id,
+        role,
+        jagdzeichen,
+        push_enabled
+      )
+      values (
+        ${membership.id},
+        ${membership.userId},
+        ${membership.revierId},
+        ${membership.role},
+        ${membership.jagdzeichen},
+        ${membership.pushEnabled}
+      )
+      on conflict (id) do update
+      set
+        user_id = excluded.user_id,
+        revier_id = excluded.revier_id,
+        role = excluded.role,
+        jagdzeichen = excluded.jagdzeichen,
+        push_enabled = excluded.push_enabled
+    `);
+  }
 }
 
 function mapRevierRecordToDomain(record: RevierRecord): Revier {
