@@ -3,6 +3,7 @@ import { and, desc, eq, inArray } from "drizzle-orm";
 
 import { getRequestContext } from "../../auth/context";
 import { getDb } from "../../db/client";
+import { isMissingTableError } from "../../db/compat";
 import { type FallwildVorgangRecord, fallwildVorgaenge, mediaAssets } from "../../db/schema";
 import { createDemoStore } from "../../demo-store";
 import { getServerEnv } from "../../env";
@@ -135,11 +136,19 @@ async function attachPhotosToFallwildEntries(rows: FallwildVorgangRecord[]): Pro
 
   const db = getDb();
   const entryIds = rows.map((row) => row.id);
-  const photoRows = await db
-    .select()
-    .from(mediaAssets)
-    .where(and(eq(mediaAssets.entityType, "fallwild"), inArray(mediaAssets.entityId, entryIds)))
-    .orderBy(desc(mediaAssets.createdAt));
+  let photoRows: MediaAssetRecord[] = [];
+
+  try {
+    photoRows = await db
+      .select()
+      .from(mediaAssets)
+      .where(and(eq(mediaAssets.entityType, "fallwild"), inArray(mediaAssets.entityId, entryIds)))
+      .orderBy(desc(mediaAssets.createdAt));
+  } catch (error) {
+    if (!isMissingTableError(error, "media_assets")) {
+      throw error;
+    }
+  }
 
   const photosByEntryId = new Map<string, PhotoAsset[]>();
 

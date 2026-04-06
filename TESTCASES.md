@@ -27,6 +27,7 @@
 - Production-URL oeffnen und `GET /api/v1/me`, `GET /api/v1/ansitze` sowie `/ansitze` pruefen
 - Erwartung: die beiden API-Endpunkte antworten mit `200`
 - Erwartung: die Seite `/ansitze` rendert ohne Serverfehler und zeigt aktive Ansitze
+- Erwartung: Login via Kennung plus PIN und `GET /api/v1/fallwild` bleiben auch bei einem hinterherhaengenden Schema ohne `500` nutzbar
 
 ### TC-API-ANSITZ-01: Authentifizierter Kontext liefert `me`
 
@@ -46,6 +47,7 @@
 - `POST /api/v1/auth/login` mit gueltiger Kennung und vierstelliger PIN aufrufen
 - Erwartung: die Antwort enthaelt Benutzer-, Membership- und Revierkontext
 - Erwartung: `access`- und `refresh`-Cookie werden gesetzt
+- Erwartung: Username-Login funktioniert auch dann, wenn `users.username` in einer Legacy-DB noch aus der E-Mail abgeleitet werden muss
 
 ### TC-API-AUTH-02: Refresh erneuert die Session
 
@@ -82,6 +84,7 @@
 - `GET /api/v1/fallwild` aufrufen
 - Erwartung: die Antwort enthaelt die Fallwild-Vorgaenge des aktiven Reviers
 - Erwartung: jeder Eintrag liefert Standort, Wildart, Bergungsstatus und Erfassungszeitpunkt
+- Erwartung: fehlt `media_assets` in einer Legacy-DB noch, antwortet der Endpunkt weiter mit leerem `photos`-Array statt `500`
 
 ### TC-API-FALLWILD-02: Fallwildvorgang anlegen
 
@@ -120,6 +123,7 @@
 - Erwartung: ungueltiges `multipart/form-data` antwortet mit `400`
 - Erwartung: fachliche Limitverletzungen antworten mit `422`
 - Erwartung: fehlende Storage-Konfiguration antwortet mit `503`
+- Erwartung: fehlt `media_assets` in einer Legacy-DB noch, antwortet der Endpunkt mit `503` statt `500`
 
 ## API Dashboard, Reviereinrichtungen, Protokolle und Sitzungen
 

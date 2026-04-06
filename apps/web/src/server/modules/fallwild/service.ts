@@ -1,6 +1,7 @@
 import type { FallwildVorgang, PhotoAsset } from "@hege/domain";
 import { randomUUID } from "crypto";
 
+import { isMissingTableError } from "../../db/compat";
 import { getServerEnv } from "../../env";
 import { putStorageObject } from "../../storage/s3";
 import {
@@ -93,7 +94,7 @@ export function createFallwildService({
         throw new FallwildServiceError("Fallwild-Vorgang wurde nicht gefunden.", 404);
       }
 
-      const photoCount = await repository.countPhotos(command.fallwildId);
+      const photoCount = await withLegacyMediaSchemaCompatibility(() => repository.countPhotos(command.fallwildId));
 
       if (photoCount >= FALLWILD_MAX_PHOTO_COUNT) {
         throw new FallwildServiceError("Maximal drei Fotos pro Fallwild-Vorgang sind erlaubt.", 422);
@@ -111,17 +112,19 @@ export function createFallwildService({
         contentType: command.contentType
       });
 
-      const row = await repository.insertPhoto({
-        id: photoId,
-        revierId: scope.revierId,
-        entityId: command.fallwildId,
-        uploadedByMembershipId: command.reportedByMembershipId,
-        title,
-        objectKey: storedObject.objectKey,
-        fileName: command.fileName,
-        contentType: command.contentType,
-        createdAt
-      });
+      const row = await withLegacyMediaSchemaCompatibility(() =>
+        repository.insertPhoto({
+          id: photoId,
+          revierId: scope.revierId,
+          entityId: command.fallwildId,
+          uploadedByMembershipId: command.reportedByMembershipId,
+          title,
+          objectKey: storedObject.objectKey,
+          fileName: command.fileName,
+          contentType: command.contentType,
+          createdAt
+        })
+      );
 
       return mapPhotoRecordToDomain(row, storedObject.publicUrl);
     }
@@ -163,4 +166,16 @@ function mapPhotoRecordToDomain(record: FallwildPhotoRecord, url: string): Photo
     url,
     createdAt: record.createdAt
   };
+}
+
+async function withLegacyMediaSchemaCompatibility<T>(operation: () => Promise<T>) {
+  try {
+    return await operation();
+  } catch (error) {
+    if (isMissingTableError(error, "media_assets")) {
+      throw new FallwildServiceError("Fallwild-Fotos sind in dieser Umgebung noch nicht aktiviert.", 503);
+    }
+
+    throw error;
+  }
 }

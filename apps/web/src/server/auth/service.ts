@@ -10,9 +10,10 @@ import type {
   User
 } from "@hege/domain";
 import { demoData } from "@hege/domain";
-import { eq, or } from "drizzle-orm";
+import { eq, or, sql } from "drizzle-orm";
 
 import { getDb } from "../db/client";
+import { isMissingColumnError } from "../db/compat";
 import { memberships, reviere, type RevierRecord, users } from "../db/schema";
 import { getServerEnv } from "../env";
 import { RouteError } from "../http/errors";
@@ -33,12 +34,7 @@ export async function login(payload: LoginPayload): Promise<AuthSessionResponse>
   }
 
   const normalizedIdentifier = normalizeIdentifier(payload.identifier);
-  const db = getDb();
-  const [user] = await db
-    .select()
-    .from(users)
-    .where(or(eq(users.email, normalizedIdentifier), eq(users.username, normalizedIdentifier)))
-    .limit(1);
+  const user = await loadDbUserByIdentifier(normalizedIdentifier);
 
   if (!user || !verifyPassword(payload.pin, user.passwordHash)) {
     throw new RouteError("E-Mail, Benutzername oder PIN ist ungueltig.", 401, "unauthenticated");
@@ -75,8 +71,7 @@ export async function refreshSession(payload: RefreshSessionPayload): Promise<Au
     });
   }
 
-  const db = getDb();
-  const [user] = await db.select().from(users).where(eq(users.id, tokenContext.userId)).limit(1);
+  const user = await loadDbUserById(tokenContext.userId);
 
   if (!user) {
     throw new RouteError("Benutzer wurde nicht gefunden.", 401, "unauthenticated");
@@ -101,8 +96,7 @@ export async function resolveAuthContext(context: SessionTokenContext): Promise<
     return toAuthContextResponse(user, activeMembership, membershipsForUser);
   }
 
-  const db = getDb();
-  const [user] = await db.select().from(users).where(eq(users.id, context.userId)).limit(1);
+  const user = await loadDbUserById(context.userId);
 
   if (!user) {
     throw new RouteError("Benutzer wurde nicht gefunden.", 401, "unauthenticated");
@@ -287,6 +281,92 @@ function normalizeIdentifier(value: string) {
   return value.trim().toLowerCase();
 }
 
+async function loadDbUserByIdentifier(identifier: string): Promise<DbUserRecord | undefined> {
+  const db = getDb();
+
+  try {
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(or(eq(users.email, identifier), eq(users.username, identifier)))
+      .limit(1);
+
+    return user;
+  } catch (error) {
+    if (!isMissingColumnError(error, "users", "username")) {
+      throw error;
+    }
+
+    return loadLegacyDbUserByIdentifier(identifier);
+  }
+}
+
+async function loadDbUserById(userId: string): Promise<DbUserRecord | undefined> {
+  const db = getDb();
+
+  try {
+    const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+
+    return user;
+  } catch (error) {
+    if (!isMissingColumnError(error, "users", "username")) {
+      throw error;
+    }
+
+    return loadLegacyDbUserById(userId);
+  }
+}
+
+async function loadLegacyDbUserByIdentifier(identifier: string): Promise<DbUserRecord | undefined> {
+  const db = getDb();
+  const result = await db.execute(sql<LegacyDbUserRow>`
+    select
+      id,
+      name,
+      phone,
+      email,
+      lower(split_part(email, '@', 1)) as username,
+      password_hash as "passwordHash"
+    from users
+    where lower(email) = ${identifier}
+      or lower(split_part(email, '@', 1)) = ${identifier}
+    limit 1
+  `);
+  const row = result.rows[0] as LegacyDbUserRow | undefined;
+
+  return row ? mapLegacyDbUserRow(row) : undefined;
+}
+
+async function loadLegacyDbUserById(userId: string): Promise<DbUserRecord | undefined> {
+  const db = getDb();
+  const result = await db.execute(sql<LegacyDbUserRow>`
+    select
+      id,
+      name,
+      phone,
+      email,
+      lower(split_part(email, '@', 1)) as username,
+      password_hash as "passwordHash"
+    from users
+    where id = ${userId}
+    limit 1
+  `);
+  const row = result.rows[0] as LegacyDbUserRow | undefined;
+
+  return row ? mapLegacyDbUserRow(row) : undefined;
+}
+
+function mapLegacyDbUserRow(row: LegacyDbUserRow): DbUserRecord {
+  return {
+    id: row.id,
+    name: row.name,
+    phone: row.phone,
+    email: row.email,
+    username: normalizeIdentifier(row.username),
+    passwordHash: row.passwordHash
+  };
+}
+
 function mapRevierRecordToDomain(record: RevierRecord): Revier {
   return {
     id: record.id,
@@ -307,3 +387,14 @@ const demoUsers: DemoUserRecord[] = demoData.users.map((entry) => ({
   ...entry,
   passwordHash: hashPassword(getDefaultSeedPassword())
 }));
+
+type DbUserRecord = typeof users.$inferSelect;
+
+interface LegacyDbUserRow {
+  id: string;
+  name: string;
+  phone: string;
+  email: string;
+  username: string;
+  passwordHash: string;
+}
