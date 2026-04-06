@@ -43,7 +43,7 @@ test.describe("Sitzungen", () => {
     await page.locator("#version-agenda").fill("Begruessung\nRevierlage\nWartung");
     await page.locator("article.detail-card").first().locator("input").first().fill("E2E Beschluss");
     await page.locator("article.detail-card").first().locator("textarea").nth(0).fill("Wartung bis Monatsende abschliessen.");
-    await page.locator("article.detail-card").first().locator("input").nth(1).fill("Anna Steyrer");
+    await page.locator("article.detail-card").first().locator("input").nth(1).fill("Andreas Ostheimer");
     await page.locator("article.detail-card").first().locator("input").nth(2).fill("2026-04-20T18:00");
     await page.getByRole("button", { name: "Neue Version speichern" }).click();
 

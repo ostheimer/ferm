@@ -4,10 +4,12 @@ import { validationError } from "../http/validation";
 
 export function parseLoginPayload(body: unknown): LoginPayload {
   const data = ensureRecord(body, "Der Request-Body muss ein Objekt sein.");
+  const identifier = parseRequiredString(data.identifier ?? data.email, "identifier").toLowerCase();
+  const pin = parsePin(data.pin ?? data.password);
 
   return {
-    email: parseRequiredString(data.email, "email").toLowerCase(),
-    password: parseRequiredString(data.password, "password"),
+    identifier,
+    pin,
     membershipId: parseOptionalString(data.membershipId, "membershipId")
   };
 }
@@ -52,4 +54,12 @@ function parseOptionalString(value: unknown, field: string): string | undefined 
 
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : undefined;
+}
+
+function parsePin(value: unknown) {
+  if (typeof value !== "string" || !/^\d{4}$/.test(value.trim())) {
+    throw validationError("pin muss eine vierstellige PIN sein.");
+  }
+
+  return value.trim();
 }

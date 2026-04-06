@@ -10,7 +10,7 @@ import type {
   User
 } from "@hege/domain";
 import { demoData } from "@hege/domain";
-import { eq } from "drizzle-orm";
+import { eq, or } from "drizzle-orm";
 
 import { getDb } from "../db/client";
 import { memberships, reviere, type RevierRecord, users } from "../db/schema";
@@ -32,12 +32,16 @@ export async function login(payload: LoginPayload): Promise<AuthSessionResponse>
     return loginAgainstDemoStore(payload);
   }
 
-  const normalizedEmail = normalizeEmail(payload.email);
+  const normalizedIdentifier = normalizeIdentifier(payload.identifier);
   const db = getDb();
-  const [user] = await db.select().from(users).where(eq(users.email, normalizedEmail)).limit(1);
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(or(eq(users.email, normalizedIdentifier), eq(users.username, normalizedIdentifier)))
+    .limit(1);
 
-  if (!user || !verifyPassword(payload.password, user.passwordHash)) {
-    throw new RouteError("E-Mail oder Passwort ist ungueltig.", 401, "unauthenticated");
+  if (!user || !verifyPassword(payload.pin, user.passwordHash)) {
+    throw new RouteError("E-Mail, Benutzername oder PIN ist ungueltig.", 401, "unauthenticated");
   }
 
   const membershipsForUser = await loadMembershipsForUser(user.id);
@@ -125,11 +129,11 @@ export function createSeedPasswordHash() {
 }
 
 async function loginAgainstDemoStore(payload: LoginPayload): Promise<AuthSessionResponse> {
-  const normalizedEmail = normalizeEmail(payload.email);
-  const user = loadDemoUserByEmail(normalizedEmail);
+  const normalizedIdentifier = normalizeIdentifier(payload.identifier);
+  const user = loadDemoUserByIdentifier(normalizedIdentifier);
 
-  if (!user || !verifyPassword(payload.password, user.passwordHash)) {
-    throw new RouteError("E-Mail oder Passwort ist ungueltig.", 401, "unauthenticated");
+  if (!user || !verifyPassword(payload.pin, user.passwordHash)) {
+    throw new RouteError("E-Mail, Benutzername oder PIN ist ungueltig.", 401, "unauthenticated");
   }
 
   const membershipsForUser = loadDemoMembershipsForUser(user.id);
@@ -263,8 +267,10 @@ function toMembershipSummary(value: AuthenticatedMembership): MembershipSummary 
   };
 }
 
-function loadDemoUserByEmail(email: string): DemoUserRecord | undefined {
-  return demoUsers.find((entry) => entry.email === email);
+function loadDemoUserByIdentifier(identifier: string): DemoUserRecord | undefined {
+  return demoUsers.find(
+    (entry) => entry.email === identifier || normalizeIdentifier(entry.username ?? "") === identifier
+  );
 }
 
 function loadDemoUser(userId: string): DemoUserRecord {
@@ -277,7 +283,7 @@ function loadDemoUser(userId: string): DemoUserRecord {
   return user;
 }
 
-function normalizeEmail(value: string) {
+function normalizeIdentifier(value: string) {
   return value.trim().toLowerCase();
 }
 

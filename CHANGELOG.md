@@ -19,9 +19,12 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 - Preview-Smoke-Skript fuer Login, `me`, Dashboard, Reviereinrichtungen, Protokolle, Sitzungen und Dokument-Download hinzugefuegt.
 - Mobile Fallwild-Fotoauswahl ueber `expo-image-picker` mit bis zu drei Bibliotheksbildern eingefuehrt.
 - Android-Smoke-Helfer fuer Expo, Testbild-Erzeugung und `adb`-basierte Ablaufpruefung ergaenzt.
+- Seed-Account fuer Andreas Ostheimer als Admin mit Username-Login eingefuehrt.
 
 ### Changed
 
+- Login-Vertrag auf `identifier` plus vierstellige `pin` erweitert und serverseitig auf E-Mail oder Username aufgeloest.
+- Login-Oberflaechen in Web und App ohne sichtbare Demo-Konten-Hinweise umgestellt.
 - Dashboard im Web von `demoData` auf die Server-Schicht mit Session-/Revier-Kontext umgestellt.
 - Reviereinrichtungen und Protokolle im Web auf read-only Server-Slices umgestellt.
 - Mobile-Dashboard liest `DashboardResponse` und zeigt Queue, naechste Sitzung und letzte Benachrichtigung aus der API.

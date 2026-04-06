@@ -19,21 +19,24 @@ export const demoData: DemoData = {
   users: [
     {
       id: "user-steyrer",
-      name: "Anna Steyrer",
-      phone: "+43 664 1234567",
-      email: "anna.steyrer@hege.app"
+      name: "Andreas Ostheimer",
+      phone: "+43 660 0000000",
+      email: "andreas@ostheimer.at",
+      username: "ostheimer"
     },
     {
       id: "user-huber",
       name: "Lukas Huber",
       phone: "+43 676 1002003",
-      email: "lukas.huber@hege.app"
+      email: "lukas.huber@hege.app",
+      username: "huber"
     },
     {
       id: "user-mair",
       name: "Martin Mair",
       phone: "+43 660 7008009",
-      email: "martin.mair@hege.app"
+      email: "martin.mair@hege.app",
+      username: "mair"
     }
   ],
   memberships: [
@@ -42,7 +45,7 @@ export const demoData: DemoData = {
       userId: "user-steyrer",
       revierId: "revier-attersee",
       role: "revier-admin",
-      jagdzeichen: "AS-01",
+      jagdzeichen: "AO-01",
       pushEnabled: true
     },
     {
@@ -256,7 +259,7 @@ export const demoData: DemoData = {
               id: "beschluss-1",
               title: "Wartung Buchenhang",
               decision: "Kontrolle aller Leiterstaende bis 20. April abschliessen.",
-              owner: "Anna Steyrer",
+              owner: "Andreas Ostheimer",
               dueAt: "2026-04-20T18:00:00+02:00"
             }
           ],

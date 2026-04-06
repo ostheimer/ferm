@@ -11,14 +11,14 @@ import { colors } from "../lib/theme";
 export default function LoginScreen() {
   const router = useRouter();
   const session = useSessionSnapshot();
-  const [email, setEmail] = useState("martin.mair@hege.app");
-  const [password, setPassword] = useState("hege-demo-2026");
+  const [identifier, setIdentifier] = useState("");
+  const [pin, setPin] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setError(null);
-  }, [email, password]);
+  }, [identifier, pin]);
 
   if (session.status === "loading" || !session.hydrated) {
     return <AppLoader />;
@@ -37,7 +37,7 @@ export default function LoginScreen() {
     setError(null);
 
     try {
-      await loginWithCredentials({ email, password });
+      await loginWithCredentials({ identifier, pin });
       router.replace("/");
     } catch (loginError) {
       if (loginError instanceof MobileApiError) {
@@ -58,35 +58,35 @@ export default function LoginScreen() {
         <View style={styles.card}>
           <Text style={styles.eyebrow}>hege Revier</Text>
           <Text style={styles.title}>Anmelden und Revierkontext laden</Text>
-          <Text style={styles.copy}>Der Zugriff laeuft jetzt ueber token-basierten Login und Refresh.</Text>
-          <Text style={styles.helper}>Demo-Konto: martin.mair@hege.app / hege-demo-2026</Text>
+          <Text style={styles.copy}>Der Zugriff laeuft jetzt ueber E-Mail oder Benutzername und eine vierstellige PIN.</Text>
 
           <View style={styles.form}>
             <View style={styles.field}>
-              <Text style={styles.label}>E-Mail</Text>
+              <Text style={styles.label}>E-Mail oder Benutzername</Text>
               <TextInput
                 autoCapitalize="none"
                 autoCorrect={false}
-                keyboardType="email-address"
-                placeholder="name@example.com"
+                placeholder="Ostheimer oder andreas@ostheimer.at"
                 placeholderTextColor={colors.muted}
                 style={styles.input}
-                value={email}
-                onChangeText={setEmail}
+                value={identifier}
+                onChangeText={setIdentifier}
               />
             </View>
 
             <View style={styles.field}>
-              <Text style={styles.label}>Passwort</Text>
+              <Text style={styles.label}>PIN</Text>
               <TextInput
                 autoCapitalize="none"
                 autoCorrect={false}
-                placeholder="Passwort"
+                keyboardType={Platform.OS === "ios" ? "number-pad" : "numeric"}
+                maxLength={4}
+                placeholder="9526"
                 placeholderTextColor={colors.muted}
                 secureTextEntry
                 style={styles.input}
-                value={password}
-                onChangeText={setPassword}
+                value={pin}
+                onChangeText={setPin}
               />
             </View>
 
@@ -150,11 +150,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 22,
     color: colors.muted
-  },
-  helper: {
-    fontSize: 13,
-    lineHeight: 19,
-    color: colors.accent
   },
   form: {
     gap: 14

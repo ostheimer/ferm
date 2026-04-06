@@ -65,7 +65,7 @@ export function Shell({ children, viewer }: ShellProps) {
           </span>
           <span>
             {viewer
-              ? `${viewer.user.name} | ${viewer.membership.role} | ${viewer.membership.jagdzeichen}`
+              ? `${viewer.user.name} | ${formatRoleLabel(viewer.membership.role)} | ${viewer.membership.jagdzeichen}`
               : "Ansitze, Fallwild und Protokolle in einem System."}
           </span>
         </div>
@@ -82,4 +82,19 @@ export function Shell({ children, viewer }: ShellProps) {
       <main className="main-content">{children}</main>
     </div>
   );
+}
+
+function formatRoleLabel(role: AuthContextResponse["membership"]["role"]) {
+  switch (role) {
+    case "revier-admin":
+      return "Admin";
+    case "schriftfuehrer":
+      return "Schriftfuehrung";
+    case "jaeger":
+      return "Jaeger";
+    case "platform-admin":
+      return "Plattform";
+    default:
+      return role;
+  }
 }

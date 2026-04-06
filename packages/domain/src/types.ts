@@ -51,6 +51,7 @@ export interface User {
   name: string;
   phone: string;
   email: string;
+  username?: string;
 }
 
 export interface ApiError {
@@ -326,8 +327,8 @@ export interface AddKontrollePayload {
 }
 
 export interface LoginPayload {
-  email: string;
-  password: string;
+  identifier: string;
+  pin: string;
   membershipId?: string;
 }
 

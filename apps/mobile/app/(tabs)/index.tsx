@@ -106,7 +106,7 @@ export default function DashboardScreen() {
               ? `${failedQueueCount} Eintraege brauchen einen erneuten Sync.`
               : "Erfassungen warten auf Synchronisierung."}
           </Text>
-          {snapshot ? <Text style={styles.asideMeta}>{`${snapshot.user.name} / ${snapshot.membership.role}`}</Text> : null}
+          {snapshot ? <Text style={styles.asideMeta}>{`${snapshot.user.name} / ${formatRoleLabel(snapshot.membership.role)}`}</Text> : null}
         </View>
       }
     >
@@ -175,7 +175,7 @@ export default function DashboardScreen() {
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Eingeloggt</Text>
             <Text style={styles.cardValue}>{snapshot.user.name}</Text>
-            <Text style={styles.cardCopy}>{`${snapshot.membership.role} / ${snapshot.membership.jagdzeichen}`}</Text>
+            <Text style={styles.cardCopy}>{`${formatRoleLabel(snapshot.membership.role)} / ${snapshot.membership.jagdzeichen}`}</Text>
           </View>
           {snapshot.overview.naechsteSitzung ? (
             <View style={styles.card}>
@@ -468,5 +468,20 @@ function getQueueEntryAttachmentHint(entry: OfflineOperation) {
         : "Ohne Anhang";
     default:
       return "Ohne Anhang";
+  }
+}
+
+function formatRoleLabel(role: DashboardResponse["membership"]["role"]) {
+  switch (role) {
+    case "revier-admin":
+      return "Admin";
+    case "schriftfuehrer":
+      return "Schriftfuehrung";
+    case "jaeger":
+      return "Jaeger";
+    case "platform-admin":
+      return "Plattform";
+    default:
+      return role;
   }
 }

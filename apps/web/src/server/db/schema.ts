@@ -21,13 +21,21 @@ import {
   uniqueIndex
 } from "drizzle-orm/pg-core";
 
-export const users = pgTable("users", {
-  id: text("id").primaryKey(),
-  name: text("name").notNull(),
-  phone: text("phone").notNull(),
-  email: text("email").notNull(),
-  passwordHash: text("password_hash").notNull()
-});
+export const users = pgTable(
+  "users",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    phone: text("phone").notNull(),
+    email: text("email").notNull(),
+    username: text("username").notNull(),
+    passwordHash: text("password_hash").notNull()
+  },
+  (table) => [
+    uniqueIndex("users_email_unique").on(table.email),
+    uniqueIndex("users_username_unique").on(table.username)
+  ]
+);
 
 export const reviere = pgTable(
   "reviere",
