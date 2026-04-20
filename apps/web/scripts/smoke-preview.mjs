@@ -4,6 +4,8 @@ import assert from "node:assert/strict";
 
 const DEMO_IDENTIFIER = "ostheimer";
 const DEMO_PIN = "9526";
+const ACCESS_TOKEN_COOKIE = "hege_access_token";
+const REFRESH_TOKEN_COOKIE = "hege_refresh_token";
 
 const previewUrl = normalizePreviewUrl(process.argv[2] ?? process.env.PREVIEW_URL);
 
@@ -40,22 +42,138 @@ async function runSmoke(baseUrl) {
   assert.ok(login.json?.tokens?.refreshToken, "Expected refresh token in auth response.");
 
   const accessToken = login.json.tokens.accessToken;
+  const cookieHeader = createSessionCookieHeader(login.json.tokens);
   const authHeaders = {
+    cookie: cookieHeader,
     authorization: `Bearer ${accessToken}`
   };
+  const browserHeaders = {
+    cookie: cookieHeader
+  };
 
-  await checkJsonEndpoint(baseUrl, "/api/v1/me", authHeaders, {
+  const me = await checkJsonEndpoint(baseUrl, "/api/v1/me", authHeaders, {
     label: "/api/v1/me",
-    expectedFields: ["user", "membership", "revier", "activeRevierId", "setupRequired"]
+    expectedFields: ["user", "membership", "revier", "activeRevierId", "setupRequired"],
+    validateJson(json, label) {
+      assertFields(json.user, ["id", "name"], `${label}.user`);
+      assertFields(json.membership, ["id", "role", "jagdzeichen"], `${label}.membership`);
+      assertFields(json.revier, ["id", "name", "bundesland", "bezirk"], `${label}.revier`);
+    }
   });
 
-  await checkRedirect(baseUrl, "/login", authHeaders, ["/app", "/app/setup"]);
+  await checkRedirect(baseUrl, "/login", browserHeaders, ["/app", "/app/setup"]);
+
+  await checkJsonEndpoint(baseUrl, "/api/v1/dashboard", authHeaders, {
+    label: "/api/v1/dashboard",
+    expectedFields: ["overview", "activeAnsitze", "recentFallwild"],
+    validateJson(json, label) {
+      assertFields(
+        json.overview,
+        [
+          "revier",
+          "aktiveAnsitze",
+          "ansitzeMitKonflikt",
+          "offeneWartungen",
+          "heutigeFallwildBergungen",
+          "unveroeffentlichteProtokolle",
+          "letzteBenachrichtigungen"
+        ],
+        `${label}.overview`
+      );
+      assert.ok(Array.isArray(json.activeAnsitze), `Expected ${label}.activeAnsitze to be an array.`);
+      assert.ok(Array.isArray(json.recentFallwild), `Expected ${label}.recentFallwild to be an array.`);
+    }
+  });
+
+  await checkHtmlPage(baseUrl, "/app", {
+    label: "/app",
+    headers: browserHeaders,
+    expectedText: ["Revierbetrieb, Protokolle und Fallwild auf einen Blick.", me.revier.name]
+  });
+
+  const reviereinrichtungen = await checkJsonEndpoint(baseUrl, "/api/v1/reviereinrichtungen", authHeaders, {
+    label: "/api/v1/reviereinrichtungen",
+    validateJson(json, label) {
+      assert.ok(Array.isArray(json), `Expected ${label} to return an array.`);
+      assert.ok(json.length > 0, `Expected ${label} to contain at least one entry.`);
+      assertFields(json[0], ["id", "name", "status", "location", "kontrollen", "offeneWartungen"], `${label}[0]`);
+    }
+  });
+
+  await checkHtmlPage(baseUrl, "/app/reviereinrichtungen", {
+    label: "/app/reviereinrichtungen",
+    headers: browserHeaders,
+    expectedText: ["Standorte, Kontrollen und Wartungen im Blick.", reviereinrichtungen[0].name]
+  });
+
+  const protokolle = await checkJsonEndpoint(baseUrl, "/api/v1/protokolle", authHeaders, {
+    label: "/api/v1/protokolle",
+    validateJson(json, label) {
+      assert.ok(Array.isArray(json), `Expected ${label} to return an array.`);
+      assert.ok(json.length > 0, `Expected ${label} to contain at least one entry.`);
+      assertFields(
+        json[0],
+        ["id", "title", "status", "scheduledAt", "locationLabel", "beschlussCount"],
+        `${label}[0]`
+      );
+    }
+  });
+  const publishedProtokoll = protokolle.find((entry) => entry.publishedDocument?.downloadUrl);
+  assert.ok(publishedProtokoll, "Expected /api/v1/protokolle to include a published document download.");
+
+  await checkHtmlPage(baseUrl, "/app/protokolle", {
+    label: "/app/protokolle",
+    headers: browserHeaders,
+    expectedText: ["Freigegebene Protokolle und Beschluesse", publishedProtokoll.title]
+  });
+
+  const protokollDetail = await checkJsonEndpoint(
+    baseUrl,
+    `/api/v1/protokolle/${encodeURIComponent(publishedProtokoll.id)}`,
+    authHeaders,
+    {
+      label: `/api/v1/protokolle/${publishedProtokoll.id}`,
+      expectedFields: ["id", "title", "participants", "versions", "publishedDocument"],
+      validateJson(json, label) {
+        assert.ok(Array.isArray(json.participants), `Expected ${label}.participants to be an array.`);
+        assert.ok(Array.isArray(json.versions), `Expected ${label}.versions to be an array.`);
+        assert.ok(json.versions.length > 0, `Expected ${label}.versions to contain at least one version.`);
+      }
+    }
+  );
+
+  await checkHtmlPage(baseUrl, `/app/protokolle/${encodeURIComponent(publishedProtokoll.id)}`, {
+    label: `/app/protokolle/${publishedProtokoll.id}`,
+    headers: browserHeaders,
+    expectedText: [protokollDetail.title, publishedProtokoll.publishedDocument.fileName]
+  });
+
+  await checkDownload(baseUrl, publishedProtokoll.publishedDocument.downloadUrl, authHeaders, {
+    label: publishedProtokoll.publishedDocument.downloadUrl,
+    expectedContentType: "application/pdf",
+    expectedFileName: publishedProtokoll.publishedDocument.fileName
+  });
+
+  const sitzungen = await checkJsonEndpoint(baseUrl, "/api/v1/sitzungen", authHeaders, {
+    label: "/api/v1/sitzungen",
+    validateJson(json, label) {
+      assert.ok(Array.isArray(json), `Expected ${label} to return an array.`);
+      assert.ok(json.length > 0, `Expected ${label} to contain at least one entry.`);
+      assertFields(json[0], ["id", "title", "status", "participants", "versions"], `${label}[0]`);
+    }
+  });
+
+  await checkHtmlPage(baseUrl, "/app/sitzungen", {
+    label: "/app/sitzungen",
+    headers: browserHeaders,
+    expectedText: ["Entwuerfe, Protokollstaende und Freigaben", sitzungen[0].title]
+  });
 
   console.log("Preview smoke passed.");
 }
 
 async function checkJsonEndpoint(baseUrl, path, headers = {}, options = {}) {
-  const { label = path, expectedFields = [] } = options;
+  const { label = path, expectedFields = [], validateJson } = options;
   const response = await fetchJson(baseUrl, path, headers);
 
   assert.equal(response.status, 200, `Expected ${label} to return 200, got ${response.status}.`);
@@ -67,6 +185,12 @@ async function checkJsonEndpoint(baseUrl, path, headers = {}, options = {}) {
   for (const field of expectedFields) {
     assert.ok(field in response.json, `Expected ${label} JSON to include "${field}".`);
   }
+
+  if (validateJson) {
+    validateJson(response.json, label);
+  }
+
+  return response.json;
 }
 
 async function checkHtmlPage(baseUrl, path, options = {}) {
@@ -81,6 +205,32 @@ async function checkHtmlPage(baseUrl, path, options = {}) {
 
   for (const text of expectedText) {
     assert.ok(response.text.includes(text), `Expected ${label} HTML to include "${text}".`);
+  }
+}
+
+async function checkDownload(baseUrl, path, headers = {}, options = {}) {
+  const { label = path, expectedContentType, expectedFileName } = options;
+  const response = await fetch(baseUrlFor(baseUrl, path), {
+    headers,
+    redirect: "manual"
+  });
+
+  assert.equal(response.status, 200, `Expected ${label} to return 200, got ${response.status}.`);
+
+  const contentType = response.headers.get("content-type") ?? "";
+  if (expectedContentType) {
+    assert.ok(
+      contentType.includes(expectedContentType),
+      `Expected ${label} to return ${expectedContentType}, got ${contentType || "missing content-type"}.`
+    );
+  }
+
+  if (expectedFileName) {
+    const disposition = response.headers.get("content-disposition") ?? "";
+    assert.ok(
+      disposition.includes(`filename="${expectedFileName}"`),
+      `Expected ${label} to download ${expectedFileName}, got ${disposition || "missing content-disposition"}.`
+    );
   }
 }
 
@@ -152,6 +302,21 @@ async function parseJsonResponse(response) {
   }
 
   return response.json();
+}
+
+function assertFields(value, fields, label) {
+  assert.ok(value && typeof value === "object", `Expected ${label} to be an object.`);
+
+  for (const field of fields) {
+    assert.ok(field in value, `Expected ${label} to include "${field}".`);
+  }
+}
+
+function createSessionCookieHeader(tokens) {
+  return [
+    `${ACCESS_TOKEN_COOKIE}=${encodeURIComponent(tokens.accessToken)}`,
+    `${REFRESH_TOKEN_COOKIE}=${encodeURIComponent(tokens.refreshToken)}`
+  ].join("; ");
 }
 
 function baseUrlFor(baseUrl, path) {

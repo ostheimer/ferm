@@ -7,7 +7,8 @@ Diese Roadmap beschreibt die Ausbaustufen vom Repository-Grundgeruest zur ersten
 ## Aktueller Status
 
 - `Sprint 0` ist abgeschlossen. Auth, Session, Revier-Scope, Rollenpruefung, Drizzle-Migrationen, Seeds und produktive Route Handler liegen in `apps/web`.
-- `Sprint 1` ist weit fortgeschritten. Dashboard, Reviereinrichtungen, Protokolle, Sitzungen, Freigabe/PDF-Basis und die erste E2E-Abdeckung sind umgesetzt.
+- `Sprint 1` ist in Abschluss-Haertung. Dashboard, Reviereinrichtungen, Protokolle, Sitzungen, Freigabe/PDF-Basis und die browserbasierte Abdeckung sind umgesetzt; offen sind vor allem Doku, manuelle Abnahme und die finale Aktivierung der Checks in GitHub/Vercel.
+- `Sprint 1.5` ist weit fortgeschritten. Public Landing, Auth-Redirects und Registrierungsfluss sind browserseitig abgesichert; der Preview-Smoke deckt inzwischen Einstieg, Session-Grundvertrag und zentrale App-Read-Pfade ab.
 - `Sprint 2` ist teilweise umgesetzt. Mobile Login, Session-Restore, Dashboard, Ansitz- und Fallwild-Formulare, Reviereinrichtungen und Protokolle lesen bereits dieselbe API.
 - `Sprint 3` ist aktiv. Fallwild anlegen, exportieren und offline vormerken funktioniert schon; Foto-Upload, Medien-Storage und Queue v2 sind der aktuelle Ausbau.
 
@@ -30,7 +31,7 @@ Ergebnis:
 
 ## Sprint 1: Schriftfuehrer-Backend
 
-Status: weit fortgeschritten
+Status: in Abschluss-Haertung
 
 Geliefert:
 
@@ -38,12 +39,13 @@ Geliefert:
 - Sitzungsliste und Sitzungsdetail
 - Protokollversionen, Freigabe-Flow und PDF-Grundlage
 - Protokoll-Leseansicht und Dokument-Download
-- Web-E2E fuer Auth, Rollen und Sitzungs-Mutationen
+- Web-E2E fuer Public Web, Auth, Rollen, Sitzungen, Dashboard, Reviereinrichtungen, Protokolle und Dokument-Download
+- Preview-Smoke fuer Public Web, Dashboard, Reviereinrichtungen, Protokolle, Sitzungen und Dokument-Download
+- GitHub-Workflow fuer den Preview-Smoke bei erfolgreichen Preview-Deployments und manuellen `workflow_dispatch`
 
 Restblock:
 
-- Web-Haertung fuer Dashboard, Reviereinrichtungen, Protokolle und Dokument-Download
-- Preview-Smoke standardisieren und in den PR-Ablauf ziehen
+- Preview-Smoke in GitHub und optional in Vercel Deployment Checks als verpflichtenden Check markieren
 - Dokumentation und manuelle Abnahme auf denselben Stand bringen
 
 Ergebnis:
@@ -60,12 +62,13 @@ Geliefert:
 - Pricing-CTAs auf `/login` und `/registrieren`
 - Login-Redirect auf `/app`
 - Setup- und Post-Auth-Redirects ueber die Server-Guards
-- Preview-Smoke fuer Public Landing, Login, Registrierung und `GET /api/v1/me`
+- Playwright fuer Public Landing, Login-Redirect, Guard-Redirects und den Registrierungsfluss
+- Preview-Smoke fuer Public Landing, Login, Registrierung, `POST /api/v1/auth/login`, `GET /api/v1/me`, den authentifizierten Redirect von `/login` sowie die zentralen App-Read-Pfade
 
 Restblock:
 
-- `/app`-Eintritt und Setup-Abschluss browser- und Smoke-seitig komplett absichern
-- Registrierungs- und App-Redirects in die naechste Browser-Abnahme ziehen
+- Setup-Abschluss in den reproduzierbaren Preview-/CI-Abnahmerahmen ziehen
+- Registrierungs- und App-Redirects in die finale Dokumentation und manuelle Browser-Abnahme ziehen
 
 Ergebnis:
 
@@ -170,9 +173,10 @@ Ergebnis:
 
 Wenn unmittelbar weiterentwickelt wird, ist die sinnvollste Reihenfolge:
 
-1. Sprint 1 Haertung und Sprint 3 Medien-/Queue-Block abschliessen
-2. Android-Smoke und manuelle Device-Abnahme standardisieren
-3. danach Rollen-, Aufgaben-, Nachrichten- und Veranstaltungslogik auf die bestehende Rechtebasis setzen
+1. Preview-Smoke in GitHub und optional in Vercel Deployment Checks als verpflichtenden Check markieren
+2. Web-Abnahme und Dokumentation auf den tatsaechlichen Implementierungsstand ziehen
+3. Android-Smoke und manuelle Device-Abnahme standardisieren
+4. danach Rollen-, Aufgaben-, Nachrichten- und Veranstaltungslogik auf die bestehende Rechtebasis setzen
 
 ## Detaillierte Sprint-Backlogs
 

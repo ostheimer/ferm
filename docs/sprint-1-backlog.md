@@ -10,7 +10,10 @@ Sprint 1 setzt Sprint 0 als abgeschlossen voraus.
 
 - Dashboard, Sitzungsliste, Sitzungsdetail, Protokoll-Leseansicht, Freigabe und PDF-Basis sind umgesetzt.
 - Auth, Rollen, Revier-Scope und Dokument-Downloads laufen produktiv ueber `apps/web`.
-- Offener Sprint-1-Rest liegt in Tests, Preview-Smoke, Dokumentation und den letzten Regressionen rund um Protokolle und Downloads.
+- Browserabdeckung fuer Dashboard, Reviereinrichtungen, Protokoll-Liste, Protokoll-Detail, Dokument-Download sowie Public-Web-/Onboarding-Contracts liegt in `apps/web/e2e`.
+- `smoke:preview` prueft Public Web, Auth-Login, `GET /api/v1/me`, Dashboard, Reviereinrichtungen, Protokolle, Sitzungen und den Dokument-Download gegen den Preview-Deploy.
+- `.github/workflows/preview-smoke.yml` startet denselben Smoke bei erfolgreichen Preview-Deployments sowie manuell per `workflow_dispatch`.
+- Offener Sprint-1-Rest liegt vor allem in der finalen Aktivierung dieses Checks in GitHub/Vercel, in manueller Abnahme, Dokumentation und den letzten Regressionen rund um Protokolle, Downloads und Setup-Abschluss.
 
 ## Bereits umgesetzt
 
@@ -23,8 +26,7 @@ Sprint 1 setzt Sprint 0 als abgeschlossen voraus.
 
 ## Restscope in Sprint 1
 
-- Playwright fuer Dashboard, Reviereinrichtungen, Protokoll-Liste, Protokoll-Detail und Dokument-Download
-- Preview-Smoke-Checks gegen jede PR-URL
+- Preview-Smoke-Workflow in GitHub und optional in Vercel Deployment Checks als verpflichtenden Check markieren
 - manuelle Abnahme fuer Desktop und Mobile-Viewport
 - Dokumentation und Testfaelle auf den aktuellen Implementierungsstand ziehen
 
@@ -32,14 +34,21 @@ Sprint 1 setzt Sprint 0 als abgeschlossen voraus.
 
 ### Ziel
 
-Die oeffentliche Produktseite und der erste Onboarding-Einstieg sind browserseitig und per Smoke abgesichert.
+Die oeffentliche Produktseite und der erste Onboarding-Einstieg sind browserseitig abgesichert; der Preview-Smoke deckt inzwischen den oeffentlichen Einstieg, den Session-Grundvertrag und die wichtigsten Read-Pfade des App-Blocks ab.
 
-### Tasks
+### Stand
 
-- Public Landing auf `/` mit Pricing-CTAs und Login-Zugang absichern
-- Login-Redirect auf `/app` und Setup-Redirect auf `/app/setup` testen
-- `toSafePostAuthPath` und die Auth-Guards fuer `/login`, `/registrieren` und `/app`-Ziele absichern
-- Preview-Smoke um `/`, `/login`, `/registrieren` und `GET /api/v1/me` erweitern
+Browserseitig und im aktuellen Smoke bereits umgesetzt:
+
+- Public Landing auf `/` mit Pricing-CTAs und Login-Zugang
+- Login-Redirect auf `/app` und Setup-Redirect auf `/app/setup`
+- `toSafePostAuthPath` und die Auth-Guards fuer `/login`, `/registrieren` und `/app`-Ziele
+- Preview-Smoke fuer `/`, `/login`, `/registrieren`, `POST /api/v1/auth/login`, `GET /api/v1/me`, den authentifizierten Redirect von `/login`, `/app`, Dashboard, Reviereinrichtungen, Protokolle, Sitzungen und den Dokument-Download
+
+Restblock:
+
+- Setup-Abschluss in den reproduzierbaren Preview-/CI-Abnahmerahmen ziehen
+- Registrierungs- und App-Redirects in die finale Browser-Abnahme und Dokumentation ziehen
 
 Akzeptanzkriterien:
 
@@ -57,11 +66,10 @@ Akzeptanzkriterien:
 
 ## Reihenfolge fuer den Restblock
 
-1. Public-Web- und Onboarding-Contracts schliessen
-2. Web-E2E fuer Dashboard, Reviereinrichtungen, Protokolle und Downloads schliessen
-3. Preview-Smoke als festen Zwischencheck zwischen Local und Production verankern
-4. Dokumentation, TESTCASES und manuelle Abnahme angleichen
-5. danach Sprint-3-Medien- und Queue-Themen auf denselben Haertungsstandard ziehen
+1. Preview-Smoke-Workflow als festen Zwischencheck zwischen Local und Production markieren
+2. Dokumentation, TESTCASES und manuelle Abnahme angleichen
+3. letzte Regressionen rund um Protokolle, Downloads und Setup-Abschluss nachziehen
+4. danach Sprint-3-Medien- und Queue-Themen auf denselben Haertungsstandard ziehen
 
 ## Epic S1-H1: Web-Haertung
 
@@ -69,12 +77,20 @@ Akzeptanzkriterien:
 
 Die produktiven Schriftfuehrer-Seiten sind browserbasiert abgesichert und auf Desktop sowie Mobile-Viewport verifiziert.
 
-### Tasks
+### Stand
 
-- Dashboard-Ansicht per Playwright absichern
-- Reviereinrichtungen per Playwright absichern
-- Protokoll-Liste und Protokoll-Detail per Playwright absichern
-- Dokument-Download inklusive Dateiname pruefen
+Bereits umgesetzt:
+
+- Dashboard-Ansicht per Playwright
+- Reviereinrichtungen per Playwright
+- Protokoll-Liste und Protokoll-Detail per Playwright
+- Dokument-Download inklusive Dateiname
+- Horizontal-Overflow-Pruefung im Mobile-Viewport
+
+Restblock:
+
+- bestehende Browserabdeckung bei fachlichen Aenderungen aktuell halten
+- die manuelle Desktop- und Mobile-Abnahme als Abschluss-Schritt dokumentieren
 
 Akzeptanzkriterien:
 
@@ -87,10 +103,16 @@ Akzeptanzkriterien:
 
 Jede relevante PR kann vor einem Merge per einfachem HTTP-/HTML-Smoke gegen die Preview validiert werden.
 
-### Tasks
+### Stand
 
-- `smoke:preview` fuer Login, `me`, Dashboard, Reviereinrichtungen, Protokolle, Sitzungen und Dokument-Download
+Bereits umgesetzt:
+
+- `smoke:preview` fuer `/`, `/login`, `/registrieren`, `POST /api/v1/auth/login`, `GET /api/v1/me`, den authentifizierten Redirect von `/login`, `/app`, Dashboard, Reviereinrichtungen, Protokolle, Sitzungen und den Dokument-Download
+
+Restblock:
+
 - Preview-URL und Zugangsdaten als reproduzierbarer Check dokumentieren
+- Workflow in GitHub und optional in Vercel Deployment Checks als verpflichtenden Check markieren
 
 Akzeptanzkriterien:
 
@@ -124,16 +146,13 @@ Akzeptanzkriterien:
 
 Wahrscheinlich neu oder stark betroffen:
 
-- `apps/web/e2e`
+- `.github/workflows` fuer den spaeteren Preview-/CI-Check
+- `.github/workflows/preview-smoke.yml`
 - `apps/web/scripts`
-- `apps/web/src/app/page.tsx`
-- `apps/web/src/components/public-landing.tsx`
-- `apps/web/src/lib/auth-redirects.ts`
-- `apps/web/src/app/reviereinrichtungen/page.tsx`
-- `apps/web/src/app/protokolle/page.tsx`
-- `apps/web/src/app/protokolle/[id]/page.tsx`
+- `apps/web/e2e`
 - `docs/api-v1.md`
 - Root-Dokumentation (`ROADMAP.md`, `README.md`, `TESTCASES.md`, `CHANGELOG.md`, `TODO.md`)
+- `docs/README.md` und `docs/roadmap-v1.md`
 
 ## Sprint-Abnahme
 

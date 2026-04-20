@@ -28,26 +28,29 @@ Diese Dokumentation beschreibt den aktuellen Stand des Repositories und den gepl
 
 ## Aktueller Implementierungsstand
 
-Das Repository enthaelt bereits ein funktionierendes Monorepo-Grundgeruest mit:
+Das Repository enthaelt bereits ein produktiv orientiertes Monorepo mit:
 
-- NestJS-API fuer Dashboard, Ansitze, Reviereinrichtungen, Fallwild und Sitzungen
-- Next.js-Backoffice mit Dashboard und Fachseiten
-- Expo-Mobile-App mit feldtauglichen Kernscreens
+- Next.js-Backoffice in `apps/web` inklusive produktivem API-Slice ueber Route Handler und Drizzle
+- Expo-Mobile-App mit Login, Dashboard, Ansitz, Fallwild, Reviereinrichtungen und Protokollen gegen denselben API-Slice
 - Shared Domain Package fuer Typen, Demo-Daten und Fachregeln
-- erstem `vercel-native` Daten-Slice in `apps/web` mit Drizzle, Migrationen und Route Handlern fuer `me`, `ansitze` und `fallwild`
-- Web-Ansitzverwaltung mit Starten, Beenden und manuellem Refresh gegen die neue API
-- Web-Fallwildverwaltung mit Erfassung und CSV-Export gegen dieselbe Server-Schicht
-- Mobile-Fallwildliste mit echtem API-Refresh
-- Mobile-Dashboard mit API-basiertem Snapshot fuer Revier- und Ansitzlage
+- Route Handler fuer `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `reviereinrichtungen`, `protokolle`, `sitzungen` und `documents`
+- Fallwild-Detail, Foto-Upload und S3-kompatible Storage-Schicht fuer MinIO lokal und spaeteres R2
+- Mobile Offline-Queue fuer Ansitz und Fallwild inklusive separater Foto-Upload-Operationen und Konfliktstatus
 - automatisierten Web-Tests mit Vitest fuer Route Handler, Services und Queries
-- Playwright-E2E- und Visual-Regression-Tests fuer die wichtigsten Web-Use-Cases auf Desktop und Mobile
+- Playwright-E2E- und Visual-Regression-Tests fuer Public Web, Auth, Ansitze, Fallwild, Dashboard, Reviereinrichtungen, Protokolle und Sitzungen auf Desktop und Mobile
+- Preview-Smoke fuer Public Web, Session-Grundvertrag und die wichtigsten App-Read-Pfade
+- GitHub-Workflow fuer den Preview-Smoke bei erfolgreichen Preview-Deployments und manuellen `workflow_dispatch`
+- Android-Smoke-Helfer fuer die native Expo-Abnahme
+- `apps/api` bleibt als Referenz- und Uebergangspfad im Repository
 - Rollen, Aufgaben und Nachrichten werden als naechste Planungsstufe vorbereitet, inklusive spaeterer WhatsApp-/Telegram-Kanaele
 
 Kartenfunktionen werden projektweit auf Google Maps ausgerichtet.
 
 Die fachliche Dokumentation beschreibt bereits die naechste Ausbaustufe mit echter Persistenz, Authentifizierung, Rollenpruefung und produktionsreifen Workflows.
 
-Der aktuelle Entwicklungsfokus liegt weiter auf `Sprint 0: Fundament`. Massgeblich dafuer sind [ROADMAP.md](../ROADMAP.md), [Roadmap v1](./roadmap-v1.md) und [Sprint 0 Backlog](./sprint-0-backlog.md).
+Der aktuelle Entwicklungsfokus liegt auf dem Abschluss von Sprint 1 / 1.5 und der weiteren Haertung von Sprint 3. Im Vordergrund stehen die finale Aktivierung des Preview-Smoke-Workflows als verpflichtender Check, die dokumentierte Android-Abnahme sowie die weitere Haertung von Medien-Upload und Queue-Sync.
+
+Fuer den aktuellen Status sind [ROADMAP.md](../ROADMAP.md), [Roadmap v1](./roadmap-v1.md) und [TODO.md](../TODO.md) massgeblich. Die Sprint-0/1-Backlogs und Agent-Workstreams bleiben als Planungsartefakte der zuletzt geschnittenen Arbeitsbloecke erhalten.
 
 ## Pflegehinweis
 
