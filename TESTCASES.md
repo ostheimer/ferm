@@ -234,6 +234,8 @@
 
 - `pnpm --filter @hege/web smoke:preview -- <preview-url>` ausfuehren
 - Erwartung: `/`, `/login`, `/registrieren?plan=starter`, `POST /api/v1/auth/login`, `/api/v1/me` und der authentifizierte Redirect von `/login` auf `/app` laufen gruen
+- Erwartung: `/app`, `/api/v1/dashboard`, `/api/v1/reviereinrichtungen`, `/api/v1/protokolle`, `/api/v1/protokolle/:id` und `/api/v1/sitzungen` laufen mit authentifizierter Session gruen
+- Erwartung: der Preview-Smoke findet ein veroeffentlichtes Protokoll und prueft den PDF-Download inklusive Dateinamen
 
 ### TC-AUTO-WEB-06: Browser-Contracts fuer Public Web und Redirects
 

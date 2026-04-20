@@ -2,7 +2,7 @@
 
 ## Offen
 
-- Preview-Smoke als festen PR- oder CI-Check automatisiert an jeden relevanten Web-Deploy haengen.
+- Preview-Smoke-Workflow in GitHub und optional in Vercel Deployment Checks als verpflichtenden Check markieren.
 - Echten Android-Emulator- oder Device-Smoke mit Expo lokal durchlaufen und dokumentiert gegenpruefen.
 - Mobile-spezifische E2E-Strategie fuer Expo und native Oberflaechen ueber den Android-Smoke hinaus festziehen.
 - Fachkonzept fuer Reviermeldungen zu Fuetterungen, Wasserungen und Einrichtungen mit Fotos, Kurztext und Aufgabenbezug ausarbeiten.
@@ -27,8 +27,8 @@
 - Web-E2E und Smoke fuer Public Landing, Login, Registrierung und `/api/v1/me` erweitert.
 - Vitest fuer `@hege/web` sauber von Playwright getrennt.
 - Fallwild-Detail und Foto-Upload ueber `media_assets` und S3-kompatibles Storage eingefuehrt.
-- Preview-Smoke fuer Login, `me`, Dashboard, Reviereinrichtungen, Protokolle, Sitzungen und Dokument-Download umgesetzt.
-- Preview-Smoke auf den Public-Web-Block mit `/`, `/login`, `/registrieren` und Redirects erweitert.
+- Preview-Smoke fuer Public Web, `POST /api/v1/auth/login`, `GET /api/v1/me`, Dashboard, Reviereinrichtungen, Protokolle, Sitzungen und Dokument-Download umgesetzt.
+- GitHub-Workflow `.github/workflows/preview-smoke.yml` fuer erfolgreiche Preview-Deployments und manuellen `workflow_dispatch` hinzugefuegt.
 - Mobile Fallwild-Fotoauswahl mit bis zu drei Bibliotheksbildern eingefuehrt.
 - Mobile Queue auf `pending`, `syncing`, `uploading`, `failed` und `conflict` erweitert.
 - Android-Smoke-Helfer fuer Expo, `adb` und Testbild-Erzeugung hinzugefuegt.

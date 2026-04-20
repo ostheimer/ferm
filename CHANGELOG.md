@@ -17,8 +17,8 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 - Playwright deckt jetzt Login, Logout, Rollen-Schutz sowie Sitzungs-Mutation und Freigabe im Web ab.
 - Fallwild-Detail und Foto-Upload ueber `GET /api/v1/fallwild/:id` und `POST /api/v1/fallwild/:id/fotos` plus `media_assets` eingefuehrt.
 - S3-kompatible Storage-Schicht fuer lokales MinIO und spaeteres R2 eingebaut.
-- Preview-Smoke-Skript fuer Login, `me`, Dashboard, Reviereinrichtungen, Protokolle, Sitzungen und Dokument-Download hinzugefuegt.
-- Preview-Smoke-Skript auf Public-Web- und Onboarding-Vertraege fuer `/`, `/login`, `/registrieren` und `GET /api/v1/me` erweitert.
+- Preview-Smoke-Skript fuer Public Web, `POST /api/v1/auth/login`, `GET /api/v1/me`, Dashboard, Reviereinrichtungen, Protokolle, Sitzungen und Dokument-Download hinzugefuegt.
+- GitHub-Workflow fuer den Preview-Smoke bei erfolgreichen Preview-Deployments und manuellen `workflow_dispatch` hinzugefuegt.
 - Mobile Fallwild-Fotoauswahl ueber `expo-image-picker` mit bis zu drei Bibliotheksbildern eingefuehrt.
 - Android-Smoke-Helfer fuer Expo, Testbild-Erzeugung und `adb`-basierte Ablaufpruefung ergaenzt.
 - Seed-Account fuer Andreas Ostheimer als Admin mit Username-Login eingefuehrt.

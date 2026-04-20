@@ -32,8 +32,8 @@ Die bestehende NestJS-API bleibt als Referenzpfad im Repository. Die produktive 
 - Mobile-Screens fuer Dashboard, Ansitze, Fallwild, Reviereinrichtungen und Protokolle gegen denselben API-Slice
 - Mobile Fallwild-Fotoauswahl mit Queue-Weitergabe fuer spaetere Uploads
 - automatisierten Web-Tests mit Vitest fuer Route Handler, Services und Server-Queries
-- Playwright-E2E- und Visual-Regression-Tests fuer Auth, Sitzungen, Dashboard, Reviereinrichtungen und Protokolle auf Desktop und Mobile
-- Preview-Smoke fuer die wichtigsten Web- und API-Pfade
+- Playwright-E2E- und Visual-Regression-Tests fuer Public Web, Auth, Ansitze, Fallwild, Sitzungen, Dashboard, Reviereinrichtungen und Protokolle auf Desktop und Mobile
+- Preview-Smoke fuer Public Web, Session-Grundvertrag und die wichtigsten App-Read-Pfade
 
 Rollen, Aufgaben und Nachrichten werden als naechste fachliche Erweiterung geplant, mit spaeterer Anbindung an Messenger-Kanaele wie WhatsApp und Telegram.
 
@@ -113,12 +113,13 @@ Wichtige Testwege:
 - `pnpm test` fuehrt die bestehenden Unit- und Integrationstests fuer `@hege/domain` und `@hege/web` aus.
 - `pnpm test:e2e` startet Playwright gegen eine isolierte lokale E2E-Datenbank und prueft Kernfluesse in der Web-App browserbasiert.
 - `pnpm test:e2e:update` aktualisiert die Screenshot-Baselines fuer die visuellen Regressionstests in `apps/web/e2e/*-snapshots`.
-- `pnpm --filter @hege/web smoke:preview -- <preview-url>` prueft die Kernrouten gegen einen Preview-Deploy.
-- Die E2E-Suite deckt aktuell Auth, Sitzungen, Dashboard, Reviereinrichtungen, Protokolle, `/ansitze` und `/fallwild` inkl. Desktop- und Mobile-Layout ab.
+- `pnpm --filter @hege/web smoke:preview -- <preview-url>` prueft Public Web, Auth-Login, Session-Grundvertrag, Dashboard, Reviereinrichtungen, Protokolle, Sitzungen und den PDF-Download gegen einen Preview-Deploy.
+- `.github/workflows/preview-smoke.yml` startet denselben Smoke automatisch bei erfolgreichen Preview-Deployment-Statusmeldungen und erlaubt einen manuellen Start per `workflow_dispatch`.
+- Die E2E-Suite deckt aktuell Public Web, Auth, Sitzungen, Dashboard, Reviereinrichtungen, Protokolle, `/ansitze` und `/fallwild` inkl. Desktop- und Mobile-Layout ab.
 
 ## Naechste Ausbauschritte
 
-- Preview-Smoke als festen PR-Check automatisieren
+- Preview-Smoke-Workflow in GitHub/Vercel als verpflichtenden Check markieren
 - nativen Android-Smoke fuer Expo reproduzierbar durchlaufen
 - Medien-Upload, PDF-Erzeugung und Queue-Sync weiter haerten
 - Karten auf Google Maps fuer Web und Mobile ausrichten
