@@ -85,11 +85,26 @@ async function runSmoke(baseUrl) {
     }
   });
 
-  await checkHtmlPage(baseUrl, "/app", {
-    label: "/app",
-    headers: browserHeaders,
-    expectedText: ["Revierbetrieb, Protokolle und Fallwild auf einen Blick.", me.revier.name]
-  });
+  if (me.setupRequired) {
+    await checkRedirect(baseUrl, "/app", browserHeaders, "/app/setup");
+
+    await checkHtmlPage(baseUrl, "/app/setup", {
+      label: "/app/setup",
+      headers: browserHeaders,
+      expectedText: [
+        "Das Revier ist noch nicht vollstaendig eingerichtet.",
+        "Bitte Revierdaten vervollstaendigen",
+        "Setup abschliessen",
+        me.revier.name
+      ]
+    });
+  } else {
+    await checkHtmlPage(baseUrl, "/app", {
+      label: "/app",
+      headers: browserHeaders,
+      expectedText: ["Revierbetrieb, Protokolle und Fallwild auf einen Blick.", me.revier.name]
+    });
+  }
 
   const reviereinrichtungen = await checkJsonEndpoint(baseUrl, "/api/v1/reviereinrichtungen", authHeaders, {
     label: "/api/v1/reviereinrichtungen",
@@ -100,11 +115,15 @@ async function runSmoke(baseUrl) {
     }
   });
 
-  await checkHtmlPage(baseUrl, "/app/reviereinrichtungen", {
-    label: "/app/reviereinrichtungen",
-    headers: browserHeaders,
-    expectedText: ["Standorte, Kontrollen und Wartungen im Blick.", reviereinrichtungen[0].name]
-  });
+  if (me.setupRequired) {
+    await checkRedirect(baseUrl, "/app/reviereinrichtungen", browserHeaders, "/app/setup");
+  } else {
+    await checkHtmlPage(baseUrl, "/app/reviereinrichtungen", {
+      label: "/app/reviereinrichtungen",
+      headers: browserHeaders,
+      expectedText: ["Standorte, Kontrollen und Wartungen im Blick.", reviereinrichtungen[0].name]
+    });
+  }
 
   const protokolle = await checkJsonEndpoint(baseUrl, "/api/v1/protokolle", authHeaders, {
     label: "/api/v1/protokolle",
@@ -121,11 +140,15 @@ async function runSmoke(baseUrl) {
   const publishedProtokoll = protokolle.find((entry) => entry.publishedDocument?.downloadUrl);
   assert.ok(publishedProtokoll, "Expected /api/v1/protokolle to include a published document download.");
 
-  await checkHtmlPage(baseUrl, "/app/protokolle", {
-    label: "/app/protokolle",
-    headers: browserHeaders,
-    expectedText: ["Freigegebene Protokolle und Beschluesse", publishedProtokoll.title]
-  });
+  if (me.setupRequired) {
+    await checkRedirect(baseUrl, "/app/protokolle", browserHeaders, "/app/setup");
+  } else {
+    await checkHtmlPage(baseUrl, "/app/protokolle", {
+      label: "/app/protokolle",
+      headers: browserHeaders,
+      expectedText: ["Freigegebene Protokolle und Beschluesse", publishedProtokoll.title]
+    });
+  }
 
   const protokollDetail = await checkJsonEndpoint(
     baseUrl,
@@ -142,11 +165,20 @@ async function runSmoke(baseUrl) {
     }
   );
 
-  await checkHtmlPage(baseUrl, `/app/protokolle/${encodeURIComponent(publishedProtokoll.id)}`, {
-    label: `/app/protokolle/${publishedProtokoll.id}`,
-    headers: browserHeaders,
-    expectedText: [protokollDetail.title, publishedProtokoll.publishedDocument.fileName]
-  });
+  if (me.setupRequired) {
+    await checkRedirect(
+      baseUrl,
+      `/app/protokolle/${encodeURIComponent(publishedProtokoll.id)}`,
+      browserHeaders,
+      "/app/setup"
+    );
+  } else {
+    await checkHtmlPage(baseUrl, `/app/protokolle/${encodeURIComponent(publishedProtokoll.id)}`, {
+      label: `/app/protokolle/${publishedProtokoll.id}`,
+      headers: browserHeaders,
+      expectedText: [protokollDetail.title, publishedProtokoll.publishedDocument.fileName]
+    });
+  }
 
   await checkDownload(baseUrl, publishedProtokoll.publishedDocument.downloadUrl, authHeaders, {
     label: publishedProtokoll.publishedDocument.downloadUrl,
@@ -163,11 +195,15 @@ async function runSmoke(baseUrl) {
     }
   });
 
-  await checkHtmlPage(baseUrl, "/app/sitzungen", {
-    label: "/app/sitzungen",
-    headers: browserHeaders,
-    expectedText: ["Entwuerfe, Protokollstaende und Freigaben", sitzungen[0].title]
-  });
+  if (me.setupRequired) {
+    await checkRedirect(baseUrl, "/app/sitzungen", browserHeaders, "/app/setup");
+  } else {
+    await checkHtmlPage(baseUrl, "/app/sitzungen", {
+      label: "/app/sitzungen",
+      headers: browserHeaders,
+      expectedText: ["Entwuerfe, Protokollstaende und Freigaben", sitzungen[0].title]
+    });
+  }
 
   console.log("Preview smoke passed.");
 }
