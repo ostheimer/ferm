@@ -40,6 +40,7 @@ Das Repository enthaelt bereits ein produktiv orientiertes Monorepo mit:
 - Playwright-E2E- und Visual-Regression-Tests fuer Public Web, Auth, Ansitze, Fallwild, Dashboard, Reviereinrichtungen, Protokolle und Sitzungen auf Desktop und Mobile
 - Preview-Smoke fuer Public Web, Session-Grundvertrag und die wichtigsten App-Read-Pfade
 - GitHub-Workflow fuer den Preview-Smoke bei erfolgreichen Preview-Deployments und manuellen `workflow_dispatch`
+- Release-Check fuer produktive Deployments mit separatem Workflow bei erfolgreichen Production-Deployments und manuellem `workflow_dispatch`
 - Android-Smoke-Helfer fuer die native Expo-Abnahme
 - `apps/api` bleibt als Referenz- und Uebergangspfad im Repository
 - Rollen, Aufgaben und Nachrichten werden als naechste Planungsstufe vorbereitet, inklusive spaeterer WhatsApp-/Telegram-Kanaele
@@ -48,7 +49,7 @@ Kartenfunktionen werden projektweit auf Google Maps ausgerichtet.
 
 Die fachliche Dokumentation beschreibt bereits die naechste Ausbaustufe mit echter Persistenz, Authentifizierung, Rollenpruefung und produktionsreifen Workflows.
 
-Der aktuelle Entwicklungsfokus liegt auf dem Abschluss von Sprint 1 / 1.5 und der weiteren Haertung von Sprint 3. Im Vordergrund stehen die finale Aktivierung des Preview-Smoke-Workflows als verpflichtender Check, die dokumentierte Android-Abnahme sowie die weitere Haertung von Medien-Upload und Queue-Sync.
+Der aktuelle Entwicklungsfokus liegt auf dem Abschluss von Sprint 1 / 1.5 und der weiteren Haertung von Sprint 3. Im Vordergrund stehen die finale Aktivierung des Release-Checks in Vercel Deployment Checks, die dokumentierte Android-Abnahme sowie die weitere Haertung von Medien-Upload und Queue-Sync.
 
 Fuer den aktuellen Status sind [ROADMAP.md](../ROADMAP.md), [Roadmap v1](./roadmap-v1.md) und [TODO.md](../TODO.md) massgeblich. Die Sprint-0/1-Backlogs und Agent-Workstreams bleiben als Planungsartefakte der zuletzt geschnittenen Arbeitsbloecke erhalten.
 

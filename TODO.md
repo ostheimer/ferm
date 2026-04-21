@@ -2,7 +2,7 @@
 
 ## Offen
 
-- Preview-Smoke-Workflow in GitHub und optional in Vercel Deployment Checks als verpflichtenden Check markieren.
+- Release-Check in Vercel Deployment Checks aktivieren und den produktiven Deploy-Pfad dokumentiert abnehmen.
 - Echten Android-Emulator- oder Device-Smoke mit Expo lokal durchlaufen und dokumentiert gegenpruefen.
 - Mobile-spezifische E2E-Strategie fuer Expo und native Oberflaechen ueber den Android-Smoke hinaus festziehen.
 - Fachkonzept fuer Reviermeldungen zu Fuetterungen, Wasserungen und Einrichtungen mit Fotos, Kurztext und Aufgabenbezug ausarbeiten.
@@ -29,6 +29,8 @@
 - Fallwild-Detail und Foto-Upload ueber `media_assets` und S3-kompatibles Storage eingefuehrt.
 - Preview-Smoke fuer Public Web, `POST /api/v1/auth/login`, `GET /api/v1/me`, Dashboard, Reviereinrichtungen, Protokolle, Sitzungen und Dokument-Download umgesetzt.
 - GitHub-Workflow `.github/workflows/preview-smoke.yml` fuer erfolgreiche Preview-Deployments und manuellen `workflow_dispatch` hinzugefuegt.
+- Preview-Smoke in GitHub auf `main` als verpflichtenden Check markiert.
+- Release-Check fuer erfolgreiche Production-Deployments und manuellen `workflow_dispatch` ueber `.github/workflows/release-check.yml` hinzugefuegt.
 - Mobile Fallwild-Fotoauswahl mit bis zu drei Bibliotheksbildern eingefuehrt.
 - Mobile Queue auf `pending`, `syncing`, `uploading`, `failed` und `conflict` erweitert.
 - Android-Smoke-Helfer fuer Expo, `adb` und Testbild-Erzeugung hinzugefuegt.

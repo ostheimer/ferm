@@ -1,0 +1,148 @@
+name: Release Check
+
+on:
+  deployment_status:
+  workflow_dispatch:
+    inputs:
+      production_url:
+        description: Produktions-URL fuer den manuellen Release-Check
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-check-${{ github.event.deployment.id || inputs.production_url || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  resolve-target:
+    name: Resolve Release Target
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.resolve.outputs.should_run }}
+      production_url: ${{ steps.resolve.outputs.production_url }}
+    steps:
+      - name: Resolve production URL
+        id: resolve
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_PRODUCTION_URL: ${{ inputs.production_url }}
+          DEPLOYMENT_STATE: ${{ github.event.deployment_status.state }}
+          DEPLOYMENT_ENVIRONMENT: ${{ github.event.deployment.environment }}
+          DEPLOYMENT_ENVIRONMENT_URL: ${{ github.event.deployment_status.environment_url }}
+          DEPLOYMENT_TARGET_URL: ${{ github.event.deployment_status.target_url }}
+        run: |
+          node <<'EOF'
+          const fs = require("node:fs");
+
+          const eventName = process.env.EVENT_NAME ?? "";
+          const manualProductionUrl = process.env.INPUT_PRODUCTION_URL?.trim() ?? "";
+          const deploymentState = process.env.DEPLOYMENT_STATE?.trim().toLowerCase() ?? "";
+          const deploymentEnvironment = process.env.DEPLOYMENT_ENVIRONMENT?.trim() ?? "";
+          const environmentUrl = process.env.DEPLOYMENT_ENVIRONMENT_URL?.trim() ?? "";
+          const targetUrl = process.env.DEPLOYMENT_TARGET_URL?.trim() ?? "";
+
+          function setOutput(name, value) {
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, `${name}=${value}\n`);
+          }
+
+          function skip(message) {
+            console.log(message);
+            setOutput("should_run", "false");
+          }
+
+          function normalizeUrl(value) {
+            if (!value) {
+              return "";
+            }
+
+            try {
+              const url = new URL(value);
+              return url.origin + url.pathname.replace(/\/$/, "");
+            } catch {
+              return "";
+            }
+          }
+
+          function resolveDeploymentTarget(value) {
+            if (!value) {
+              return "";
+            }
+
+            try {
+              const url = new URL(value);
+              const host = url.hostname.toLowerCase();
+
+              if (host.endsWith("github.com") || host.endsWith("vercel.com")) {
+                return "";
+              }
+
+              return normalizeUrl(value);
+            } catch {
+              return "";
+            }
+          }
+
+          if (eventName === "workflow_dispatch") {
+            const productionUrl = normalizeUrl(manualProductionUrl);
+
+            if (!productionUrl) {
+              throw new Error("workflow_dispatch requires a valid production_url input.");
+            }
+
+            console.log(`Manual release check for ${productionUrl}`);
+            setOutput("should_run", "true");
+            setOutput("production_url", productionUrl);
+            process.exit(0);
+          }
+
+          if (deploymentState !== "success") {
+            skip(`Skipping release check for deployment state "${deploymentState || "unknown"}".`);
+            process.exit(0);
+          }
+
+          const normalizedEnvironment = deploymentEnvironment.toLowerCase();
+          if (normalizedEnvironment !== "production" && normalizedEnvironment !== "prod") {
+            skip(`Skipping release check for non-production deployment "${deploymentEnvironment || "unknown"}".`);
+            process.exit(0);
+          }
+
+          const productionUrl =
+            resolveDeploymentTarget(environmentUrl) ||
+            resolveDeploymentTarget(targetUrl);
+
+          if (!productionUrl) {
+            skip("Skipping release check because no usable production URL was found in the deployment status payload.");
+            process.exit(0);
+          }
+
+          console.log(`Resolved release target ${productionUrl}`);
+          setOutput("should_run", "true");
+          setOutput("production_url", productionUrl);
+          EOF
+
+      - name: Explain skip
+        if: steps.resolve.outputs.should_run != 'true'
+        run: echo "Release check was skipped for this event."
+
+  release-check:
+    name: Release Check
+    runs-on: ubuntu-latest
+    needs: resolve-target
+    if: needs.resolve-target.outputs.should_run == 'true'
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Run release smoke
+        env:
+          PRODUCTION_URL: ${{ needs.resolve-target.outputs.production_url }}
+        run: node ./apps/web/scripts/smoke-release.mjs "$PRODUCTION_URL"
