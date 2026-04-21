@@ -34,6 +34,7 @@ Die bestehende NestJS-API bleibt als Referenzpfad im Repository. Die produktive 
 - automatisierten Web-Tests mit Vitest fuer Route Handler, Services und Server-Queries
 - Playwright-E2E- und Visual-Regression-Tests fuer Public Web, Auth, Ansitze, Fallwild, Sitzungen, Dashboard, Reviereinrichtungen und Protokolle auf Desktop und Mobile
 - Preview-Smoke fuer Public Web, Session-Grundvertrag und die wichtigsten App-Read-Pfade
+- Release-Check fuer produktive Deployments mit demselben Read-Contract gegen Production
 
 Rollen, Aufgaben und Nachrichten werden als naechste fachliche Erweiterung geplant, mit spaeterer Anbindung an Messenger-Kanaele wie WhatsApp und Telegram.
 
@@ -114,12 +115,14 @@ Wichtige Testwege:
 - `pnpm test:e2e` startet Playwright gegen eine isolierte lokale E2E-Datenbank und prueft Kernfluesse in der Web-App browserbasiert.
 - `pnpm test:e2e:update` aktualisiert die Screenshot-Baselines fuer die visuellen Regressionstests in `apps/web/e2e/*-snapshots`.
 - `pnpm --filter @hege/web smoke:preview -- <preview-url>` prueft Public Web, Auth-Login, Session-Grundvertrag, Dashboard, Reviereinrichtungen, Protokolle, Sitzungen und den PDF-Download gegen einen Preview-Deploy.
+- `pnpm --filter @hege/web smoke:release -- <production-url>` prueft denselben Read-Contract gegen einen produktiven Deploy.
 - `.github/workflows/preview-smoke.yml` startet denselben Smoke automatisch bei erfolgreichen Preview-Deployment-Statusmeldungen und erlaubt einen manuellen Start per `workflow_dispatch`.
+- `.github/workflows/release-check.yml` startet den produktionsfaehigen Release-Check automatisch bei erfolgreichen Production-Deployment-Statusmeldungen und erlaubt ebenfalls einen manuellen Start per `workflow_dispatch`.
 - Die E2E-Suite deckt aktuell Public Web, Auth, Sitzungen, Dashboard, Reviereinrichtungen, Protokolle, `/ansitze` und `/fallwild` inkl. Desktop- und Mobile-Layout ab.
 
 ## Naechste Ausbauschritte
 
-- Preview-Smoke-Workflow in GitHub/Vercel als verpflichtenden Check markieren
+- Release-Check in Vercel Deployment Checks aktivieren und produktive Abnahme festziehen
 - nativen Android-Smoke fuer Expo reproduzierbar durchlaufen
 - Medien-Upload, PDF-Erzeugung und Queue-Sync weiter haerten
 - Karten auf Google Maps fuer Web und Mobile ausrichten

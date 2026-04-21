@@ -7,7 +7,7 @@ Diese Roadmap beschreibt die Ausbaustufen vom Repository-Grundgeruest zur ersten
 ## Aktueller Status
 
 - `Sprint 0` ist abgeschlossen. Auth, Session, Revier-Scope, Rollenpruefung, Drizzle-Migrationen, Seeds und produktive Route Handler liegen in `apps/web`.
-- `Sprint 1` ist in Abschluss-Haertung. Dashboard, Reviereinrichtungen, Protokolle, Sitzungen, Freigabe/PDF-Basis und die browserbasierte Abdeckung sind umgesetzt; offen sind vor allem Doku, manuelle Abnahme und die finale Aktivierung der Checks in GitHub/Vercel.
+- `Sprint 1` ist in Abschluss-Haertung. Dashboard, Reviereinrichtungen, Protokolle, Sitzungen, Freigabe/PDF-Basis und die browserbasierte Abdeckung sind umgesetzt; offen sind vor allem Doku, manuelle Abnahme und die finale Aktivierung des Release-Checks in Vercel.
 - `Sprint 1.5` ist weit fortgeschritten. Public Landing, Auth-Redirects und Registrierungsfluss sind browserseitig abgesichert; der Preview-Smoke deckt inzwischen Einstieg, Session-Grundvertrag und zentrale App-Read-Pfade ab.
 - `Sprint 2` ist teilweise umgesetzt. Mobile Login, Session-Restore, Dashboard, Ansitz- und Fallwild-Formulare, Reviereinrichtungen und Protokolle lesen bereits dieselbe API.
 - `Sprint 3` ist aktiv. Fallwild anlegen, exportieren und offline vormerken funktioniert schon; Foto-Upload, Medien-Storage und Queue v2 sind der aktuelle Ausbau.
@@ -42,10 +42,11 @@ Geliefert:
 - Web-E2E fuer Public Web, Auth, Rollen, Sitzungen, Dashboard, Reviereinrichtungen, Protokolle und Dokument-Download
 - Preview-Smoke fuer Public Web, Dashboard, Reviereinrichtungen, Protokolle, Sitzungen und Dokument-Download
 - GitHub-Workflow fuer den Preview-Smoke bei erfolgreichen Preview-Deployments und manuellen `workflow_dispatch`
+- Release-Check fuer produktive Deployments mit separatem Workflow bei erfolgreichen Production-Deployments und manuellem `workflow_dispatch`
 
 Restblock:
 
-- Preview-Smoke in GitHub und optional in Vercel Deployment Checks als verpflichtenden Check markieren
+- Release-Check in Vercel Deployment Checks aktivieren
 - Dokumentation und manuelle Abnahme auf denselben Stand bringen
 
 Ergebnis:
@@ -173,7 +174,7 @@ Ergebnis:
 
 Wenn unmittelbar weiterentwickelt wird, ist die sinnvollste Reihenfolge:
 
-1. Preview-Smoke in GitHub und optional in Vercel Deployment Checks als verpflichtenden Check markieren
+1. Release-Check in Vercel Deployment Checks aktivieren
 2. Web-Abnahme und Dokumentation auf den tatsaechlichen Implementierungsstand ziehen
 3. Android-Smoke und manuelle Device-Abnahme standardisieren
 4. danach Rollen-, Aufgaben-, Nachrichten- und Veranstaltungslogik auf die bestehende Rechtebasis setzen

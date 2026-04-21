@@ -13,6 +13,7 @@
     "lint": "node -e \"try { require('node:fs').unlinkSync('tsconfig.tsbuildinfo'); } catch {}\" && tsc -p tsconfig.json --noEmit",
     "storage:init": "node ./scripts/init-local-storage.mjs",
     "smoke:preview": "node ./scripts/smoke-preview.mjs",
+    "smoke:release": "node ./scripts/smoke-release.mjs",
     "test": "vitest run --config ./vitest.config.ts",
     "start:e2e": "next start --hostname 127.0.0.1 -p 3200",
     "start": "next start",
