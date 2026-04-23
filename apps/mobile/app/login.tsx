@@ -58,7 +58,7 @@ export default function LoginScreen() {
         <View style={styles.card}>
           <Text style={styles.eyebrow}>hege Revier</Text>
           <Text style={styles.title}>Anmelden und Revierkontext laden</Text>
-          <Text style={styles.copy}>Der Zugriff laeuft jetzt ueber E-Mail oder Benutzername und eine vierstellige PIN.</Text>
+          <Text style={styles.copy}>Der Zugriff läuft jetzt über E-Mail oder Benutzername und eine vierstellige PIN.</Text>
 
           <View style={styles.form}>
             <View style={styles.field}>

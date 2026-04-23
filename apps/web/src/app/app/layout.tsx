@@ -1,10 +1,8 @@
-import type { ReactNode } from "react";
-
 import { Shell } from "../../components/shell";
 import { getOptionalAuthContext } from "../../server/auth/context";
 
 interface AppLayoutProps {
-  children: ReactNode;
+  children?: React.ReactNode;
 }
 
 export default async function AppLayout({ children }: AppLayoutProps) {

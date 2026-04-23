@@ -60,7 +60,7 @@ export default function DashboardScreen() {
       setQueueMessage(
         remaining.length === 0
           ? "Offline-Queue ist leer."
-          : `${remaining.length} Eintraege warten weiter auf Synchronisierung.`
+          : `${remaining.length} Einträge warten weiter auf Synchronisierung.`
       );
       await loadDashboard({ refreshing: true });
     } catch (syncError) {
@@ -91,7 +91,7 @@ export default function DashboardScreen() {
   return (
     <ScreenShell
       eyebrow="Revier heute"
-      title={snapshot?.revier.name ?? "Alles Wichtige fuer den Einsatz draussen."}
+      title={snapshot?.revier.name ?? "Alles Wichtige für den Einsatz draußen."}
       subtitle={
         snapshot
           ? `${snapshot.user.name} / ${snapshot.membership.jagdzeichen} / ${snapshot.revier.bezirk}`
@@ -103,7 +103,7 @@ export default function DashboardScreen() {
           <Text style={styles.asideValue}>{queueCount}</Text>
           <Text style={styles.asideCopy}>
             {failedQueueCount > 0
-              ? `${failedQueueCount} Eintraege brauchen einen erneuten Sync.`
+              ? `${failedQueueCount} Einträge brauchen einen erneuten Sync.`
               : "Erfassungen warten auf Synchronisierung."}
           </Text>
           {snapshot ? <Text style={styles.asideMeta}>{`${snapshot.user.name} / ${formatRoleLabel(snapshot.membership.role)}`}</Text> : null}
@@ -179,7 +179,7 @@ export default function DashboardScreen() {
           </View>
           {snapshot.overview.naechsteSitzung ? (
             <View style={styles.card}>
-              <Text style={styles.cardTitle}>Naechste Sitzung</Text>
+              <Text style={styles.cardTitle}>Nächste Sitzung</Text>
               <Text style={styles.cardValue}>{snapshot.overview.naechsteSitzung.title}</Text>
               <Text style={styles.cardCopy}>{snapshot.overview.naechsteSitzung.locationLabel}</Text>
             </View>
@@ -476,9 +476,9 @@ function formatRoleLabel(role: DashboardResponse["membership"]["role"]) {
     case "revier-admin":
       return "Admin";
     case "schriftfuehrer":
-      return "Schriftfuehrung";
+      return "Schriftführung";
     case "jaeger":
-      return "Jaeger";
+      return "Jäger";
     case "platform-admin":
       return "Plattform";
     default:

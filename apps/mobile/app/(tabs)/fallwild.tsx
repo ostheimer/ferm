@@ -212,8 +212,8 @@ export default function FallwildScreen() {
         title: remaining.length === 0 ? "Offline-Queue synchronisiert" : "Offline-Queue teilweise synchronisiert",
         copy:
           remaining.length === 0
-            ? "Alle Eintraege wurden verarbeitet."
-            : `${remaining.length} Queue-Eintraege warten weiter auf Synchronisierung.`
+            ? "Alle Einträge wurden verarbeitet."
+            : `${remaining.length} Queue-Einträge warten weiter auf Synchronisierung.`
       });
       await loadFallwild({ refreshing: true });
     } catch (syncError) {
@@ -257,7 +257,7 @@ export default function FallwildScreen() {
 
       setAttachments((current) => [...current, ...nextPhotos].slice(0, MAX_FALLWILD_PHOTOS));
     } catch (photoError) {
-      setError(photoError instanceof Error ? photoError.message : "Fotos konnten nicht ausgewaehlt werden.");
+      setError(photoError instanceof Error ? photoError.message : "Fotos konnten nicht ausgewählt werden.");
     } finally {
       setIsPickingPhotos(false);
     }
@@ -285,7 +285,7 @@ export default function FallwildScreen() {
         <View style={styles.queueCard}>
           <Text style={styles.queueTitle}>Ausstehende Synchronisierung</Text>
           <Text style={styles.queueValue}>{queueEntries.length}</Text>
-          <Text style={styles.queueCopy}>Erfasste Vorgaenge werden automatisch nachgereicht.</Text>
+          <Text style={styles.queueCopy}>Erfasste Vorgänge werden automatisch nachgereicht.</Text>
         </View>
       }
     >
@@ -306,7 +306,7 @@ export default function FallwildScreen() {
             />
           </View>
           <View style={[styles.field, styles.grow]}>
-            <Text style={styles.label}>Laengengrad</Text>
+            <Text style={styles.label}>Längengrad</Text>
             <TextInput
               keyboardType="decimal-pad"
               placeholder="13.5219"
@@ -342,7 +342,7 @@ export default function FallwildScreen() {
         </View>
 
         <View style={styles.field}>
-          <Text style={styles.label}>Strasse oder Lage</Text>
+          <Text style={styles.label}>Straße oder Lage</Text>
           <TextInput
             autoCapitalize="words"
             placeholder="L127"
@@ -364,25 +364,28 @@ export default function FallwildScreen() {
           options={GESCHLECHT_OPTIONS}
           value={form.geschlecht}
           onChange={updateChoice(setForm, "geschlecht")}
+          formatOption={formatGeschlechtLabel}
         />
         <ChoiceGroup
           label="Altersklasse"
           options={ALTERSKLASSE_OPTIONS}
           value={form.altersklasse}
           onChange={updateChoice(setForm, "altersklasse")}
+          formatOption={formatAltersklasseLabel}
         />
         <ChoiceGroup
           label="Bergungsstatus"
           options={BERGUNGS_STATUS_OPTIONS}
           value={form.bergungsStatus}
           onChange={updateChoice(setForm, "bergungsStatus")}
+          formatOption={formatBergungsStatusLabel}
         />
 
         <View style={styles.field}>
           <Text style={styles.label}>Notiz</Text>
           <TextInput
             multiline
-            placeholder="Kurze Dokumentation fuer die Revierleitung"
+            placeholder="Kurze Dokumentation für die Revierleitung"
             placeholderTextColor={colors.muted}
             style={[styles.input, styles.textArea]}
             value={form.note}
@@ -395,12 +398,12 @@ export default function FallwildScreen() {
             <View style={styles.grow}>
               <Text style={styles.label}>Fotos</Text>
               <Text style={styles.helperCopy}>
-                Bibliothek auswaehlen, quality 0.7, maximal {MAX_FALLWILD_PHOTOS} Bilder.
+                Bibliothek auswählen, quality 0.7, maximal {MAX_FALLWILD_PHOTOS} Bilder.
               </Text>
             </View>
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Fotos aus Bibliothek waehlen"
+              accessibilityLabel="Fotos aus Bibliothek wählen"
               testID="fallwild-photo-picker-button"
               style={[
                 styles.photoPickerButton,
@@ -413,7 +416,7 @@ export default function FallwildScreen() {
                 <ActivityIndicator color={colors.ink} />
               ) : (
                 <Text style={styles.photoPickerButtonText}>
-                  {attachments.length >= MAX_FALLWILD_PHOTOS ? "Maximal erreicht" : "Fotos waehlen"}
+                  {attachments.length >= MAX_FALLWILD_PHOTOS ? "Maximal erreicht" : "Fotos wählen"}
                 </Text>
               )}
             </Pressable>
@@ -442,7 +445,7 @@ export default function FallwildScreen() {
               ))}
             </View>
           ) : (
-            <Text style={styles.helperCopy}>Noch keine Fotos ausgewaehlt.</Text>
+            <Text style={styles.helperCopy}>Noch keine Fotos ausgewählt.</Text>
           )}
         </View>
 
@@ -455,7 +458,7 @@ export default function FallwildScreen() {
 
         {error ? (
           <View style={styles.errorCard}>
-            <Text style={styles.stateTitle}>Fallwild nicht verfuegbar</Text>
+            <Text style={styles.stateTitle}>Fallwild nicht verfügbar</Text>
             <Text style={styles.stateCopy}>{error}</Text>
           </View>
         ) : null}
@@ -501,7 +504,7 @@ export default function FallwildScreen() {
       {isLoading ? (
         <View style={styles.stateCard}>
           <Text style={styles.stateTitle}>Fallwild wird geladen</Text>
-          <Text style={styles.stateCopy}>Die aktuelle Liste wird ueber die API abgefragt.</Text>
+          <Text style={styles.stateCopy}>Die aktuelle Liste wird über die API abgefragt.</Text>
         </View>
       ) : null}
 
@@ -543,11 +546,11 @@ export default function FallwildScreen() {
                   {entry.wildart} / {entry.gemeinde}
                 </Text>
                 <Text style={styles.copy}>
-                  {entry.geschlecht}, {entry.altersklasse}
+                  {formatGeschlechtLabel(entry.geschlecht)}, {formatAltersklasseLabel(entry.altersklasse)}
                 </Text>
               </View>
               <View style={styles.badge}>
-                <Text style={styles.badgeText}>{entry.bergungsStatus}</Text>
+                <Text style={styles.badgeText}>{formatBergungsStatusLabel(entry.bergungsStatus)}</Text>
               </View>
             </View>
 
@@ -750,32 +753,65 @@ function removeAttachment(setAttachments: Dispatch<SetStateAction<LocalPendingPh
   };
 }
 
+function formatGeschlechtLabel(value: CreateFallwildRequest["geschlecht"]) {
+  switch (value) {
+    case "maennlich":
+      return "männlich";
+    default:
+      return value;
+  }
+}
+
+function formatAltersklasseLabel(value: CreateFallwildRequest["altersklasse"]) {
+  switch (value) {
+    case "Jaehrling":
+      return "Jährling";
+    default:
+      return value;
+  }
+}
+
+function formatBergungsStatusLabel(value: CreateFallwildRequest["bergungsStatus"]) {
+  switch (value) {
+    case "an-behoerde-gemeldet":
+      return "an Behörde gemeldet";
+    default:
+      return value;
+  }
+}
+
 function ChoiceGroup<T extends string>({
   label,
   options,
   value,
-  onChange
+  onChange,
+  formatOption = (option) => option
 }: {
   label: string;
   options: T[];
   value: T;
   onChange: (value: T) => void;
+  formatOption?: (value: T) => string;
 }) {
   return (
     <View style={styles.field}>
       <Text style={styles.label}>{label}</Text>
       <View style={styles.choiceRow}>
-        {options.map((option) => (
-          <Pressable
-            key={option}
-            accessibilityRole="button"
-            accessibilityLabel={`${label}: ${option}`}
-            onPress={() => onChange(option)}
-            style={[styles.choiceChip, option === value ? styles.choiceChipActive : null]}
-          >
-            <Text style={[styles.choiceText, option === value ? styles.choiceTextActive : null]}>{option}</Text>
-          </Pressable>
-        ))}
+        {options.map((option) => {
+          const optionLabel = formatOption(option);
+
+          return (
+            <Pressable
+              key={option}
+              accessibilityRole="button"
+              accessibilityLabel={`${label}: ${optionLabel}`}
+              onPress={() => onChange(option)}
+              style={[styles.choiceChip, option === value ? styles.choiceChipActive : null]}
+            >
+              <Text style={[styles.choiceText, option === value ? styles.choiceTextActive : null]}>{optionLabel}</Text>
+            </Pressable>
+          );
+        })}
       </View>
     </View>
   );

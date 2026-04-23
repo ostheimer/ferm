@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Fraunces, Manrope } from "next/font/google";
-import type { ReactNode } from "react";
 
 import { getPublicAppUrl } from "../lib/public-urls";
 import "./globals.css";
@@ -22,7 +21,7 @@ export const metadata: Metadata = {
 };
 
 interface RootLayoutProps {
-  children: ReactNode;
+  children?: React.ReactNode;
 }
 
 export default function RootLayout({ children }: RootLayoutProps) {
