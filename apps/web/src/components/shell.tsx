@@ -3,7 +3,6 @@
 import type { AuthContextResponse } from "@hege/domain";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
 
 const navigation = [
   { href: "/app", label: "Dashboard" },
@@ -15,7 +14,7 @@ const navigation = [
 ];
 
 interface ShellProps {
-  children: ReactNode;
+  children?: React.ReactNode;
   viewer?: AuthContextResponse | null;
 }
 
