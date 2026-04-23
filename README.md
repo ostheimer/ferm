@@ -122,8 +122,9 @@ Wichtige Testwege:
 
 ## Naechste Ausbauschritte
 
-- Release-Check in Vercel Deployment Checks aktivieren und produktive Abnahme festziehen
-- nativen Android-Smoke fuer Expo reproduzierbar durchlaufen
+- produktive Abnahme mit blockierendem Release-Check weiter beobachten
+- nativen iPhone-/iOS-Simulator-Smoke fuer Expo reproduzierbar durchlaufen
+- Android-Emulator-Smoke optional als Zweitpfad vorbereiten
 - Medien-Upload, PDF-Erzeugung und Queue-Sync weiter haerten
 - Karten auf Google Maps fuer Web und Mobile ausrichten
 - Rollen-, Aufgaben- und Nachrichtenmodell fachlich ausarbeiten

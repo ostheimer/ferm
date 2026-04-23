@@ -554,9 +554,19 @@
 - Erwartung: das Dashboard zeigt Typ, Status, letzte Fehlermeldung und Attachment-Hinweis
 - Erwartung: `failed` und `conflict` koennen sichtbar verworfen werden
 
-### TC-MOB-ANDROID-01: Android-Smoke vorbereiten
+### TC-MOB-IOS-01: iPhone-/iOS-Simulator-Smoke vorbereiten
 
-- Android-Emulator oder Geraet verbinden
+- Xcode mit iOS Simulator oder ein iPhone mit Expo Go vorbereiten
+- `pnpm --filter @hege/mobile dev` ausfuehren
+- im Expo-Terminal `i` fuer iOS Simulator druecken oder den QR-Code mit Expo Go am iPhone oeffnen
+- Login mit Demo-Kennung durchlaufen
+- Dashboard, Ansitz, Fallwild mit Fotoauswahl und Offline-Queue manuell pruefen
+- Erwartung: die App startet nativ, stellt die Session wieder her und zeigt Queue-Status sowie die zentralen Tabs ohne Runtime-Fehler
+
+### TC-MOB-ANDROID-01: Android-Emulator-Smoke optional vorbereiten
+
+- Android Studio mit Android Emulator einrichten, falls Android-Abdeckung ohne physisches Geraet benoetigt wird
+- Android-Emulator starten
 - `node apps/mobile/scripts/create-test-image.mjs` ausfuehren
 - `powershell -ExecutionPolicy Bypass -File apps/mobile/scripts/android-smoke.ps1` ausfuehren
-- Erwartung: das Skript pusht ein Testbild auf das Geraet und gibt den nativen Smoke-Ablauf fuer Login, Dashboard, Ansitz, Fallwild mit Foto und Offline-Sync aus
+- Erwartung: das Skript pusht ein Testbild auf den Emulator und gibt den nativen Smoke-Ablauf fuer Login, Dashboard, Ansitz, Fallwild mit Foto und Offline-Sync aus

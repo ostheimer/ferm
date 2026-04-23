@@ -7,7 +7,7 @@ Diese Roadmap beschreibt die Ausbaustufen vom Repository-Grundgeruest zur ersten
 ## Aktueller Status
 
 - `Sprint 0` ist abgeschlossen. Auth, Session, Revier-Scope, Rollenpruefung, Drizzle-Migrationen, Seeds und produktive Route Handler liegen in `apps/web`.
-- `Sprint 1` ist in Abschluss-Haertung. Dashboard, Reviereinrichtungen, Protokolle, Sitzungen, Freigabe/PDF-Basis und die browserbasierte Abdeckung sind umgesetzt; offen sind vor allem Doku, manuelle Abnahme und die finale Aktivierung des Release-Checks in Vercel.
+- `Sprint 1` ist in Abschluss-Haertung. Dashboard, Reviereinrichtungen, Protokolle, Sitzungen, Freigabe/PDF-Basis, Preview-Smoke und blockierender Release-Check fuer Production sind umgesetzt; offen sind vor allem Doku und manuelle Abnahme.
 - `Sprint 1.5` ist weit fortgeschritten. Public Landing, Auth-Redirects und Registrierungsfluss sind browserseitig abgesichert; der Preview-Smoke deckt inzwischen Einstieg, Session-Grundvertrag und zentrale App-Read-Pfade ab.
 - `Sprint 2` ist teilweise umgesetzt. Mobile Login, Session-Restore, Dashboard, Ansitz- und Fallwild-Formulare, Reviereinrichtungen und Protokolle lesen bereits dieselbe API.
 - `Sprint 3` ist aktiv. Fallwild anlegen, exportieren und offline vormerken funktioniert schon; Foto-Upload, Medien-Storage und Queue v2 sind der aktuelle Ausbau.
@@ -46,7 +46,6 @@ Geliefert:
 
 Restblock:
 
-- Release-Check in Vercel Deployment Checks aktivieren
 - Dokumentation und manuelle Abnahme auf denselben Stand bringen
 
 Ergebnis:
@@ -89,8 +88,8 @@ Geliefert:
 
 Restblock:
 
-- nativer Android-Smoke als kanonischer Geraetetest
-- Device-/Emulator-Abnahme fuer die aktuellen Kernflows
+- nativer iPhone-/iOS-Simulator-Smoke als kanonischer Geraetetest fuer den aktuellen Mac-Workflow
+- Android-Emulator-Smoke optional als Zweitpfad fuer spaetere Plattformabdeckung
 
 Ergebnis:
 
@@ -151,7 +150,7 @@ Ergebnis:
 
 - API-Contract-Tests starteten in Sprint 0 und werden in Sprint 1/3 weitergezogen
 - Web-E2E und visuelle Regressionstests sichern Desktop und Mobile-Viewport ab
-- Mobile-Smokes werden zuerst auf Android reproduzierbar gemacht
+- Mobile-Smokes werden zuerst auf iPhone/iOS-Simulator reproduzierbar gemacht; Android-Emulator bleibt ein optionaler Zweitpfad ohne physisches Android-Geraet
 - Preview-Smoke dient als Standard-Check zwischen Local und Production
 
 ### Sprache und Lokalisierung
@@ -174,9 +173,9 @@ Ergebnis:
 
 Wenn unmittelbar weiterentwickelt wird, ist die sinnvollste Reihenfolge:
 
-1. Release-Check in Vercel Deployment Checks aktivieren
-2. Web-Abnahme und Dokumentation auf den tatsaechlichen Implementierungsstand ziehen
-3. Android-Smoke und manuelle Device-Abnahme standardisieren
+1. Web-Abnahme und Dokumentation auf den tatsaechlichen Implementierungsstand ziehen
+2. iPhone-/iOS-Simulator-Smoke und manuelle Device-Abnahme standardisieren
+3. optionalen Android-Emulator-Smoke fuer spaetere Plattformabdeckung vorbereiten
 4. danach Rollen-, Aufgaben-, Nachrichten- und Veranstaltungslogik auf die bestehende Rechtebasis setzen
 
 ## Detaillierte Sprint-Backlogs

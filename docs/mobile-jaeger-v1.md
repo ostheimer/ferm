@@ -207,6 +207,12 @@ Kartenfunktionen in der mobilen App orientieren sich verbindlich an Google Maps.
 - Dashboard, Ansitze und Fallwild nutzen bereits denselben Vercel-native API-Pfad unter `https://hege.app/api/v1`
 - Manuelle Aktualisierung und Pull-to-Refresh bleiben der verbindliche Aktualisierungspfad fuer v1
 
+## Native Abnahme
+
+Primaerer lokaler Abnahmepfad ist vorerst iPhone beziehungsweise iOS Simulator ueber Expo. Das passt zum vorhandenen Mac-Setup und benoetigt kein Android-Geraet.
+
+Android bleibt fachlich Zielplattform. Ohne physisches Android-Geraet kann spaeter der Android Emulator aus Android Studio genutzt werden; dieser Pfad ist optional und wird erst standardisiert, wenn Android-spezifische Abdeckung priorisiert wird.
+
 ## Zukunftsthemen
 
 - Aufgaben, Rollen und Nachrichten sind fuer spaetere Ausbaustufen vorgesehen

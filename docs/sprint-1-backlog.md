@@ -14,7 +14,7 @@ Sprint 1 setzt Sprint 0 als abgeschlossen voraus.
 - `smoke:preview` prueft Public Web, Auth-Login, `GET /api/v1/me`, Dashboard, Reviereinrichtungen, Protokolle, Sitzungen und den Dokument-Download gegen den Preview-Deploy.
 - `.github/workflows/preview-smoke.yml` startet denselben Smoke bei erfolgreichen Preview-Deployments sowie manuell per `workflow_dispatch`.
 - `smoke:release` prueft denselben Read-Contract gegen produktive Deployments; `.github/workflows/release-check.yml` startet ihn bei erfolgreichen Production-Deployments sowie manuell per `workflow_dispatch`.
-- Offener Sprint-1-Rest liegt vor allem in der finalen Aktivierung dieses Release-Checks in Vercel, in manueller Abnahme, Dokumentation und den letzten Regressionen rund um Protokolle, Downloads und Setup-Abschluss.
+- Offener Sprint-1-Rest liegt vor allem in manueller Abnahme, Dokumentation und den letzten Regressionen rund um Protokolle, Downloads und Setup-Abschluss.
 
 ## Bereits umgesetzt
 
@@ -27,7 +27,6 @@ Sprint 1 setzt Sprint 0 als abgeschlossen voraus.
 
 ## Restscope in Sprint 1
 
-- Release-Check in Vercel Deployment Checks aktivieren
 - manuelle Abnahme fuer Desktop und Mobile-Viewport
 - Dokumentation und Testfaelle auf den aktuellen Implementierungsstand ziehen
 
@@ -62,15 +61,14 @@ Akzeptanzkriterien:
 
 - neue Fachmodule wie Aufgaben, Nachrichten oder Veranstaltungen
 - komplexe Reviereinrichtungsbearbeitung im Web
-- native Mobile-E2E ausserhalb des Android-Smoke-Standards
+- native Mobile-E2E ausserhalb des iPhone-/iOS-Simulator-Smoke-Standards
 - digitale Signaturen oder Behoerdenexporte
 
 ## Reihenfolge fuer den Restblock
 
-1. Release-Check als festen Production-Gate in Vercel Deployment Checks aktivieren
-2. Dokumentation, TESTCASES und manuelle Abnahme angleichen
-3. letzte Regressionen rund um Protokolle, Downloads und Setup-Abschluss nachziehen
-4. danach Sprint-3-Medien- und Queue-Themen auf denselben Haertungsstandard ziehen
+1. Dokumentation, TESTCASES und manuelle Abnahme angleichen
+2. letzte Regressionen rund um Protokolle, Downloads und Setup-Abschluss nachziehen
+3. danach Sprint-3-Medien- und Queue-Themen auf denselben Haertungsstandard ziehen
 
 ## Epic S1-H1: Web-Haertung
 
@@ -113,7 +111,6 @@ Bereits umgesetzt:
 Restblock:
 
 - Preview-URL, Production-URL und Zugangsdaten als reproduzierbare Checks dokumentieren
-- Release-Check in Vercel Deployment Checks aktivieren
 
 Akzeptanzkriterien:
 
