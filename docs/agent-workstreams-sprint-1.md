@@ -119,11 +119,11 @@ Fallwild kann online und offline mit bis zu drei Bibliotheksfotos erfasst werden
 
 - Queue-Core ausserhalb der abgesprochenen API
 
-## Workstream E: Android-Smoke und Testbarkeit
+## Workstream E: iOS-Smoke und Testbarkeit
 
 ### Ziel
 
-Die Mobile-Abnahme ist auf Windows mit Android-Emulator oder Geraet reproduzierbar dokumentiert.
+Die Mobile-Abnahme ist auf macOS mit iPhone beziehungsweise iOS Simulator reproduzierbar dokumentiert. Android bleibt als optionaler Emulator-Zweitpfad moeglich.
 
 ### Ownership
 
@@ -133,8 +133,8 @@ Die Mobile-Abnahme ist auf Windows mit Android-Emulator oder Geraet reproduzierb
 
 ### Aufgaben
 
-- Smoke-Skript fuer Android-Emulator oder Geraet
-- Testbild zur Laufzeit erzeugen und auf das Geraet schieben
+- Smoke-Ablauf fuer iPhone oder iOS Simulator
+- Testbild und Fotoauswahl im iOS-Abnahmepfad dokumentieren
 - Login, Dashboard, Fallwild mit Foto, Offline-Sync und Ansitz als nativen Check beschreiben
 
 ## Empfohlene Parallelisierung
@@ -146,7 +146,7 @@ Die Mobile-Abnahme ist auf Windows mit Android-Emulator oder Geraet reproduzierb
 ### Phase 1
 
 - Workstream A und B starten sofort
-- Workstream E friert Testbarkeit und Android-Smoke ein
+- Workstream E friert Testbarkeit und iOS-Smoke ein
 
 ### Phase 2
 
@@ -176,7 +176,7 @@ Pflicht:
 - Web-E2E fuer Dashboard, Reviereinrichtungen, Protokolle und Download gruen
 - Preview-Smoke gegen die PR-URL gruen
 - Fallwild-Foto-Upload lokal funktional geprueft
-- Android-Smoke ist dokumentiert und reproduzierbar
+- iOS-Smoke ist dokumentiert und reproduzierbar
 
 ## Was nicht parallelisiert werden sollte
 

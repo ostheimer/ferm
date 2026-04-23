@@ -221,6 +221,6 @@ Bereits produktiv ueber `apps/web` vorhanden:
 
 ## Naechste API-Themen
 
-1. Medien- und Queue-Haertung ueber Preview und Android-Smoke absichern
+1. Medien- und Queue-Haertung ueber Preview und iPhone-/iOS-Simulator-Smoke absichern
 2. Rollen-, Aufgaben- und Nachrichten-Ressourcen auf dieselbe API-Linie heben
 3. weitere Mobile-Mutationen und Konfliktbehandlung auf denselben Fehlervertrag bringen
