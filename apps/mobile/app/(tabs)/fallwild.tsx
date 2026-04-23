@@ -17,20 +17,27 @@ import { ScreenShell } from "../../components/screen-shell";
 import { formatDateTime } from "../../lib/format";
 import { buildGeoPoint, trimToUndefined } from "../../lib/form-utils";
 import {
-  createFallwild,
   fetchFallwildDetail,
   fetchFallwildList,
-  MobileApiError,
-  isRecoverableMutationError,
   type CreateFallwildRequest,
-  type FallwildListItem,
-  uploadFallwildPhoto
+  type FallwildListItem
 } from "../../lib/api";
 import {
-  queueFallwildPhotoUploads,
+  FALLWILD_PHOTO_QUALITY,
+  MAX_FALLWILD_PHOTOS,
+  getRemainingFallwildPhotoSlots,
+  limitFallwildPhotoAttachments,
+  mergePickedFallwildPhotos,
+  type LocalPendingPhoto
+} from "../../lib/fallwild-photos";
+import { submitFallwildSubmission } from "../../lib/fallwild-submission";
+import {
+  getOfflineQueueEntryAttachmentHint,
+  getOfflineQueueEntryStatusLine,
+  summarizeOfflineQueue
+} from "../../lib/offline-queue-status";
+import {
   syncOfflineQueue,
-  submitFallwildWithOfflineFallback,
-  type LocalPendingPhoto,
   useOfflineQueueSnapshot
 } from "../../lib/offline-queue";
 import { colors } from "../../lib/theme";
@@ -70,34 +77,12 @@ const BERGUNGS_STATUS_OPTIONS: Array<CreateFallwildRequest["bergungsStatus"]> = 
   "entsorgt",
   "an-behoerde-gemeldet"
 ];
-const MAX_FALLWILD_PHOTOS = 3;
-const FALLWILD_PHOTO_QUALITY = 0.7;
 
 type FeedbackState = {
   variant: "success" | "warning";
   title: string;
   copy: string;
 } | null;
-
-type FallwildSubmissionResult =
-  | {
-      mode: "sent";
-      createdId: string;
-      uploadedCount: number;
-      queuedCount: number;
-    }
-  | {
-      mode: "queued";
-      createdId?: string;
-      uploadedCount: number;
-      queuedCount: number;
-    }
-  | {
-      mode: "partial";
-      createdId: string;
-      uploadedCount: number;
-      queuedCount: number;
-    };
 
 export default function FallwildScreen() {
   const queue = useOfflineQueueSnapshot();
@@ -149,7 +134,7 @@ export default function FallwildScreen() {
 
     try {
       const payload = buildFallwildPayload(form);
-      const attachmentSnapshot = [...attachments];
+      const attachmentSnapshot = limitFallwildPhotoAttachments(attachments);
       const result = await submitFallwildSubmission(payload, attachmentSnapshot);
 
       setAttachments([]);
@@ -166,7 +151,7 @@ export default function FallwildScreen() {
           title: "Fallwild in der Queue",
           copy:
             attachmentSnapshot.length > 0
-              ? `${attachmentSnapshot.length} Foto(s) wurden gemeinsam mit dem Vorgang offline vorgemerkt.`
+              ? `${formatPhotoCount(attachmentSnapshot.length)} ${formatPhotoVerb(attachmentSnapshot.length)} gemeinsam mit dem Vorgang offline vorgemerkt.`
               : "Der Vorgang wurde offline vorgemerkt."
         });
       } else if (result.mode === "partial") {
@@ -175,8 +160,8 @@ export default function FallwildScreen() {
           title: "Fallwild gespeichert",
           copy:
             result.queuedCount > 0
-              ? `${result.uploadedCount} Foto(s) hochgeladen, ${result.queuedCount} weitere wurden in die Queue gelegt.`
-              : `${result.uploadedCount} Foto(s) wurden hochgeladen.`
+              ? `${formatPhotoCount(result.uploadedCount)} hochgeladen, ${formatPhotoCount(result.queuedCount)} ${formatPhotoVerb(result.queuedCount)} in die Queue gelegt.`
+              : `${formatPhotoCount(result.uploadedCount)} ${formatPhotoVerb(result.uploadedCount)} hochgeladen.`
         });
       } else {
         setFeedback({
@@ -184,7 +169,7 @@ export default function FallwildScreen() {
           title: "Fallwild gespeichert",
           copy:
             result.uploadedCount > 0
-              ? `${result.uploadedCount} Foto(s) wurden direkt mitgespeichert.`
+              ? `${formatPhotoCount(result.uploadedCount)} ${formatPhotoVerb(result.uploadedCount)} direkt mitgespeichert.`
               : "Der Vorgang wurde direkt an die API gesendet."
         });
       }
@@ -222,7 +207,9 @@ export default function FallwildScreen() {
   }
 
   async function handleAddPhotos() {
-    if (attachments.length >= MAX_FALLWILD_PHOTOS || isSubmitting || isPickingPhotos) {
+    const remainingSlots = getRemainingFallwildPhotoSlots(attachments.length);
+
+    if (remainingSlots === 0 || isSubmitting || isPickingPhotos) {
       return;
     }
 
@@ -238,7 +225,6 @@ export default function FallwildScreen() {
         return;
       }
 
-      const remainingSlots = MAX_FALLWILD_PHOTOS - attachments.length;
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsMultipleSelection: remainingSlots > 1,
@@ -251,11 +237,7 @@ export default function FallwildScreen() {
         return;
       }
 
-      const nextPhotos = result.assets
-        .map((asset, index) => normalizePickedPhoto(asset, attachments.length + index))
-        .slice(0, remainingSlots);
-
-      setAttachments((current) => [...current, ...nextPhotos].slice(0, MAX_FALLWILD_PHOTOS));
+      setAttachments((current) => mergePickedFallwildPhotos(current, result.assets));
     } catch (photoError) {
       setError(photoError instanceof Error ? photoError.message : "Fotos konnten nicht ausgewählt werden.");
     } finally {
@@ -275,6 +257,7 @@ export default function FallwildScreen() {
   const queueEntries = queue.entries.filter(
     (entry) => entry.kind === "fallwild-create" || entry.kind === "fallwild-photo-upload"
   );
+  const queueSummary = summarizeOfflineQueue(queueEntries);
 
   return (
     <ScreenShell
@@ -284,8 +267,14 @@ export default function FallwildScreen() {
       aside={
         <View style={styles.queueCard}>
           <Text style={styles.queueTitle}>Ausstehende Synchronisierung</Text>
-          <Text style={styles.queueValue}>{queueEntries.length}</Text>
-          <Text style={styles.queueCopy}>Erfasste Vorgänge werden automatisch nachgereicht.</Text>
+          <Text style={styles.queueValue}>{queueSummary.totalCount}</Text>
+          <Text style={styles.queueCopy}>
+            {queueSummary.failedCount > 0
+              ? `${queueSummary.failedCount} Einträge brauchen Aufmerksamkeit.`
+              : queue.isSyncing
+                ? "Queue wird gerade synchronisiert."
+                : "Erfasste Vorgänge werden automatisch nachgereicht."}
+          </Text>
         </View>
       }
     >
@@ -398,7 +387,7 @@ export default function FallwildScreen() {
             <View style={styles.grow}>
               <Text style={styles.label}>Fotos</Text>
               <Text style={styles.helperCopy}>
-                Bibliothek auswählen, quality 0.7, maximal {MAX_FALLWILD_PHOTOS} Bilder.
+                Bibliothek auswählen, Qualität 0,7, maximal {MAX_FALLWILD_PHOTOS} Bilder.
               </Text>
             </View>
             <Pressable
@@ -484,7 +473,7 @@ export default function FallwildScreen() {
             onPress={() => void handleQueueSync()}
             disabled={queue.isSyncing}
           >
-            <Text style={styles.secondaryButtonText}>{queue.isSyncing ? "Synchronisiert..." : "Queue sync"}</Text>
+            <Text style={styles.secondaryButtonText}>{queue.isSyncing ? "Synchronisiert..." : "Queue synchronisieren"}</Text>
           </Pressable>
         </View>
       </View>
@@ -511,15 +500,17 @@ export default function FallwildScreen() {
       {queueEntries.length > 0 ? (
         <View style={styles.stateCard}>
           <Text style={styles.stateTitle}>Offline-Vormerkungen</Text>
-          {queueEntries.slice(0, 2).map((entry) => (
+          {queueEntries.slice(0, 3).map((entry) => (
             <View key={entry.id} style={styles.queueRow}>
               <Text style={styles.queueRowTitle}>{entry.title}</Text>
-              <Text style={styles.queueRowCopy}>
-                {entry.status}
-                {entry.lastError ? ` / ${entry.lastError}` : ""}
-              </Text>
+              <Text style={styles.queueRowCopy}>{getOfflineQueueEntryStatusLine(entry)}</Text>
+              <Text style={styles.queueRowCopy}>{getOfflineQueueEntryAttachmentHint(entry)}</Text>
+              {entry.lastError ? <Text style={styles.queueRowCopy}>{entry.lastError}</Text> : null}
             </View>
           ))}
+          {queueEntries.length > 3 ? (
+            <Text style={styles.queueRowCopy}>{`${queueEntries.length - 3} weitere Einträge in der Queue.`}</Text>
+          ) : null}
         </View>
       ) : null}
 
@@ -558,7 +549,7 @@ export default function FallwildScreen() {
             <Text style={styles.copy}>{formatDateTime(entry.recordedAt)}</Text>
             {entry.strasse ? <Text style={styles.copy}>{entry.strasse}</Text> : null}
             {entry.note ? <Text style={styles.copy}>{entry.note}</Text> : null}
-            {entry.photos.length > 0 ? <Text style={styles.copy}>{entry.photos.length} Foto(s)</Text> : null}
+            {entry.photos.length > 0 ? <Text style={styles.copy}>{formatPhotoCount(entry.photos.length)}</Text> : null}
           </View>
         ))}
       </ScrollView>
@@ -604,147 +595,12 @@ function buildFallwildPayload(form: FallwildFormState): CreateFallwildRequest {
   };
 }
 
-async function submitFallwildSubmission(
-  payload: CreateFallwildRequest,
-  attachments: LocalPendingPhoto[]
-): Promise<FallwildSubmissionResult> {
-  try {
-    const created = await createFallwild(payload);
-
-    if (attachments.length === 0) {
-      return {
-        mode: "sent",
-        createdId: created.id,
-        uploadedCount: 0,
-        queuedCount: 0
-      };
-    }
-
-    const uploadResult = await uploadFallwildPhotos(created.id, attachments);
-
-    if (uploadResult.queuedCount > 0) {
-      return {
-        mode: "partial",
-        createdId: created.id,
-        uploadedCount: uploadResult.uploadedCount,
-        queuedCount: uploadResult.queuedCount
-      };
-    }
-
-    return {
-      mode: "sent",
-      createdId: created.id,
-      uploadedCount: uploadResult.uploadedCount,
-      queuedCount: 0
-    };
-  } catch (error) {
-    if (!isRecoverableMutationError(error)) {
-      throw error;
-    }
-
-    const queued = await submitFallwildWithOfflineFallback(payload, attachments);
-
-    return {
-      mode: "queued",
-      createdId: queued.id,
-      uploadedCount: 0,
-      queuedCount: attachments.length
-    };
-  }
+function formatPhotoCount(count: number) {
+  return count === 1 ? "1 Foto" : `${count} Fotos`;
 }
 
-async function uploadFallwildPhotos(
-  fallwildId: string,
-  attachments: LocalPendingPhoto[]
-): Promise<{ uploadedCount: number; queuedCount: number }> {
-  let uploadedCount = 0;
-
-  for (let index = 0; index < attachments.length; index += 1) {
-    const attachment = attachments[index];
-
-    try {
-      await uploadFallwildPhoto(fallwildId, attachment);
-      uploadedCount += 1;
-    } catch (error) {
-      if (!isRecoverablePhotoUploadError(error)) {
-        throw error;
-      }
-
-      const remaining = attachments.slice(index);
-      if (remaining.length > 0) {
-        await queueFallwildPhotoUploads(fallwildId, remaining);
-      }
-
-      return {
-        uploadedCount,
-        queuedCount: remaining.length
-      };
-    }
-  }
-
-  return {
-    uploadedCount,
-    queuedCount: 0
-  };
-}
-
-function isRecoverablePhotoUploadError(error: unknown) {
-  if (isRecoverableMutationError(error)) {
-    return true;
-  }
-
-  return error instanceof MobileApiError && error.status === 404;
-}
-
-function normalizePickedPhoto(asset: ImagePicker.ImagePickerAsset, index: number): LocalPendingPhoto {
-  const mimeType = normalizeMimeType(asset);
-  const fileName = normalizePhotoFileName(asset, index, mimeType);
-  const title = asset.fileName ?? fileName;
-
-  return {
-    id: createPhotoId(index),
-    uri: asset.uri,
-    fileName,
-    mimeType,
-    title
-  };
-}
-
-function normalizeMimeType(asset: ImagePicker.ImagePickerAsset): LocalPendingPhoto["mimeType"] {
-  const mimeType = asset.mimeType?.toLowerCase();
-
-  if (mimeType === "image/png") {
-    return "image/png";
-  }
-
-  if (mimeType === "image/jpeg" || mimeType === "image/jpg") {
-    return "image/jpeg";
-  }
-
-  if (asset.fileName?.toLowerCase().endsWith(".png") ?? false) {
-    return "image/png";
-  }
-
-  return "image/jpeg";
-}
-
-function normalizePhotoFileName(
-  asset: ImagePicker.ImagePickerAsset,
-  index: number,
-  mimeType: LocalPendingPhoto["mimeType"]
-) {
-  const existingName = asset.fileName?.trim();
-
-  if (existingName) {
-    return existingName;
-  }
-
-  const extension = mimeType === "image/png" ? "png" : "jpg";
-  return `fallwild-${Date.now()}-${index + 1}.${extension}`;
-}
-
-function createPhotoId(index: number) {
-  return `fallwild-photo-${Date.now()}-${index + 1}-${Math.random().toString(36).slice(2, 7)}`;
+function formatPhotoVerb(count: number) {
+  return count === 1 ? "wurde" : "wurden";
 }
 
 function removeAttachment(setAttachments: Dispatch<SetStateAction<LocalPendingPhoto[]>>, photoId: string) {

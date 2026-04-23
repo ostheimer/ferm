@@ -23,7 +23,7 @@ import type {
 } from "@hege/domain";
 import { buildDashboardOverview, demoData } from "@hege/domain";
 
-import type { LocalPendingPhoto } from "./offline-queue";
+import type { LocalPendingPhoto } from "./fallwild-photos";
 import { clearSession, getAccessToken, getRefreshToken, saveSession } from "./session";
 
 declare const process: {

@@ -2,13 +2,14 @@
 
 ## Offen
 
-- iPhone-/iOS-Simulator-Smoke mit Expo lokal durchlaufen und dokumentiert gegenpruefen.
-- Mobile-spezifische E2E-Strategie fuer Expo und native Oberflaechen ueber den iOS-Smoke hinaus festziehen.
-- Android-Emulator-Smoke als optionalen Zweitpfad vorbereiten, falls spaeter Android-Abdeckung ohne physisches Geraet benoetigt wird.
-- Fachkonzept fuer Reviermeldungen zu Fuetterungen, Wasserungen und Einrichtungen mit Fotos, Kurztext und Aufgabenbezug ausarbeiten.
-- Rollen- und Empfaengergruppenmodell fuer zielgerichtete Sichtbarkeit von Nachrichten, Aufgaben und Veranstaltungen festziehen.
-- Veranstaltungsmodul mit Ankuendigung, Treffpunkt, Erinnerungen und optionaler Teilnahmebestaetigung planen.
-- WhatsApp-Anstoss aus der App fachlich und technisch gegen interne Nachrichten und Aufgaben abgrenzen.
+- Mobile-spezifische E2E-Strategie für Expo und native Oberflächen über den dokumentierten Geräte-Smoke hinaus festziehen.
+- Medien-/Queue-Härtung für Fallwild-Fotos, Retry, Konflikte und Upload-Abbrüche fertigziehen.
+- Android-Emulator-Smoke nach [Android-Smoke-Runbook](docs/mobile-smoke-android.md) als optionalen Zweitpfad vorbereiten, falls später Android-Abdeckung ohne physisches Gerät benötigt wird.
+- Google-Maps-Ausrichtung für Kartenfunktionen in Web und Mobile gegen [Google-Maps-Konzept](docs/maps-google-v1.md) schärfen.
+- Fachkonzept für Reviermeldungen zu Fütterungen, Wasserungen und Einrichtungen mit Fotos, Kurztext und Aufgabenbezug ausarbeiten.
+- Rollen- und Empfängergruppenmodell für zielgerichtete Sichtbarkeit von Nachrichten, Aufgaben und Veranstaltungen gegen [Rollen/Aufgaben/Nachrichten v1](docs/rollen-aufgaben-nachrichten-v1.md) festziehen.
+- Veranstaltungsmodul mit Ankündigung, Treffpunkt, Erinnerungen und optionaler Teilnahmebestätigung planen.
+- WhatsApp-Anstoß aus der App fachlich und technisch gegen interne Nachrichten und Aufgaben abgrenzen.
 
 ## Erledigt
 
@@ -35,3 +36,4 @@
 - Mobile Fallwild-Fotoauswahl mit bis zu drei Bibliotheksbildern eingefuehrt.
 - Mobile Queue auf `pending`, `syncing`, `uploading`, `failed` und `conflict` erweitert.
 - Android-Smoke-Helfer fuer Expo, `adb` und Testbild-Erzeugung hinzugefuegt.
+- iPhone-/iOS-Simulator-Smoke mit Expo lokal durchlaufen und nach [iOS-Smoke-Runbook](docs/mobile-smoke-ios.md) dokumentiert gegengeprüft.

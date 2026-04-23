@@ -10,6 +10,10 @@ Diese Dokumentation beschreibt den aktuellen Stand des Repositories und den gepl
 - [Mobile App v1 fuer Jaeger](./mobile-jaeger-v1.md)
 - [API v1](./api-v1.md)
 - [Roadmap und Sprints](./roadmap-v1.md)
+- [iOS-Smoke-Runbook](./mobile-smoke-ios.md)
+- [Android-Smoke-Runbook](./mobile-smoke-android.md)
+- [Google-Maps-Ausrichtung](./maps-google-v1.md)
+- [Rollen, Aufgaben und Nachrichten v1](./rollen-aufgaben-nachrichten-v1.md)
 - [Umsetzungsbacklog](./umsetzungsbacklog.md)
 - [Sprint 0 Backlog](./sprint-0-backlog.md)
 - [Sprint 1 Backlog](./sprint-1-backlog.md)
@@ -41,15 +45,15 @@ Das Repository enthaelt bereits ein produktiv orientiertes Monorepo mit:
 - Preview-Smoke fuer Public Web, Session-Grundvertrag und die wichtigsten App-Read-Pfade
 - GitHub-Workflow fuer den Preview-Smoke bei erfolgreichen Preview-Deployments und manuellen `workflow_dispatch`
 - Release-Check fuer produktive Deployments mit separatem Workflow bei erfolgreichen Production-Deployments und manuellem `workflow_dispatch`
-- iPhone-/iOS-Simulator als primaerer nativer Expo-Abnahmepfad; Android-Emulator bleibt als optionaler Zweitpfad moeglich
+- abgeschlossener iPhone-/iOS-Simulator-Smoke als primärer nativer Expo-Abnahmepfad; Android-Emulator bleibt als optionaler Zweitpfad möglich
 - `apps/api` bleibt als Referenz- und Uebergangspfad im Repository
 - Rollen, Aufgaben und Nachrichten werden als naechste Planungsstufe vorbereitet, inklusive spaeterer WhatsApp-/Telegram-Kanaele
 
-Kartenfunktionen werden projektweit auf Google Maps ausgerichtet.
+Kartenfunktionen werden projektweit auf Google Maps ausgerichtet; das stabile Ziel ist [Google-Maps-Ausrichtung](./maps-google-v1.md).
 
 Die fachliche Dokumentation beschreibt bereits die naechste Ausbaustufe mit echter Persistenz, Authentifizierung, Rollenpruefung und produktionsreifen Workflows.
 
-Der aktuelle Entwicklungsfokus liegt auf dem Abschluss von Sprint 1 / 1.5 und der weiteren Haertung von Sprint 3. Im Vordergrund stehen die manuelle Web-Abnahme, die dokumentierte iPhone-/iOS-Simulator-Abnahme sowie die weitere Haertung von Medien-Upload und Queue-Sync.
+Der aktuelle Entwicklungsfokus liegt auf der weiteren Härtung von Medien-Upload und Queue-Sync, dem optionalen Android-Emulator-Smoke, der Google-Maps-Ausrichtung sowie dem fachlichen Zuschnitt von Rollen, Aufgaben und Nachrichten.
 
 Fuer den aktuellen Status sind [ROADMAP.md](../ROADMAP.md), [Roadmap v1](./roadmap-v1.md) und [TODO.md](../TODO.md) massgeblich. Die Sprint-0/1-Backlogs und Agent-Workstreams bleiben als Planungsartefakte der zuletzt geschnittenen Arbeitsbloecke erhalten.
 

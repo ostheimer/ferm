@@ -116,6 +116,36 @@ describe("fallwild service", () => {
     });
   });
 
+  it("rejects empty photo payloads", async () => {
+    const uploadObject = vi.fn();
+    const service = createFallwildService({
+      repository: createMemoryRepository({
+        scope: {
+          fallwildId: "fallwild-1",
+          revierId: "revier-attersee",
+          tenantKey: "attersee"
+        }
+      }),
+      uploadObject,
+      useDemoStore: false
+    });
+
+    await expect(
+      service.uploadPhoto({
+        body: Buffer.alloc(0),
+        contentType: "image/jpeg",
+        fallwildId: "fallwild-1",
+        fileName: "bild.jpg",
+        reportedByMembershipId: "member-jaeger",
+        revierId: "revier-attersee"
+      })
+    ).rejects.toMatchObject({
+      message: "Die Fotodatei darf nicht leer sein.",
+      status: 422
+    });
+    expect(uploadObject).not.toHaveBeenCalled();
+  });
+
   it("rejects unsupported photo content types", async () => {
     const service = createFallwildService({
       repository: createMemoryRepository({
@@ -169,14 +199,15 @@ describe("fallwild service", () => {
   });
 
   it("surfaces storage failures as service unavailable", async () => {
+    const repository = createMemoryRepository({
+      scope: {
+        fallwildId: "fallwild-1",
+        revierId: "revier-attersee",
+        tenantKey: "attersee"
+      }
+    });
     const service = createFallwildService({
-      repository: createMemoryRepository({
-        scope: {
-          fallwildId: "fallwild-1",
-          revierId: "revier-attersee",
-          tenantKey: "attersee"
-        }
-      }),
+      repository,
       uploadObject: vi.fn(async () => {
         throw Object.assign(new Error("Storage ist nicht konfiguriert."), {
           status: 503,
@@ -199,6 +230,39 @@ describe("fallwild service", () => {
       message: "Storage ist nicht konfiguriert.",
       status: 503
     });
+    expect(repository.insertedPhotos).toHaveLength(0);
+  });
+
+  it("maps unexpected storage errors to service unavailable", async () => {
+    const repository = createMemoryRepository({
+      scope: {
+        fallwildId: "fallwild-1",
+        revierId: "revier-attersee",
+        tenantKey: "attersee"
+      }
+    });
+    const service = createFallwildService({
+      repository,
+      uploadObject: vi.fn(async () => {
+        throw new Error("socket hang up");
+      }),
+      useDemoStore: false
+    });
+
+    await expect(
+      service.uploadPhoto({
+        body: Buffer.from("photo-data"),
+        contentType: "image/jpeg",
+        fallwildId: "fallwild-1",
+        fileName: "bild.jpg",
+        reportedByMembershipId: "member-jaeger",
+        revierId: "revier-attersee"
+      })
+    ).rejects.toMatchObject({
+      message: "Foto konnte nicht im Storage gespeichert werden.",
+      status: 503
+    });
+    expect(repository.insertedPhotos).toHaveLength(0);
   });
 
   it("surfaces a missing media_assets table as service unavailable", async () => {
@@ -236,6 +300,44 @@ describe("fallwild service", () => {
     });
   });
 
+  it("surfaces a missing media_assets table during photo persistence", async () => {
+    const service = createFallwildService({
+      repository: {
+        ...createMemoryRepository({
+          scope: {
+            fallwildId: "fallwild-1",
+            revierId: "revier-attersee",
+            tenantKey: "attersee"
+          }
+        }),
+        async insertPhoto() {
+          throw Object.assign(new Error('relation "media_assets" does not exist'), {
+            code: "42P01"
+          });
+        }
+      },
+      uploadObject: vi.fn(async (input: any) => ({
+        objectKey: input.key,
+        publicUrl: `https://storage.example/${input.key}`
+      })),
+      useDemoStore: false
+    });
+
+    await expect(
+      service.uploadPhoto({
+        body: Buffer.from("photo-data"),
+        contentType: "image/jpeg",
+        fallwildId: "fallwild-1",
+        fileName: "bild.jpg",
+        reportedByMembershipId: "member-jaeger",
+        revierId: "revier-attersee"
+      })
+    ).rejects.toMatchObject({
+      message: "Fallwild-Fotos sind in dieser Umgebung noch nicht aktiviert.",
+      status: 503
+    });
+  });
+
   it("rejects mutations without a database-backed store", async () => {
     const service = createFallwildService({
       repository: createMemoryRepository(),
@@ -254,7 +356,7 @@ describe("fallwild service", () => {
         gemeinde: "Steinbach am Attersee"
       })
     ).rejects.toMatchObject({
-      message: "Fallwild-Mutationen benoetigen eine aktive Datenbank.",
+      message: "Fallwild-Mutationen benötigen eine aktive Datenbank.",
       status: 503
     });
   });
