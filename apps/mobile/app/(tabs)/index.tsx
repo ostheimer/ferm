@@ -10,9 +10,13 @@ import { fetchDashboardSnapshot, logout } from "../../lib/api";
 import {
   discardOfflineQueueEntry,
   syncOfflineQueue,
-  useOfflineQueueSnapshot,
-  type OfflineOperation
+  useOfflineQueueSnapshot
 } from "../../lib/offline-queue";
+import {
+  getOfflineQueueEntryAttachmentHint,
+  getOfflineQueueEntryStatusLine,
+  getOfflineQueueStatusLabel
+} from "../../lib/offline-queue-status";
 import { colors } from "../../lib/theme";
 
 export default function DashboardScreen() {
@@ -127,7 +131,7 @@ export default function DashboardScreen() {
           onPress={() => void handleQueueSync()}
           disabled={queue.isSyncing}
         >
-          <Text style={styles.secondaryButtonText}>{queue.isSyncing ? "Synchronisiert..." : "Queue sync"}</Text>
+          <Text style={styles.secondaryButtonText}>{queue.isSyncing ? "Synchronisiert..." : "Queue synchronisieren"}</Text>
         </Pressable>
         <Pressable
           accessibilityRole="button"
@@ -201,9 +205,9 @@ export default function DashboardScreen() {
                 <View style={styles.queueRowCopy}>
                   <Text style={styles.queueRowTitle}>{entry.title}</Text>
                   <Text style={styles.queueRowMeta}>
-                    {getQueueEntryKindLabel(entry.kind)} / {getQueueEntryStatusLabel(entry.status)} / Versuch {entry.attemptCount + 1}
+                    {getOfflineQueueEntryStatusLine(entry)}
                   </Text>
-                  <Text style={styles.queueRowMeta}>{getQueueEntryAttachmentHint(entry)}</Text>
+                  <Text style={styles.queueRowMeta}>{getOfflineQueueEntryAttachmentHint(entry)}</Text>
                   {entry.lastError ? <Text style={styles.queueRowMeta}>{entry.lastError}</Text> : null}
                 </View>
                 <View style={styles.queueRowActions}>
@@ -219,7 +223,7 @@ export default function DashboardScreen() {
                             : styles.queueBadgePending
                     ]}
                   >
-                    <Text style={styles.queueBadgeText}>{entry.status}</Text>
+                    <Text style={styles.queueBadgeText}>{getOfflineQueueStatusLabel(entry.status)}</Text>
                   </View>
                   {entry.status === "failed" || entry.status === "conflict" ? (
                     <Pressable
@@ -427,49 +431,6 @@ const styles = StyleSheet.create({
     color: colors.muted
   }
 });
-
-function getQueueEntryKindLabel(kind: string) {
-  switch (kind) {
-    case "ansitz-create":
-      return "Ansitz";
-    case "fallwild-create":
-      return "Fallwild";
-    case "fallwild-photo-upload":
-      return "Foto";
-    default:
-      return kind;
-  }
-}
-
-function getQueueEntryStatusLabel(status: string) {
-  switch (status) {
-    case "pending":
-      return "wartet";
-    case "syncing":
-      return "synchronisiert";
-    case "uploading":
-      return "upload";
-    case "failed":
-      return "fehlgeschlagen";
-    case "conflict":
-      return "Konflikt";
-    default:
-      return status;
-  }
-}
-
-function getQueueEntryAttachmentHint(entry: OfflineOperation) {
-  switch (entry.kind) {
-    case "fallwild-photo-upload":
-      return `Anhang: ${entry.attachment.fileName}`;
-    case "fallwild-create":
-      return entry.payload.attachments && entry.payload.attachments.length > 0
-        ? `${entry.payload.attachments.length} Foto(s) vorgemerkt`
-        : "Ohne Anhang";
-    default:
-      return "Ohne Anhang";
-  }
-}
 
 function formatRoleLabel(role: DashboardResponse["membership"]["role"]) {
   switch (role) {

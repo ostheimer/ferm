@@ -3,6 +3,11 @@ import { useSyncExternalStore } from "react";
 import type { PhotoAsset } from "@hege/domain";
 
 import {
+  isLocalPendingPhoto,
+  limitFallwildPhotoAttachments,
+  type LocalPendingPhoto
+} from "./fallwild-photos";
+import {
   createAnsitz,
   createFallwild,
   isRecoverableMutationError,
@@ -13,14 +18,7 @@ import {
 const STORAGE_KEY = "hege.offline-queue";
 
 export type OfflineQueueStatus = "pending" | "syncing" | "uploading" | "failed" | "conflict";
-
-export interface LocalPendingPhoto {
-  id: string;
-  uri: string;
-  fileName: string;
-  mimeType: "image/jpeg" | "image/png";
-  title?: string;
-}
+export type { LocalPendingPhoto } from "./fallwild-photos";
 
 interface OfflineQueueEntryBase {
   id: string;
@@ -137,8 +135,10 @@ export async function submitFallwildWithOfflineFallback(
 ): Promise<QueueMutationResult> {
   try {
     const result = await createFallwild(payload);
-    if (attachments.length > 0) {
-      await queueFallwildPhotoUploads(result.id, attachments);
+    const queuedAttachments = limitFallwildPhotoAttachments(attachments);
+
+    if (queuedAttachments.length > 0) {
+      await queueFallwildPhotoUploads(result.id, queuedAttachments);
       void syncOfflineQueue();
     }
 
@@ -151,20 +151,7 @@ export async function submitFallwildWithOfflineFallback(
       throw error;
     }
 
-    const entry: OfflineFallwildOperation = {
-      id: createQueueId("fallwild"),
-      kind: "fallwild-create",
-      title: attachments.length > 0 ? `${payload.wildart} / ${payload.gemeinde} (${attachments.length} Foto(s))` : `${payload.wildart} / ${payload.gemeinde}`,
-      createdAt: new Date().toISOString(),
-      status: "pending",
-      attemptCount: 0,
-      payload: {
-        ...payload,
-        attachments: cloneAttachments(attachments)
-      }
-    };
-
-    await appendEntry(entry);
+    const entry = await queueFallwildCreate(payload, attachments);
 
     return {
       mode: "queued",
@@ -173,18 +160,44 @@ export async function submitFallwildWithOfflineFallback(
   }
 }
 
+export async function queueFallwildCreate(
+  payload: CreateFallwildRequest,
+  attachments: LocalPendingPhoto[] = []
+): Promise<OfflineFallwildOperation> {
+  const queuedAttachments = limitFallwildPhotoAttachments(attachments);
+  const entry: OfflineFallwildOperation = {
+    id: createQueueId("fallwild"),
+    kind: "fallwild-create",
+    title:
+      queuedAttachments.length > 0
+        ? `${payload.wildart} / ${payload.gemeinde} (${formatPhotoCount(queuedAttachments.length)} vorgemerkt)`
+        : `${payload.wildart} / ${payload.gemeinde}`,
+    createdAt: new Date().toISOString(),
+    status: "pending",
+    attemptCount: 0,
+    payload: {
+      ...payload,
+      attachments: queuedAttachments.length > 0 ? cloneAttachments(queuedAttachments) : undefined
+    }
+  };
+
+  await appendEntry(entry);
+  return entry;
+}
+
 export async function queueFallwildPhotoUploads(
   fallwildId: string,
   attachments: LocalPendingPhoto[]
 ): Promise<OfflineOperation[]> {
   await ensureHydrated();
+  const queuedAttachments = limitFallwildPhotoAttachments(attachments);
 
-  if (attachments.length === 0) {
+  if (queuedAttachments.length === 0) {
     return snapshot.entries;
   }
 
   const nextEntries = [
-    ...attachments.map<OfflineFallwildPhotoUploadOperation>((attachment) => ({
+    ...queuedAttachments.map<OfflineFallwildPhotoUploadOperation>((attachment) => ({
       id: createQueueId("fallwild-photo"),
       kind: "fallwild-photo-upload",
       title: attachment.title ?? attachment.fileName,
@@ -368,10 +381,48 @@ function parseQueue(raw: string | null): OfflineOperation[] {
       return [];
     }
 
-    return parsed.filter(isOfflineOperation);
+    return parsed.map(normalizeOfflineOperation).filter(isOfflineOperation);
   } catch {
     return [];
   }
+}
+
+function normalizeOfflineOperation(value: unknown): OfflineOperation | null {
+  if (!isOfflineOperation(value)) {
+    return null;
+  }
+
+  const base = {
+    ...value,
+    status: normalizeHydratedStatus(value.status)
+  };
+
+  if (base.kind === "fallwild-create") {
+    const attachments = base.payload.attachments
+      ? limitFallwildPhotoAttachments(base.payload.attachments)
+      : undefined;
+
+    return {
+      ...base,
+      payload: {
+        ...base.payload,
+        attachments: attachments && attachments.length > 0 ? attachments : undefined
+      }
+    };
+  }
+
+  if (base.kind === "fallwild-photo-upload") {
+    return {
+      ...base,
+      attachment: cloneAttachment(base.attachment)
+    };
+  }
+
+  return base;
+}
+
+function normalizeHydratedStatus(status: OfflineQueueStatus): OfflineQueueStatus {
+  return status === "syncing" || status === "uploading" ? "pending" : status;
 }
 
 function isOfflineOperation(value: unknown): value is OfflineOperation {
@@ -486,26 +537,14 @@ function isOfflineFallwildPhotoUploadPayload(value: unknown): value is OfflineFa
   );
 }
 
-function isLocalPendingPhoto(value: unknown): value is LocalPendingPhoto {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return false;
-  }
-
-  const photo = value as Partial<LocalPendingPhoto>;
-
-  return (
-    typeof photo.id === "string" &&
-    typeof photo.uri === "string" &&
-    typeof photo.fileName === "string" &&
-    (photo.mimeType === "image/jpeg" || photo.mimeType === "image/png") &&
-    (photo.title == null || typeof photo.title === "string")
-  );
-}
-
 function setSnapshot(nextSnapshot: OfflineQueueSnapshot) {
   snapshot = nextSnapshot;
 
   for (const listener of listeners) {
     listener();
   }
+}
+
+function formatPhotoCount(count: number) {
+  return count === 1 ? "1 Foto" : `${count} Fotos`;
 }

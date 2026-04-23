@@ -31,6 +31,7 @@ Die bestehende NestJS-API bleibt als Referenzpfad im Repository. Die produktive 
 - Web-Dashboard, Reviereinrichtungen, Protokolle und Sitzungen gegen dieselbe Server-Schicht
 - Mobile-Screens fuer Dashboard, Ansitze, Fallwild, Reviereinrichtungen und Protokolle gegen denselben API-Slice
 - Mobile Fallwild-Fotoauswahl mit Queue-Weitergabe fuer spaetere Uploads
+- dokumentierten iPhone-/iOS-Simulator-Smoke als primären nativen Expo-Abnahmepfad
 - automatisierten Web-Tests mit Vitest fuer Route Handler, Services und Server-Queries
 - Playwright-E2E- und Visual-Regression-Tests fuer Public Web, Auth, Ansitze, Fallwild, Sitzungen, Dashboard, Reviereinrichtungen und Protokolle auf Desktop und Mobile
 - Preview-Smoke fuer Public Web, Session-Grundvertrag und die wichtigsten App-Read-Pfade
@@ -120,12 +121,11 @@ Wichtige Testwege:
 - `.github/workflows/release-check.yml` startet den produktionsfaehigen Release-Check automatisch bei erfolgreichen Production-Deployment-Statusmeldungen und erlaubt ebenfalls einen manuellen Start per `workflow_dispatch`.
 - Die E2E-Suite deckt aktuell Public Web, Auth, Sitzungen, Dashboard, Reviereinrichtungen, Protokolle, `/ansitze` und `/fallwild` inkl. Desktop- und Mobile-Layout ab.
 
-## Naechste Ausbauschritte
+## Nächste Ausbauschritte
 
 - produktive Abnahme mit blockierendem Release-Check weiter beobachten
-- nativen iPhone-/iOS-Simulator-Smoke fuer Expo reproduzierbar durchlaufen
+- Medien-Upload, PDF-Erzeugung und Queue-Sync weiter härten
 - Android-Emulator-Smoke optional als Zweitpfad vorbereiten
-- Medien-Upload, PDF-Erzeugung und Queue-Sync weiter haerten
 - Karten auf Google Maps fuer Web und Mobile ausrichten
 - Rollen-, Aufgaben- und Nachrichtenmodell fachlich ausarbeiten
 - Offline-Synchronisierung von der aktuellen Queue auf robustere Konflikt- und Medien-Szenarien erweitern
@@ -139,3 +139,7 @@ Wichtige Testwege:
 - [Mobile App v1 fuer Jaeger](./docs/mobile-jaeger-v1.md)
 - [API v1](./docs/api-v1.md)
 - [Roadmap und Sprints](./docs/roadmap-v1.md)
+- [iOS-Smoke-Runbook](./docs/mobile-smoke-ios.md)
+- [Android-Smoke-Runbook](./docs/mobile-smoke-android.md)
+- [Google-Maps-Ausrichtung](./docs/maps-google-v1.md)
+- [Rollen, Aufgaben und Nachrichten v1](./docs/rollen-aufgaben-nachrichten-v1.md)

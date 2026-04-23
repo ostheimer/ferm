@@ -50,7 +50,14 @@ async function parsePhotoUploadFormData(request: Request) {
     throw validationError("Der Request-Body muss multipart/form-data sein.");
   }
 
-  const formData = await request.formData();
+  let formData: FormData;
+
+  try {
+    formData = await request.formData();
+  } catch {
+    throw validationError("Der Request-Body konnte nicht als multipart/form-data gelesen werden.");
+  }
+
   const allowedKeys = new Set(["file", "title"]);
 
   for (const key of formData.keys()) {
@@ -76,7 +83,7 @@ async function parsePhotoUploadFormData(request: Request) {
   }
 
   if (file.size > FALLWILD_MAX_PHOTO_SIZE_BYTES) {
-    throw validationError("Dateien duerfen maximal 10 MB gross sein.");
+    throw validationError("Dateien dürfen maximal 10 MB groß sein.");
   }
 
   if (!FALLWILD_PHOTO_CONTENT_TYPES.includes(file.type as (typeof FALLWILD_PHOTO_CONTENT_TYPES)[number])) {
@@ -86,7 +93,7 @@ async function parsePhotoUploadFormData(request: Request) {
   const titleValues = formData.getAll("title");
 
   if (titleValues.length > 1) {
-    throw validationError("title darf nur einmal uebermittelt werden.");
+    throw validationError("title darf nur einmal übermittelt werden.");
   }
 
   const titleValue = titleValues[0];

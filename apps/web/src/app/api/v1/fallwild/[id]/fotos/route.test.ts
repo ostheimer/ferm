@@ -90,6 +90,58 @@ describe("POST /api/v1/fallwild/:id/fotos", () => {
     expect(mockUploadFallwildPhoto).not.toHaveBeenCalled();
   });
 
+  it("rejects requests without a file", async () => {
+    const formData = new FormData();
+    formData.append("title", "Unfallstelle");
+
+    const response = await POST(
+      new Request("http://localhost/api/v1/fallwild/fallwild-1/fotos", {
+        method: "POST",
+        body: formData
+      }),
+      {
+        params: Promise.resolve({
+          id: "fallwild-1"
+        })
+      }
+    );
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toMatchObject({
+      error: {
+        code: "validation-error",
+        message: "Genau eine Datei im Feld file ist erforderlich."
+      }
+    });
+    expect(mockUploadFallwildPhoto).not.toHaveBeenCalled();
+  });
+
+  it("rejects unsupported file content types before calling the service", async () => {
+    const formData = new FormData();
+    formData.append("file", new Blob(["photo-data"], { type: "application/pdf" }), "bild.pdf");
+
+    const response = await POST(
+      new Request("http://localhost/api/v1/fallwild/fallwild-1/fotos", {
+        method: "POST",
+        body: formData
+      }),
+      {
+        params: Promise.resolve({
+          id: "fallwild-1"
+        })
+      }
+    );
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toMatchObject({
+      error: {
+        code: "validation-error",
+        message: "Nur JPEG- und PNG-Dateien sind erlaubt."
+      }
+    });
+    expect(mockUploadFallwildPhoto).not.toHaveBeenCalled();
+  });
+
   it("rejects oversized files", async () => {
     const formData = new FormData();
     formData.append(
@@ -112,6 +164,68 @@ describe("POST /api/v1/fallwild/:id/fotos", () => {
 
     expect(response.status).toBe(400);
     expect(mockUploadFallwildPhoto).not.toHaveBeenCalled();
+  });
+
+  it("returns validation errors from the photo upload contract", async () => {
+    mockUploadFallwildPhoto.mockRejectedValueOnce(
+      Object.assign(new Error("Maximal drei Fotos pro Fallwild-Vorgang sind erlaubt."), {
+        status: 422
+      })
+    );
+
+    const formData = new FormData();
+    formData.append("file", new Blob(["photo-data"], { type: "image/jpeg" }), "bild.jpg");
+
+    const response = await POST(
+      new Request("http://localhost/api/v1/fallwild/fallwild-1/fotos", {
+        method: "POST",
+        body: formData
+      }),
+      {
+        params: Promise.resolve({
+          id: "fallwild-1"
+        })
+      }
+    );
+
+    expect(response.status).toBe(422);
+    expect(await response.json()).toMatchObject({
+      error: {
+        code: "validation-error",
+        message: "Maximal drei Fotos pro Fallwild-Vorgang sind erlaubt."
+      }
+    });
+  });
+
+  it("returns service unavailable errors from storage", async () => {
+    mockUploadFallwildPhoto.mockRejectedValueOnce(
+      Object.assign(new Error("Storage ist nicht konfiguriert."), {
+        status: 503
+      })
+    );
+
+    const formData = new FormData();
+    formData.append("file", new Blob(["photo-data"], { type: "image/png" }), "bild.png");
+
+    const response = await POST(
+      new Request("http://localhost/api/v1/fallwild/fallwild-1/fotos", {
+        method: "POST",
+        body: formData
+      }),
+      {
+        params: Promise.resolve({
+          id: "fallwild-1"
+        })
+      }
+    );
+
+    expect(response.status).toBe(503);
+    expect(await response.json()).toMatchObject({
+      error: {
+        code: "service-unavailable",
+        message: "Storage ist nicht konfiguriert."
+      }
+    });
   });
 
   it("returns 403 for forbidden roles", async () => {

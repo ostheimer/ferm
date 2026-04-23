@@ -84,6 +84,10 @@ export function createFallwildService({
     async uploadPhoto(command: UploadFallwildPhotoCommand): Promise<PhotoAsset> {
       assertMutationsEnabled(useDemoStore);
 
+      if (command.body.byteLength <= 0) {
+        throw new FallwildServiceError("Die Fotodatei darf nicht leer sein.", 422);
+      }
+
       if (!isAllowedFallwildPhotoContentType(command.contentType)) {
         throw new FallwildServiceError("Nur JPEG- und PNG-Dateien sind erlaubt.", 422);
       }
@@ -106,11 +110,13 @@ export function createFallwildService({
       const title = normalizePhotoTitle(command.title, command.fileName);
       const createdAt = getNow();
 
-      const storedObject = await uploadObject({
-        key: objectKey,
-        body: command.body,
-        contentType: command.contentType
-      });
+      const storedObject = await withStorageAvailability(() =>
+        uploadObject({
+          key: objectKey,
+          body: command.body,
+          contentType: command.contentType
+        })
+      );
 
       const row = await withLegacyMediaSchemaCompatibility(() =>
         repository.insertPhoto({
@@ -143,7 +149,7 @@ export async function uploadFallwildPhoto(command: UploadFallwildPhotoCommand) {
 
 function assertMutationsEnabled(useDemoStore: boolean) {
   if (useDemoStore) {
-    throw new FallwildServiceError("Fallwild-Mutationen benoetigen eine aktive Datenbank.", 503);
+    throw new FallwildServiceError("Fallwild-Mutationen benötigen eine aktive Datenbank.", 503);
   }
 }
 
@@ -178,4 +184,39 @@ async function withLegacyMediaSchemaCompatibility<T>(operation: () => Promise<T>
 
     throw error;
   }
+}
+
+async function withStorageAvailability<T>(operation: () => Promise<T>) {
+  try {
+    return await operation();
+  } catch (error) {
+    if (isServiceUnavailableError(error)) {
+      throw new FallwildServiceError(
+        readErrorMessage(error) ?? "Fallwild-Foto-Storage ist nicht verfügbar.",
+        503
+      );
+    }
+
+    throw new FallwildServiceError("Foto konnte nicht im Storage gespeichert werden.", 503);
+  }
+}
+
+function isServiceUnavailableError(error: unknown) {
+  return readErrorStatus(error) === 503;
+}
+
+function readErrorStatus(error: unknown) {
+  if (!error || typeof error !== "object" || !("status" in error)) {
+    return undefined;
+  }
+
+  return typeof error.status === "number" ? error.status : undefined;
+}
+
+function readErrorMessage(error: unknown) {
+  if (!error || typeof error !== "object" || !("message" in error)) {
+    return undefined;
+  }
+
+  return typeof error.message === "string" && error.message.length > 0 ? error.message : undefined;
 }
