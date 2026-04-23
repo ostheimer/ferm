@@ -45,7 +45,7 @@ export default function ReviereinrichtungenScreen() {
       {isLoading ? (
         <View style={styles.stateCard}>
           <Text style={styles.stateTitle}>Einrichtungen werden geladen</Text>
-          <Text style={styles.stateCopy}>Die Revierdaten werden ueber die API geladen.</Text>
+          <Text style={styles.stateCopy}>Die Revierdaten werden über die API geladen.</Text>
         </View>
       ) : error ? (
         <View style={styles.stateCard}>
@@ -69,7 +69,7 @@ export default function ReviereinrichtungenScreen() {
             <Text style={styles.copy}>Kontrollen: {entry.kontrollen.length}</Text>
             <Text style={styles.copy}>Offene Wartungen: {entry.offeneWartungen}</Text>
             {entry.letzteKontrolleAt ? <Text style={styles.copy}>Letzte Kontrolle: {formatDateTime(entry.letzteKontrolleAt)}</Text> : null}
-            {entry.wartung[0] ? <Text style={styles.copy}>Naechste Wartung: {formatDateTime(entry.wartung[0].dueAt)}</Text> : null}
+            {entry.wartung[0] ? <Text style={styles.copy}>Nächste Wartung: {formatDateTime(entry.wartung[0].dueAt)}</Text> : null}
           </View>
         ))}
       </ScrollView>

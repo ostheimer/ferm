@@ -64,7 +64,7 @@ export default function ProtokolleScreen() {
       {isLoading ? (
         <View style={styles.stateCard}>
           <Text style={styles.stateTitle}>Protokolle werden geladen</Text>
-          <Text style={styles.stateCopy}>Die freigegebenen Sitzungen werden ueber die API geladen.</Text>
+          <Text style={styles.stateCopy}>Die freigegebenen Sitzungen werden über die API geladen.</Text>
         </View>
       ) : error ? (
         <View style={styles.stateCard}>

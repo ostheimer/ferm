@@ -12,7 +12,7 @@ export function buildGeoPoint(
   fallbackLabel: string
 ): GeoPoint {
   const lat = parseCoordinate(latValue, "Breitengrad", -90, 90);
-  const lng = parseCoordinate(lngValue, "Laengengrad", -180, 180);
+  const lng = parseCoordinate(lngValue, "Längengrad", -180, 180);
 
   return {
     lat,

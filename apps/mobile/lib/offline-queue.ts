@@ -425,7 +425,7 @@ async function uploadFallwildPhoto(fallwildId: string, attachment: LocalPendingP
   }).uploadFallwildPhoto;
 
   if (!uploader) {
-    throw Object.assign(new Error("Foto-Upload ist nicht verfuegbar."), {
+    throw Object.assign(new Error("Foto-Upload ist nicht verfügbar."), {
       status: 503,
       code: "service-unavailable"
     });

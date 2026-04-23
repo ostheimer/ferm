@@ -118,7 +118,7 @@ export default function AnsitzeScreen() {
       setMessage(
         remaining.length === 0
           ? "Offline-Queue synchronisiert."
-          : `${remaining.length} Queue-Eintraege warten weiter auf Synchronisierung.`
+          : `${remaining.length} Queue-Einträge warten weiter auf Synchronisierung.`
       );
       await loadAnsitze({ refreshing: true });
     } catch (syncError) {
@@ -137,7 +137,7 @@ export default function AnsitzeScreen() {
         <View style={styles.queueCard}>
           <Text style={styles.queueTitle}>Ansitz-Queue</Text>
           <Text style={styles.queueValue}>{queueEntries.length}</Text>
-          <Text style={styles.queueCopy}>Pending und Failed Eintraege werden bei bestehender Verbindung erneut gesendet.</Text>
+          <Text style={styles.queueCopy}>Pending und Failed Einträge werden bei bestehender Verbindung erneut gesendet.</Text>
         </View>
       }
     >
@@ -170,7 +170,7 @@ export default function AnsitzeScreen() {
             />
           </View>
           <View style={[styles.field, styles.grow]}>
-            <Text style={styles.label}>Laengengrad</Text>
+            <Text style={styles.label}>Längengrad</Text>
             <TextInput
               keyboardType="decimal-pad"
               placeholder="13.5182"
@@ -197,7 +197,7 @@ export default function AnsitzeScreen() {
           <Text style={styles.label}>Notiz</Text>
           <TextInput
             multiline
-            placeholder="Kurze Notiz fuer die Revierfuehrung"
+            placeholder="Kurze Notiz für die Revierführung"
             placeholderTextColor={colors.muted}
             style={[styles.input, styles.textArea]}
             value={form.note}
@@ -214,7 +214,7 @@ export default function AnsitzeScreen() {
 
         {error ? (
           <View style={styles.errorCard}>
-            <Text style={styles.stateTitle}>Ansitz nicht verfuegbar</Text>
+            <Text style={styles.stateTitle}>Ansitz nicht verfügbar</Text>
             <Text style={styles.stateCopy}>{error}</Text>
           </View>
         ) : null}
@@ -286,7 +286,7 @@ export default function AnsitzeScreen() {
         {!isLoading && !error && ansitze.length === 0 ? (
           <View style={styles.stateCard}>
             <Text style={styles.stateTitle}>Keine aktiven Ansitze</Text>
-            <Text style={styles.stateCopy}>Sobald ein Jaeger einen Ansitz meldet, erscheint er hier.</Text>
+            <Text style={styles.stateCopy}>Sobald ein Jäger einen Ansitz meldet, erscheint er hier.</Text>
           </View>
         ) : null}
 

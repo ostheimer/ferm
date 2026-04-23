@@ -12,9 +12,19 @@ const timeFormatter = new Intl.DateTimeFormat("de-AT", {
 });
 
 export function formatDateTime(value: string) {
-  return dateTimeFormatter.format(new Date(value));
+  const date = parseDate(value);
+
+  return date ? dateTimeFormatter.format(date) : "Nicht verfügbar";
 }
 
 export function formatTime(value: string) {
-  return timeFormatter.format(new Date(value));
+  const date = parseDate(value);
+
+  return date ? timeFormatter.format(date) : "Nicht verfügbar";
+}
+
+function parseDate(value: string) {
+  const date = new Date(value);
+
+  return Number.isNaN(date.getTime()) ? null : date;
 }
