@@ -33,10 +33,13 @@ import {
 import { submitFallwildSubmission } from "../../lib/fallwild-submission";
 import {
   getOfflineQueueEntryAttachmentHint,
+  getOfflineQueueEntryRetryHint,
   getOfflineQueueEntryStatusLine,
   summarizeOfflineQueue
 } from "../../lib/offline-queue-status";
 import {
+  discardOfflineQueueEntry,
+  retryOfflineQueueEntry,
   syncOfflineQueue,
   useOfflineQueueSnapshot
 } from "../../lib/offline-queue";
@@ -93,6 +96,8 @@ export default function FallwildScreen() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPickingPhotos, setIsPickingPhotos] = useState(false);
+  const [discardingEntryId, setDiscardingEntryId] = useState<string | null>(null);
+  const [retryingEntryId, setRetryingEntryId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<FeedbackState>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -203,6 +208,49 @@ export default function FallwildScreen() {
       await loadFallwild({ refreshing: true });
     } catch (syncError) {
       setError(syncError instanceof Error ? syncError.message : "Queue konnte nicht synchronisiert werden.");
+    }
+  }
+
+  async function handleRetryQueueEntry(entryId: string) {
+    setRetryingEntryId(entryId);
+    setFeedback(null);
+    setError(null);
+
+    try {
+      await retryOfflineQueueEntry(entryId);
+      const remaining = await syncOfflineQueue();
+      setFeedback({
+        variant: remaining.length === 0 ? "success" : "warning",
+        title: remaining.length === 0 ? "Queue-Eintrag synchronisiert" : "Queue-Eintrag erneut versucht",
+        copy:
+          remaining.length === 0
+            ? "Alle Einträge wurden verarbeitet."
+            : `${remaining.length} Queue-Einträge warten weiter auf Synchronisierung.`
+      });
+      await loadFallwild({ refreshing: true });
+    } catch (retryError) {
+      setError(retryError instanceof Error ? retryError.message : "Queue-Eintrag konnte nicht erneut versucht werden.");
+    } finally {
+      setRetryingEntryId(null);
+    }
+  }
+
+  async function handleDiscardQueueEntry(entryId: string) {
+    setDiscardingEntryId(entryId);
+    setFeedback(null);
+    setError(null);
+
+    try {
+      await discardOfflineQueueEntry(entryId);
+      setFeedback({
+        variant: "warning",
+        title: "Queue-Eintrag verworfen",
+        copy: "Der Eintrag wurde aus der Offline-Queue entfernt."
+      });
+    } catch (discardError) {
+      setError(discardError instanceof Error ? discardError.message : "Queue-Eintrag konnte nicht verworfen werden.");
+    } finally {
+      setDiscardingEntryId(null);
     }
   }
 
@@ -505,7 +553,36 @@ export default function FallwildScreen() {
               <Text style={styles.queueRowTitle}>{entry.title}</Text>
               <Text style={styles.queueRowCopy}>{getOfflineQueueEntryStatusLine(entry)}</Text>
               <Text style={styles.queueRowCopy}>{getOfflineQueueEntryAttachmentHint(entry)}</Text>
+              {getOfflineQueueEntryRetryHint(entry) ? (
+                <Text style={styles.queueRowCopy}>{getOfflineQueueEntryRetryHint(entry)}</Text>
+              ) : null}
               {entry.lastError ? <Text style={styles.queueRowCopy}>{entry.lastError}</Text> : null}
+              {entry.status === "failed" || entry.status === "conflict" ? (
+                <View style={styles.queueActionRow}>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={`Fallwild-Queue-Eintrag ${entry.title} erneut versuchen`}
+                    style={[styles.retryButton, retryingEntryId === entry.id ? styles.buttonDisabled : null]}
+                    onPress={() => void handleRetryQueueEntry(entry.id)}
+                    disabled={retryingEntryId === entry.id}
+                  >
+                    <Text style={styles.retryButtonText}>
+                      {retryingEntryId === entry.id ? "..." : "Erneut versuchen"}
+                    </Text>
+                  </Pressable>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={`Fallwild-Queue-Eintrag ${entry.title} verwerfen`}
+                    style={[styles.discardButton, discardingEntryId === entry.id ? styles.buttonDisabled : null]}
+                    onPress={() => void handleDiscardQueueEntry(entry.id)}
+                    disabled={discardingEntryId === entry.id}
+                  >
+                    <Text style={styles.discardButtonText}>
+                      {discardingEntryId === entry.id ? "..." : "Verwerfen"}
+                    </Text>
+                  </Pressable>
+                </View>
+              ) : null}
             </View>
           ))}
           {queueEntries.length > 3 ? (
@@ -959,7 +1036,7 @@ const styles = StyleSheet.create({
     fontWeight: "600"
   },
   queueRow: {
-    gap: 2
+    gap: 4
   },
   queueRowTitle: {
     fontSize: 15,
@@ -970,5 +1047,33 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
     color: colors.muted
+  },
+  queueActionRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    paddingTop: 4
+  },
+  retryButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 999,
+    backgroundColor: colors.accent
+  },
+  retryButtonText: {
+    color: colors.surface,
+    fontSize: 12,
+    fontWeight: "700"
+  },
+  discardButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 999,
+    backgroundColor: "#ddcfb7"
+  },
+  discardButtonText: {
+    color: colors.ink,
+    fontSize: 12,
+    fontWeight: "700"
   }
 });

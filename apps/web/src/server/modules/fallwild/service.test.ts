@@ -301,7 +301,13 @@ describe("fallwild service", () => {
   });
 
   it("surfaces a missing media_assets table during photo persistence", async () => {
+    const deleteObject = vi.fn();
+    const uploadObject = vi.fn(async (input: any) => ({
+      objectKey: input.key,
+      publicUrl: `https://storage.example/${input.key}`
+    }));
     const service = createFallwildService({
+      generatePhotoId: () => "photo-abc",
       repository: {
         ...createMemoryRepository({
           scope: {
@@ -316,6 +322,49 @@ describe("fallwild service", () => {
           });
         }
       },
+      deleteObject,
+      uploadObject,
+      useDemoStore: false
+    });
+
+    await expect(
+      service.uploadPhoto({
+        body: Buffer.from("photo-data"),
+        contentType: "image/jpeg",
+        fallwildId: "fallwild-1",
+        fileName: "bild.jpg",
+        reportedByMembershipId: "member-jaeger",
+        revierId: "revier-attersee"
+      })
+    ).rejects.toMatchObject({
+      message: "Fallwild-Fotos sind in dieser Umgebung noch nicht aktiviert.",
+      status: 503
+    });
+    expect(deleteObject).toHaveBeenCalledWith("attersee/fallwild/fallwild-1/photo-abc-bild.jpg");
+    expect(uploadObject).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the persistence error when storage rollback fails", async () => {
+    const deleteObject = vi.fn(async () => {
+      throw new Error("delete failed");
+    });
+    const service = createFallwildService({
+      generatePhotoId: () => "photo-rollback",
+      repository: {
+        ...createMemoryRepository({
+          scope: {
+            fallwildId: "fallwild-1",
+            revierId: "revier-attersee",
+            tenantKey: "attersee"
+          }
+        }),
+        async insertPhoto() {
+          throw Object.assign(new Error('relation "media_assets" does not exist'), {
+            code: "42P01"
+          });
+        }
+      },
+      deleteObject,
       uploadObject: vi.fn(async (input: any) => ({
         objectKey: input.key,
         publicUrl: `https://storage.example/${input.key}`
@@ -336,6 +385,7 @@ describe("fallwild service", () => {
       message: "Fallwild-Fotos sind in dieser Umgebung noch nicht aktiviert.",
       status: 503
     });
+    expect(deleteObject).toHaveBeenCalledWith("attersee/fallwild/fallwild-1/photo-rollback-bild.jpg");
   });
 
   it("rejects mutations without a database-backed store", async () => {

@@ -1,4 +1,4 @@
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
 import { getServerEnv } from "../env";
 
@@ -54,6 +54,18 @@ export async function putStorageObject(input: PutStorageObjectInput) {
     objectKey: input.key,
     publicUrl: buildStoragePublicUrl(input.key, config)
   };
+}
+
+export async function deleteStorageObject(objectKey: string) {
+  const config = assertStorageConfigured();
+  const s3 = getStorageClient(config);
+
+  await s3.send(
+    new DeleteObjectCommand({
+      Bucket: config.bucket,
+      Key: objectKey
+    })
+  );
 }
 
 export function buildStoragePublicUrl(objectKey: string, config = assertStorageConfigured()) {
