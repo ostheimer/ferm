@@ -9,11 +9,13 @@ import { ScreenShell } from "../../components/screen-shell";
 import { fetchDashboardSnapshot, logout } from "../../lib/api";
 import {
   discardOfflineQueueEntry,
+  retryOfflineQueueEntry,
   syncOfflineQueue,
   useOfflineQueueSnapshot
 } from "../../lib/offline-queue";
 import {
   getOfflineQueueEntryAttachmentHint,
+  getOfflineQueueEntryRetryHint,
   getOfflineQueueEntryStatusLine,
   getOfflineQueueStatusLabel
 } from "../../lib/offline-queue-status";
@@ -28,6 +30,7 @@ export default function DashboardScreen() {
   const [error, setError] = useState<string | null>(null);
   const [queueMessage, setQueueMessage] = useState<string | null>(null);
   const [discardingEntryId, setDiscardingEntryId] = useState<string | null>(null);
+  const [retryingEntryId, setRetryingEntryId] = useState<string | null>(null);
 
   useEffect(() => {
     void loadDashboard();
@@ -83,6 +86,26 @@ export default function DashboardScreen() {
       setQueueMessage(discardError instanceof Error ? discardError.message : "Queue-Eintrag konnte nicht verworfen werden.");
     } finally {
       setDiscardingEntryId(null);
+    }
+  }
+
+  async function handleRetryEntry(entryId: string) {
+    setRetryingEntryId(entryId);
+    setQueueMessage(null);
+
+    try {
+      await retryOfflineQueueEntry(entryId);
+      const remaining = await syncOfflineQueue();
+      setQueueMessage(
+        remaining.length === 0
+          ? "Queue-Eintrag erfolgreich synchronisiert."
+          : `${remaining.length} Queue-Einträge warten weiter auf Synchronisierung.`
+      );
+      await loadDashboard({ refreshing: true });
+    } catch (retryError) {
+      setQueueMessage(retryError instanceof Error ? retryError.message : "Queue-Eintrag konnte nicht erneut versucht werden.");
+    } finally {
+      setRetryingEntryId(null);
     }
   }
 
@@ -208,6 +231,9 @@ export default function DashboardScreen() {
                     {getOfflineQueueEntryStatusLine(entry)}
                   </Text>
                   <Text style={styles.queueRowMeta}>{getOfflineQueueEntryAttachmentHint(entry)}</Text>
+                  {getOfflineQueueEntryRetryHint(entry) ? (
+                    <Text style={styles.queueRowMeta}>{getOfflineQueueEntryRetryHint(entry)}</Text>
+                  ) : null}
                   {entry.lastError ? <Text style={styles.queueRowMeta}>{entry.lastError}</Text> : null}
                 </View>
                 <View style={styles.queueRowActions}>
@@ -226,17 +252,30 @@ export default function DashboardScreen() {
                     <Text style={styles.queueBadgeText}>{getOfflineQueueStatusLabel(entry.status)}</Text>
                   </View>
                   {entry.status === "failed" || entry.status === "conflict" ? (
-                    <Pressable
-                      accessibilityRole="button"
-                      accessibilityLabel={`Queue-Eintrag ${entry.title} verwerfen`}
-                      style={[styles.discardButton, discardingEntryId === entry.id ? styles.buttonDisabled : null]}
-                      onPress={() => void handleDiscardEntry(entry.id)}
-                      disabled={discardingEntryId === entry.id}
-                    >
-                      <Text style={styles.discardButtonText}>
-                        {discardingEntryId === entry.id ? "..." : "Verwerfen"}
-                      </Text>
-                    </Pressable>
+                    <>
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel={`Queue-Eintrag ${entry.title} erneut versuchen`}
+                        style={[styles.retryButton, retryingEntryId === entry.id ? styles.buttonDisabled : null]}
+                        onPress={() => void handleRetryEntry(entry.id)}
+                        disabled={retryingEntryId === entry.id}
+                      >
+                        <Text style={styles.retryButtonText}>
+                          {retryingEntryId === entry.id ? "..." : "Erneut versuchen"}
+                        </Text>
+                      </Pressable>
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel={`Queue-Eintrag ${entry.title} verwerfen`}
+                        style={[styles.discardButton, discardingEntryId === entry.id ? styles.buttonDisabled : null]}
+                        onPress={() => void handleDiscardEntry(entry.id)}
+                        disabled={discardingEntryId === entry.id}
+                      >
+                        <Text style={styles.discardButtonText}>
+                          {discardingEntryId === entry.id ? "..." : "Verwerfen"}
+                        </Text>
+                      </Pressable>
+                    </>
                   ) : null}
                 </View>
               </View>
@@ -429,6 +468,16 @@ const styles = StyleSheet.create({
   discardButtonText: {
     fontWeight: "600",
     color: colors.muted
+  },
+  retryButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 999,
+    backgroundColor: colors.accent
+  },
+  retryButtonText: {
+    fontWeight: "700",
+    color: colors.surface
   }
 });
 

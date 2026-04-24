@@ -61,6 +61,31 @@ export function getOfflineQueueEntryAttachmentHint(entry: OfflineOperation) {
   }
 }
 
+export function getOfflineQueueEntryRetryHint(entry: OfflineOperation) {
+  if (entry.status === "conflict") {
+    return "Konflikt wird nicht automatisch erneut versucht.";
+  }
+
+  if (entry.status !== "failed") {
+    return null;
+  }
+
+  if (!entry.nextAttemptAt) {
+    return "Bereit für den nächsten Sync.";
+  }
+
+  const nextAttemptAt = new Date(entry.nextAttemptAt);
+
+  if (Number.isNaN(nextAttemptAt.getTime())) {
+    return "Bereit für den nächsten Sync.";
+  }
+
+  return `Nächster Versuch ab ${nextAttemptAt.toLocaleTimeString("de-AT", {
+    hour: "2-digit",
+    minute: "2-digit"
+  })}.`;
+}
+
 function formatPhotoCount(count: number) {
   return count === 1 ? "1 Foto" : `${count} Fotos`;
 }

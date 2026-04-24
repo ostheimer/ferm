@@ -16,6 +16,7 @@ import {
 } from "./api";
 
 const STORAGE_KEY = "hege.offline-queue";
+const RETRY_BACKOFF_MINUTES = [1, 5, 15, 60] as const;
 
 export type OfflineQueueStatus = "pending" | "syncing" | "uploading" | "failed" | "conflict";
 export type { LocalPendingPhoto } from "./fallwild-photos";
@@ -28,6 +29,7 @@ interface OfflineQueueEntryBase {
   attemptCount: number;
   lastAttemptAt?: string;
   lastError?: string;
+  nextAttemptAt?: string;
 }
 
 interface QueuedFallwildCreatePayload extends CreateFallwildRequest {
@@ -219,6 +221,22 @@ export async function discardOfflineQueueEntry(entryId: string): Promise<Offline
   return removeEntry(entryId);
 }
 
+export async function retryOfflineQueueEntry(entryId: string): Promise<OfflineOperation[]> {
+  await ensureHydrated();
+
+  return patchEntry(entryId, (entry) => {
+    if (entry.status !== "failed" && entry.status !== "conflict") {
+      return {};
+    }
+
+    return {
+      status: "pending",
+      lastError: undefined,
+      nextAttemptAt: undefined
+    };
+  });
+}
+
 export async function syncOfflineQueue(): Promise<OfflineOperation[]> {
   await ensureHydrated();
 
@@ -247,9 +265,9 @@ async function runQueueSync() {
     isSyncing: true
   });
 
-  const initialEntries = [...snapshot.entries];
+  let entry = getNextSyncableEntry();
 
-  for (const entry of [...initialEntries].reverse()) {
+  while (entry) {
     try {
       if (entry.kind === "ansitz-create") {
         await patchEntry(entry.id, syncPatch("syncing"));
@@ -273,6 +291,8 @@ async function runQueueSync() {
     } catch (error) {
       await patchEntry(entry.id, failurePatch(entry.attemptCount + 1, error));
     }
+
+    entry = getNextSyncableEntry();
   }
 
   setSnapshot({
@@ -297,16 +317,23 @@ async function removeEntry(entryId: string) {
   return nextEntries;
 }
 
-async function patchEntry(entryId: string, patch: Partial<OfflineOperation>) {
+async function patchEntry(
+  entryId: string,
+  patch:
+    | Partial<OfflineOperation>
+    | ((entry: OfflineOperation) => Partial<OfflineOperation>)
+) {
   const entries = await ensureHydrated();
   const nextEntries = entries.map((entry) => {
     if (entry.id !== entryId) {
       return entry;
     }
 
+    const nextPatch = typeof patch === "function" ? patch(entry) : patch;
+
     return {
       ...entry,
-      ...patch
+      ...nextPatch
     } as OfflineOperation;
   });
 
@@ -318,7 +345,8 @@ function syncPatch(status: "syncing" | "uploading") {
   return {
     status,
     lastAttemptAt: new Date().toISOString(),
-    lastError: undefined
+    lastError: undefined,
+    nextAttemptAt: undefined
   } satisfies Partial<OfflineOperation>;
 }
 
@@ -329,8 +357,40 @@ function failurePatch(attemptCount: number, error: unknown): Partial<OfflineOper
     status: conflict ? "conflict" : "failed",
     attemptCount,
     lastAttemptAt: new Date().toISOString(),
+    nextAttemptAt: conflict ? undefined : calculateNextAttemptAt(attemptCount),
     lastError: error instanceof Error ? error.message : "Synchronisierung fehlgeschlagen."
   } satisfies Partial<OfflineOperation>;
+}
+
+function getNextSyncableEntry() {
+  const now = Date.now();
+
+  return [...snapshot.entries]
+    .reverse()
+    .find((entry) => isEntrySyncable(entry, now));
+}
+
+function isEntrySyncable(entry: OfflineOperation, now: number) {
+  if (entry.status === "pending") {
+    return true;
+  }
+
+  if (entry.status !== "failed") {
+    return false;
+  }
+
+  if (!entry.nextAttemptAt) {
+    return true;
+  }
+
+  const nextAttemptAt = Date.parse(entry.nextAttemptAt);
+
+  return Number.isNaN(nextAttemptAt) || nextAttemptAt <= now;
+}
+
+function calculateNextAttemptAt(attemptCount: number) {
+  const retryDelayMinutes = RETRY_BACKOFF_MINUTES[Math.min(attemptCount - 1, RETRY_BACKOFF_MINUTES.length - 1)] ?? 60;
+  return new Date(Date.now() + retryDelayMinutes * 60 * 1000).toISOString();
 }
 
 async function ensureHydrated(): Promise<OfflineOperation[]> {
@@ -394,7 +454,8 @@ function normalizeOfflineOperation(value: unknown): OfflineOperation | null {
 
   const base = {
     ...value,
-    status: normalizeHydratedStatus(value.status)
+    status: normalizeHydratedStatus(value.status),
+    nextAttemptAt: normalizeOptionalString(value.nextAttemptAt)
   };
 
   if (base.kind === "fallwild-create") {
@@ -444,6 +505,7 @@ function isOfflineOperation(value: unknown): value is OfflineOperation {
     typeof entry.title === "string" &&
     typeof entry.createdAt === "string" &&
     typeof entry.attemptCount === "number" &&
+    (entry.nextAttemptAt == null || typeof entry.nextAttemptAt === "string") &&
     (entry.status === "pending" || entry.status === "syncing" || entry.status === "uploading" || entry.status === "failed" || entry.status === "conflict") &&
     (entry.kind === "ansitz-create" || entry.kind === "fallwild-create" || entry.kind === "fallwild-photo-upload") &&
     hasValidPayload
@@ -467,6 +529,10 @@ function cloneAttachments(attachments: LocalPendingPhoto[]): LocalPendingPhoto[]
 function stripAttachments(payload: QueuedFallwildCreatePayload): CreateFallwildRequest {
   const { attachments: _attachments, ...createPayload } = payload;
   return createPayload;
+}
+
+function normalizeOptionalString(value: unknown) {
+  return typeof value === "string" && value.length > 0 ? value : undefined;
 }
 
 async function uploadFallwildPhoto(fallwildId: string, attachment: LocalPendingPhoto) {

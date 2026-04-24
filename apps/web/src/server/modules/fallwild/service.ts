@@ -3,7 +3,7 @@ import { randomUUID } from "crypto";
 
 import { isMissingTableError } from "../../db/compat";
 import { getServerEnv } from "../../env";
-import { putStorageObject } from "../../storage/s3";
+import { deleteStorageObject, putStorageObject } from "../../storage/s3";
 import {
   deriveFallwildPhotoTitle,
   FALLWILD_MAX_PHOTO_COUNT,
@@ -46,6 +46,7 @@ interface FallwildServiceOptions {
   generatePhotoId?: () => string;
   getNow?: () => string;
   repository?: FallwildRepository;
+  deleteObject?: typeof deleteStorageObject;
   uploadObject?: typeof putStorageObject;
   useDemoStore?: boolean;
 }
@@ -55,6 +56,7 @@ export function createFallwildService({
   generateId = () => `fallwild-${randomUUID()}`,
   generatePhotoId = () => `photo-${randomUUID()}`,
   getNow = () => new Date().toISOString(),
+  deleteObject = deleteStorageObject,
   uploadObject = putStorageObject,
   useDemoStore = getServerEnv().useDemoStore
 }: FallwildServiceOptions = {}) {
@@ -118,19 +120,26 @@ export function createFallwildService({
         })
       );
 
-      const row = await withLegacyMediaSchemaCompatibility(() =>
-        repository.insertPhoto({
-          id: photoId,
-          revierId: scope.revierId,
-          entityId: command.fallwildId,
-          uploadedByMembershipId: command.reportedByMembershipId,
-          title,
-          objectKey: storedObject.objectKey,
-          fileName: command.fileName,
-          contentType: command.contentType,
-          createdAt
-        })
-      );
+      let row: FallwildPhotoRecord;
+
+      try {
+        row = await withLegacyMediaSchemaCompatibility(() =>
+          repository.insertPhoto({
+            id: photoId,
+            revierId: scope.revierId,
+            entityId: command.fallwildId,
+            uploadedByMembershipId: command.reportedByMembershipId,
+            title,
+            objectKey: storedObject.objectKey,
+            fileName: command.fileName,
+            contentType: command.contentType,
+            createdAt
+          })
+        );
+      } catch (error) {
+        await rollbackStoredPhoto(storedObject.objectKey, deleteObject);
+        throw error;
+      }
 
       return mapPhotoRecordToDomain(row, storedObject.publicUrl);
     }
@@ -198,6 +207,17 @@ async function withStorageAvailability<T>(operation: () => Promise<T>) {
     }
 
     throw new FallwildServiceError("Foto konnte nicht im Storage gespeichert werden.", 503);
+  }
+}
+
+async function rollbackStoredPhoto(
+  objectKey: string,
+  deleteObject: typeof deleteStorageObject
+) {
+  try {
+    await deleteObject(objectKey);
+  } catch {
+    // The original DB/schema error is more important than best-effort cleanup.
   }
 }
 
