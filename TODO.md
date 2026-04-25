@@ -2,11 +2,11 @@
 
 ## Offen
 
+- iPhone-/iOS-Simulator-Smoke auf dem aktuellen Medien-/Queue-v2-Pfad mit abgestimmtem Testkonto und Test-Revier nachziehen.
 - Mobile-spezifische E2E-Strategie für Expo und native Oberflächen über den dokumentierten Geräte-Smoke hinaus festziehen.
-- Medien-/Queue-Härtung für Fallwild-Fotos, Retry, Konflikte und Upload-Abbrüche fertigziehen.
 - Android-Emulator-Smoke nach [Android-Smoke-Runbook](docs/mobile-smoke-android.md) als optionalen Zweitpfad vorbereiten, falls später Android-Abdeckung ohne physisches Gerät benötigt wird.
 - Google-Maps-Ausrichtung für Kartenfunktionen in Web und Mobile gegen [Google-Maps-Konzept](docs/maps-google-v1.md) schärfen.
-- Fachkonzept für Reviermeldungen zu Fütterungen, Wasserungen und Einrichtungen mit Fotos, Kurztext und Aufgabenbezug ausarbeiten.
+- Reviermeldungen und Aufgaben v1 nach [Reviermeldungen/Aufgaben-Plan](docs/reviermeldungen-aufgaben-v1-plan.md) umsetzen.
 - Rollen- und Empfängergruppenmodell für zielgerichtete Sichtbarkeit von Nachrichten, Aufgaben und Veranstaltungen gegen [Rollen/Aufgaben/Nachrichten v1](docs/rollen-aufgaben-nachrichten-v1.md) festziehen.
 - Veranstaltungsmodul mit Ankündigung, Treffpunkt, Erinnerungen und optionaler Teilnahmebestätigung planen.
 - WhatsApp-Anstoß aus der App fachlich und technisch gegen interne Nachrichten und Aufgaben abgrenzen.
@@ -37,3 +37,7 @@
 - Mobile Queue auf `pending`, `syncing`, `uploading`, `failed` und `conflict` erweitert.
 - Android-Smoke-Helfer fuer Expo, `adb` und Testbild-Erzeugung hinzugefuegt.
 - iPhone-/iOS-Simulator-Smoke mit Expo lokal durchlaufen und nach [iOS-Smoke-Runbook](docs/mobile-smoke-ios.md) dokumentiert gegengeprüft.
+- Web Storage-Rollback fuer Fallwild-Foto-Uploads als best-effort `DeleteObjectCommand` nach fehlgeschlagenem `media_assets`-Insert umgesetzt.
+- Mobile Queue v2 mit `nextAttemptAt`, Retry-Backoff, dynamischer Sync-Schleife, manuellem Retry und Verwerfen problematischer Eintraege umgesetzt.
+- Mobile Vitest-Abdeckung fuer Foto-Normalisierung, maximal drei Fotos, Submission-Fallback, recoverable Upload-Fehler und Queue-Retry-Policy eingefuehrt.
+- Reviermeldungen und Aufgaben v1 als naechsten fachlichen Codeblock geplant und gegen Rollen-/Nachrichten-Konzept abgegrenzt.

@@ -10,7 +10,7 @@ Der Smoke prüft keine vollständige Regression, sondern die wichtigsten nativen
 - Dashboard laden und aktualisieren
 - Ansitz-Screen laden und optional in einem abgestimmten Test-Revier starten
 - Fallwild-Fotoauswahl prüfen und nur in einem abgestimmten Test-Revier speichern
-- Offline-Queue und anschließenden Sync prüfen
+- Offline-Queue v2, Retry-Hinweise und anschließenden Sync prüfen
 
 ## Voraussetzungen
 
@@ -123,7 +123,7 @@ Erwartung:
 
 ## Queue-Sync-Smoke
 
-Der Queue-Sync soll zeigen, dass Kernaktionen bei kurzzeitig fehlendem Netz vorgemerkt und später synchronisiert werden.
+Der Queue-Sync soll zeigen, dass Kernaktionen bei kurzzeitig fehlendem Netz vorgemerkt und später synchronisiert werden. Der aktuelle Pfad nutzt Queue v2 mit separaten Foto-Upload-Einträgen, Retry-Backoff und manuellen Aktionen für problematische Einträge.
 
 1. App und Dashboard einmal online vollständig laden.
 2. Netzwerkverbindung des Macs kurz trennen oder mit Network Link Conditioner eine Offline-Situation simulieren.
@@ -132,6 +132,8 @@ Der Queue-Sync soll zeigen, dass Kernaktionen bei kurzzeitig fehlendem Netz vorg
 5. Netzwerk wiederherstellen.
 6. Dashboard, Ansitz oder Fallwild manuell aktualisieren.
 7. Warten, bis die Queue abgearbeitet ist.
+8. Wenn ein Eintrag fehlschlägt, Fehlertext und nächsten Retry-Zeitpunkt prüfen.
+9. Für einen fehlgeschlagenen oder konfliktbehafteten Testeintrag die sichtbaren Aktionen `Erneut versuchen` und `Verwerfen` prüfen, aber nur im abgestimmten Test-Revier verwerfen.
 
 Erwartung:
 
@@ -139,6 +141,8 @@ Erwartung:
 - Der Vorgang geht nicht verloren.
 - Ausstehende Queue-Einträge werden nach wiederhergestelltem Netz synchronisiert.
 - Erfolgreich synchronisierte Einträge verschwinden aus dem Pending-Zustand oder werden als synchronisiert angezeigt.
+- Fehlgeschlagene Einträge zeigen den nächsten Retry-Zeitpunkt und lassen sich manuell erneut versuchen oder verwerfen.
+- Konflikte werden nicht automatisch endlos wiederholt.
 
 ## Bekannte Stolperstellen
 
@@ -169,5 +173,6 @@ Der iOS-Smoke gilt als bestanden, wenn:
 - Ansitz geladen und optional im Test-Revier gestartet werden kann.
 - Fallwild inklusive nativer Fotoauswahl mit importiertem Testbild geprüft und optional im Test-Revier gespeichert werden kann.
 - Offline erzeugte Aktionen in der Queue sichtbar sind und nach Netzrückkehr synchronisieren.
+- Fehlerhafte Queue-Einträge Retry-Zeitpunkt, Fehlertext sowie die Aktionen `Erneut versuchen` und `Verwerfen` nachvollziehbar anzeigen.
 
 Alle Abweichungen mit Simulator-Modell, iOS-Version, Zeitpunkt, Testkonto-Bezug ohne Secret und beobachtetem Screen dokumentieren.

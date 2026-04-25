@@ -205,6 +205,7 @@ Kartenfunktionen in der mobilen App orientieren sich verbindlich an Google Maps.
 ## Technischer Stand
 
 - Dashboard, Ansitze und Fallwild nutzen bereits denselben Vercel-native API-Pfad unter `https://hege.app/api/v1`
+- Fallwild-Fotos nutzen Queue v2 mit separaten Upload-Einträgen, Retry-Backoff, Konfliktstatus und manuellen Aktionen fuer problematische Eintraege
 - Manuelle Aktualisierung und Pull-to-Refresh bleiben der verbindliche Aktualisierungspfad fuer v1
 
 ## Native Abnahme

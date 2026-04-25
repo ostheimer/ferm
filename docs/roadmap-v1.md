@@ -7,10 +7,10 @@ Diese Roadmap beschreibt die Ausbaustufen vom Repository-Grundgeruest zur ersten
 ## Aktueller Status
 
 - `Sprint 0` ist abgeschlossen. Auth, Session, Revier-Scope, Rollenpruefung, Drizzle-Migrationen, Seeds und produktive Route Handler liegen in `apps/web`.
-- `Sprint 1` ist in Abschluss-Haertung. Dashboard, Reviereinrichtungen, Protokolle, Sitzungen, Freigabe/PDF-Basis, Preview-Smoke und blockierender Release-Check fuer Production sind umgesetzt; offen sind vor allem Doku und manuelle Abnahme.
+- `Sprint 1` ist in Abschluss-Haertung. Dashboard, Reviereinrichtungen, Protokolle, Sitzungen, Freigabe/PDF-Basis, Preview-Smoke und blockierender Release-Check fuer Production sind umgesetzt; offen sind vor allem punktuelle Doku-Pflege und manuelle Abnahme.
 - `Sprint 1.5` ist weit fortgeschritten. Public Landing, Auth-Redirects und Registrierungsfluss sind browserseitig abgesichert; der Preview-Smoke deckt inzwischen Einstieg, Session-Grundvertrag und zentrale App-Read-Pfade ab.
-- `Sprint 2` ist teilweise umgesetzt. Mobile Login, Session-Restore, Dashboard, Ansitz- und Fallwild-Formulare, Reviereinrichtungen und Protokolle lesen bereits dieselbe API; der iPhone-/iOS-Simulator-Smoke ist abgeschlossen.
-- `Sprint 3` ist aktiv. Fallwild anlegen, exportieren und offline vormerken funktioniert schon; Foto-Upload, Medien-Storage und Queue v2 sind der aktuelle Härteblock.
+- `Sprint 2` ist teilweise umgesetzt. Mobile Login, Session-Restore, Dashboard, Ansitz- und Fallwild-Formulare, Reviereinrichtungen und Protokolle lesen bereits dieselbe API; der iPhone-/iOS-Simulator-Smoke ist als primaerer nativer Abnahmepfad dokumentiert.
+- `Sprint 3` ist technisch gehaertet. Fallwild anlegen, exportieren, offline vormerken, mit Fotos versehen und ueber Queue v2 synchronisieren ist umgesetzt; der naechste praktische Schritt ist die erneute iPhone-/iOS-Simulator-Abnahme mit Testkonto und Test-Revier.
 
 ## Sprint 0: Fundament
 
@@ -97,16 +97,22 @@ Ergebnis:
 
 ## Sprint 3: Fallwild und Medien
 
-Status: aktiv
+Status: technisch gehaertet, native Abnahme ausstehend
 
 Lieferumfang dieses Blocks:
 
 - `GET /api/v1/fallwild/:id`
 - `POST /api/v1/fallwild/:id/fotos`
 - S3-kompatible Storage-Schicht fuer MinIO lokal und R2 in Preview/Production
+- best-effort Storage-Rollback nach erfolgreichem Upload, aber fehlschlagendem `media_assets`-Insert
 - `media_assets` als generische Medienbasis
-- Queue v2 mit separaten Foto-Uploads, Retry und Konfliktstatus
+- Queue v2 mit separaten Foto-Uploads, Retry-Backoff, `nextAttemptAt`, dynamischer Sync-Schleife, manuellem Retry und Konfliktstatus
 - Fotoauswahl aus der Bibliothek in der App
+- Mobile Vitest-Abdeckung fuer Foto-Normalisierung, maximal drei Fotos, Submission-Fallback, recoverable Upload-Fehler und Queue-Retry-Policy
+
+Restblock:
+
+- iPhone-/iOS-Simulator-Smoke nach [iOS-Smoke-Runbook](./mobile-smoke-ios.md) auf dem aktuellen Medien-/Queue-v2-Pfad mit abgestimmtem Testkonto und Test-Revier erneut durchlaufen
 
 Ergebnis:
 
@@ -180,11 +186,11 @@ Ergebnis:
 
 Wenn unmittelbar weiterentwickelt wird, ist die sinnvollste Reihenfolge:
 
-1. Web-Abnahme und Dokumentation auf den tatsaechlichen Implementierungsstand ziehen
-2. Medien-Upload, Medien-Storage und Queue-Sync weiter härten
-3. optionalen Android-Emulator-Smoke für spätere Plattformabdeckung vorbereiten
-4. Kartenfunktionen in Web und Mobile auf Google Maps ausrichten
-5. danach Rollen-, Aufgaben-, Nachrichten- und Veranstaltungslogik auf die bestehende Rechtebasis setzen
+1. iPhone-/iOS-Simulator-Smoke auf dem gehaerteten Medien-/Queue-v2-Pfad mit Testkonto und Test-Revier nachziehen
+2. Mobile-spezifische E2E-Strategie ueber den dokumentierten Geraete-Smoke hinaus festziehen
+3. Reviermeldungen und Aufgaben v1 als naechsten fachlichen Codeblock schneiden
+4. optionalen Android-Emulator-Smoke fuer spaetere Plattformabdeckung praktisch durchlaufen, falls Android-Abdeckung priorisiert wird
+5. danach Karten, Rollen, Nachrichten, Veranstaltungen und externe Messenger-Anstoesse auf die bestehende Rechtebasis setzen
 
 ## Detaillierte Sprint-Backlogs
 

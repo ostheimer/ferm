@@ -14,6 +14,7 @@ Diese Dokumentation beschreibt den aktuellen Stand des Repositories und den gepl
 - [Android-Smoke-Runbook](./mobile-smoke-android.md)
 - [Google-Maps-Ausrichtung](./maps-google-v1.md)
 - [Rollen, Aufgaben und Nachrichten v1](./rollen-aufgaben-nachrichten-v1.md)
+- [Reviermeldungen und Aufgaben v1](./reviermeldungen-aufgaben-v1-plan.md)
 - [Umsetzungsbacklog](./umsetzungsbacklog.md)
 - [Sprint 0 Backlog](./sprint-0-backlog.md)
 - [Sprint 1 Backlog](./sprint-1-backlog.md)
@@ -38,8 +39,9 @@ Das Repository enthaelt bereits ein produktiv orientiertes Monorepo mit:
 - Expo-Mobile-App mit Login, Dashboard, Ansitz, Fallwild, Reviereinrichtungen und Protokollen gegen denselben API-Slice
 - Shared Domain Package fuer Typen, Demo-Daten und Fachregeln
 - Route Handler fuer `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `reviereinrichtungen`, `protokolle`, `sitzungen` und `documents`
-- Fallwild-Detail, Foto-Upload und S3-kompatible Storage-Schicht fuer MinIO lokal und spaeteres R2
-- Mobile Offline-Queue fuer Ansitz und Fallwild inklusive separater Foto-Upload-Operationen und Konfliktstatus
+- Fallwild-Detail, Foto-Upload und S3-kompatible Storage-Schicht fuer MinIO lokal und spaeteres R2 inklusive best-effort Rollback bei Medien-Insert-Fehlern
+- Mobile Offline-Queue v2 fuer Ansitz und Fallwild inklusive separater Foto-Upload-Operationen, Retry-Backoff, Konfliktstatus, manuellem Retry und Verwerfen problematischer Eintraege
+- Mobile Vitest-Abdeckung fuer Foto-Normalisierung, Foto-Limit, Submission-Fallback und Queue-Retry-Policy
 - automatisierten Web-Tests mit Vitest fuer Route Handler, Services und Queries
 - Playwright-E2E- und Visual-Regression-Tests fuer Public Web, Auth, Ansitze, Fallwild, Dashboard, Reviereinrichtungen, Protokolle und Sitzungen auf Desktop und Mobile
 - Preview-Smoke fuer Public Web, Session-Grundvertrag und die wichtigsten App-Read-Pfade
@@ -53,7 +55,7 @@ Kartenfunktionen werden projektweit auf Google Maps ausgerichtet; das stabile Zi
 
 Die fachliche Dokumentation beschreibt bereits die naechste Ausbaustufe mit echter Persistenz, Authentifizierung, Rollenpruefung und produktionsreifen Workflows.
 
-Der aktuelle Entwicklungsfokus liegt auf der weiteren Härtung von Medien-Upload und Queue-Sync, dem optionalen Android-Emulator-Smoke, der Google-Maps-Ausrichtung sowie dem fachlichen Zuschnitt von Rollen, Aufgaben und Nachrichten.
+Der aktuelle Entwicklungsfokus liegt auf der erneuten iPhone-/iOS-Simulator-Abnahme des gehaerteten Medien-/Queue-v2-Pfads, der Mobile-E2E-Strategie, dem optionalen Android-Emulator-Smoke und dem Zuschnitt von Reviermeldungen und Aufgaben v1. Google-Maps-Ausrichtung, Rollen, Nachrichten, Veranstaltungen und externe Messenger-Anstoesse bleiben vorbereitete Folgeblöcke.
 
 Fuer den aktuellen Status sind [ROADMAP.md](../ROADMAP.md), [Roadmap v1](./roadmap-v1.md) und [TODO.md](../TODO.md) massgeblich. Die Sprint-0/1-Backlogs und Agent-Workstreams bleiben als Planungsartefakte der zuletzt geschnittenen Arbeitsbloecke erhalten.
 

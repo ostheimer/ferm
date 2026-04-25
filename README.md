@@ -22,7 +22,7 @@ Die bestehende NestJS-API bleibt als Referenzpfad im Repository. Die produktive 
 - Drizzle-Konfiguration und Migrationen fuer Auth, Ansitze, Fallwild, `media_assets`, Reviereinrichtungen, Sitzungen, Protokolle, Dokumente und Notifications
 - Route Handler fuer `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `reviereinrichtungen`, `protokolle`, `sitzungen` und `documents`
 - Fallwild-Detail und Foto-Upload ueber `GET /api/v1/fallwild/:id` und `POST /api/v1/fallwild/:id/fotos`
-- S3-kompatible Storage-Schicht fuer lokales MinIO und spaeteres Cloudflare R2
+- S3-kompatible Storage-Schicht fuer lokales MinIO und spaeteres Cloudflare R2 inklusive best-effort Rollback nach fehlgeschlagenem Medien-Insert
 - Seed-Skript auf Basis der bestehenden Demo-Daten
 - Login in Web und App ueber E-Mail oder Benutzername plus vierstellige PIN
 - Demo-Fallback fuer lokale Read-Tests, solange keine DB aktiv ist
@@ -30,8 +30,9 @@ Die bestehende NestJS-API bleibt als Referenzpfad im Repository. Die produktive 
 - Web-Fallwildseite mit Erfassung, CSV-Export und mobilem Layout gegen denselben API-Pfad
 - Web-Dashboard, Reviereinrichtungen, Protokolle und Sitzungen gegen dieselbe Server-Schicht
 - Mobile-Screens fuer Dashboard, Ansitze, Fallwild, Reviereinrichtungen und Protokolle gegen denselben API-Slice
-- Mobile Fallwild-Fotoauswahl mit Queue-Weitergabe fuer spaetere Uploads
+- Mobile Fallwild-Fotoauswahl mit Queue-v2-Weitergabe, Retry-Backoff und sichtbaren Aktionen fuer problematische Uploads
 - dokumentierten iPhone-/iOS-Simulator-Smoke als primären nativen Expo-Abnahmepfad
+- Mobile Vitest-Abdeckung fuer Foto-Normalisierung, Foto-Limit, Submission-Fallback und Queue-Retry-Policy
 - automatisierten Web-Tests mit Vitest fuer Route Handler, Services und Server-Queries
 - Playwright-E2E- und Visual-Regression-Tests fuer Public Web, Auth, Ansitze, Fallwild, Sitzungen, Dashboard, Reviereinrichtungen und Protokolle auf Desktop und Mobile
 - Preview-Smoke fuer Public Web, Session-Grundvertrag und die wichtigsten App-Read-Pfade
@@ -123,12 +124,14 @@ Wichtige Testwege:
 
 ## Nächste Ausbauschritte
 
+- iPhone-/iOS-Simulator-Smoke auf dem aktuellen Medien-/Queue-v2-Pfad mit Testkonto und Test-Revier nachziehen
+- Mobile-E2E-Strategie über den dokumentierten Geräte-Smoke hinaus festziehen
 - produktive Abnahme mit blockierendem Release-Check weiter beobachten
-- Medien-Upload, PDF-Erzeugung und Queue-Sync weiter härten
+- PDF-Erzeugung weiter härten
 - Android-Emulator-Smoke optional als Zweitpfad vorbereiten
+- Reviermeldungen und Aufgaben v1 als nächsten fachlichen Codeblock schneiden
 - Karten auf Google Maps fuer Web und Mobile ausrichten
-- Rollen-, Aufgaben- und Nachrichtenmodell fachlich ausarbeiten
-- Offline-Synchronisierung von der aktuellen Queue auf robustere Konflikt- und Medien-Szenarien erweitern
+- Rollen-, Aufgaben- und Nachrichtenmodell fachlich weiter ausarbeiten
 
 ## Dokumentation
 
@@ -143,3 +146,4 @@ Wichtige Testwege:
 - [Android-Smoke-Runbook](./docs/mobile-smoke-android.md)
 - [Google-Maps-Ausrichtung](./docs/maps-google-v1.md)
 - [Rollen, Aufgaben und Nachrichten v1](./docs/rollen-aufgaben-nachrichten-v1.md)
+- [Reviermeldungen und Aufgaben v1](./docs/reviermeldungen-aufgaben-v1-plan.md)

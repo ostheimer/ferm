@@ -6,6 +6,8 @@ Dieses Dokument beschreibt die fachliche Richtung für Rollen, Aufgaben, Nachric
 
 Ziel ist ein internes Arbeits- und Kommunikationsmodell für Reviere in Österreich. Die App bleibt die fachliche Quelle der Wahrheit. Externe Messenger können später ergänzen, ersetzen aber nicht das eigene Modell.
 
+Der konkrete nächste Umsetzungsschnitt für Reviermeldungen und Aufgaben liegt in [Reviermeldungen und Aufgaben v1](./reviermeldungen-aufgaben-v1-plan.md).
+
 ## Grundprinzipien
 
 - alle Inhalte sind pro `revier_id` getrennt
