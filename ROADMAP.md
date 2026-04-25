@@ -5,17 +5,17 @@ Diese Datei ist der schlanke Einstiegspunkt im Repo-Root. Die vollstaendige Road
 ## Aktueller Status
 
 - `Sprint 0` ist technisch abgeschlossen: Auth, Revier-Scope, Rollenpruefung, Drizzle-Schema, Seeds und produktive Route Handler laufen in `apps/web`.
-- `Sprint 1` ist in Abschluss-Haertung: Dashboard, Reviereinrichtungen, Protokolle, Sitzungen, Freigabe/PDF-Basis, Preview-Smoke und blockierender Release-Check fuer Production sind umgesetzt; offen sind vor allem manuelle Abnahme und Doku-Schaerfung.
+- `Sprint 1` ist in Abschluss-Haertung: Dashboard, Reviereinrichtungen, Protokolle, Sitzungen, Freigabe/PDF-Basis, Preview-Smoke und blockierender Release-Check fuer Production sind umgesetzt; offen sind vor allem manuelle Abnahme und punktuelle Doku-Pflege.
 - `Sprint 1.5` ist weit fortgeschritten: Public Landing, Pricing-CTAs, Auth-Redirects und der erste Setup-/`/app`-Einstieg sind browserseitig abgesichert; der Preview-Smoke deckt inzwischen Einstieg, Session-Grundvertrag und zentrale App-Read-Pfade ab.
-- `Sprint 2` und `Sprint 3` sind bereits angebrochen: Mobile Login, Dashboard, Ansitz- und Fallwild-Formulare, Read-Slices und Offline-Queue stehen; der iPhone-/iOS-Simulator-Smoke ist abgeschlossen, Fallwild-Fotos, Medien-Upload und Queue v2 bleiben der aktuelle Härteblock.
+- `Sprint 2` und `Sprint 3` sind bereits angebrochen: Mobile Login, Dashboard, Ansitz- und Fallwild-Formulare, Read-Slices und Offline-Queue stehen; der iPhone-/iOS-Simulator-Smoke ist dokumentiert, Medien-Upload und Queue v2 sind technisch gehaertet und brauchen als naechstes die erneute native Abnahme mit Testdaten.
 
 ## Aktueller Fokus
 
-1. Medien-Upload, Medien-Storage und Queue-Sync weiter härten
-2. Android-Emulator-Smoke als optionalen Zweitpfad vorbereiten
-3. Kartenfunktionen in Web und Mobile auf Google Maps ausrichten
-4. Rollen, Aufgaben und Nachrichten fachlich festziehen
-5. Veranstaltungen und externe Messenger-Anstöße danach anschließen
+1. iPhone-/iOS-Simulator-Smoke auf dem gehaerteten Medien-/Queue-v2-Pfad mit Testkonto und Test-Revier nachziehen
+2. Mobile-E2E-Strategie ueber den dokumentierten Geraete-Smoke hinaus festziehen
+3. Reviermeldungen und Aufgaben v1 als naechsten fachlichen Codeblock schneiden
+4. Android-Emulator-Smoke als optionalen Zweitpfad bei Bedarf praktisch durchlaufen
+5. Kartenfunktionen in Web und Mobile auf Google Maps ausrichten; Veranstaltungen und externe Messenger-Anstoesse danach anschliessen
 
 ## Detaildokumente
 
@@ -32,3 +32,4 @@ Diese Datei ist der schlanke Einstiegspunkt im Repo-Root. Die vollstaendige Road
 - [Android-Smoke-Runbook](./docs/mobile-smoke-android.md)
 - [Google-Maps-Ausrichtung](./docs/maps-google-v1.md)
 - [Rollen, Aufgaben und Nachrichten v1](./docs/rollen-aufgaben-nachrichten-v1.md)
+- [Reviermeldungen und Aufgaben v1](./docs/reviermeldungen-aufgaben-v1-plan.md)

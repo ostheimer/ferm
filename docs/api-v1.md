@@ -215,12 +215,12 @@ Bereits produktiv ueber `apps/web` vorhanden:
 
 - `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `reviereinrichtungen`, `protokolle`, `sitzungen` und `documents`
 - Drizzle-Migrationen fuer Auth, Ansitze, Fallwild, `media_assets`, Reviereinrichtungen, Sitzungen, Protokolle, Dokumente und Notifications
-- S3-kompatible Storage-Schicht fuer lokales MinIO und spaeteres R2
+- S3-kompatible Storage-Schicht fuer lokales MinIO und spaeteres R2 inklusive best-effort Rollback bei Medien-Insert-Fehlern
 
 `apps/api` bleibt als Referenz und Uebergangspfad im Repository, ist aber nicht die produktive Zielarchitektur.
 
 ## Naechste API-Themen
 
-1. Medien- und Queue-Haertung ueber Preview und iPhone-/iOS-Simulator-Smoke absichern
-2. Rollen-, Aufgaben- und Nachrichten-Ressourcen auf dieselbe API-Linie heben
-3. weitere Mobile-Mutationen und Konfliktbehandlung auf denselben Fehlervertrag bringen
+1. gehaerteten Medien-/Queue-v2-Pfad per iPhone-/iOS-Simulator-Smoke mit Testkonto und Test-Revier erneut abnehmen
+2. Reviermeldungen und Aufgaben v1 auf dieselbe API-Linie heben
+3. Rollen-, Nachrichten- und Veranstaltungsressourcen danach auf denselben Rechte- und Fehlervertrag setzen
