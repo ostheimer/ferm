@@ -31,7 +31,7 @@ Die bestehende NestJS-API bleibt als Referenzpfad im Repository. Die produktive 
 - Web-Dashboard, Reviereinrichtungen, Protokolle und Sitzungen gegen dieselbe Server-Schicht
 - Mobile-Screens fuer Dashboard, Ansitze, Fallwild, Reviereinrichtungen und Protokolle gegen denselben API-Slice
 - Mobile Fallwild-Fotoauswahl mit Queue-v2-Weitergabe, Retry-Backoff und sichtbaren Aktionen fuer problematische Uploads
-- dokumentierten iPhone-/iOS-Simulator-Smoke als primären nativen Expo-Abnahmepfad
+- dokumentierten iPhone-/iOS-Simulator-Smoke als primären nativen Expo-Abnahmepfad; der Lauf vom 2026-04-26 bestaetigt Queue-v2-Fehleranzeigen, R2-Storage ist auf Production aktiviert und ein direkter Fallwild-Foto-Upload gegen `hege.app` ist verifiziert
 - Mobile Vitest-Abdeckung fuer Foto-Normalisierung, Foto-Limit, Submission-Fallback und Queue-Retry-Policy
 - automatisierten Web-Tests mit Vitest fuer Route Handler, Services und Server-Queries
 - Playwright-E2E- und Visual-Regression-Tests fuer Public Web, Auth, Ansitze, Fallwild, Sitzungen, Dashboard, Reviereinrichtungen und Protokolle auf Desktop und Mobile
@@ -124,7 +124,7 @@ Wichtige Testwege:
 
 ## Nächste Ausbauschritte
 
-- iPhone-/iOS-Simulator-Smoke auf dem aktuellen Medien-/Queue-v2-Pfad mit Testkonto und Test-Revier nachziehen
+- iPhone-/iOS-Simulator-Smoke fuer erfolgreichen Foto-Upload und leere Queue nachziehen
 - Mobile-E2E-Strategie über den dokumentierten Geräte-Smoke hinaus festziehen
 - produktive Abnahme mit blockierendem Release-Check weiter beobachten
 - PDF-Erzeugung weiter härten

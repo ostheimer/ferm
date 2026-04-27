@@ -10,7 +10,7 @@ Diese Roadmap beschreibt die Ausbaustufen vom Repository-Grundgeruest zur ersten
 - `Sprint 1` ist in Abschluss-Haertung. Dashboard, Reviereinrichtungen, Protokolle, Sitzungen, Freigabe/PDF-Basis, Preview-Smoke und blockierender Release-Check fuer Production sind umgesetzt; offen sind vor allem punktuelle Doku-Pflege und manuelle Abnahme.
 - `Sprint 1.5` ist weit fortgeschritten. Public Landing, Auth-Redirects und Registrierungsfluss sind browserseitig abgesichert; der Preview-Smoke deckt inzwischen Einstieg, Session-Grundvertrag und zentrale App-Read-Pfade ab.
 - `Sprint 2` ist teilweise umgesetzt. Mobile Login, Session-Restore, Dashboard, Ansitz- und Fallwild-Formulare, Reviereinrichtungen und Protokolle lesen bereits dieselbe API; der iPhone-/iOS-Simulator-Smoke ist als primaerer nativer Abnahmepfad dokumentiert.
-- `Sprint 3` ist technisch gehaertet. Fallwild anlegen, exportieren, offline vormerken, mit Fotos versehen und ueber Queue v2 synchronisieren ist umgesetzt; der naechste praktische Schritt ist die erneute iPhone-/iOS-Simulator-Abnahme mit Testkonto und Test-Revier.
+- `Sprint 3` ist technisch gehaertet und nativ teilabgenommen. Fallwild anlegen, exportieren, offline vormerken, mit Fotos versehen und ueber Queue v2 synchronisieren ist umgesetzt; der iPhone-/iOS-Simulator-Smoke vom 2026-04-26 bestaetigt den Queue-v2-Fehlerpfad, R2-Storage ist in Production aktiv und ein direkter Fallwild-Foto-Upload gegen `hege.app` ist verifiziert.
 
 ## Sprint 0: Fundament
 
@@ -97,7 +97,7 @@ Ergebnis:
 
 ## Sprint 3: Fallwild und Medien
 
-Status: technisch gehaertet, native Abnahme ausstehend
+Status: technisch gehaertet, native Abnahme mit aktivem R2-Storage nachzuziehen
 
 Lieferumfang dieses Blocks:
 
@@ -112,11 +112,11 @@ Lieferumfang dieses Blocks:
 
 Restblock:
 
-- iPhone-/iOS-Simulator-Smoke nach [iOS-Smoke-Runbook](./mobile-smoke-ios.md) auf dem aktuellen Medien-/Queue-v2-Pfad mit abgestimmtem Testkonto und Test-Revier erneut durchlaufen
+- iPhone-/iOS-Simulator-Smoke nach [iOS-Smoke-Runbook](./mobile-smoke-ios.md) erneut auf erfolgreichen Foto-Upload und leere Queue durchlaufen
 
 Ergebnis:
 
-- Fallwild kann draussen erfasst, mit Fotos vorgemerkt und spaeter synchronisiert werden
+- Fallwild kann draussen erfasst und mit Fotos vorgemerkt werden; die Queue zeigt Retry-Zeitpunkt, Fehlertext sowie manuelles Retry/Verwerfen, Production-Foto-Upload in R2 ist verifiziert
 
 ## Sprint 4: Reviereinrichtungen und Haertung
 
@@ -186,7 +186,7 @@ Ergebnis:
 
 Wenn unmittelbar weiterentwickelt wird, ist die sinnvollste Reihenfolge:
 
-1. iPhone-/iOS-Simulator-Smoke auf dem gehaerteten Medien-/Queue-v2-Pfad mit Testkonto und Test-Revier nachziehen
+1. iPhone-/iOS-Simulator-Smoke auf dem gehaerteten Medien-/Queue-v2-Pfad mit erfolgreichem Foto-Upload und leerer Queue erneut ausfuehren
 2. Mobile-spezifische E2E-Strategie ueber den dokumentierten Geraete-Smoke hinaus festziehen
 3. Reviermeldungen und Aufgaben v1 als naechsten fachlichen Codeblock schneiden
 4. optionalen Android-Emulator-Smoke fuer spaetere Plattformabdeckung praktisch durchlaufen, falls Android-Abdeckung priorisiert wird

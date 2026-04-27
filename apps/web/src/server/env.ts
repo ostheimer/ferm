@@ -60,9 +60,10 @@ function fallbackAuthSecret() {
 
 function resolveStorageEnv(name: keyof NodeJS.ProcessEnv, fallbackValue: string) {
   const value = process.env[name];
+  const normalizedValue = typeof value === "string" ? value.trim() : undefined;
 
-  if (typeof value === "string" && value.length > 0) {
-    return value;
+  if (normalizedValue && normalizedValue.length > 0) {
+    return normalizedValue;
   }
 
   if (process.env.VERCEL_ENV) {

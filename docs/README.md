@@ -47,7 +47,7 @@ Das Repository enthaelt bereits ein produktiv orientiertes Monorepo mit:
 - Preview-Smoke fuer Public Web, Session-Grundvertrag und die wichtigsten App-Read-Pfade
 - GitHub-Workflow fuer den Preview-Smoke bei erfolgreichen Preview-Deployments und manuellen `workflow_dispatch`
 - Release-Check fuer produktive Deployments mit separatem Workflow bei erfolgreichen Production-Deployments und manuellem `workflow_dispatch`
-- abgeschlossener iPhone-/iOS-Simulator-Smoke als primärer nativer Expo-Abnahmepfad; Android-Emulator bleibt als optionaler Zweitpfad möglich
+- abgeschlossener iPhone-/iOS-Simulator-Smoke als primärer nativer Expo-Abnahmepfad; der Lauf vom 2026-04-26 bestaetigt Queue-v2-Fehleranzeigen, R2-Storage ist in Production aktiv und ein direkter Fallwild-Foto-Upload gegen `hege.app` ist verifiziert
 - `apps/api` bleibt als Referenz- und Uebergangspfad im Repository
 - Rollen, Aufgaben und Nachrichten werden als naechste Planungsstufe vorbereitet, inklusive spaeterer WhatsApp-/Telegram-Kanaele
 
@@ -55,7 +55,7 @@ Kartenfunktionen werden projektweit auf Google Maps ausgerichtet; das stabile Zi
 
 Die fachliche Dokumentation beschreibt bereits die naechste Ausbaustufe mit echter Persistenz, Authentifizierung, Rollenpruefung und produktionsreifen Workflows.
 
-Der aktuelle Entwicklungsfokus liegt auf der erneuten iPhone-/iOS-Simulator-Abnahme des gehaerteten Medien-/Queue-v2-Pfads, der Mobile-E2E-Strategie, dem optionalen Android-Emulator-Smoke und dem Zuschnitt von Reviermeldungen und Aufgaben v1. Google-Maps-Ausrichtung, Rollen, Nachrichten, Veranstaltungen und externe Messenger-Anstoesse bleiben vorbereitete Folgeblöcke.
+Der aktuelle Entwicklungsfokus liegt auf dem iPhone-/iOS-Simulator-Smoke mit erfolgreichem Foto-Upload und leerer Queue, der Mobile-E2E-Strategie, dem optionalen Android-Emulator-Smoke und dem Zuschnitt von Reviermeldungen und Aufgaben v1. Google-Maps-Ausrichtung, Rollen, Nachrichten, Veranstaltungen und externe Messenger-Anstoesse bleiben vorbereitete Folgeblöcke.
 
 Fuer den aktuellen Status sind [ROADMAP.md](../ROADMAP.md), [Roadmap v1](./roadmap-v1.md) und [TODO.md](../TODO.md) massgeblich. Die Sprint-0/1-Backlogs und Agent-Workstreams bleiben als Planungsartefakte der zuletzt geschnittenen Arbeitsbloecke erhalten.
 
