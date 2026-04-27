@@ -2,7 +2,7 @@
 
 ## Offen
 
-- iPhone-/iOS-Simulator-Smoke auf dem aktuellen Medien-/Queue-v2-Pfad mit abgestimmtem Testkonto und Test-Revier nachziehen.
+- iPhone-/iOS-Simulator-Smoke erneut auf erfolgreichen Foto-Upload und leere Queue pruefen.
 - Mobile-spezifische E2E-Strategie für Expo und native Oberflächen über den dokumentierten Geräte-Smoke hinaus festziehen.
 - Android-Emulator-Smoke nach [Android-Smoke-Runbook](docs/mobile-smoke-android.md) als optionalen Zweitpfad vorbereiten, falls später Android-Abdeckung ohne physisches Gerät benötigt wird.
 - Google-Maps-Ausrichtung für Kartenfunktionen in Web und Mobile gegen [Google-Maps-Konzept](docs/maps-google-v1.md) schärfen.
@@ -40,4 +40,7 @@
 - Web Storage-Rollback fuer Fallwild-Foto-Uploads als best-effort `DeleteObjectCommand` nach fehlgeschlagenem `media_assets`-Insert umgesetzt.
 - Mobile Queue v2 mit `nextAttemptAt`, Retry-Backoff, dynamischer Sync-Schleife, manuellem Retry und Verwerfen problematischer Eintraege umgesetzt.
 - Mobile Vitest-Abdeckung fuer Foto-Normalisierung, maximal drei Fotos, Submission-Fallback, recoverable Upload-Fehler und Queue-Retry-Policy eingefuehrt.
+- iPhone-/iOS-Simulator-Smoke auf dem Medien-/Queue-v2-Pfad am 2026-04-26 mit Testdaten durchlaufen: Pflichtfeldvalidierung, 3-Foto-Limit, Queue-Status, Retry-Zeitpunkt, `Erneut versuchen` und Dashboard-Zaehler sind nachvollziehbar.
+- Cloudflare R2-Bucket `hege-assets` im `hege.app`-Account angelegt, `assets.hege.app` als Custom Domain aktiviert und die Vercel-Storage-Variablen inklusive `S3_ACCESS_KEY` und `S3_SECRET_KEY` fuer Preview und Production gesetzt.
+- Production-R2-Foto-Upload am 2026-04-27 gegen `https://hege.app/api/v1` verifiziert: Fallwild-Foto-Upload liefert `201`, die erzeugte `assets.hege.app`-Datei liefert `HTTP 200`.
 - Reviermeldungen und Aufgaben v1 als naechsten fachlichen Codeblock geplant und gegen Rollen-/Nachrichten-Konzept abgegrenzt.

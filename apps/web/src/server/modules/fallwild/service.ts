@@ -206,6 +206,7 @@ async function withStorageAvailability<T>(operation: () => Promise<T>) {
       );
     }
 
+    logStorageWriteFailure(error);
     throw new FallwildServiceError("Foto konnte nicht im Storage gespeichert werden.", 503);
   }
 }
@@ -239,4 +240,38 @@ function readErrorMessage(error: unknown) {
   }
 
   return typeof error.message === "string" && error.message.length > 0 ? error.message : undefined;
+}
+
+function logStorageWriteFailure(error: unknown) {
+  if (process.env.NODE_ENV === "test") {
+    return;
+  }
+
+  console.error("Fallwild photo storage upload failed", summarizeErrorForLog(error));
+}
+
+function summarizeErrorForLog(error: unknown) {
+  const record = readErrorRecord(error);
+  const metadata = readErrorRecord(record?.$metadata);
+
+  return {
+    name: readString(record?.name),
+    message: readString(record?.message),
+    code: readString(record?.code) ?? readString(record?.Code),
+    httpStatusCode: readNumber(metadata?.httpStatusCode),
+    requestId: readString(metadata?.requestId),
+    extendedRequestId: readString(metadata?.extendedRequestId)
+  };
+}
+
+function readErrorRecord(value: unknown): Record<string, unknown> | undefined {
+  return value && typeof value === "object" ? (value as Record<string, unknown>) : undefined;
+}
+
+function readString(value: unknown) {
+  return typeof value === "string" && value.length > 0 ? value : undefined;
+}
+
+function readNumber(value: unknown) {
+  return typeof value === "number" ? value : undefined;
 }

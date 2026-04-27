@@ -164,6 +164,13 @@ Erwartung:
 
 - Wenn der Simulator weiter alten Code zeigt, Expo Go vollständig beenden, den Simulator neu öffnen und den Startbefehl erneut ausführen.
 
+### Storage-Konfiguration
+
+- Wenn Foto-Queue-Einträge mit `Storage ist nicht konfiguriert.` fehlschlagen, ist der Mobile-Queue-Pfad erwartungsgemäß aktiv, aber die Zielumgebung hat noch keine S3/R2-Storage-Konfiguration.
+- In diesem Fall Retry-Zeitpunkt, Fehlertext, `Erneut versuchen`, `Verwerfen` und Dashboard-Zähler dokumentieren.
+- Nach korrigierter Storage-Konfiguration denselben Smoke erneut ausführen und prüfen, dass die Foto-Queue nach dem Sync leer ist.
+- Production-Stand vom 2026-04-27: R2-Storage ist aktiv, `https://hege.app/api/v1` akzeptiert Fallwild-Foto-Uploads und die erzeugten Dateien sind unter `https://assets.hege.app` öffentlich abrufbar.
+
 ## Abschlusskriterien
 
 Der iOS-Smoke gilt als bestanden, wenn:
