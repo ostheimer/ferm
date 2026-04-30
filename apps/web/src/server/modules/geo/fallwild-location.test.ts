@@ -81,6 +81,114 @@ describe("fallwild location resolver", () => {
       ]
     });
   });
+
+  it("uses local Gänserndorf fixtures in mock provider mode without external requests", async () => {
+    const { resolveFallwildLocation } = await loadModule({
+      geoProviderMode: "mock",
+      googleMapsLanguage: "de",
+      googleMapsRegion: "AT"
+    });
+    const fetchImpl = vi.fn();
+
+    await expect(
+      resolveFallwildLocation({
+        lat: 48.339,
+        lng: 16.7201,
+        fetchImpl: fetchImpl as unknown as typeof fetch
+      })
+    ).resolves.toMatchObject({
+      location: {
+        addressLabel: "Landesstraße 9, 2230 Gänserndorf, Österreich",
+        placeId: "mock-google-gaenserndorf-l9"
+      },
+      gemeinde: "Gänserndorf",
+      strasse: "L9",
+      roadReference: {
+        roadName: "L9",
+        roadKilometer: "12,4",
+        source: "gip",
+        placeId: "mock-gip-gaenserndorf-l9-km-12-4"
+      },
+      warnings: [
+        "Mock-Geocoder aktiv; Adresse stammt aus lokalen Testdaten.",
+        "Mock-GIP aktiv; Straßenkilometer stammt aus lokalen Testdaten."
+      ]
+    });
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it("surfaces ambiguous Google reverse geocoding results as a warning", async () => {
+    const { resolveFallwildLocation } = await loadModule({
+      googleMapsServerApiKey: "google-key",
+      googleMapsLanguage: "de",
+      googleMapsRegion: "AT"
+    });
+    const fetchImpl = vi.fn().mockResolvedValueOnce(
+      jsonResponse({
+        status: "OK",
+        results: [
+          {
+            formatted_address: "Erster Treffer",
+            place_id: "first-place",
+            address_components: [{ long_name: "Gänserndorf", types: ["locality"] }]
+          },
+          {
+            formatted_address: "Zweiter Treffer",
+            place_id: "second-place",
+            address_components: [{ long_name: "Gänserndorf", types: ["locality"] }]
+          }
+        ]
+      })
+    );
+
+    await expect(
+      resolveFallwildLocation({
+        lat: 48.339,
+        lng: 16.7201,
+        fetchImpl: fetchImpl as unknown as typeof fetch
+      })
+    ).resolves.toMatchObject({
+      location: {
+        addressLabel: "Erster Treffer",
+        placeId: "first-place"
+      },
+      warnings: expect.arrayContaining([
+        "Google Reverse Geocoding hat mehrere Treffer geliefert; erster Treffer wurde übernommen.",
+        "GIP-Straßenkilometer ist noch nicht automatisiert; bitte manuell ergänzen."
+      ])
+    });
+  });
+
+  it("returns provider errors as recoverable warnings", async () => {
+    const { resolveFallwildLocation } = await loadModule({});
+
+    await expect(
+      resolveFallwildLocation({
+        lat: 48.339,
+        lng: 16.7201,
+        fetchImpl: vi.fn() as unknown as typeof fetch,
+        providers: {
+          reverseGeocoder: {
+            async reverseGeocode() {
+              throw new Error("Adresse temporär nicht verfügbar.");
+            }
+          },
+          roadKilometerResolver: {
+            async resolveRoadKilometer() {
+              throw new Error("GIP temporär nicht verfügbar.");
+            }
+          }
+        }
+      })
+    ).resolves.toMatchObject({
+      location: {
+        lat: 48.339,
+        lng: 16.7201,
+        source: "device-gps"
+      },
+      warnings: ["Adresse temporär nicht verfügbar.", "GIP temporär nicht verfügbar."]
+    });
+  });
 });
 
 async function loadModule(env: Record<string, unknown>) {
@@ -88,6 +196,7 @@ async function loadModule(env: Record<string, unknown>) {
   vi.doMock("../../env", () => ({
     getServerEnv: () => ({
       useDemoStore: false,
+      geoProviderMode: "live",
       ...env
     })
   }));

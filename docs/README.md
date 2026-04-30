@@ -40,7 +40,7 @@ Das Repository enthält bereits ein produktiv orientiertes Monorepo mit:
 - Shared Domain Package für Typen, Demo-Daten und Fachregeln
 - Route Handler für `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `reviereinrichtungen`, `protokolle`, `sitzungen`, `documents` und `geo`
 - Fallwild-Detail, Foto-Upload und S3-kompatible Storage-Schicht für MinIO lokal und R2 inklusive best-effort Rollback bei Medien-Insert-Fehlern
-- Fallwild-Standort v1 über `POST /api/v1/geo/fallwild-location`, Mobile-GPS, vorbereitete serverseitige Adressauflösung und gespeicherte Standort-/Straßenkilometer-Metadaten
+- Fallwild-Standort v1 über `POST /api/v1/geo/fallwild-location`, Mobile-GPS, vorbereitete serverseitige Adressauflösung, Mock-Provider für Gänserndorf-Testdaten und gespeicherte Standort-/Straßenkilometer-Metadaten
 - Mobile Offline-Queue v2 für Ansitz und Fallwild inklusive separater Foto-Upload-Operationen, Retry-Backoff, Konfliktstatus, manuellem Retry und Verwerfen problematischer Einträge
 - Mobile Vitest-Abdeckung für Foto-Normalisierung, Foto-Limit, Submission-Fallback, Standortauflösung und Queue-Retry-Policy
 - automatisierten Web-Tests mit Vitest für Route Handler, Services und Queries
@@ -56,7 +56,7 @@ Kartenfunktionen werden projektweit auf Google Maps ausgerichtet; das stabile Zi
 
 Die fachliche Dokumentation beschreibt bereits die nächste Ausbaustufe mit echter Persistenz, Authentifizierung, Rollenprüfung und produktionsreifen Workflows.
 
-Der aktuelle Entwicklungsfokus liegt auf dem iPhone-/iOS-Geräte-Smoke mit erfolgreichem Foto-Upload, Fallwild-Standortauflösung und leerer Queue. Für automatische Adresse und Straße muss der Google-Server-Key in Preview/Production noch gesetzt werden; danach folgen GIP-Straßenkilometer-Härtung, Mobile-E2E-Strategie und Reviermeldungen/Aufgaben v1. Rollen, Nachrichten, Veranstaltungen und externe Messenger-Anstöße bleiben vorbereitete Folgeblöcke.
+Der aktuelle Entwicklungsfokus liegt auf dem iPhone-/iOS-Geräte-Smoke mit erfolgreichem Foto-Upload, Fallwild-Standortauflösung und leerer Queue. Ohne externe Keys kann der Standort-Flow über `HEGE_GEO_PROVIDER=mock` mit lokalen Gänserndorf-Testdaten geprüft werden; für echte Adresse und Straße muss der Google-Server-Key in Preview/Production gesetzt werden. Danach folgen GIP-Straßenkilometer-Härtung, Mobile-E2E-Strategie und Reviermeldungen/Aufgaben v1.
 
 Für den aktuellen Status sind [ROADMAP.md](../ROADMAP.md), [Roadmap v1](./roadmap-v1.md) und [TODO.md](../TODO.md) maßgeblich. Die Sprint-0/1-Backlogs und Agent-Workstreams bleiben als Planungsartefakte der zuletzt geschnittenen Arbeitsblöcke erhalten.
 

@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { applyFallwildLocationSuggestion, buildFallwildRoadReference } from "./fallwild-location";
+import {
+  applyFallwildLocationSuggestion,
+  buildFallwildRoadReference,
+  summarizeFallwildLocationSuggestion
+} from "./fallwild-location";
 
 const baseForm = {
   lat: "",
@@ -58,5 +62,23 @@ describe("fallwild location helpers", () => {
       roadKilometer: "12,4",
       source: "manual"
     });
+  });
+
+  it("summarizes automatic location suggestions with visible follow-up hints", () => {
+    expect(
+      summarizeFallwildLocationSuggestion({
+        location: {
+          lat: 48.339,
+          lng: 16.7201,
+          source: "device-gps"
+        },
+        warnings: [
+          "Google Reverse Geocoding ist nicht konfiguriert.",
+          "GIP-Straßenkilometer ist noch nicht automatisiert; bitte manuell ergänzen."
+        ]
+      })
+    ).toBe(
+      "GPS übernommen. Adresse und Straßenkilometer bitte manuell ergänzen. Hinweis: Google Reverse Geocoding ist nicht konfiguriert. GIP-Straßenkilometer ist noch nicht automatisiert; bitte manuell ergänzen."
+    );
   });
 });

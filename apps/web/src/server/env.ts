@@ -24,6 +24,7 @@ export interface ServerEnv {
   googleMapsLanguage: string;
   googleMapsRegion: string;
   gipRoadKilometerEndpoint?: string;
+  geoProviderMode: "live" | "mock" | "disabled";
 }
 
 export function getServerEnv(): ServerEnv {
@@ -42,6 +43,7 @@ export function getServerEnv(): ServerEnv {
   const googleMapsLanguage = resolveOptionalEnv("GOOGLE_MAPS_LANGUAGE") ?? "de";
   const googleMapsRegion = resolveOptionalEnv("GOOGLE_MAPS_REGION") ?? "AT";
   const gipRoadKilometerEndpoint = resolveOptionalEnv("GIP_ROAD_KILOMETER_ENDPOINT");
+  const geoProviderMode = readGeoProviderMode(resolveOptionalEnv("HEGE_GEO_PROVIDER"));
 
   return {
     databaseUrl,
@@ -58,7 +60,8 @@ export function getServerEnv(): ServerEnv {
     googleMapsServerApiKey,
     googleMapsLanguage,
     googleMapsRegion,
-    gipRoadKilometerEndpoint
+    gipRoadKilometerEndpoint,
+    geoProviderMode
   };
 }
 
@@ -90,4 +93,12 @@ function resolveOptionalEnv(name: keyof NodeJS.ProcessEnv) {
   const normalizedValue = typeof value === "string" ? value.trim() : undefined;
 
   return normalizedValue && normalizedValue.length > 0 ? normalizedValue : undefined;
+}
+
+function readGeoProviderMode(value: string | undefined): ServerEnv["geoProviderMode"] {
+  if (value === "mock" || value === "disabled" || value === "live") {
+    return value;
+  }
+
+  return "live";
 }

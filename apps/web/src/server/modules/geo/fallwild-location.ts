@@ -1,6 +1,6 @@
 import type { FallwildRoadReference, GeoPoint } from "@hege/domain";
 
-import { getServerEnv } from "../../env";
+import { getServerEnv, type ServerEnv } from "../../env";
 
 export interface FallwildLocationSuggestion {
   location: GeoPoint;
@@ -14,6 +14,26 @@ interface ResolveFallwildLocationInput {
   lat: number;
   lng: number;
   fetchImpl?: typeof fetch;
+  providers?: FallwildLocationProviders;
+}
+
+export interface FallwildLocationProviders {
+  reverseGeocoder?: ReverseGeocoder;
+  roadKilometerResolver?: RoadKilometerResolver;
+}
+
+export interface ReverseGeocoder {
+  reverseGeocode(input: GeoProviderInput): Promise<GoogleAddressSuggestion | undefined>;
+}
+
+export interface RoadKilometerResolver {
+  resolveRoadKilometer(input: GeoProviderInput & { roadNameHint?: string }): Promise<GipRoadKilometerSuggestion | undefined>;
+}
+
+interface GeoProviderInput {
+  lat: number;
+  lng: number;
+  fetchImpl: typeof fetch;
 }
 
 interface GoogleAddressSuggestion {
@@ -21,34 +41,65 @@ interface GoogleAddressSuggestion {
   placeId?: string;
   gemeinde?: string;
   route?: string;
+  warnings?: string[];
 }
 
 interface GipRoadKilometerSuggestion {
   roadName?: string;
   roadKilometer?: string;
   placeId?: string;
+  warnings?: string[];
 }
+
+interface LocationFixture {
+  lat: number;
+  lng: number;
+  radiusMeters: number;
+  addressLabel: string;
+  googlePlaceId: string;
+  gemeinde: string;
+  route: string;
+  roadName: string;
+  roadKilometer: string;
+  gipPlaceId: string;
+}
+
+const LOCATION_FIXTURES: LocationFixture[] = [
+  {
+    lat: 48.339,
+    lng: 16.7201,
+    radiusMeters: 25_000,
+    addressLabel: "Landesstraße 9, 2230 Gänserndorf, Österreich",
+    googlePlaceId: "mock-google-gaenserndorf-l9",
+    gemeinde: "Gänserndorf",
+    route: "L9",
+    roadName: "L9",
+    roadKilometer: "12,4",
+    gipPlaceId: "mock-gip-gaenserndorf-l9-km-12-4"
+  }
+];
 
 export async function resolveFallwildLocation({
   lat,
   lng,
-  fetchImpl = fetch
+  fetchImpl = fetch,
+  providers
 }: ResolveFallwildLocationInput): Promise<FallwildLocationSuggestion> {
   const env = getServerEnv();
   const warnings: string[] = [];
+  const reverseGeocoder = providers?.reverseGeocoder ?? createReverseGeocoder(env);
+  const roadKilometerResolver = providers?.roadKilometerResolver ?? createRoadKilometerResolver(env);
   let googleAddress: GoogleAddressSuggestion | undefined;
   let gipRoadKilometer: GipRoadKilometerSuggestion | undefined;
 
-  if (env.googleMapsServerApiKey) {
+  if (reverseGeocoder) {
     try {
-      googleAddress = await reverseGeocodeWithGoogle({
-        apiKey: env.googleMapsServerApiKey,
-        fetchImpl,
-        language: env.googleMapsLanguage,
-        lat,
-        lng,
-        region: env.googleMapsRegion
-      });
+      googleAddress = await reverseGeocoder.reverseGeocode({ fetchImpl, lat, lng });
+      warnings.push(...(googleAddress?.warnings ?? []));
+
+      if (!googleAddress) {
+        warnings.push("Für diese Koordinate wurde keine Adresse gefunden; bitte manuell ergänzen.");
+      }
     } catch (error) {
       warnings.push(readErrorMessage(error) ?? "Adresse konnte nicht automatisch ermittelt werden.");
     }
@@ -56,14 +107,19 @@ export async function resolveFallwildLocation({
     warnings.push("Google Reverse Geocoding ist nicht konfiguriert.");
   }
 
-  if (env.gipRoadKilometerEndpoint) {
+  if (roadKilometerResolver) {
     try {
-      gipRoadKilometer = await resolveGipRoadKilometer({
-        endpoint: env.gipRoadKilometerEndpoint,
+      gipRoadKilometer = await roadKilometerResolver.resolveRoadKilometer({
         fetchImpl,
         lat,
-        lng
+        lng,
+        roadNameHint: googleAddress?.route
       });
+      warnings.push(...(gipRoadKilometer?.warnings ?? []));
+
+      if (!gipRoadKilometer?.roadKilometer) {
+        warnings.push("Für diese Koordinate wurde kein GIP-Straßenkilometer gefunden; bitte manuell ergänzen.");
+      }
     } catch (error) {
       warnings.push(readErrorMessage(error) ?? "GIP-Straßenkilometer konnte nicht automatisch ermittelt werden.");
     }
@@ -96,6 +152,122 @@ export async function resolveFallwildLocation({
     strasse: googleAddress?.route ?? roadName,
     roadReference,
     warnings
+  };
+}
+
+function createReverseGeocoder(env: ServerEnv): ReverseGeocoder | undefined {
+  if (env.geoProviderMode === "disabled") {
+    return undefined;
+  }
+
+  if (env.geoProviderMode === "mock") {
+    return createFixtureReverseGeocoder();
+  }
+
+  if (env.googleMapsServerApiKey) {
+    return createGoogleReverseGeocoder({
+      apiKey: env.googleMapsServerApiKey,
+      language: env.googleMapsLanguage,
+      region: env.googleMapsRegion
+    });
+  }
+
+  return undefined;
+}
+
+function createRoadKilometerResolver(env: ServerEnv): RoadKilometerResolver | undefined {
+  if (env.geoProviderMode === "disabled") {
+    return undefined;
+  }
+
+  if (env.geoProviderMode === "mock") {
+    return createFixtureRoadKilometerResolver();
+  }
+
+  if (env.gipRoadKilometerEndpoint) {
+    return createGipEndpointRoadKilometerResolver(env.gipRoadKilometerEndpoint);
+  }
+
+  return undefined;
+}
+
+function createGoogleReverseGeocoder({
+  apiKey,
+  language,
+  region
+}: {
+  apiKey: string;
+  language: string;
+  region: string;
+}): ReverseGeocoder {
+  return {
+    reverseGeocode: ({ fetchImpl, lat, lng }) =>
+      reverseGeocodeWithGoogle({
+        apiKey,
+        fetchImpl,
+        language,
+        lat,
+        lng,
+        region
+      })
+  };
+}
+
+function createGipEndpointRoadKilometerResolver(endpoint: string): RoadKilometerResolver {
+  return {
+    resolveRoadKilometer: ({ fetchImpl, lat, lng }) =>
+      resolveGipRoadKilometer({
+        endpoint,
+        fetchImpl,
+        lat,
+        lng
+      })
+  };
+}
+
+function createFixtureReverseGeocoder(): ReverseGeocoder {
+  return {
+    async reverseGeocode({ lat, lng }) {
+      const fixture = findNearestFixture(lat, lng);
+
+      if (!fixture) {
+        return undefined;
+      }
+
+      return {
+        addressLabel: fixture.addressLabel,
+        placeId: fixture.googlePlaceId,
+        gemeinde: fixture.gemeinde,
+        route: fixture.route,
+        warnings: ["Mock-Geocoder aktiv; Adresse stammt aus lokalen Testdaten."]
+      };
+    }
+  };
+}
+
+function createFixtureRoadKilometerResolver(): RoadKilometerResolver {
+  return {
+    async resolveRoadKilometer({ lat, lng, roadNameHint }) {
+      const fixture = findNearestFixture(lat, lng);
+
+      if (!fixture) {
+        return undefined;
+      }
+
+      if (roadNameHint && normalizeRoadName(roadNameHint) !== normalizeRoadName(fixture.roadName)) {
+        return {
+          roadName: roadNameHint,
+          warnings: ["Mock-GIP hat keinen passenden Straßenkilometer zur ermittelten Straße gefunden."]
+        };
+      }
+
+      return {
+        roadName: fixture.roadName,
+        roadKilometer: fixture.roadKilometer,
+        placeId: fixture.gipPlaceId,
+        warnings: ["Mock-GIP aktiv; Straßenkilometer stammt aus lokalen Testdaten."]
+      };
+    }
   };
 }
 
@@ -137,10 +309,11 @@ async function reverseGeocodeWithGoogle({
       return undefined;
     }
 
-    throw new Error(payload.error_message ?? `Google Reverse Geocoding Status: ${payload.status}`);
+    throw new Error(readGoogleStatusError(payload));
   }
 
   const result = payload.results[0];
+  const warnings = payload.results.length > 1 ? ["Google Reverse Geocoding hat mehrere Treffer geliefert; erster Treffer wurde übernommen."] : [];
 
   return {
     addressLabel: result?.formatted_address,
@@ -150,7 +323,8 @@ async function reverseGeocodeWithGoogle({
       findAddressComponent(result, "postal_town") ??
       findAddressComponent(result, "administrative_area_level_3") ??
       findAddressComponent(result, "administrative_area_level_2"),
-    route: findAddressComponent(result, "route")
+    route: findAddressComponent(result, "route"),
+    warnings
   };
 }
 
@@ -196,8 +370,52 @@ async function resolveGipRoadKilometer({
   };
 }
 
+function findNearestFixture(lat: number, lng: number): LocationFixture | undefined {
+  return LOCATION_FIXTURES.find((fixture) => distanceInMeters({ lat, lng }, fixture) <= fixture.radiusMeters);
+}
+
+function distanceInMeters(left: { lat: number; lng: number }, right: { lat: number; lng: number }) {
+  const radius = 6_371_000;
+  const latDelta = toRadians(right.lat - left.lat);
+  const lngDelta = toRadians(right.lng - left.lng);
+  const leftLat = toRadians(left.lat);
+  const rightLat = toRadians(right.lat);
+  const haversine =
+    Math.sin(latDelta / 2) ** 2 +
+    Math.cos(leftLat) * Math.cos(rightLat) * Math.sin(lngDelta / 2) ** 2;
+
+  return 2 * radius * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
+}
+
+function toRadians(value: number) {
+  return (value * Math.PI) / 180;
+}
+
+function normalizeRoadName(value: string) {
+  return value.trim().toLowerCase().replace(/\s+/g, "");
+}
+
 function findAddressComponent(result: GoogleGeocodeResult | undefined, type: string): string | undefined {
   return result?.address_components.find((component) => component.types.includes(type))?.long_name;
+}
+
+function readGoogleStatusError(payload: GoogleGeocodeResponse) {
+  if (payload.error_message) {
+    return payload.error_message;
+  }
+
+  switch (payload.status) {
+    case "OVER_QUERY_LIMIT":
+      return "Google Reverse Geocoding ist wegen Quota oder Limit nicht verfügbar.";
+    case "REQUEST_DENIED":
+      return "Google Reverse Geocoding wurde abgelehnt; bitte API-Key und Einschränkungen prüfen.";
+    case "INVALID_REQUEST":
+      return "Google Reverse Geocoding hat eine ungültige Anfrage erhalten.";
+    case "UNKNOWN_ERROR":
+      return "Google Reverse Geocoding ist vorübergehend nicht verfügbar.";
+    default:
+      return `Google Reverse Geocoding Status: ${payload.status}`;
+  }
 }
 
 function readErrorMessage(error: unknown) {

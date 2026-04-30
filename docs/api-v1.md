@@ -105,16 +105,17 @@ Antwort:
 - `roadReference.roadName`, falls aus Google oder GIP ableitbar
 - `roadReference.roadKilometer`, falls der GIP-Resolver einen Wert liefert
 - `roadReference.source` als `gip`, `manual` oder `unavailable`
-- `warnings` mit Hinweisen, wenn Google oder GIP nicht konfiguriert sind
+- `warnings` mit Hinweisen, wenn Google oder GIP nicht konfiguriert sind oder ein Mock-Provider aktiv ist
 
 Konfiguration:
 
+- `HEGE_GEO_PROVIDER=live|mock|disabled`
 - `GOOGLE_MAPS_SERVER_API_KEY`
 - `GOOGLE_MAPS_REGION=AT`
 - `GOOGLE_MAPS_LANGUAGE=de`
 - `GIP_ROAD_KILOMETER_ENDPOINT`
 
-GIP ist die fachliche Zielquelle für Straßenkilometer. Google liefert in v1 nur Adresse, Gemeinde und Straße.
+GIP ist die fachliche Zielquelle für Straßenkilometer. Google liefert in v1 nur Adresse, Gemeinde und Straße. Mit `HEGE_GEO_PROVIDER=mock` liefert der Endpunkt lokale Gänserndorf-Testdaten ohne externe Keys; diese Antworten sind über `warnings` als Testdaten gekennzeichnet und nicht für echte Production-Erfassung gedacht.
 
 #### `POST /api/v1/fallwild`
 

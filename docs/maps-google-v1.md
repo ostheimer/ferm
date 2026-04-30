@@ -20,10 +20,13 @@ Warum diese Trennung wichtig ist: Google kann Adressen und Straßennamen gut erg
 
 Aktuelle Env-Schalter:
 
+- `HEGE_GEO_PROVIDER=live|mock|disabled` für echte Provider, lokale Gänserndorf-Fixtures oder rein manuelle Ergänzung
 - `GOOGLE_MAPS_SERVER_API_KEY` für serverseitiges Reverse Geocoding
 - `GOOGLE_MAPS_REGION=AT`
 - `GOOGLE_MAPS_LANGUAGE=de`
 - `GIP_ROAD_KILOMETER_ENDPOINT` für einen späteren internen Resolver gegen GIP-OGD-Daten
+
+`mock` ist nur ein Entwicklungs- und Smoke-Hilfsmittel: Es liefert für Koordinaten rund um Gänserndorf eine lokale Adresse und einen lokalen Straßenkilometer-Hinweis, markiert die Antwort aber mit sichtbaren Warnungen. Production soll `live` verwenden; ohne Keys bleiben GPS und manuelle Ergänzung nutzbar.
 
 ## Grundprinzipien
 
@@ -250,6 +253,7 @@ Server-Keys dürfen nie an Web- oder Mobile-Clients ausgeliefert werden.
 
 ### Gemeinsame Konfiguration
 
+- `HEGE_GEO_PROVIDER=live|mock|disabled`
 - `GOOGLE_MAPS_REGION=AT`
 - `GOOGLE_MAPS_LANGUAGE=de`
 - Produktsprache bleibt Deutsch für Österreich (`de-AT`); der Google-Geocoding-Parameter wird über Sprache `de` und Region `AT` eingeschränkt.

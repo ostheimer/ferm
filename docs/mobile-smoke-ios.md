@@ -142,6 +142,7 @@ Erwartung:
 - GPS wird auch dann übernommen, wenn Adresse oder GIP-Straßenkilometer nicht automatisch verfügbar sind.
 - Adresse und Straße werden übernommen, wenn `GOOGLE_MAPS_SERVER_API_KEY` in der Zielumgebung konfiguriert ist.
 - Straßenkilometer bleiben manuell editierbar, solange kein produktiver GIP-Resolver aktiv ist.
+- Mit `HEGE_GEO_PROVIDER=mock` kann der UI-Fluss ohne externe Keys gegen lokale Gänserndorf-Testdaten geprüft werden; sichtbare Hinweise müssen klar als Mock-/Testdaten erkennbar bleiben.
 - Die native iOS-Fotoauswahl öffnet sich.
 - Das importierte Testbild ist auswählbar.
 - Die Vorschau zeigt Dateiname und Anhang nachvollziehbar an.

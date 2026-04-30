@@ -102,6 +102,7 @@ Wichtige Env-Variablen:
 - `DEV_*` für den lokalen Dev-Kontext in `apps/web`
 - `HEGE_USE_DEMO_STORE=true` als read-only Fallback ohne laufende DB
 - `S3_*` für lokales MinIO und R2
+- `HEGE_GEO_PROVIDER=live|mock|disabled` für echte Standortprovider, lokale Gänserndorf-Testdaten oder rein manuelle Standortergänzung
 - `GOOGLE_MAPS_SERVER_API_KEY`, `GOOGLE_MAPS_REGION=AT`, `GOOGLE_MAPS_LANGUAGE=de` für serverseitige Fallwild-Adressauflösung
 - `GIP_ROAD_KILOMETER_ENDPOINT` für den späteren internen Straßenkilometer-Resolver gegen GIP-OGD-Daten
 

@@ -49,5 +49,6 @@
 - Public Landing, Login, Registrierung und Setup-Flow auf Production visuell geprüft und mit Playwright gegen Desktop und Mobile durchlaufen.
 - Sichtbare deutsche Web-Copy in den berührten Auth-/Setup-/Landing-/Sitzungsflächen auf echte Umlaute korrigiert.
 - Fallwild-Standort v1 umgesetzt: Mobile übernimmt iPhone-Position, `POST /api/v1/geo/fallwild-location` ist produktiv erreichbar und speichert Standort-/Straßenkilometer-Metadaten am Fallwild-Vorgang; Adresse/Straße folgen nach gesetztem Google-Server-Key.
+- Mock-/Provider-Schicht für Fallwild-Standort umgesetzt: Ohne Google- oder GIP-Key kann `HEGE_GEO_PROVIDER=mock` lokale Gänserndorf-Testdaten liefern, während UI und API klare Hinweise für manuelle Ergänzungen anzeigen.
 - Google-Maps-Ausrichtung inklusive GIP-Abgrenzung für österreichische Straßenkilometer in [Google-Maps-Konzept](docs/maps-google-v1.md) und [API v1](docs/api-v1.md) dokumentiert.
 - iPhone-Release-Build am 2026-04-30 mit `EXPO_PUBLIC_API_BASE_URL=https://hege.app/api/v1` auf `Andreas iPhone` installiert und App `app.hege.revier` gestartet.

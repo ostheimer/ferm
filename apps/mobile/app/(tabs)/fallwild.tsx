@@ -27,7 +27,8 @@ import {
 import {
   applyFallwildLocationSuggestion,
   buildFallwildRoadReference,
-  formatCoordinate
+  formatCoordinate,
+  summarizeFallwildLocationSuggestion
 } from "../../lib/fallwild-location";
 import {
   FALLWILD_PHOTO_QUALITY,
@@ -354,11 +355,7 @@ export default function FallwildScreen() {
           locationSource: "device-gps",
           googlePlaceId: suggestion.location.placeId ?? current.googlePlaceId
         }));
-        setLocationHint(
-          suggestion.warnings.length > 0
-            ? suggestion.warnings.join(" ")
-            : "Standort, Adresse und Straßenbezug wurden automatisch übernommen."
-        );
+        setLocationHint(summarizeFallwildLocationSuggestion(suggestion));
       } catch (resolveError) {
         setLocationHint("GPS wurde übernommen. Adresse und Straßenkilometer bitte manuell ergänzen.");
         setError(resolveError instanceof Error ? resolveError.message : "Standortdetails konnten nicht ermittelt werden.");
@@ -447,8 +444,8 @@ export default function FallwildScreen() {
             )}
           </Pressable>
           <Text style={styles.helperCopy}>
-            GPS kommt vom iPhone. Adresse wird serverseitig über Google ermittelt; Straßenkilometer werden über GIP übernommen,
-            sobald der Resolver konfiguriert ist.
+            GPS kommt vom iPhone. Adresse wird serverseitig ergänzt, wenn Google konfiguriert ist; Straßenkilometer kommen aus
+            GIP oder bleiben manuell editierbar.
           </Text>
           {form.accuracyMeters ? (
             <Text style={styles.helperCopy}>GPS-Genauigkeit: ca. {form.accuracyMeters} m</Text>

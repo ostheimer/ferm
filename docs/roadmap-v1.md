@@ -11,7 +11,7 @@ Diese Roadmap beschreibt die Ausbaustufen vom Repository-Grundgerüst zur ersten
 - `Sprint 1.5` ist produktiv sichtbar. Public Landing, Auth-Redirects, Registrierungsfluss, Setup-Flow, neues `hege`-Logo und Auth-UI sind auf `https://hege.app` deployed und per Playwright auf Desktop und Mobile geprüft.
 - `Sprint 2` ist weit fortgeschritten. Mobile Login, Session-Restore, Dashboard, Ansitz- und Fallwild-Formulare, Reviereinrichtungen und Protokolle lesen dieselbe API; der iPhone-/iOS-Geräte-Smoke ist als primärer nativer Abnahmepfad dokumentiert.
 - `Sprint 3` ist technisch gehärtet und nativ teilabgenommen. Fallwild anlegen, exportieren, offline vormerken, mit Fotos versehen, Standort auflösen und über Queue v2 synchronisieren ist umgesetzt; der iPhone-/iOS-Smoke vom 2026-04-26 bestätigt den Queue-v2-Fehlerpfad, R2-Storage ist in Production aktiv und ein direkter Fallwild-Foto-Upload gegen `hege.app` ist verifiziert.
-- `Standort v1` ist begonnen. Fallwild nutzt iPhone-GPS, einen produktiv erreichbaren Standort-Endpunkt und gespeicherte Standort-/Straßenkilometer-Metadaten. Google Reverse Geocoding benötigt noch den Production-Server-Key; GIP bleibt die fachliche Zielquelle für österreichische Straßenkilometer.
+- `Standort v1` ist begonnen. Fallwild nutzt iPhone-GPS, einen produktiv erreichbaren Standort-Endpunkt, gespeicherte Standort-/Straßenkilometer-Metadaten und einen Mock-Provider für lokale Gänserndorf-Testdaten ohne externe Keys. Google Reverse Geocoding benötigt für echte Adressen noch den Production-Server-Key; GIP bleibt die fachliche Zielquelle für österreichische Straßenkilometer.
 
 ## Sprint 0: Fundament
 
@@ -114,12 +114,13 @@ Lieferumfang dieses Blocks:
 - Queue v2 mit separaten Foto-Uploads, Retry-Backoff, `nextAttemptAt`, dynamischer Sync-Schleife, manuellem Retry und Konfliktstatus
 - Fotoauswahl aus der Bibliothek in der App
 - Fallwild-Standort v1 mit GPS, Genauigkeit, Quelle, optionaler Adresse, optionaler Google-Place-ID, Straßenname und Straßenkilometer-Feldern
+- Mock-Provider für Fallwild-Standortauflösung ohne externe Keys, inklusive sichtbarer UI-/API-Warnungen
 - Mobile Vitest-Abdeckung für Foto-Normalisierung, maximal drei Fotos, Submission-Fallback, Standortauflösung, recoverable Upload-Fehler und Queue-Retry-Policy
 
 Restblock:
 
 - iPhone-/iOS-Geräte-Smoke nach [iOS-Smoke-Runbook](./mobile-smoke-ios.md) erneut auf erfolgreichen Foto-Upload, automatische Standortauflösung und leere Queue durchlaufen
-- `GOOGLE_MAPS_SERVER_API_KEY` für Preview/Production setzen und Adresse/Gemeinde/Straße erneut prüfen
+- `GOOGLE_MAPS_SERVER_API_KEY` für Preview/Production setzen und echte Adresse/Gemeinde/Straße erneut prüfen
 - GIP-Straßenkilometer-Resolver oder OGD-Import produktionsnah schneiden
 
 Ergebnis:
@@ -197,7 +198,7 @@ Ergebnis:
 Wenn unmittelbar weiterentwickelt wird, ist die sinnvollste Reihenfolge:
 
 1. iPhone-/iOS-Geräte-Smoke auf dem gehärteten Medien-/Queue-v2- und Standort-v1-Pfad mit erfolgreichem Foto-Upload, Standortauflösung und leerer Queue erneut ausführen
-2. `GOOGLE_MAPS_SERVER_API_KEY` für Preview/Production setzen und Adresse/Gemeinde/Straße erneut prüfen
+2. `GOOGLE_MAPS_SERVER_API_KEY` für Preview/Production setzen und echte Adresse/Gemeinde/Straße erneut prüfen
 3. GIP-Straßenkilometer-Resolver oder OGD-Import als Standort-Härtungsblock schneiden
 4. Mobile-spezifische E2E-Strategie über den dokumentierten Geräte-Smoke hinaus festziehen
 5. Reviermeldungen und Aufgaben v1 als nächsten fachlichen Codeblock umsetzen

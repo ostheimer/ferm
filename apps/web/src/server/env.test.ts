@@ -13,6 +13,7 @@ const STORAGE_ENV_KEYS = [
   "GOOGLE_MAPS_LANGUAGE",
   "GOOGLE_MAPS_REGION",
   "GIP_ROAD_KILOMETER_ENDPOINT",
+  "HEGE_GEO_PROVIDER",
   "AUTH_TOKEN_SECRET",
   "VERCEL_ENV"
 ] as const;
@@ -61,6 +62,7 @@ describe("server env", () => {
     process.env.GOOGLE_MAPS_LANGUAGE = " de ";
     process.env.GOOGLE_MAPS_REGION = " AT\n";
     process.env.GIP_ROAD_KILOMETER_ENDPOINT = " https://gip.example.test/resolve ";
+    process.env.HEGE_GEO_PROVIDER = " mock ";
 
     const env = getServerEnv();
 
@@ -68,6 +70,7 @@ describe("server env", () => {
     expect(env.googleMapsLanguage).toBe("de");
     expect(env.googleMapsRegion).toBe("AT");
     expect(env.gipRoadKilometerEndpoint).toBe("https://gip.example.test/resolve");
+    expect(env.geoProviderMode).toBe("mock");
   });
 
   it("behandelt leere Storage-Werte in Vercel als nicht konfiguriert", () => {

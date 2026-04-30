@@ -51,6 +51,28 @@ export function buildFallwildRoadReference(form: Pick<FallwildLocationFormFields
   };
 }
 
+export function summarizeFallwildLocationSuggestion(suggestion: FallwildLocationSuggestionResponse) {
+  const details = [
+    suggestion.location.addressLabel ? "Adresse" : undefined,
+    suggestion.gemeinde ? "Gemeinde" : undefined,
+    suggestion.strasse ? "Straße" : undefined,
+    suggestion.roadReference?.roadKilometer ? "Straßenkilometer" : undefined
+  ].filter(Boolean);
+  const base =
+    details.length > 0
+      ? `GPS übernommen. Automatisch ergänzt: ${details.join(", ")}.`
+      : "GPS übernommen. Adresse und Straßenkilometer bitte manuell ergänzen.";
+  const warnings = [...new Set(suggestion.warnings.map((warning) => warning.trim()).filter(Boolean))];
+
+  if (warnings.length === 0) {
+    return details.length > 0
+      ? "Standort, Adresse und Straßenbezug wurden automatisch übernommen."
+      : base;
+  }
+
+  return `${base} Hinweis: ${warnings.join(" ")}`;
+}
+
 export function formatCoordinate(value: number) {
   return value.toFixed(6);
 }
