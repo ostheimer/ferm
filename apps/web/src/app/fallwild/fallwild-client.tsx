@@ -8,7 +8,9 @@ import { useState, useTransition } from "react";
 import { readApiErrorMessage } from "../../lib/api-error";
 
 export type FallwildClientEntry = FallwildVorgang & {
+  addressLabel: string;
   locationLabel: string;
+  roadKilometerLabel: string;
   recordedAtLabel: string;
   streetLabel: string;
 };
@@ -20,9 +22,11 @@ interface FallwildClientProps {
 const DEFAULT_FORM_VALUES = {
   gemeinde: "",
   strasse: "",
+  addressLabel: "",
   locationLabel: "",
-  lat: "47.9201",
-  lng: "13.5194",
+  lat: "",
+  lng: "",
+  roadKilometer: "",
   wildart: "Reh",
   geschlecht: "weiblich",
   altersklasse: "Adult",
@@ -65,7 +69,9 @@ export function FallwildClient({ entries }: FallwildClientProps) {
         location: {
           lat: Number(formValues.lat),
           lng: Number(formValues.lng),
-          label: emptyToUndefined(formValues.locationLabel)
+          label: emptyToUndefined(formValues.locationLabel),
+          source: "manual",
+          addressLabel: emptyToUndefined(formValues.addressLabel)
         },
         wildart: formValues.wildart,
         geschlecht: formValues.geschlecht,
@@ -73,6 +79,7 @@ export function FallwildClient({ entries }: FallwildClientProps) {
         bergungsStatus: formValues.bergungsStatus,
         gemeinde: formValues.gemeinde,
         strasse: emptyToUndefined(formValues.strasse),
+        roadReference: buildRoadReference(formValues.strasse, formValues.roadKilometer),
         note: emptyToUndefined(formValues.note)
       })
     });
@@ -121,7 +128,7 @@ export function FallwildClient({ entries }: FallwildClientProps) {
           {entries.length === 0 ? (
             <article className="timeline-item">
               <span>Fallwild</span>
-              <strong>Keine dokumentierten Vorgaenge</strong>
+              <strong>Keine dokumentierten Vorgänge</strong>
               <p>Sobald der erste Fallwild-Vorgang erfasst wird, erscheint er hier und im CSV-Export.</p>
             </article>
           ) : (
@@ -135,6 +142,8 @@ export function FallwildClient({ entries }: FallwildClientProps) {
                   {entry.geschlecht}, {entry.altersklasse} / Status {entry.bergungsStatus}
                 </p>
                 <p>{entry.locationLabel}</p>
+                {entry.addressLabel ? <p>{entry.addressLabel}</p> : null}
+                {entry.roadKilometerLabel ? <p>{entry.roadKilometerLabel}</p> : null}
                 <time>{entry.recordedAtLabel}</time>
               </article>
             ))
@@ -146,7 +155,7 @@ export function FallwildClient({ entries }: FallwildClientProps) {
         <header className="section-header">
           <div>
             <p className="eyebrow">Neuer Vorgang</p>
-            <h2>Fallwild fuer das Revier erfassen</h2>
+            <h2>Fallwild für das Revier erfassen</h2>
           </div>
           {isPending ? <span className="badge">Synchronisiert...</span> : null}
         </header>
@@ -158,20 +167,42 @@ export function FallwildClient({ entries }: FallwildClientProps) {
               id="fallwild-gemeinde"
               name="gemeinde"
               onChange={updateInput("gemeinde")}
-              placeholder="Steinbach am Attersee"
+              placeholder="Gänserndorf"
               required
               value={formValues.gemeinde}
             />
           </label>
 
           <label className="field" htmlFor="fallwild-strasse">
-            <span>Strasse</span>
+            <span>Straße</span>
             <input
               id="fallwild-strasse"
               name="strasse"
               onChange={updateInput("strasse")}
-              placeholder="L127"
+              placeholder="L9"
               value={formValues.strasse}
+            />
+          </label>
+
+          <label className="field" htmlFor="fallwild-road-kilometer">
+            <span>Straßenkilometer</span>
+            <input
+              id="fallwild-road-kilometer"
+              name="roadKilometer"
+              onChange={updateInput("roadKilometer")}
+              placeholder="z. B. km 12,4"
+              value={formValues.roadKilometer}
+            />
+          </label>
+
+          <label className="field" htmlFor="fallwild-address-label">
+            <span>Adresse</span>
+            <input
+              id="fallwild-address-label"
+              name="addressLabel"
+              onChange={updateInput("addressLabel")}
+              placeholder="Adresse oder Straßenabschnitt"
+              value={formValues.addressLabel}
             />
           </label>
 
@@ -181,7 +212,7 @@ export function FallwildClient({ entries }: FallwildClientProps) {
               id="fallwild-location-label"
               name="locationLabel"
               onChange={updateInput("locationLabel")}
-              placeholder="Abzweigung Weyregg"
+              placeholder="Unfallstelle, Straßenseite oder markanter Punkt"
               value={formValues.locationLabel}
             />
           </label>
@@ -199,7 +230,7 @@ export function FallwildClient({ entries }: FallwildClientProps) {
           </label>
 
           <label className="field" htmlFor="fallwild-lng">
-            <span>Laengengrad</span>
+            <span>Längengrad</span>
             <input
               id="fallwild-lng"
               inputMode="decimal"
@@ -231,7 +262,7 @@ export function FallwildClient({ entries }: FallwildClientProps) {
               onChange={updateInput("geschlecht")}
               value={formValues.geschlecht}
             >
-              <option value="maennlich">maennlich</option>
+              <option value="maennlich">männlich</option>
               <option value="weiblich">weiblich</option>
               <option value="unbekannt">unbekannt</option>
             </select>
@@ -246,7 +277,7 @@ export function FallwildClient({ entries }: FallwildClientProps) {
               value={formValues.altersklasse}
             >
               <option value="Kitz">Kitz</option>
-              <option value="Jaehrling">Jaehrling</option>
+              <option value="Jaehrling">Jährling</option>
               <option value="Adult">Adult</option>
               <option value="unbekannt">unbekannt</option>
             </select>
@@ -263,7 +294,7 @@ export function FallwildClient({ entries }: FallwildClientProps) {
               <option value="erfasst">erfasst</option>
               <option value="geborgen">geborgen</option>
               <option value="entsorgt">entsorgt</option>
-              <option value="an-behoerde-gemeldet">an-behoerde-gemeldet</option>
+              <option value="an-behoerde-gemeldet">an Behörde gemeldet</option>
             </select>
           </label>
 
@@ -273,7 +304,7 @@ export function FallwildClient({ entries }: FallwildClientProps) {
               id="fallwild-note"
               name="note"
               onChange={updateTextarea("note")}
-              placeholder="Kurzbeschreibung fuer den Vorgang"
+              placeholder="Kurzbeschreibung für den Vorgang"
               rows={4}
               value={formValues.note}
             />
@@ -297,4 +328,19 @@ export function FallwildClient({ entries }: FallwildClientProps) {
 function emptyToUndefined(value: string): string | undefined {
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : undefined;
+}
+
+function buildRoadReference(strasse: string, roadKilometer: string) {
+  const roadName = emptyToUndefined(strasse);
+  const kilometer = emptyToUndefined(roadKilometer);
+
+  if (!roadName && !kilometer) {
+    return undefined;
+  }
+
+  return {
+    roadName,
+    roadKilometer: kilometer,
+    source: kilometer ? "manual" : "unavailable"
+  };
 }

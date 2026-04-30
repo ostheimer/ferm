@@ -23,7 +23,7 @@ export async function GET(_request: Request, context: RouteContext) {
     }
 
     if (sitzung.status !== "freigegeben") {
-      throw Object.assign(new Error("PDF ist erst nach der Freigabe verfuegbar."), {
+      throw Object.assign(new Error("PDF ist erst nach der Freigabe verfügbar."), {
         status: 409,
         code: "conflict"
       });

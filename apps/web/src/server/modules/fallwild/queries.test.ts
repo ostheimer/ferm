@@ -23,12 +23,20 @@ describe("fallwild queries", () => {
         locationLat: 47.9201,
         locationLng: 13.5194,
         locationLabel: "L127",
+        locationAccuracyMeters: 7,
+        locationSource: "device-gps",
+        addressLabel: "L127, 4853 Steinbach am Attersee",
+        googlePlaceId: "google-place-1",
         wildart: "Reh",
         geschlecht: "weiblich",
         altersklasse: "Adult",
         bergungsStatus: "geborgen",
         gemeinde: "Steinbach am Attersee",
         strasse: "L127",
+        roadName: "L127",
+        roadKilometer: "8,2",
+        roadKilometerSource: "gip",
+        roadPlaceId: "gip-segment-1",
         note: "Gesichert."
       })
     ).toMatchObject({
@@ -36,7 +44,17 @@ describe("fallwild queries", () => {
       location: {
         lat: 47.9201,
         lng: 13.5194,
-        label: "L127"
+        label: "L127",
+        accuracyMeters: 7,
+        source: "device-gps",
+        addressLabel: "L127, 4853 Steinbach am Attersee",
+        placeId: "google-place-1"
+      },
+      roadReference: {
+        roadName: "L127",
+        roadKilometer: "8,2",
+        source: "gip",
+        placeId: "gip-segment-1"
       },
       photos: []
     });

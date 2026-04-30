@@ -43,6 +43,13 @@
       "when": 1775501720971,
       "tag": "0005_black_tana_nile",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1777411643712,
+      "tag": "0006_fallwild_location_metadata",
+      "breakpoints": true
     }
   ]
 }

@@ -15,9 +15,9 @@ export default async function ProtokollePage() {
         <header className="section-header">
           <div>
             <p className="eyebrow">Sitzungsprotokolle</p>
-            <h1>Freigegebene Protokolle und Beschluesse</h1>
+            <h1>Freigegebene Protokolle und Beschlüsse</h1>
           </div>
-          <span className="badge">{protokolle.length} veroeffentlicht</span>
+          <span className="badge">{protokolle.length} veröffentlicht</span>
         </header>
 
         <div className="card-grid">
@@ -25,7 +25,7 @@ export default async function ProtokollePage() {
             <article className="detail-card">
               <p className="eyebrow">Protokolle</p>
               <h2>Keine freigegebenen Protokolle vorhanden</h2>
-              <p>Sobald ein Protokoll veroeffentlicht wird, erscheint es hier samt Download-Referenz.</p>
+              <p>Sobald ein Protokoll veröffentlicht wird, erscheint es hier samt Download-Referenz.</p>
             </article>
           ) : (
             protokolle.map((entry) => (
@@ -44,13 +44,13 @@ export default async function ProtokollePage() {
 
                 <div className="simple-list">
                   <div>
-                    <strong>{entry.beschlussCount} Beschluesse</strong>
+                    <strong>{entry.beschlussCount} Beschlüsse</strong>
                     <span>{entry.latestVersionCreatedAt ? `Letzte Version: ${formatDateTime(entry.latestVersionCreatedAt)}` : "Keine Version"}</span>
                   </div>
                   {entry.publishedDocument ? (
                     <div>
-                      <strong>PDF verfuegbar</strong>
-                      <Link href={entry.publishedDocument.downloadUrl}>Dokument oeffnen</Link>
+                      <strong>PDF verfügbar</strong>
+                      <Link href={entry.publishedDocument.downloadUrl}>Dokument öffnen</Link>
                     </div>
                   ) : null}
                 </div>

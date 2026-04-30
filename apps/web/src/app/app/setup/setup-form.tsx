@@ -85,7 +85,7 @@ export function SetupForm({ defaultValues, viewerName }: SetupFormProps) {
         </div>
         <div>
           <strong>Ziel</strong>
-          <span>Revierdaten vervollstaendigen und danach direkt ins Backoffice wechseln.</span>
+          <span>Revierdaten vervollständigen und danach direkt ins Backoffice wechseln.</span>
         </div>
       </div>
 
@@ -133,7 +133,7 @@ export function SetupForm({ defaultValues, viewerName }: SetupFormProps) {
         </label>
 
         <label className="field" htmlFor="setup-flaeche">
-          <span>Flaeche in ha</span>
+          <span>Fläche in ha</span>
           <input
             id="setup-flaeche"
             inputMode="numeric"
@@ -152,7 +152,7 @@ export function SetupForm({ defaultValues, viewerName }: SetupFormProps) {
           {error ? <p className="feedback feedback-error">{error}</p> : null}
         </div>
         <button className="button-control" disabled={isPending} type="submit">
-          {isPending ? "Speichern..." : "Setup abschliessen"}
+          {isPending ? "Speichern..." : "Setup abschließen"}
         </button>
       </div>
     </form>

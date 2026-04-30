@@ -1,4 +1,13 @@
-import type { Altersklasse, BergungsStatus, Geschlecht, Wildart } from "@hege/domain";
+import type {
+  Altersklasse,
+  BergungsStatus,
+  FallwildRoadReference,
+  GeoPoint,
+  Geschlecht,
+  LocationSource,
+  RoadKilometerSource,
+  Wildart
+} from "@hege/domain";
 
 import { validationError } from "../../http/validation";
 
@@ -9,17 +18,14 @@ const BERGUNGSSTATUS_VALUES = ["erfasst", "geborgen", "entsorgt", "an-behoerde-g
 
 export interface CreateFallwildInput {
   recordedAt?: string;
-  location: {
-    label?: string;
-    lat: number;
-    lng: number;
-  };
+  location: GeoPoint;
   wildart: Wildart;
   geschlecht: Geschlecht;
   altersklasse: Altersklasse;
   bergungsStatus: BergungsStatus;
   gemeinde: string;
   strasse?: string;
+  roadReference?: FallwildRoadReference;
   note?: string;
 }
 
@@ -35,6 +41,7 @@ export function parseCreateFallwildInput(body: unknown): CreateFallwildInput {
     bergungsStatus: parseEnum(data.bergungsStatus, "bergungsStatus", BERGUNGSSTATUS_VALUES) as BergungsStatus,
     gemeinde: parseRequiredString(data.gemeinde, "gemeinde"),
     strasse: parseOptionalString(data.strasse, "strasse"),
+    roadReference: parseRoadReference(data.roadReference),
     note: parseOptionalString(data.note, "note")
   };
 }
@@ -45,8 +52,30 @@ function parseLocation(value: unknown): CreateFallwildInput["location"] {
   return {
     lat: parseNumber(data.lat, "location.lat"),
     lng: parseNumber(data.lng, "location.lng"),
-    label: parseOptionalString(data.label, "location.label")
+    label: parseOptionalString(data.label, "location.label"),
+    accuracyMeters: parseOptionalPositiveNumber(data.accuracyMeters, "location.accuracyMeters"),
+    source: parseOptionalLocationSource(data.source, "location.source"),
+    addressLabel: parseOptionalString(data.addressLabel, "location.addressLabel"),
+    placeId: parseOptionalString(data.placeId, "location.placeId")
   };
+}
+
+function parseRoadReference(value: unknown): FallwildRoadReference | undefined {
+  if (value == null || value === "") {
+    return undefined;
+  }
+
+  const data = ensureRecord(value, "roadReference muss ein Objekt sein.");
+  const roadReference: FallwildRoadReference = {
+    roadName: parseOptionalString(data.roadName, "roadReference.roadName"),
+    roadKilometer: parseOptionalString(data.roadKilometer, "roadReference.roadKilometer"),
+    source: parseOptionalRoadKilometerSource(data.source, "roadReference.source"),
+    placeId: parseOptionalString(data.placeId, "roadReference.placeId")
+  };
+
+  return roadReference.roadName || roadReference.roadKilometer || roadReference.source || roadReference.placeId
+    ? roadReference
+    : undefined;
 }
 
 function ensureRecord(value: unknown, message: string): Record<string, unknown> {
@@ -80,10 +109,24 @@ function parseOptionalString(value: unknown, field: string): string | undefined 
 
 function parseNumber(value: unknown, field: string): number {
   if (typeof value !== "number" || !Number.isFinite(value)) {
-    throw validationError(`${field} muss eine gueltige Zahl sein.`);
+    throw validationError(`${field} muss eine gültige Zahl sein.`);
   }
 
   return value;
+}
+
+function parseOptionalPositiveNumber(value: unknown, field: string): number | undefined {
+  if (value == null || value === "") {
+    return undefined;
+  }
+
+  const parsed = parseNumber(value, field);
+
+  if (parsed < 0) {
+    throw validationError(`${field} muss positiv sein.`);
+  }
+
+  return parsed;
 }
 
 function parseOptionalIsoString(value: unknown, field: string): string | undefined {
@@ -98,7 +141,7 @@ function parseOptionalIsoString(value: unknown, field: string): string | undefin
   const parsed = new Date(value);
 
   if (Number.isNaN(parsed.valueOf())) {
-    throw validationError(`${field} muss ein gueltiges Datum sein.`);
+    throw validationError(`${field} muss ein gültiges Datum sein.`);
   }
 
   return parsed.toISOString();
@@ -110,4 +153,20 @@ function parseEnum(value: unknown, field: string, allowed: readonly string[]): s
   }
 
   return value;
+}
+
+function parseOptionalLocationSource(value: unknown, field: string): LocationSource | undefined {
+  if (value == null || value === "") {
+    return undefined;
+  }
+
+  return parseEnum(value, field, ["manual", "device-gps", "reverse-geocode"]) as LocationSource;
+}
+
+function parseOptionalRoadKilometerSource(value: unknown, field: string): RoadKilometerSource | undefined {
+  if (value == null || value === "") {
+    return undefined;
+  }
+
+  return parseEnum(value, field, ["manual", "gip", "unavailable"]) as RoadKilometerSource;
 }

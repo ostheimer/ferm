@@ -13,24 +13,24 @@ const features = [
   },
   {
     title: "Backoffice und App zusammen",
-    text: "Web fuer Leitung und Schriftfuehrung, App fuer Jagdteam und Meldungen aus dem Feld."
+    text: "Web für Leitung und Schriftführung, App für Jagdteam und Meldungen aus dem Feld."
   },
   {
     title: "Offline zuerst gedacht",
-    text: "Ansitz- und Fallwild-Eintraege koennen unterwegs vorgemerkt und spaeter synchronisiert werden."
+    text: "Ansitz- und Fallwild-Einträge können unterwegs vorgemerkt und später synchronisiert werden."
   }
 ] as const;
 
 const useCases = [
   {
     eyebrow: "Revierleitung",
-    title: "Schneller Ueberblick statt verstreuter Tabellen",
+    title: "Schneller Überblick statt verstreuter Tabellen",
     text: "Offene Wartungen, aktive Ansitze und aktuelle Meldungen stehen ohne Wechsel zwischen Werkzeugen bereit."
   },
   {
-    eyebrow: "Schriftfuehrung",
-    title: "Sitzungen bis zur Freigabe sauber fuehren",
-    text: "Agenda, Beschluesse, Versionen und PDF-Download folgen einem nachvollziehbaren Ablauf."
+    eyebrow: "Schriftführung",
+    title: "Sitzungen bis zur Freigabe sauber führen",
+    text: "Agenda, Beschlüsse, Versionen und PDF-Download folgen einem nachvollziehbaren Ablauf."
   },
   {
     eyebrow: "Jagdteam",
@@ -41,8 +41,8 @@ const useCases = [
 
 const faq = [
   {
-    q: "Ist hege nur fuer das Backoffice gedacht?",
-    a: "Nein. Die Plattform verbindet das interne Reviermanagement mit einer klaren oeffentlichen Produktseite und einem spaeteren Self-Serve-Einstieg."
+    q: "Ist hege nur für das Backoffice gedacht?",
+    a: "Nein. Die Plattform verbindet das interne Reviermanagement mit einer klaren öffentlichen Produktseite und einem späteren Self-Serve-Einstieg."
   },
   {
     q: "Was kostet der Einstieg?",
@@ -50,11 +50,11 @@ const faq = [
   },
   {
     q: "Brauche ich zuerst eine komplexe Einrichtung?",
-    a: "Nein. Der Einstieg ist bewusst schmal gehalten. Ein Revier kann schnell angelegt und im Setup vervollstaendigt werden."
+    a: "Nein. Der Einstieg ist bewusst schmal gehalten. Ein Revier kann schnell angelegt und im Setup vervollständigt werden."
   },
   {
     q: "Funktioniert die App auch unterwegs?",
-    a: "Ja. Die mobilen Kernflows sind auf kurze Erfassung, Queue und spaetere Synchronisierung ausgelegt."
+    a: "Ja. Die mobilen Kernflows sind auf kurze Erfassung, Queue und spätere Synchronisierung ausgelegt."
   }
 ] as const;
 
@@ -69,7 +69,9 @@ export function PublicLanding() {
       <div className="public-landing-shell">
         <header className="public-topbar">
           <div className="public-brand">
-            <div className="public-brand-mark">h</div>
+            <div className="public-brand-mark" aria-hidden="true">
+              <img className="brand-logo-image" src="/brand/hege-logo-mark.png" alt="" />
+            </div>
             <div>
               <p className="eyebrow">Reviermanagement</p>
               <strong>hege</strong>
@@ -89,15 +91,15 @@ export function PublicLanding() {
         <section className="public-hero">
           <div className="public-hero-copy">
             <p className="eyebrow">Revierdigitalisierung</p>
-            <h1>Revierbetrieb, Protokolle und Feldmeldungen in einer klaren Oberflaeche.</h1>
+            <h1>Revierbetrieb, Protokolle und Feldmeldungen in einer klaren Oberfläche.</h1>
             <p className="public-hero-text">
-              hege verbindet die Arbeit im Backoffice mit der Erfassung draussen. Fuer Revierleitung,
-              Schriftfuehrung und Jagdteam, die ohne Tool-Wirrwarr arbeiten wollen.
+              hege verbindet die Arbeit im Backoffice mit der Erfassung draußen. Für Revierleitung,
+              Schriftführung und Jagdteam, die ohne Tool-Wirrwarr arbeiten wollen.
             </p>
 
             <div className="public-hero-actions">
               <Link className="button-control" href="#preise">
-                Passendes Paket waehlen
+                Passendes Paket wählen
               </Link>
               <Link className="button-control button-control-secondary" href="/login">
                 Anmelden
@@ -111,11 +113,11 @@ export function PublicLanding() {
               </div>
               <div className="public-stat">
                 <dt>3 Rollen</dt>
-                <dd>Revier-Admin, Schriftfuehrung und Jagdteam im selben System.</dd>
+                <dd>Revier-Admin, Schriftführung und Jagdteam im selben System.</dd>
               </div>
               <div className="public-stat">
                 <dt>Offline-Fokus</dt>
-                <dd>Feldmeldungen laufen mit Queue und spaeterer Synchronisierung.</dd>
+                <dd>Feldmeldungen laufen mit Queue und späterer Synchronisierung.</dd>
               </div>
             </dl>
           </div>
@@ -123,13 +125,13 @@ export function PublicLanding() {
           <aside className="public-hero-panel">
             <p className="eyebrow">Was hege abdeckt</p>
             <ul className="public-hero-list">
-              <li>Dashboard fuer Revierleitung und Lagebild</li>
+              <li>Dashboard für Revierleitung und Lagebild</li>
               <li>Sitzungen, Versionen, Freigaben und PDF-Download</li>
               <li>Ansitze, Reviereinrichtungen und Fallwild</li>
               <li>Mobile Erfassung mit Queue und Offline-Vormerkung</li>
             </ul>
             <div className="public-proof">
-              <span>Fuer Jagdgesellschaften in Oesterreich</span>
+              <span>Für Jagdgesellschaften in Österreich</span>
               <strong>einfacher Einstieg, klare Rollen, saubere Datenbasis.</strong>
             </div>
           </aside>
@@ -235,22 +237,22 @@ export function PublicLanding() {
 
         <section className="public-cta-band">
           <div>
-            <p className="eyebrow">Naechster Schritt</p>
-            <h2>hege fuer dein Revier starten oder direkt einsteigen.</h2>
+            <p className="eyebrow">Nächster Schritt</p>
+            <h2>hege für dein Revier starten oder direkt einsteigen.</h2>
           </div>
           <div className="public-cta-actions">
             <Link className="button-control" href="/login">
               Anmelden
             </Link>
             <Link className="button-control button-control-secondary" href="#preise">
-              Registrierung waehlen
+              Registrierung wählen
             </Link>
           </div>
         </section>
 
         <footer className="public-footer">
           <span>Kontakt: info@hege.app</span>
-          <span>Produkt fuer Reviermanagement in Oesterreich</span>
+          <span>Produkt für Reviermanagement in Österreich</span>
         </footer>
       </div>
     </main>

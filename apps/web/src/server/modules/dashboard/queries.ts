@@ -218,7 +218,16 @@ function mapFallwildRowToDomain(record: FallwildVorgangRecord) {
     location: {
       lat: record.locationLat,
       lng: record.locationLng,
-      label: record.locationLabel ?? undefined
+      label: record.locationLabel ?? undefined,
+      accuracyMeters: record.locationAccuracyMeters ?? undefined,
+      source:
+        record.locationSource === "manual" ||
+        record.locationSource === "device-gps" ||
+        record.locationSource === "reverse-geocode"
+          ? record.locationSource
+          : undefined,
+      addressLabel: record.addressLabel ?? undefined,
+      placeId: record.googlePlaceId ?? undefined
     },
     wildart: record.wildart,
     geschlecht: record.geschlecht,
@@ -226,6 +235,20 @@ function mapFallwildRowToDomain(record: FallwildVorgangRecord) {
     bergungsStatus: record.bergungsStatus,
     gemeinde: record.gemeinde,
     strasse: record.strasse ?? undefined,
+    roadReference:
+      record.roadName || record.roadKilometer || record.roadKilometerSource || record.roadPlaceId
+        ? {
+            roadName: record.roadName ?? undefined,
+            roadKilometer: record.roadKilometer ?? undefined,
+            source:
+              record.roadKilometerSource === "manual" ||
+              record.roadKilometerSource === "gip" ||
+              record.roadKilometerSource === "unavailable"
+                ? record.roadKilometerSource
+                : undefined,
+            placeId: record.roadPlaceId ?? undefined
+          }
+        : undefined,
     note: record.note ?? undefined,
     photos: []
   } satisfies FallwildVorgang;

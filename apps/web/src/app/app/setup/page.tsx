@@ -12,7 +12,7 @@ export default async function SetupPage() {
       <section className="hero-card">
         <div>
           <p className="eyebrow">Einrichtung erforderlich</p>
-          <h1>Das Revier ist noch nicht vollstaendig eingerichtet.</h1>
+          <h1>Das Revier ist noch nicht vollständig eingerichtet.</h1>
           <p className="hero-copy">
             {viewer.revier.name} ist angemeldet, aber die Setup-Schritte sind noch offen. Sobald die
             Einrichtung abgeschlossen ist, leitet das System automatisch zur App weiter.
@@ -29,7 +29,7 @@ export default async function SetupPage() {
         <header className="section-header">
           <div>
             <p className="eyebrow">Setup</p>
-            <h2>Bitte Revierdaten vervollstaendigen</h2>
+            <h2>Bitte Revierdaten vervollständigen</h2>
           </div>
         </header>
 

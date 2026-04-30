@@ -6,8 +6,8 @@ Diese Dokumentation beschreibt den aktuellen Stand des Repositories und den gepl
 
 - [Gesamtplan](./reviermanagement-plan.md)
 - [Architektur](./architektur.md)
-- [Backend v1 fuer Schriftfuehrer](./backend-schriftfuehrer-v1.md)
-- [Mobile App v1 fuer Jaeger](./mobile-jaeger-v1.md)
+- [Backend v1 für Schriftführer](./backend-schriftfuehrer-v1.md)
+- [Mobile App v1 für Jäger](./mobile-jaeger-v1.md)
 - [API v1](./api-v1.md)
 - [Roadmap und Sprints](./roadmap-v1.md)
 - [iOS-Smoke-Runbook](./mobile-smoke-ios.md)
@@ -23,41 +23,42 @@ Diese Dokumentation beschreibt den aktuellen Stand des Repositories und den gepl
 
 ## Lesereihenfolge
 
-1. Gesamtplan fuer Produktziel und fachlichen Zuschnitt
-2. Architektur fuer Systemgrenzen, Infrastruktur und technische Leitplanken
-3. Backend v1 und Mobile App v1 fuer die sichtbaren ersten Produktversionen
-4. API v1 fuer Ressourcen und Schnittstellen
-5. Roadmap fuer die konkrete Umsetzung in Stufen
-6. Umsetzungsbacklog und Sprint-Details fuer direkte Ticketplanung
-7. Agent-Workstreams fuer sichere Parallelisierung mehrerer Implementierer
+1. Gesamtplan für Produktziel und fachlichen Zuschnitt
+2. Architektur für Systemgrenzen, Infrastruktur und technische Leitplanken
+3. Backend v1 und Mobile App v1 für die sichtbaren ersten Produktversionen
+4. API v1 für Ressourcen und Schnittstellen
+5. Roadmap für die konkrete Umsetzung in Stufen
+6. Umsetzungsbacklog und Sprint-Details für direkte Ticketplanung
+7. Agent-Workstreams für sichere Parallelisierung mehrerer Implementierer
 
 ## Aktueller Implementierungsstand
 
-Das Repository enthaelt bereits ein produktiv orientiertes Monorepo mit:
+Das Repository enthält bereits ein produktiv orientiertes Monorepo mit:
 
-- Next.js-Backoffice in `apps/web` inklusive produktivem API-Slice ueber Route Handler und Drizzle
+- Next.js-Backoffice in `apps/web` inklusive produktivem API-Slice über Route Handler und Drizzle
 - Expo-Mobile-App mit Login, Dashboard, Ansitz, Fallwild, Reviereinrichtungen und Protokollen gegen denselben API-Slice
-- Shared Domain Package fuer Typen, Demo-Daten und Fachregeln
-- Route Handler fuer `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `reviereinrichtungen`, `protokolle`, `sitzungen` und `documents`
-- Fallwild-Detail, Foto-Upload und S3-kompatible Storage-Schicht fuer MinIO lokal und spaeteres R2 inklusive best-effort Rollback bei Medien-Insert-Fehlern
-- Mobile Offline-Queue v2 fuer Ansitz und Fallwild inklusive separater Foto-Upload-Operationen, Retry-Backoff, Konfliktstatus, manuellem Retry und Verwerfen problematischer Eintraege
-- Mobile Vitest-Abdeckung fuer Foto-Normalisierung, Foto-Limit, Submission-Fallback und Queue-Retry-Policy
-- automatisierten Web-Tests mit Vitest fuer Route Handler, Services und Queries
-- Playwright-E2E- und Visual-Regression-Tests fuer Public Web, Auth, Ansitze, Fallwild, Dashboard, Reviereinrichtungen, Protokolle und Sitzungen auf Desktop und Mobile
-- Preview-Smoke fuer Public Web, Session-Grundvertrag und die wichtigsten App-Read-Pfade
-- GitHub-Workflow fuer den Preview-Smoke bei erfolgreichen Preview-Deployments und manuellen `workflow_dispatch`
-- Release-Check fuer produktive Deployments mit separatem Workflow bei erfolgreichen Production-Deployments und manuellem `workflow_dispatch`
-- abgeschlossener iPhone-/iOS-Simulator-Smoke als primärer nativer Expo-Abnahmepfad; der Lauf vom 2026-04-26 bestaetigt Queue-v2-Fehleranzeigen, R2-Storage ist in Production aktiv und ein direkter Fallwild-Foto-Upload gegen `hege.app` ist verifiziert
-- `apps/api` bleibt als Referenz- und Uebergangspfad im Repository
-- Rollen, Aufgaben und Nachrichten werden als naechste Planungsstufe vorbereitet, inklusive spaeterer WhatsApp-/Telegram-Kanaele
+- Shared Domain Package für Typen, Demo-Daten und Fachregeln
+- Route Handler für `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `reviereinrichtungen`, `protokolle`, `sitzungen`, `documents` und `geo`
+- Fallwild-Detail, Foto-Upload und S3-kompatible Storage-Schicht für MinIO lokal und R2 inklusive best-effort Rollback bei Medien-Insert-Fehlern
+- Fallwild-Standort v1 über `POST /api/v1/geo/fallwild-location`, Mobile-GPS, vorbereitete serverseitige Adressauflösung und gespeicherte Standort-/Straßenkilometer-Metadaten
+- Mobile Offline-Queue v2 für Ansitz und Fallwild inklusive separater Foto-Upload-Operationen, Retry-Backoff, Konfliktstatus, manuellem Retry und Verwerfen problematischer Einträge
+- Mobile Vitest-Abdeckung für Foto-Normalisierung, Foto-Limit, Submission-Fallback, Standortauflösung und Queue-Retry-Policy
+- automatisierten Web-Tests mit Vitest für Route Handler, Services und Queries
+- Playwright-E2E- und Visual-Regression-Tests für Public Web, Auth, Ansitze, Fallwild, Dashboard, Reviereinrichtungen, Protokolle und Sitzungen auf Desktop und Mobile
+- Preview-Smoke für Public Web, Session-Grundvertrag und die wichtigsten App-Read-Pfade
+- Release-Check für produktive Deployments mit separatem Workflow bei erfolgreichen Production-Deployments und manuellem `workflow_dispatch`
+- neues `hege`-Logo in Web und iOS-App; Landing, Login, Registrierung und Setup-Flow sind auf `https://hege.app` visuell geprüft
+- abgeschlossener iPhone-/iOS-Simulator-Smoke als primärer nativer Expo-Abnahmepfad; der Lauf vom 2026-04-26 bestätigt Queue-v2-Fehleranzeigen, R2-Storage ist in Production aktiv und ein direkter Fallwild-Foto-Upload gegen `hege.app` ist verifiziert
+- `apps/api` bleibt als Referenz- und Übergangspfad im Repository
+- Rollen, Aufgaben und Nachrichten werden als nächste Planungsstufe vorbereitet, inklusive späterer WhatsApp-/Telegram-Kanäle
 
 Kartenfunktionen werden projektweit auf Google Maps ausgerichtet; das stabile Ziel ist [Google-Maps-Ausrichtung](./maps-google-v1.md).
 
-Die fachliche Dokumentation beschreibt bereits die naechste Ausbaustufe mit echter Persistenz, Authentifizierung, Rollenpruefung und produktionsreifen Workflows.
+Die fachliche Dokumentation beschreibt bereits die nächste Ausbaustufe mit echter Persistenz, Authentifizierung, Rollenprüfung und produktionsreifen Workflows.
 
-Der aktuelle Entwicklungsfokus liegt auf dem iPhone-/iOS-Simulator-Smoke mit erfolgreichem Foto-Upload und leerer Queue, der Mobile-E2E-Strategie, dem optionalen Android-Emulator-Smoke und dem Zuschnitt von Reviermeldungen und Aufgaben v1. Google-Maps-Ausrichtung, Rollen, Nachrichten, Veranstaltungen und externe Messenger-Anstoesse bleiben vorbereitete Folgeblöcke.
+Der aktuelle Entwicklungsfokus liegt auf dem iPhone-/iOS-Geräte-Smoke mit erfolgreichem Foto-Upload, Fallwild-Standortauflösung und leerer Queue. Für automatische Adresse und Straße muss der Google-Server-Key in Preview/Production noch gesetzt werden; danach folgen GIP-Straßenkilometer-Härtung, Mobile-E2E-Strategie und Reviermeldungen/Aufgaben v1. Rollen, Nachrichten, Veranstaltungen und externe Messenger-Anstöße bleiben vorbereitete Folgeblöcke.
 
-Fuer den aktuellen Status sind [ROADMAP.md](../ROADMAP.md), [Roadmap v1](./roadmap-v1.md) und [TODO.md](../TODO.md) massgeblich. Die Sprint-0/1-Backlogs und Agent-Workstreams bleiben als Planungsartefakte der zuletzt geschnittenen Arbeitsbloecke erhalten.
+Für den aktuellen Status sind [ROADMAP.md](../ROADMAP.md), [Roadmap v1](./roadmap-v1.md) und [TODO.md](../TODO.md) maßgeblich. Die Sprint-0/1-Backlogs und Agent-Workstreams bleiben als Planungsartefakte der zuletzt geschnittenen Arbeitsblöcke erhalten.
 
 ## Pflegehinweis
 

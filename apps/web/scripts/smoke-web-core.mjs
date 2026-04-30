@@ -24,7 +24,7 @@ export async function runSmoke(baseUrl, options = {}) {
 
   await checkHtmlPage(baseUrl, "/", {
     label: "/",
-    expectedText: ["Revierbetrieb, Protokolle und Feldmeldungen in einer klaren Oberflaeche.", "Passendes Paket waehlen"]
+    expectedText: ["Revierbetrieb, Protokolle und Feldmeldungen in einer klaren Oberfläche.", "Passendes Paket wählen"]
   });
 
   await checkHtmlPage(baseUrl, "/login", {
@@ -96,9 +96,9 @@ export async function runSmoke(baseUrl, options = {}) {
       label: "/app/setup",
       headers: browserHeaders,
       expectedText: [
-        "Das Revier ist noch nicht vollstaendig eingerichtet.",
-        "Bitte Revierdaten vervollstaendigen",
-        "Setup abschliessen",
+        "Das Revier ist noch nicht vollständig eingerichtet.",
+        "Bitte Revierdaten vervollständigen",
+        "Setup abschließen",
         me.revier.name
       ]
     });
@@ -150,7 +150,7 @@ export async function runSmoke(baseUrl, options = {}) {
     await checkHtmlPage(baseUrl, "/app/protokolle", {
       label: "/app/protokolle",
       headers: browserHeaders,
-      expectedText: ["Freigegebene Protokolle und Beschluesse", publishedProtokoll.title]
+      expectedText: ["Freigegebene Protokolle und Beschlüsse", publishedProtokoll.title]
     });
   }
 
@@ -205,7 +205,7 @@ export async function runSmoke(baseUrl, options = {}) {
     await checkHtmlPage(baseUrl, "/app/sitzungen", {
       label: "/app/sitzungen",
       headers: browserHeaders,
-      expectedText: ["Entwuerfe, Protokollstaende und Freigaben", sitzungen[0].title]
+      expectedText: ["Entwürfe, Protokollstände und Freigaben", sitzungen[0].title]
     });
   }
 

@@ -82,6 +82,52 @@ Liefert:
 - `GET /api/v1/fallwild/:id`
 - `POST /api/v1/fallwild/:id/fotos`
 - `GET /api/v1/fallwild/export.csv`
+- `POST /api/v1/geo/fallwild-location`
+
+#### `POST /api/v1/geo/fallwild-location`
+
+Löst Koordinaten für die Fallwild-Erfassung auf. Die Route ist serverseitig, damit der Google-Server-Key nicht an Web oder Mobile ausgeliefert wird.
+
+Request:
+
+- `lat` als Dezimalgrad
+- `lng` als Dezimalgrad
+
+Antwort:
+
+- `location.lat`
+- `location.lng`
+- `location.label`, falls ableitbar
+- `location.addressLabel`, falls Google Reverse Geocoding konfiguriert ist
+- `location.placeId`, falls Google einen Treffer liefert
+- `gemeinde`, falls aus der Adresse ableitbar
+- `strasse`, falls aus der Adresse ableitbar
+- `roadReference.roadName`, falls aus Google oder GIP ableitbar
+- `roadReference.roadKilometer`, falls der GIP-Resolver einen Wert liefert
+- `roadReference.source` als `gip`, `manual` oder `unavailable`
+- `warnings` mit Hinweisen, wenn Google oder GIP nicht konfiguriert sind
+
+Konfiguration:
+
+- `GOOGLE_MAPS_SERVER_API_KEY`
+- `GOOGLE_MAPS_REGION=AT`
+- `GOOGLE_MAPS_LANGUAGE=de`
+- `GIP_ROAD_KILOMETER_ENDPOINT`
+
+GIP ist die fachliche Zielquelle für Straßenkilometer. Google liefert in v1 nur Adresse, Gemeinde und Straße.
+
+#### `POST /api/v1/fallwild`
+
+Akzeptiert zusätzlich zu Wildart, Status und Gemeinde Standort-Metadaten:
+
+- `location.accuracyMeters`
+- `location.source`
+- `location.addressLabel`
+- `location.placeId`
+- `roadReference.roadName`
+- `roadReference.roadKilometer`
+- `roadReference.source`
+- `roadReference.placeId`
 
 #### `GET /api/v1/fallwild/:id`
 

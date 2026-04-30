@@ -4,7 +4,26 @@
 
 Kartenfunktionen in Web und Mobile sollen sich fachlich und visuell an Google Maps orientieren. Ziel ist eine vertraute Bedienung für Standortsuche, Marker, aktuelle Position und Revierüberblick.
 
-Dieses Dokument beschreibt das Zielbild und die fachlichen Anforderungen. In diesem Sprint wird kein Google-Maps-SDK eingebaut und keine produktive Kartenintegration aktiviert.
+Dieses Dokument beschreibt das Zielbild und die fachlichen Anforderungen. In diesem Sprint wird kein Google-Maps-SDK eingebaut; für Fallwild ist aber eine erste serverseitige Standortauflösung aktiv.
+
+## Fallwild-Standort v1
+
+Der erste produktive Schritt ist bewusst kleiner als eine vollständige Kartenintegration:
+
+- Mobile erfasst die aktuelle iPhone-Position über die Geräteberechtigung.
+- `POST /api/v1/geo/fallwild-location` löst Koordinaten serverseitig auf.
+- Google Reverse Geocoding liefert lesbare Adresse, Gemeinde und Straßenname.
+- Straßenkilometer werden als eigenes Feld gespeichert und bleiben manuell editierbar.
+- GIP ist als Resolver-Schnittstelle vorbereitet, wird aber noch nicht als kompletter OGD-Import mitgeliefert.
+
+Warum diese Trennung wichtig ist: Google kann Adressen und Straßennamen gut ergänzen, ist aber nicht die fachliche Quelle für österreichische Straßenkilometer. Dafür wird GIP als OGD-Basis verwendet. Laut GIP-OGD-Seite wird der Export etwa alle zwei Monate aktualisiert; ab April 2026 wird der OGD-Export im neuen GIP-2.0-Format bereitgestellt. Quelle: [gip.gv.at OGD Daten](https://www.gip.gv.at/#ogd).
+
+Aktuelle Env-Schalter:
+
+- `GOOGLE_MAPS_SERVER_API_KEY` für serverseitiges Reverse Geocoding
+- `GOOGLE_MAPS_REGION=AT`
+- `GOOGLE_MAPS_LANGUAGE=de`
+- `GIP_ROAD_KILOMETER_ENDPOINT` für einen späteren internen Resolver gegen GIP-OGD-Daten
 
 ## Grundprinzipien
 
@@ -183,6 +202,7 @@ Die Standortsuche soll Google-Maps-ähnlich funktionieren und trotzdem fachlich 
 - bei mehreren Treffern muss der Nutzer aktiv auswählen
 - bei ungenauen Treffern wird ein manueller Pin angeboten
 - Reverse Geocoding darf eine lesbare Ortsbeschreibung ergänzen, ersetzt aber nicht die Koordinate
+- Straßenkilometer werden nicht aus Google abgeleitet, sondern aus GIP oder manuell bestätigt
 
 ### Datenübernahme
 
@@ -193,7 +213,9 @@ Beim Speichern einer fachlichen Ressource werden maximal übernommen:
 - `accuracy_meters`, falls vorhanden
 - `address_label`, falls vom Nutzer bestätigt
 - `place_id`, falls rechtlich und technisch zulässig
-- `source`, zum Beispiel `device_gps`, `search`, `manual_pin` oder `existing_resource`
+- `source`, zum Beispiel `device-gps`, `reverse-geocode` oder `manual`
+- `road_kilometer`, falls GIP oder eine manuelle Bestätigung einen Straßenkilometer liefert
+- `road_kilometer_source`, zum Beispiel `gip`, `manual` oder `unavailable`
 
 Nicht gespeichert werden sollen reine Suchtexte, verworfene Treffer und Bewegungsverläufe.
 
@@ -229,7 +251,8 @@ Server-Keys dürfen nie an Web- oder Mobile-Clients ausgeliefert werden.
 ### Gemeinsame Konfiguration
 
 - `GOOGLE_MAPS_REGION=AT`
-- `GOOGLE_MAPS_LANGUAGE=de-AT`
+- `GOOGLE_MAPS_LANGUAGE=de`
+- Produktsprache bleibt Deutsch für Österreich (`de-AT`); der Google-Geocoding-Parameter wird über Sprache `de` und Region `AT` eingeschränkt.
 - Budget- und Quota-Warnungen im Google-Cloud-Projekt
 - getrennte Keys für Development, Preview und Production
 - keine echten Production-Keys in `.env.example`, Logs oder Test-Snapshots

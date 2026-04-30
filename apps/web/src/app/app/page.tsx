@@ -21,7 +21,7 @@ export default async function DashboardPage() {
           <h1>Revierbetrieb, Protokolle und Fallwild auf einen Blick.</h1>
           <p className="hero-copy">
             Aktive Ansitze, Reviereinrichtungen, Protokollfreigaben und Fallwild-Ereignisse laufen in
-            einer Oberflaeche zusammen. Das Backoffice ist fuer Revierleitung und Schriftfuehrung
+            einer Oberfläche zusammen. Das Backoffice ist für Revierleitung und Schriftführung
             ausgelegt.
           </p>
         </div>
@@ -38,7 +38,7 @@ export default async function DashboardPage() {
         <MetricCard
           label="Aktive Ansitze"
           value={dashboard.overview.aktiveAnsitze}
-          detail={`${dashboard.overview.ansitzeMitKonflikt} Konflikte benoetigen Aufmerksamkeit.`}
+          detail={`${dashboard.overview.ansitzeMitKonflikt} Konflikte benötigen Aufmerksamkeit.`}
         />
         <MetricCard
           label="Offene Wartungen"
@@ -51,7 +51,7 @@ export default async function DashboardPage() {
           detail="Mit Foto- und Standortdokumentation."
         />
         <MetricCard
-          label="Entwuerfe"
+          label="Entwürfe"
           value={dashboard.overview.unveroeffentlichteProtokolle}
           detail="Sitzungsprotokolle warten auf Freigabe."
         />
@@ -83,7 +83,7 @@ export default async function DashboardPage() {
 
       <section className="split-panel">
         <article className="panel-card">
-          <p className="eyebrow">Naechste Sitzung</p>
+          <p className="eyebrow">Nächste Sitzung</p>
           <h2>{dashboard.overview.naechsteSitzung?.title ?? "Keine Sitzung geplant"}</h2>
           <p>{dashboard.overview.naechsteSitzung?.locationLabel ?? "Noch kein Ort hinterlegt"}</p>
           {dashboard.overview.naechsteSitzung ? <span>{formatDateTime(dashboard.overview.naechsteSitzung.scheduledAt)}</span> : null}

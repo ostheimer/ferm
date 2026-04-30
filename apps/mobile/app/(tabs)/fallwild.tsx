@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import type { Dispatch, SetStateAction } from "react";
 import * as ImagePicker from "expo-image-picker";
+import * as Location from "expo-location";
 
 import { ScreenShell } from "../../components/screen-shell";
 import { formatDateTime } from "../../lib/format";
@@ -19,9 +20,15 @@ import { buildGeoPoint, trimToUndefined } from "../../lib/form-utils";
 import {
   fetchFallwildDetail,
   fetchFallwildList,
+  resolveFallwildLocation,
   type CreateFallwildRequest,
   type FallwildListItem
 } from "../../lib/api";
+import {
+  applyFallwildLocationSuggestion,
+  buildFallwildRoadReference,
+  formatCoordinate
+} from "../../lib/fallwild-location";
 import {
   FALLWILD_PHOTO_QUALITY,
   MAX_FALLWILD_PHOTOS,
@@ -49,25 +56,39 @@ interface FallwildFormState {
   locationLabel: string;
   lat: string;
   lng: string;
+  accuracyMeters: string;
+  locationSource: "manual" | "device-gps";
+  addressLabel: string;
+  googlePlaceId: string;
   wildart: CreateFallwildRequest["wildart"];
   geschlecht: CreateFallwildRequest["geschlecht"];
   altersklasse: CreateFallwildRequest["altersklasse"];
   bergungsStatus: CreateFallwildRequest["bergungsStatus"];
   gemeinde: string;
   strasse: string;
+  roadName: string;
+  roadKilometer: string;
+  roadKilometerSource: "manual" | "gip" | "unavailable";
   note: string;
 }
 
 const DEFAULT_FORM: FallwildFormState = {
-  locationLabel: "Forststrasse",
-  lat: "47.9184",
-  lng: "13.5219",
+  locationLabel: "",
+  lat: "",
+  lng: "",
+  accuracyMeters: "",
+  locationSource: "manual",
+  addressLabel: "",
+  googlePlaceId: "",
   wildart: "Fuchs",
   geschlecht: "weiblich",
   altersklasse: "Adult",
   bergungsStatus: "geborgen",
   gemeinde: "",
   strasse: "",
+  roadName: "",
+  roadKilometer: "",
+  roadKilometerSource: "manual",
   note: ""
 };
 
@@ -96,9 +117,11 @@ export default function FallwildScreen() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPickingPhotos, setIsPickingPhotos] = useState(false);
+  const [isResolvingLocation, setIsResolvingLocation] = useState(false);
   const [discardingEntryId, setDiscardingEntryId] = useState<string | null>(null);
   const [retryingEntryId, setRetryingEntryId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<FeedbackState>(null);
+  const [locationHint, setLocationHint] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -143,12 +166,8 @@ export default function FallwildScreen() {
       const result = await submitFallwildSubmission(payload, attachmentSnapshot);
 
       setAttachments([]);
-
-      setForm({
-        ...DEFAULT_FORM,
-        lat: form.lat.trim() || DEFAULT_FORM.lat,
-        lng: form.lng.trim() || DEFAULT_FORM.lng
-      });
+      setForm(DEFAULT_FORM);
+      setLocationHint(null);
 
       if (result.mode === "queued") {
         setFeedback({
@@ -293,6 +312,64 @@ export default function FallwildScreen() {
     }
   }
 
+  async function handleUseCurrentLocation() {
+    if (isResolvingLocation || isSubmitting) {
+      return;
+    }
+
+    setIsResolvingLocation(true);
+    setFeedback(null);
+    setLocationHint(null);
+    setError(null);
+
+    try {
+      const permission = await Location.requestForegroundPermissionsAsync();
+
+      if (!permission.granted) {
+        setError("Der Standortzugriff ist nicht erlaubt.");
+        return;
+      }
+
+      const position = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced
+      });
+      const accuracyMeters =
+        typeof position.coords.accuracy === "number" && Number.isFinite(position.coords.accuracy)
+          ? String(Math.round(position.coords.accuracy))
+          : "";
+
+      setForm((current) => ({
+        ...current,
+        lat: formatCoordinate(position.coords.latitude),
+        lng: formatCoordinate(position.coords.longitude),
+        accuracyMeters,
+        locationSource: "device-gps"
+      }));
+
+      try {
+        const suggestion = await resolveFallwildLocation(position.coords.latitude, position.coords.longitude);
+        setForm((current) => ({
+          ...applyFallwildLocationSuggestion(current, suggestion),
+          accuracyMeters,
+          locationSource: "device-gps",
+          googlePlaceId: suggestion.location.placeId ?? current.googlePlaceId
+        }));
+        setLocationHint(
+          suggestion.warnings.length > 0
+            ? suggestion.warnings.join(" ")
+            : "Standort, Adresse und Straßenbezug wurden automatisch übernommen."
+        );
+      } catch (resolveError) {
+        setLocationHint("GPS wurde übernommen. Adresse und Straßenkilometer bitte manuell ergänzen.");
+        setError(resolveError instanceof Error ? resolveError.message : "Standortdetails konnten nicht ermittelt werden.");
+      }
+    } catch (locationError) {
+      setError(locationError instanceof Error ? locationError.message : "Standort konnte nicht ermittelt werden.");
+    } finally {
+      setIsResolvingLocation(false);
+    }
+  }
+
   async function refreshFallwildAfterSubmit(createdId: string) {
     try {
       const detail = await fetchFallwildDetail(createdId);
@@ -355,10 +432,34 @@ export default function FallwildScreen() {
           </View>
         </View>
 
+        <View style={styles.locationActionCard}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Aktuellen Standort für Fallwild übernehmen"
+            style={[styles.locationButton, isResolvingLocation || isSubmitting ? styles.buttonDisabled : null]}
+            onPress={() => void handleUseCurrentLocation()}
+            disabled={isResolvingLocation || isSubmitting}
+          >
+            {isResolvingLocation ? (
+              <ActivityIndicator color={colors.surface} />
+            ) : (
+              <Text style={styles.locationButtonText}>Standort automatisch erfassen</Text>
+            )}
+          </Pressable>
+          <Text style={styles.helperCopy}>
+            GPS kommt vom iPhone. Adresse wird serverseitig über Google ermittelt; Straßenkilometer werden über GIP übernommen,
+            sobald der Resolver konfiguriert ist.
+          </Text>
+          {form.accuracyMeters ? (
+            <Text style={styles.helperCopy}>GPS-Genauigkeit: ca. {form.accuracyMeters} m</Text>
+          ) : null}
+          {locationHint ? <Text style={styles.locationHint}>{locationHint}</Text> : null}
+        </View>
+
         <View style={styles.field}>
           <Text style={styles.label}>Standortbezeichnung</Text>
           <TextInput
-            placeholder="Forststrasse"
+            placeholder="Straßenrand L9"
             placeholderTextColor={colors.muted}
             style={styles.input}
             value={form.locationLabel}
@@ -367,10 +468,22 @@ export default function FallwildScreen() {
         </View>
 
         <View style={styles.field}>
+          <Text style={styles.label}>Adresse</Text>
+          <TextInput
+            autoCapitalize="words"
+            placeholder="Wird über Google ermittelt"
+            placeholderTextColor={colors.muted}
+            style={styles.input}
+            value={form.addressLabel}
+            onChangeText={updateField(setForm, "addressLabel")}
+          />
+        </View>
+
+        <View style={styles.field}>
           <Text style={styles.label}>Gemeinde</Text>
           <TextInput
             autoCapitalize="words"
-            placeholder="Steinbach am Attersee"
+            placeholder="Gänserndorf"
             placeholderTextColor={colors.muted}
             style={styles.input}
             value={form.gemeinde}
@@ -382,12 +495,25 @@ export default function FallwildScreen() {
           <Text style={styles.label}>Straße oder Lage</Text>
           <TextInput
             autoCapitalize="words"
-            placeholder="L127"
+            placeholder="L9"
             placeholderTextColor={colors.muted}
             style={styles.input}
             value={form.strasse}
             onChangeText={updateField(setForm, "strasse")}
           />
+        </View>
+
+        <View style={styles.field}>
+          <Text style={styles.label}>Straßenkilometer</Text>
+          <TextInput
+            autoCapitalize="none"
+            placeholder="z. B. km 12,4"
+            placeholderTextColor={colors.muted}
+            style={styles.input}
+            value={form.roadKilometer}
+            onChangeText={updateRoadKilometer(setForm)}
+          />
+          <Text style={styles.helperCopy}>Wichtig für Fallwild. Wenn GIP keinen Wert liefert, bitte vor Ort manuell ergänzen.</Text>
         </View>
 
         <ChoiceGroup
@@ -623,8 +749,12 @@ export default function FallwildScreen() {
             </View>
 
             <Text style={styles.copy}>{entry.location.label ?? "Ohne Standort"}</Text>
+            {entry.location.addressLabel ? <Text style={styles.copy}>{entry.location.addressLabel}</Text> : null}
             <Text style={styles.copy}>{formatDateTime(entry.recordedAt)}</Text>
             {entry.strasse ? <Text style={styles.copy}>{entry.strasse}</Text> : null}
+            {entry.roadReference?.roadKilometer ? (
+              <Text style={styles.copy}>Straßenkilometer {entry.roadReference.roadKilometer}</Text>
+            ) : null}
             {entry.note ? <Text style={styles.copy}>{entry.note}</Text> : null}
             {entry.photos.length > 0 ? <Text style={styles.copy}>{formatPhotoCount(entry.photos.length)}</Text> : null}
           </View>
@@ -640,6 +770,16 @@ function updateField(
 ) {
   return (value: string) => {
     setForm((current) => ({ ...current, [key]: value }));
+  };
+}
+
+function updateRoadKilometer(setForm: Dispatch<SetStateAction<FallwildFormState>>) {
+  return (value: string) => {
+    setForm((current) => ({
+      ...current,
+      roadKilometer: value,
+      roadKilometerSource: value.trim().length > 0 ? "manual" : current.roadKilometerSource
+    }));
   };
 }
 
@@ -659,17 +799,52 @@ function buildFallwildPayload(form: FallwildFormState): CreateFallwildRequest {
     throw new Error("Bitte eine Gemeinde eingeben.");
   }
 
+  const locationFallback =
+    trimToUndefined(form.locationLabel) ??
+    trimToUndefined(form.strasse) ??
+    trimToUndefined(form.addressLabel) ??
+    "Aktueller Standort";
+  const location = buildGeoPoint(form.lat, form.lng, form.locationLabel, locationFallback);
+  const accuracyMeters = parseOptionalPositiveNumber(form.accuracyMeters);
+
   return {
     recordedAt: new Date().toISOString(),
-    location: buildGeoPoint(form.lat, form.lng, form.locationLabel, "Forststrasse"),
+    location: {
+      ...location,
+      accuracyMeters,
+      source: form.locationSource,
+      addressLabel: trimToUndefined(form.addressLabel),
+      placeId: trimToUndefined(form.googlePlaceId)
+    },
     wildart: form.wildart,
     geschlecht: form.geschlecht,
     altersklasse: form.altersklasse,
     bergungsStatus: form.bergungsStatus,
     gemeinde,
     strasse: trimToUndefined(form.strasse),
+    roadReference: buildFallwildRoadReference({
+      roadName: trimToUndefined(form.strasse) ?? form.roadName,
+      roadKilometer: form.roadKilometer,
+      roadKilometerSource: form.roadKilometerSource
+    }),
     note: trimToUndefined(form.note)
   };
+}
+
+function parseOptionalPositiveNumber(value: string): number | undefined {
+  const normalized = value.replace(",", ".").trim();
+
+  if (!normalized) {
+    return undefined;
+  }
+
+  const parsed = Number(normalized);
+
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    throw new Error("GPS-Genauigkeit muss eine positive Zahl sein.");
+  }
+
+  return parsed;
 }
 
 function formatPhotoCount(count: number) {
@@ -785,6 +960,30 @@ const styles = StyleSheet.create({
     padding: 18,
     borderRadius: 22,
     backgroundColor: colors.card
+  },
+  locationActionCard: {
+    gap: 8,
+    padding: 14,
+    borderRadius: 18,
+    backgroundColor: "#f3ecdf"
+  },
+  locationButton: {
+    minHeight: 48,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 14,
+    borderRadius: 16,
+    backgroundColor: colors.accent
+  },
+  locationButtonText: {
+    color: colors.surface,
+    fontSize: 14,
+    fontWeight: "700"
+  },
+  locationHint: {
+    fontSize: 13,
+    lineHeight: 18,
+    color: colors.ink
   },
   sectionLabel: {
     fontSize: 12,

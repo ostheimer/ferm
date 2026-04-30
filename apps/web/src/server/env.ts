@@ -20,6 +20,10 @@ export interface ServerEnv {
   s3PublicBaseUrl?: string;
   s3AccessKey?: string;
   s3SecretKey?: string;
+  googleMapsServerApiKey?: string;
+  googleMapsLanguage: string;
+  googleMapsRegion: string;
+  gipRoadKilometerEndpoint?: string;
 }
 
 export function getServerEnv(): ServerEnv {
@@ -34,6 +38,10 @@ export function getServerEnv(): ServerEnv {
   const s3PublicBaseUrl = resolveStorageEnv("S3_PUBLIC_BASE_URL", LOCAL_S3_PUBLIC_BASE_URL);
   const s3AccessKey = resolveStorageEnv("S3_ACCESS_KEY", LOCAL_S3_ACCESS_KEY);
   const s3SecretKey = resolveStorageEnv("S3_SECRET_KEY", LOCAL_S3_SECRET_KEY);
+  const googleMapsServerApiKey = resolveOptionalEnv("GOOGLE_MAPS_SERVER_API_KEY");
+  const googleMapsLanguage = resolveOptionalEnv("GOOGLE_MAPS_LANGUAGE") ?? "de";
+  const googleMapsRegion = resolveOptionalEnv("GOOGLE_MAPS_REGION") ?? "AT";
+  const gipRoadKilometerEndpoint = resolveOptionalEnv("GIP_ROAD_KILOMETER_ENDPOINT");
 
   return {
     databaseUrl,
@@ -46,7 +54,11 @@ export function getServerEnv(): ServerEnv {
     s3Bucket,
     s3PublicBaseUrl,
     s3AccessKey,
-    s3SecretKey
+    s3SecretKey,
+    googleMapsServerApiKey,
+    googleMapsLanguage,
+    googleMapsRegion,
+    gipRoadKilometerEndpoint
   };
 }
 
@@ -71,4 +83,11 @@ function resolveStorageEnv(name: keyof NodeJS.ProcessEnv, fallbackValue: string)
   }
 
   return fallbackValue;
+}
+
+function resolveOptionalEnv(name: keyof NodeJS.ProcessEnv) {
+  const value = process.env[name];
+  const normalizedValue = typeof value === "string" ? value.trim() : undefined;
+
+  return normalizedValue && normalizedValue.length > 0 ? normalizedValue : undefined;
 }

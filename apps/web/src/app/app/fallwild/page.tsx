@@ -14,9 +14,13 @@ export default async function FallwildPage() {
 function toFallwildClientEntry(entry: Awaited<ReturnType<typeof listFallwild>>[number]): FallwildClientEntry {
   return {
     ...entry,
+    addressLabel: entry.location.addressLabel ?? "",
     locationLabel: entry.location.label ?? "ohne Lagebezeichnung",
+    roadKilometerLabel: entry.roadReference?.roadKilometer
+      ? `Straßenkilometer ${entry.roadReference.roadKilometer}`
+      : "",
     recordedAtLabel: formatDateTime(entry.recordedAt),
-    streetLabel: entry.strasse ?? "ohne Strasse"
+    streetLabel: entry.strasse ?? "ohne Straße"
   };
 }
 

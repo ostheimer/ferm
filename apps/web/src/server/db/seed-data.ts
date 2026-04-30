@@ -176,12 +176,20 @@ export async function seedDatabase(db: HegeDb) {
         locationLat: entry.location.lat,
         locationLng: entry.location.lng,
         locationLabel: entry.location.label,
+        locationAccuracyMeters: entry.location.accuracyMeters ?? null,
+        locationSource: entry.location.source ?? null,
+        addressLabel: entry.location.addressLabel ?? null,
+        googlePlaceId: entry.location.placeId ?? null,
         wildart: entry.wildart,
         geschlecht: entry.geschlecht,
         altersklasse: entry.altersklasse,
         bergungsStatus: entry.bergungsStatus,
         gemeinde: entry.gemeinde,
         strasse: entry.strasse,
+        roadName: entry.roadReference?.roadName ?? null,
+        roadKilometer: entry.roadReference?.roadKilometer ?? null,
+        roadKilometerSource: entry.roadReference?.source ?? null,
+        roadPlaceId: entry.roadReference?.placeId ?? null,
         note: entry.note
       })
       .onConflictDoUpdate({
@@ -193,12 +201,20 @@ export async function seedDatabase(db: HegeDb) {
           locationLat: entry.location.lat,
           locationLng: entry.location.lng,
           locationLabel: entry.location.label,
+          locationAccuracyMeters: entry.location.accuracyMeters ?? null,
+          locationSource: entry.location.source ?? null,
+          addressLabel: entry.location.addressLabel ?? null,
+          googlePlaceId: entry.location.placeId ?? null,
           wildart: entry.wildart,
           geschlecht: entry.geschlecht,
           altersklasse: entry.altersklasse,
           bergungsStatus: entry.bergungsStatus,
           gemeinde: entry.gemeinde,
           strasse: entry.strasse,
+          roadName: entry.roadReference?.roadName ?? null,
+          roadKilometer: entry.roadReference?.roadKilometer ?? null,
+          roadKilometerSource: entry.roadReference?.source ?? null,
+          roadPlaceId: entry.roadReference?.placeId ?? null,
           note: entry.note
         }
       });

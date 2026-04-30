@@ -17,7 +17,7 @@ const bodyFont = Manrope({
 export const metadata: Metadata = {
   metadataBase: new URL(getPublicAppUrl()),
   title: "hege Backoffice",
-  description: "Reviermanagement fuer Jagdgesellschaften in Oesterreich"
+  description: "Reviermanagement für Jagdgesellschaften in Österreich"
 };
 
 interface RootLayoutProps {

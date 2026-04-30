@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Image, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Redirect, useRouter } from "expo-router";
 
@@ -7,6 +7,8 @@ import { AppLoader } from "../components/app-loader";
 import { loginWithCredentials, MobileApiError } from "../lib/api";
 import { useSessionSnapshot } from "../lib/session";
 import { colors } from "../lib/theme";
+
+const logoMark = require("../assets/logo-mark.png");
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -56,7 +58,8 @@ export default function LoginScreen() {
     <LinearGradient colors={["#fff8ec", "#dde6c3"]} style={styles.root}>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.flex}>
         <View style={styles.card}>
-          <Text style={styles.eyebrow}>hege Revier</Text>
+          <Image accessibilityIgnoresInvertColors source={logoMark} style={styles.logo} />
+          <Text style={styles.eyebrow}>hege</Text>
           <Text style={styles.title}>Anmelden und Revierkontext laden</Text>
           <Text style={styles.copy}>Der Zugriff läuft jetzt über E-Mail oder Benutzername und eine vierstellige PIN.</Text>
 
@@ -133,6 +136,11 @@ const styles = StyleSheet.create({
     shadowRadius: 24,
     shadowOffset: { width: 0, height: 18 },
     elevation: 4
+  },
+  logo: {
+    width: 86,
+    height: 86,
+    resizeMode: "contain"
   },
   eyebrow: {
     fontSize: 12,

@@ -21,12 +21,23 @@ describe("fallwild service", () => {
     const result = await service.create({
       revierId: "revier-attersee",
       reportedByMembershipId: "member-jaeger",
-      location: { lat: 47.92, lng: 13.51, label: "Nordrand" },
+      location: {
+        lat: 47.92,
+        lng: 13.51,
+        label: "Nordrand",
+        source: "device-gps",
+        addressLabel: "L127, 4853 Steinbach am Attersee"
+      },
       wildart: "Fuchs",
       geschlecht: "weiblich",
       altersklasse: "Adult",
       bergungsStatus: "geborgen",
       gemeinde: "Steinbach am Attersee",
+      roadReference: {
+        roadName: "L127",
+        roadKilometer: "8,2",
+        source: "gip"
+      },
       note: "Browsertest"
     });
 
@@ -34,6 +45,9 @@ describe("fallwild service", () => {
       id: "fallwild-new",
       recordedAt: "2026-04-04T06:00:00.000Z",
       wildart: "Fuchs",
+      roadReference: {
+        roadKilometer: "8,2"
+      },
       photos: []
     });
   });

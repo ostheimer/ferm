@@ -207,7 +207,9 @@ export const demoData: DemoData = {
       location: {
         lat: 47.9201,
         lng: 13.5194,
-        label: "L127 Abzweigung Weyregg"
+        label: "L127 Abzweigung Weyregg",
+        source: "device-gps",
+        addressLabel: "L127, 4853 Steinbach am Attersee"
       },
       wildart: "Reh",
       geschlecht: "weiblich",
@@ -215,7 +217,12 @@ export const demoData: DemoData = {
       bergungsStatus: "geborgen",
       gemeinde: "Steinbach am Attersee",
       strasse: "L127",
-      note: "Gemeinsam mit Strassenmeisterei gesichert.",
+      roadReference: {
+        roadName: "L127",
+        roadKilometer: "8,2",
+        source: "gip"
+      },
+      note: "Gemeinsam mit Straßenmeisterei gesichert.",
       photos: [
         {
           id: "photo-fallwild-1",

@@ -1,12 +1,15 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
 
 import { colors } from "../lib/theme";
+
+const logoMark = require("../assets/logo-mark.png");
 
 export function AppLoader() {
   return (
     <LinearGradient colors={["#fff8ec", "#dde6c3"]} style={styles.root}>
       <View style={styles.card}>
+        <Image accessibilityIgnoresInvertColors source={logoMark} style={styles.logo} />
         <Text style={styles.eyebrow}>hege</Text>
         <Text style={styles.title}>Session wird geladen</Text>
         <Text style={styles.copy}>Wir stellen den gesicherten Revier-Kontext wieder her.</Text>
@@ -34,6 +37,11 @@ const styles = StyleSheet.create({
     shadowRadius: 24,
     shadowOffset: { width: 0, height: 18 },
     elevation: 4
+  },
+  logo: {
+    width: 72,
+    height: 72,
+    resizeMode: "contain"
   },
   eyebrow: {
     fontSize: 12,

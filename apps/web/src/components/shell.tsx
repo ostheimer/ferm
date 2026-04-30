@@ -31,7 +31,9 @@ export function Shell({ children, viewer }: ShellProps) {
     <div className="app-shell">
       <aside className="sidebar">
         <Link href="/app" className="brand-block">
-          <div className="brand-mark">h</div>
+          <div className="brand-mark" aria-hidden="true">
+            <img className="brand-logo-image" src="/brand/hege-logo-mark.png" alt="" />
+          </div>
           <div>
             <p className="eyebrow">Reviermanagement</p>
             <h1>hege</h1>
@@ -88,9 +90,9 @@ function formatRoleLabel(role: AuthContextResponse["membership"]["role"]) {
     case "revier-admin":
       return "Admin";
     case "schriftfuehrer":
-      return "Schriftfuehrung";
+      return "Schriftführung";
     case "jaeger":
-      return "Jaeger";
+      return "Jäger";
     case "platform-admin":
       return "Plattform";
     default:

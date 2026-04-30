@@ -6,6 +6,7 @@ import type {
   BergungsStatus,
   DashboardResponse,
   DocumentDownloadRef,
+  FallwildRoadReference,
   GeoPoint,
   Geschlecht,
   LoginPayload,
@@ -66,7 +67,16 @@ export interface CreateFallwildRequest {
   bergungsStatus: BergungsStatus;
   gemeinde: string;
   strasse?: string;
+  roadReference?: FallwildRoadReference;
   note?: string;
+}
+
+export interface FallwildLocationSuggestionResponse {
+  location: GeoPoint;
+  gemeinde?: string;
+  strasse?: string;
+  roadReference?: FallwildRoadReference;
+  warnings: string[];
 }
 
 export interface FallwildPhotoUploadResponse {
@@ -198,6 +208,16 @@ export async function createFallwild(payload: CreateFallwildRequest): Promise<Mu
   return requestJson<MutationResponse>("/v1/fallwild", {
     method: "POST",
     body: payload
+  });
+}
+
+export async function resolveFallwildLocation(lat: number, lng: number): Promise<FallwildLocationSuggestionResponse> {
+  return requestJson<FallwildLocationSuggestionResponse>("/v1/geo/fallwild-location", {
+    method: "POST",
+    body: {
+      lat,
+      lng
+    }
   });
 }
 
