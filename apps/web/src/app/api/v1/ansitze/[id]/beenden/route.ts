@@ -38,7 +38,7 @@ async function readJsonBody(request: Request): Promise<unknown> {
   try {
     return await request.json();
   } catch {
-    throw Object.assign(new Error("Der Request-Body muss gueltiges JSON sein."), {
+    throw Object.assign(new Error("Der Request-Body muss gültiges JSON sein."), {
       status: 400,
       code: "validation-error"
     });

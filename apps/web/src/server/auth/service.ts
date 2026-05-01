@@ -44,7 +44,7 @@ export async function login(payload: LoginPayload): Promise<AuthSessionResponse>
   }
 
   if (!user || !isValidPin) {
-    throw new RouteError("E-Mail, Benutzername oder PIN ist ungueltig.", 401, "unauthenticated");
+    throw new RouteError("E-Mail, Benutzername oder PIN ist ungültig.", 401, "unauthenticated");
   }
 
   const membershipsForUser = await loadMembershipsForUser(user.id);
@@ -117,7 +117,7 @@ export async function resolveAuthContext(context: SessionTokenContext): Promise<
 
 export function assertRole(role: Role, allowedRoles: Role[]) {
   if (!allowedRoles.includes(role)) {
-    throw new RouteError("Diese Aktion ist fuer die aktuelle Rolle nicht erlaubt.", 403, "forbidden");
+    throw new RouteError("Diese Aktion ist für die aktuelle Rolle nicht erlaubt.", 403, "forbidden");
   }
 }
 
@@ -134,7 +134,7 @@ async function loginAgainstDemoStore(payload: LoginPayload): Promise<AuthSession
   const user = loadDemoUserByIdentifier(normalizedIdentifier);
 
   if (!user || !verifyPassword(payload.pin, user.passwordHash)) {
-    throw new RouteError("E-Mail, Benutzername oder PIN ist ungueltig.", 401, "unauthenticated");
+    throw new RouteError("E-Mail, Benutzername oder PIN ist ungültig.", 401, "unauthenticated");
   }
 
   const membershipsForUser = loadDemoMembershipsForUser(user.id);

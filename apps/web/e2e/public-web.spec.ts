@@ -17,7 +17,7 @@ test.describe("Public web and onboarding contracts", () => {
     await expect(page).toHaveURL(/\/$/);
     await expect(
       page.getByRole("heading", {
-        name: "Revierbetrieb, Protokolle und Feldmeldungen in einer klaren Oberflaeche."
+        name: "Revierbetrieb, Protokolle und Feldmeldungen in einer klaren Oberfläche."
       })
     ).toBeVisible();
     await expect(page.locator('a[href="/login"]')).toHaveCount(5);
@@ -49,11 +49,11 @@ test.describe("Public web and onboarding contracts", () => {
     await page.locator("#register-pin").fill("1234");
     await page.locator("#register-jagdzeichen").fill("MT-01");
     await page.locator("#register-revier-name").fill("Jagdgesellschaft Testtal");
-    await page.locator("#register-bundesland").fill("Oberoesterreich");
+    await page.locator("#register-bundesland").fill("Oberösterreich");
     await page.locator("#register-bezirk").fill("Gmunden");
     await page.getByRole("button", { name: "Revier anlegen" }).click();
 
     await expect(page).toHaveURL(/\/app\/setup$/);
-    await expect(page.getByRole("button", { name: "Setup abschliessen" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Setup abschließen" })).toBeVisible();
   });
 });

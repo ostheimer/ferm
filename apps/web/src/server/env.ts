@@ -67,7 +67,7 @@ export function getServerEnv(): ServerEnv {
 
 function fallbackAuthSecret() {
   if (process.env.VERCEL_ENV) {
-    throw new Error("AUTH_TOKEN_SECRET muss fuer Preview- und Production-Deployments gesetzt sein.");
+    throw new Error("AUTH_TOKEN_SECRET muss für Preview- und Production-Deployments gesetzt sein.");
   }
 
   return LOCAL_AUTH_SECRET;

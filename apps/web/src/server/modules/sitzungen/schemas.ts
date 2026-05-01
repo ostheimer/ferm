@@ -133,7 +133,7 @@ function parseRequiredDateString(value: unknown, field: string): string {
   const parsed = new Date(value);
 
   if (Number.isNaN(parsed.valueOf())) {
-    throw validationError(`${field} muss ein gueltiges Datum sein.`);
+    throw validationError(`${field} muss ein gültiges Datum sein.`);
   }
 
   return parsed.toISOString();
