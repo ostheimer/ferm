@@ -24,6 +24,7 @@ import {
   type SitzungRecord
 } from "../../db/schema";
 import { getServerEnv } from "../../env";
+import { normalizeDeAtVisibleText } from "../../text/de-at";
 
 const TIME_ZONE = "Europe/Vienna";
 const MAX_RECENT_ITEMS = 5;
@@ -194,16 +195,16 @@ function mapAnsitzRowToDomain(record: AnsitzSessionRecord) {
     revierId: record.revierId,
     membershipId: record.membershipId,
     standortId: record.standortId ?? undefined,
-    standortName: record.standortName,
+    standortName: normalizeDeAtVisibleText(record.standortName),
     location: {
       lat: record.locationLat,
       lng: record.locationLng,
-      label: record.locationLabel ?? undefined
+      label: normalizeDeAtVisibleText(record.locationLabel) ?? undefined
     },
     startedAt: record.startedAt,
     plannedEndAt: record.plannedEndAt ?? undefined,
     endedAt: record.endedAt ?? undefined,
-    note: record.note ?? undefined,
+    note: normalizeDeAtVisibleText(record.note) ?? undefined,
     status: record.status,
     conflict: record.conflict
   } satisfies AnsitzSession;
@@ -218,7 +219,7 @@ function mapFallwildRowToDomain(record: FallwildVorgangRecord) {
     location: {
       lat: record.locationLat,
       lng: record.locationLng,
-      label: record.locationLabel ?? undefined,
+      label: normalizeDeAtVisibleText(record.locationLabel) ?? undefined,
       accuracyMeters: record.locationAccuracyMeters ?? undefined,
       source:
         record.locationSource === "manual" ||
@@ -226,19 +227,19 @@ function mapFallwildRowToDomain(record: FallwildVorgangRecord) {
         record.locationSource === "reverse-geocode"
           ? record.locationSource
           : undefined,
-      addressLabel: record.addressLabel ?? undefined,
+      addressLabel: normalizeDeAtVisibleText(record.addressLabel) ?? undefined,
       placeId: record.googlePlaceId ?? undefined
     },
     wildart: record.wildart,
     geschlecht: record.geschlecht,
     altersklasse: record.altersklasse,
     bergungsStatus: record.bergungsStatus,
-    gemeinde: record.gemeinde,
-    strasse: record.strasse ?? undefined,
+    gemeinde: normalizeDeAtVisibleText(record.gemeinde),
+    strasse: normalizeDeAtVisibleText(record.strasse) ?? undefined,
     roadReference:
       record.roadName || record.roadKilometer || record.roadKilometerSource || record.roadPlaceId
         ? {
-            roadName: record.roadName ?? undefined,
+            roadName: normalizeDeAtVisibleText(record.roadName) ?? undefined,
             roadKilometer: record.roadKilometer ?? undefined,
             source:
               record.roadKilometerSource === "manual" ||
@@ -249,7 +250,7 @@ function mapFallwildRowToDomain(record: FallwildVorgangRecord) {
             placeId: record.roadPlaceId ?? undefined
           }
         : undefined,
-    note: record.note ?? undefined,
+    note: normalizeDeAtVisibleText(record.note) ?? undefined,
     photos: []
   } satisfies FallwildVorgang;
 }
@@ -259,8 +260,8 @@ function mapNotificationRowToDomain(record: NotificationRecord): NotificationIte
     id: record.id,
     revierId: record.revierId,
     channel: record.channel,
-    title: record.title,
-    body: record.body,
+    title: normalizeDeAtVisibleText(record.title),
+    body: normalizeDeAtVisibleText(record.body),
     createdAt: record.createdAt
   };
 }
@@ -269,9 +270,9 @@ function mapSitzungRowToDomain(record: SitzungRecord): Sitzung {
   return {
     id: record.id,
     revierId: record.revierId,
-    title: record.title,
+    title: normalizeDeAtVisibleText(record.title),
     scheduledAt: record.scheduledAt,
-    locationLabel: record.locationLabel,
+    locationLabel: normalizeDeAtVisibleText(record.locationLabel),
     status: record.status,
     participants: [],
     versions: []

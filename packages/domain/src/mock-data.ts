@@ -158,7 +158,7 @@ export const demoData: DemoData = {
       location: {
         lat: 47.9184,
         lng: 13.5219,
-        label: "Forststrasse"
+        label: "Forststraße"
       },
       beschreibung: "Winterfütterung oberhalb der Kehre.",
       photos: [],
