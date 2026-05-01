@@ -148,6 +148,7 @@ export function createFallwild(data: DemoData, payload: CreateFallwildPayload): 
     bergungsStatus: payload.bergungsStatus,
     gemeinde: payload.gemeinde,
     strasse: payload.strasse,
+    roadReference: payload.roadReference,
     note: payload.note,
     photos: []
   };

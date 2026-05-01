@@ -76,7 +76,7 @@ export default async function ProtokollDetailPage({ params }: ProtokollDetailPag
                   <p className="eyebrow">{formatDateTime(version.createdAt)}</p>
                   <h2>Version</h2>
                 </div>
-                <span className="status-pill status-ok">{version.beschluesse.length} Beschluesse</span>
+                <span className="status-pill status-ok">{version.beschluesse.length} Beschlüsse</span>
               </div>
 
               <p>{version.summary}</p>

@@ -2,10 +2,11 @@
 
 ## Offen
 
-- iPhone-/iOS-Simulator-Smoke erneut auf erfolgreichen Foto-Upload und leere Queue pruefen.
+- iPhone-/iOS-Geräte-Smoke auf Production erneut auf erfolgreichen Foto-Upload, automatische Standortauflösung und leere Queue prüfen.
+- `GOOGLE_MAPS_SERVER_API_KEY` für Preview und Production setzen und `POST /api/v1/geo/fallwild-location` erneut auf Adresse, Gemeinde und Straße prüfen.
+- GIP-Straßenkilometer-Pfad fachlich fertigziehen: OGD-Import oder internen Resolver gegen `GIP_ROAD_KILOMETER_ENDPOINT` produktionsnah vorbereiten.
 - Mobile-spezifische E2E-Strategie für Expo und native Oberflächen über den dokumentierten Geräte-Smoke hinaus festziehen.
 - Android-Emulator-Smoke nach [Android-Smoke-Runbook](docs/mobile-smoke-android.md) als optionalen Zweitpfad vorbereiten, falls später Android-Abdeckung ohne physisches Gerät benötigt wird.
-- Google-Maps-Ausrichtung für Kartenfunktionen in Web und Mobile gegen [Google-Maps-Konzept](docs/maps-google-v1.md) schärfen.
 - Reviermeldungen und Aufgaben v1 nach [Reviermeldungen/Aufgaben-Plan](docs/reviermeldungen-aufgaben-v1-plan.md) umsetzen.
 - Rollen- und Empfängergruppenmodell für zielgerichtete Sichtbarkeit von Nachrichten, Aufgaben und Veranstaltungen gegen [Rollen/Aufgaben/Nachrichten v1](docs/rollen-aufgaben-nachrichten-v1.md) festziehen.
 - Veranstaltungsmodul mit Ankündigung, Treffpunkt, Erinnerungen und optionaler Teilnahmebestätigung planen.
@@ -44,3 +45,10 @@
 - Cloudflare R2-Bucket `hege-assets` im `hege.app`-Account angelegt, `assets.hege.app` als Custom Domain aktiviert und die Vercel-Storage-Variablen inklusive `S3_ACCESS_KEY` und `S3_SECRET_KEY` fuer Preview und Production gesetzt.
 - Production-R2-Foto-Upload am 2026-04-27 gegen `https://hege.app/api/v1` verifiziert: Fallwild-Foto-Upload liefert `201`, die erzeugte `assets.hege.app`-Datei liefert `HTTP 200`.
 - Reviermeldungen und Aufgaben v1 als naechsten fachlichen Codeblock geplant und gegen Rollen-/Nachrichten-Konzept abgegrenzt.
+- Neues `hege`-Logo für iOS-App und Website eingebaut; Website-Logo ist auf `https://hege.app` produktiv verfügbar.
+- Public Landing, Login, Registrierung und Setup-Flow auf Production visuell geprüft und mit Playwright gegen Desktop und Mobile durchlaufen.
+- Sichtbare deutsche Web-Copy in den berührten Auth-/Setup-/Landing-/Sitzungsflächen auf echte Umlaute korrigiert.
+- Fallwild-Standort v1 umgesetzt: Mobile übernimmt iPhone-Position, `POST /api/v1/geo/fallwild-location` ist produktiv erreichbar und speichert Standort-/Straßenkilometer-Metadaten am Fallwild-Vorgang; Adresse/Straße folgen nach gesetztem Google-Server-Key.
+- Mock-/Provider-Schicht für Fallwild-Standort umgesetzt: Ohne Google- oder GIP-Key kann `HEGE_GEO_PROVIDER=mock` lokale Gänserndorf-Testdaten liefern, während UI und API klare Hinweise für manuelle Ergänzungen anzeigen.
+- Google-Maps-Ausrichtung inklusive GIP-Abgrenzung für österreichische Straßenkilometer in [Google-Maps-Konzept](docs/maps-google-v1.md) und [API v1](docs/api-v1.md) dokumentiert.
+- iPhone-Release-Build am 2026-04-30 mit `EXPO_PUBLIC_API_BASE_URL=https://hege.app/api/v1` auf `Andreas iPhone` installiert und App `app.hege.revier` gestartet.

@@ -3,7 +3,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-(globalThis as { React?: typeof React }).React = React;
+(globalThis as unknown as { React?: typeof React }).React = React;
 
 const { mockUsePathname } = vi.hoisted(() => ({
   mockUsePathname: vi.fn()

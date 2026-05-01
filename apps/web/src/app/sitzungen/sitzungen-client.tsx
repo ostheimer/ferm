@@ -85,10 +85,10 @@ export function SitzungenClient({ entries, memberships }: SitzungenClientProps) 
         <header className="section-header">
           <div>
             <p className="eyebrow">Sitzungen</p>
-            <h1>Entwuerfe, Protokollstaende und Freigaben</h1>
+            <h1>Entwürfe, Protokollstände und Freigaben</h1>
           </div>
           <div className="section-actions">
-            <span className="badge">{entries.length} Eintraege</span>
+            <span className="badge">{entries.length} Einträge</span>
             <button
               className="button-control button-control-secondary"
               disabled={isPending}
@@ -131,7 +131,7 @@ export function SitzungenClient({ entries, memberships }: SitzungenClientProps) 
                   </div>
                 </div>
                 <Link className="button-link" href={`/sitzungen/${entry.id}`}>
-                  Detail oeffnen
+                  Detail öffnen
                 </Link>
               </article>
             ))
@@ -143,7 +143,7 @@ export function SitzungenClient({ entries, memberships }: SitzungenClientProps) 
         <header className="section-header">
           <div>
             <p className="eyebrow">Neue Sitzung</p>
-            <h2>Entwurf fuer Schriftfuehrung anlegen</h2>
+            <h2>Entwurf für Schriftführung anlegen</h2>
           </div>
           {isPending ? <span className="badge">Speichert...</span> : null}
         </header>

@@ -2,15 +2,16 @@
 
 ## Ziel
 
-Diese Roadmap beschreibt die Ausbaustufen vom Repository-Grundgeruest zur ersten produktiven Version fuer Schriftfuehrer und Jaeger.
+Diese Roadmap beschreibt die Ausbaustufen vom Repository-Grundgerüst zur ersten produktiven Version für Schriftführer und Jäger.
 
 ## Aktueller Status
 
-- `Sprint 0` ist abgeschlossen. Auth, Session, Revier-Scope, Rollenpruefung, Drizzle-Migrationen, Seeds und produktive Route Handler liegen in `apps/web`.
-- `Sprint 1` ist in Abschluss-Haertung. Dashboard, Reviereinrichtungen, Protokolle, Sitzungen, Freigabe/PDF-Basis, Preview-Smoke und blockierender Release-Check fuer Production sind umgesetzt; offen sind vor allem punktuelle Doku-Pflege und manuelle Abnahme.
-- `Sprint 1.5` ist weit fortgeschritten. Public Landing, Auth-Redirects und Registrierungsfluss sind browserseitig abgesichert; der Preview-Smoke deckt inzwischen Einstieg, Session-Grundvertrag und zentrale App-Read-Pfade ab.
-- `Sprint 2` ist teilweise umgesetzt. Mobile Login, Session-Restore, Dashboard, Ansitz- und Fallwild-Formulare, Reviereinrichtungen und Protokolle lesen bereits dieselbe API; der iPhone-/iOS-Simulator-Smoke ist als primaerer nativer Abnahmepfad dokumentiert.
-- `Sprint 3` ist technisch gehaertet und nativ teilabgenommen. Fallwild anlegen, exportieren, offline vormerken, mit Fotos versehen und ueber Queue v2 synchronisieren ist umgesetzt; der iPhone-/iOS-Simulator-Smoke vom 2026-04-26 bestaetigt den Queue-v2-Fehlerpfad, R2-Storage ist in Production aktiv und ein direkter Fallwild-Foto-Upload gegen `hege.app` ist verifiziert.
+- `Sprint 0` ist abgeschlossen. Auth, Session, Revier-Scope, Rollenprüfung, Drizzle-Migrationen, Seeds und produktive Route Handler liegen in `apps/web`.
+- `Sprint 1` ist technisch abgeschlossen und in Stabilisierung. Dashboard, Reviereinrichtungen, Protokolle, Sitzungen, Freigabe/PDF-Basis, Preview-Smoke und blockierender Release-Check für Production sind umgesetzt.
+- `Sprint 1.5` ist produktiv sichtbar. Public Landing, Auth-Redirects, Registrierungsfluss, Setup-Flow, neues `hege`-Logo und Auth-UI sind auf `https://hege.app` deployed und per Playwright auf Desktop und Mobile geprüft.
+- `Sprint 2` ist weit fortgeschritten. Mobile Login, Session-Restore, Dashboard, Ansitz- und Fallwild-Formulare, Reviereinrichtungen und Protokolle lesen dieselbe API; der iPhone-/iOS-Geräte-Smoke ist als primärer nativer Abnahmepfad dokumentiert.
+- `Sprint 3` ist technisch gehärtet und nativ teilabgenommen. Fallwild anlegen, exportieren, offline vormerken, mit Fotos versehen, Standort auflösen und über Queue v2 synchronisieren ist umgesetzt; der iPhone-/iOS-Smoke vom 2026-04-26 bestätigt den Queue-v2-Fehlerpfad, R2-Storage ist in Production aktiv und ein direkter Fallwild-Foto-Upload gegen `hege.app` ist verifiziert.
+- `Standort v1` ist begonnen. Fallwild nutzt iPhone-GPS, einen produktiv erreichbaren Standort-Endpunkt, gespeicherte Standort-/Straßenkilometer-Metadaten und einen Mock-Provider für lokale Gänserndorf-Testdaten ohne externe Keys. Google Reverse Geocoding benötigt für echte Adressen noch den Production-Server-Key; GIP bleibt die fachliche Zielquelle für österreichische Straßenkilometer.
 
 ## Sprint 0: Fundament
 
@@ -31,92 +32,100 @@ Ergebnis:
 
 ## Sprint 1: Schriftfuehrer-Backend
 
-Status: in Abschluss-Haertung
+Status: technisch abgeschlossen, in Stabilisierung
 
 Geliefert:
 
-- Dashboard mit offenen Entwuerfen und Revierlage
+- Dashboard mit offenen Entwürfen und Revierlage
 - Sitzungsliste und Sitzungsdetail
 - Protokollversionen, Freigabe-Flow und PDF-Grundlage
 - Protokoll-Leseansicht und Dokument-Download
-- Web-E2E fuer Public Web, Auth, Rollen, Sitzungen, Dashboard, Reviereinrichtungen, Protokolle und Dokument-Download
-- Preview-Smoke fuer Public Web, Dashboard, Reviereinrichtungen, Protokolle, Sitzungen und Dokument-Download
-- GitHub-Workflow fuer den Preview-Smoke bei erfolgreichen Preview-Deployments und manuellen `workflow_dispatch`
-- Release-Check fuer produktive Deployments mit separatem Workflow bei erfolgreichen Production-Deployments und manuellem `workflow_dispatch`
+- Web-E2E für Public Web, Auth, Rollen, Sitzungen, Dashboard, Reviereinrichtungen, Protokolle und Dokument-Download
+- Preview-Smoke für Public Web, Dashboard, Reviereinrichtungen, Protokolle, Sitzungen und Dokument-Download
+- GitHub-Workflow für den Preview-Smoke bei erfolgreichen Preview-Deployments und manuellen `workflow_dispatch`
+- Release-Check für produktive Deployments mit separatem Workflow bei erfolgreichen Production-Deployments und manuellem `workflow_dispatch`
 
 Restblock:
 
-- Dokumentation und manuelle Abnahme auf denselben Stand bringen
+- punktuelle manuelle Regression nach größeren Produktänderungen
 
 Ergebnis:
 
-- Sitzungen koennen von der Anlage bis zur Veroeffentlichung durchlaufen werden, der Restfokus liegt auf Haertung und Regressionen
+- Sitzungen können von der Anlage bis zur Veröffentlichung durchlaufen werden; der Restfokus liegt auf Härtung und Regressionen
 
 ## Sprint 1.5: Public Web und Onboarding
 
-Status: in Härtung
+Status: produktiv sichtbar, in Regression
 
 Geliefert:
 
 - Public Landing auf `/` mit Pricing und Produktfokus
 - Pricing-CTAs auf `/login` und `/registrieren`
 - Login-Redirect auf `/app`
-- Setup- und Post-Auth-Redirects ueber die Server-Guards
-- Playwright fuer Public Landing, Login-Redirect, Guard-Redirects und den Registrierungsfluss
-- Preview-Smoke fuer Public Landing, Login, Registrierung, `POST /api/v1/auth/login`, `GET /api/v1/me`, den authentifizierten Redirect von `/login` sowie die zentralen App-Read-Pfade
+- Setup- und Post-Auth-Redirects über die Server-Guards
+- neues `hege`-Logo auf Website und iOS-App
+- sichtbare deutsche Web-Copy in den berührten Auth-/Setup-/Landing-Flächen mit echten Umlauten
+- Playwright für Public Landing, Login-Redirect, Guard-Redirects und den Registrierungsfluss
+- Production-UI-Smoke für Landing, Login, ungültigen Login, Registrierung, Setup, Dashboard und Mobile-Viewports
+- Preview-Smoke für Public Landing, Login, Registrierung, `POST /api/v1/auth/login`, `GET /api/v1/me`, den authentifizierten Redirect von `/login` sowie die zentralen App-Read-Pfade
 
 Restblock:
 
 - Setup-Abschluss in den reproduzierbaren Preview-/CI-Abnahmerahmen ziehen
-- Registrierungs- und App-Redirects in die finale Dokumentation und manuelle Browser-Abnahme ziehen
+- Registrierungs- und App-Redirects weiterhin bei Produktänderungen visuell gegenprüfen
 
 Ergebnis:
 
-- neue Nutzer sehen zuerst die oeffentliche Produktseite und steigen danach kontrolliert in den App-Block ein
+- neue Nutzer sehen zuerst die öffentliche Produktseite und steigen danach kontrolliert in den App-Block ein
 
 ## Sprint 2: Jaeger-App Kern
 
-Status: teilweise umgesetzt
+Status: weit fortgeschritten
 
 Geliefert:
 
 - Login und Session-Restore
 - Heute-im-Revier-Screen mit Queue-Anzeige
 - Ansitz-Formular mit Queue-Fallback
-- Fallwild-Formular mit Queue-Fallback
+- Fallwild-Formular mit Queue-Fallback und Standortübernahme
 - freigegebene Protokolle und Reviereinrichtungen lesend in der App
-- iPhone-/iOS-Simulator-Smoke als kanonischer Geräte-Smoke nach [iOS-Smoke-Runbook](./mobile-smoke-ios.md)
+- iPhone-/iOS-Geräte-Smoke als kanonischer Geräte-Smoke nach [iOS-Smoke-Runbook](./mobile-smoke-ios.md)
 
 Restblock:
 
+- iPhone-/iOS-Geräte-Smoke nach Standort-/Logo-Änderungen erneut auf Production durchlaufen
 - Android-Emulator-Smoke nach [Android-Smoke-Runbook](./mobile-smoke-android.md) optional als Zweitpfad für spätere Plattformabdeckung
 
 Ergebnis:
 
-- Jaeger sehen die Lage im Revier und koennen Ansitze sowie Fallwild bereits mobil erfassen
+- Jäger sehen die Lage im Revier und können Ansitze sowie Fallwild bereits mobil erfassen
 
 ## Sprint 3: Fallwild und Medien
 
-Status: technisch gehaertet, native Abnahme mit aktivem R2-Storage nachzuziehen
+Status: technisch gehärtet, native Abnahme mit aktivem R2-Storage und Standort v1 nachzuziehen
 
 Lieferumfang dieses Blocks:
 
 - `GET /api/v1/fallwild/:id`
 - `POST /api/v1/fallwild/:id/fotos`
-- S3-kompatible Storage-Schicht fuer MinIO lokal und R2 in Preview/Production
+- S3-kompatible Storage-Schicht für MinIO lokal und R2 in Preview/Production
 - best-effort Storage-Rollback nach erfolgreichem Upload, aber fehlschlagendem `media_assets`-Insert
 - `media_assets` als generische Medienbasis
 - Queue v2 mit separaten Foto-Uploads, Retry-Backoff, `nextAttemptAt`, dynamischer Sync-Schleife, manuellem Retry und Konfliktstatus
 - Fotoauswahl aus der Bibliothek in der App
-- Mobile Vitest-Abdeckung fuer Foto-Normalisierung, maximal drei Fotos, Submission-Fallback, recoverable Upload-Fehler und Queue-Retry-Policy
+- Fallwild-Standort v1 mit GPS, Genauigkeit, Quelle, optionaler Adresse, optionaler Google-Place-ID, Straßenname und Straßenkilometer-Feldern
+- Mock-Provider für Fallwild-Standortauflösung ohne externe Keys, inklusive sichtbarer UI-/API-Warnungen
+- Mobile Vitest-Abdeckung für Foto-Normalisierung, maximal drei Fotos, Submission-Fallback, Standortauflösung, recoverable Upload-Fehler und Queue-Retry-Policy
 
 Restblock:
 
-- iPhone-/iOS-Simulator-Smoke nach [iOS-Smoke-Runbook](./mobile-smoke-ios.md) erneut auf erfolgreichen Foto-Upload und leere Queue durchlaufen
+- iPhone-/iOS-Geräte-Smoke nach [iOS-Smoke-Runbook](./mobile-smoke-ios.md) erneut auf erfolgreichen Foto-Upload, automatische Standortauflösung und leere Queue durchlaufen
+- `GOOGLE_MAPS_SERVER_API_KEY` für Preview/Production setzen und echte Adresse/Gemeinde/Straße erneut prüfen
+- GIP-Straßenkilometer-Resolver oder OGD-Import produktionsnah schneiden
 
 Ergebnis:
 
-- Fallwild kann draussen erfasst und mit Fotos vorgemerkt werden; die Queue zeigt Retry-Zeitpunkt, Fehlertext sowie manuelles Retry/Verwerfen, Production-Foto-Upload in R2 ist verifiziert
+- Fallwild kann draußen erfasst und mit Fotos vorgemerkt werden; die Queue zeigt Retry-Zeitpunkt, Fehlertext sowie manuelles Retry/Verwerfen, Production-Foto-Upload in R2 ist verifiziert
 
 ## Sprint 4: Reviereinrichtungen und Haertung
 
@@ -140,17 +149,17 @@ Stabiles Konzeptziel: [Rollen, Aufgaben und Nachrichten v1](./rollen-aufgaben-na
 
 Lieferumfang:
 
-- flexible Rollen- und Empfaengergruppen fuer Sichtbarkeit und Kommunikation
-- Reviermeldungen aus dem Feld zu Fuetterungen, Wasserungen und Hochstaenden mit Fotos und Kurztext
-- Aufgaben aus Protokollen, Beschluessen oder manueller Planung
+- flexible Rollen- und Empfängergruppen für Sichtbarkeit und Kommunikation
+- Reviermeldungen aus dem Feld zu Fütterungen, Wasserungen und Hochständen mit Fotos und Kurztext
+- Aufgaben aus Protokollen, Beschlüssen oder manueller Planung
 - Aufgabenlisten und Kalenderansicht pro Benutzer in der mobilen App
-- Veranstaltungen mit Ankuendigung, Treffpunkt, Erinnerungen und optionaler Teilnahmebestaetigung
-- WhatsApp- und spaeter Telegram-Anstoss aus der App heraus mit vorbereitetem Nachrichtentext
-- auditierbare Zuordnung zwischen interner Nachricht, Aufgabe, Veranstaltung und externem Messenger-Anstoss
+- Veranstaltungen mit Ankündigung, Treffpunkt, Erinnerungen und optionaler Teilnahmebestätigung
+- WhatsApp- und später Telegram-Anstoß aus der App heraus mit vorbereitetem Nachrichtentext
+- auditierbare Zuordnung zwischen interner Nachricht, Aufgabe, Veranstaltung und externem Messenger-Anstoß
 
 Ergebnis:
 
-- Kommunikation, Organisation und Feldrueckmeldungen laufen nachvollziehbar ueber `hege`
+- Kommunikation, Organisation und Feldrückmeldungen laufen nachvollziehbar über `hege`
 
 ## Querschnittsthemen
 
@@ -164,33 +173,37 @@ Ergebnis:
 ### Karten
 
 - Kartenfunktionen in Web und Mobile orientieren sich an Google Maps
+- Fallwild-Standort v1 nutzt serverseitige Standortauflösung; Google benötigt einen gesetzten Server-Key, GIP bleibt Zielquelle für Straßenkilometer
 - Karten-UI, Marker, Standortsuche und spätere Geocoding-Schritte werden gegen [Google-Maps-Ausrichtung](./maps-google-v1.md) geschärft
 
 ### Sprache und Lokalisierung
 
-- v1 ist fachlich und redaktionell auf Deutsch fuer Oesterreich (`de-AT`) ausgelegt
-- Web und Mobile sollen Texte so strukturieren, dass spaetere weitere Sprachen moeglich bleiben
+- v1 ist fachlich und redaktionell auf Deutsch für Österreich (`de-AT`) ausgelegt
+- Web und Mobile sollen Texte so strukturieren, dass spätere weitere Sprachen möglich bleiben
 - eine verpflichtende zweisprachige Auslieferung ist nicht Teil von v1
 
-## Abnahmekriterien fuer v1
+## Abnahmekriterien für v1
 
-- Schriftfuehrer kann eine Sitzung anlegen, bearbeiten und zur Freigabe bringen
-- Revier Admin kann ein Protokoll freigeben und veroeffentlichen
-- Jaeger kann einen Ansitz starten und beenden
-- Jaeger kann Fallwild auch mit Fotos offline erfassen und spaeter synchronisieren
+- Schriftführer kann eine Sitzung anlegen, bearbeiten und zur Freigabe bringen
+- Revier Admin kann ein Protokoll freigeben und veröffentlichen
+- Jäger kann einen Ansitz starten und beenden
+- Jäger kann Fallwild auch mit Fotos offline erfassen und später synchronisieren
+- Jäger kann bei Fallwild Position, Adresse, Straße und Straßenkilometer nachvollziehbar erfassen oder manuell ergänzen
 - freigegebene Protokolle sind mobil lesbar
 - alle Daten sind pro Revier getrennt
 - kritische Aktionen sind nachvollziehbar protokolliert
 
-## Empfohlene naechste Umsetzung
+## Empfohlene nächste Umsetzung
 
 Wenn unmittelbar weiterentwickelt wird, ist die sinnvollste Reihenfolge:
 
-1. iPhone-/iOS-Simulator-Smoke auf dem gehaerteten Medien-/Queue-v2-Pfad mit erfolgreichem Foto-Upload und leerer Queue erneut ausfuehren
-2. Mobile-spezifische E2E-Strategie ueber den dokumentierten Geraete-Smoke hinaus festziehen
-3. Reviermeldungen und Aufgaben v1 als naechsten fachlichen Codeblock schneiden
-4. optionalen Android-Emulator-Smoke fuer spaetere Plattformabdeckung praktisch durchlaufen, falls Android-Abdeckung priorisiert wird
-5. danach Karten, Rollen, Nachrichten, Veranstaltungen und externe Messenger-Anstoesse auf die bestehende Rechtebasis setzen
+1. iPhone-/iOS-Geräte-Smoke auf dem gehärteten Medien-/Queue-v2- und Standort-v1-Pfad mit erfolgreichem Foto-Upload, Standortauflösung und leerer Queue erneut ausführen
+2. `GOOGLE_MAPS_SERVER_API_KEY` für Preview/Production setzen und echte Adresse/Gemeinde/Straße erneut prüfen
+3. GIP-Straßenkilometer-Resolver oder OGD-Import als Standort-Härtungsblock schneiden
+4. Mobile-spezifische E2E-Strategie über den dokumentierten Geräte-Smoke hinaus festziehen
+5. Reviermeldungen und Aufgaben v1 als nächsten fachlichen Codeblock umsetzen
+6. optionalen Android-Emulator-Smoke für spätere Plattformabdeckung praktisch durchlaufen, falls Android-Abdeckung priorisiert wird
+7. danach Rollen, Nachrichten, Veranstaltungen und externe Messenger-Anstöße auf die bestehende Rechtebasis setzen
 
 ## Detaillierte Sprint-Backlogs
 

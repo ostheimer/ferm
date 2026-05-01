@@ -5,17 +5,19 @@ Diese Datei ist der schlanke Einstiegspunkt im Repo-Root. Die vollstaendige Road
 ## Aktueller Status
 
 - `Sprint 0` ist technisch abgeschlossen: Auth, Revier-Scope, Rollenpruefung, Drizzle-Schema, Seeds und produktive Route Handler laufen in `apps/web`.
-- `Sprint 1` ist in Abschluss-Haertung: Dashboard, Reviereinrichtungen, Protokolle, Sitzungen, Freigabe/PDF-Basis, Preview-Smoke und blockierender Release-Check fuer Production sind umgesetzt; offen sind vor allem manuelle Abnahme und punktuelle Doku-Pflege.
-- `Sprint 1.5` ist weit fortgeschritten: Public Landing, Pricing-CTAs, Auth-Redirects und der erste Setup-/`/app`-Einstieg sind browserseitig abgesichert; der Preview-Smoke deckt inzwischen Einstieg, Session-Grundvertrag und zentrale App-Read-Pfade ab.
-- `Sprint 2` und `Sprint 3` sind bereits angebrochen: Mobile Login, Dashboard, Ansitz- und Fallwild-Formulare, Read-Slices und Offline-Queue stehen; der iPhone-/iOS-Simulator-Smoke vom 2026-04-26 bestaetigt den Queue-v2-Fehlerpfad, R2-Storage ist in Production aktiv und ein direkter Fallwild-Foto-Upload gegen `hege.app` ist verifiziert.
+- `Sprint 1` ist technisch abgeschlossen und in Stabilisierung: Dashboard, Reviereinrichtungen, Protokolle, Sitzungen, Freigabe/PDF-Basis, Preview-Smoke und blockierender Release-Check für Production sind umgesetzt.
+- `Sprint 1.5` ist produktiv sichtbar: Public Landing, Pricing-CTAs, Login, Registrierung, Setup-Redirects, neues Logo und Auth-UI sind auf `https://hege.app` deployed und per Playwright auf Desktop und Mobile geprüft.
+- `Sprint 2` und `Sprint 3` sind weit fortgeschritten: Mobile Login, Dashboard, Ansitz- und Fallwild-Formulare, Read-Slices, Offline-Queue v2, R2-Foto-Upload und Fallwild-Standort v1 stehen. Der iPhone-/iOS-Smoke vom 2026-04-26 bestätigt den Queue-v2-Fehlerpfad; ein direkter Production-Foto-Upload gegen `hege.app` ist verifiziert.
+- Karten/Standort sind begonnen: Fallwild nutzt serverseitige Standortauflösung, speichert Standort-/Straßenkilometer-Metadaten und kann ohne externe Keys über lokale Gänserndorf-Testdaten im Mock-Provider geprüft werden. Der Production-Endpunkt ist erreichbar, Google Reverse Geocoding benötigt für echte Adressen noch den Production-Server-Key; GIP bleibt die fachliche Zielquelle für österreichische Straßenkilometer.
 
 ## Aktueller Fokus
 
-1. iPhone-/iOS-Simulator-Smoke auf dem gehaerteten Medien-/Queue-v2-Pfad mit erfolgreichem Foto-Upload und leerer Queue erneut ausfuehren
-2. Mobile-E2E-Strategie ueber den dokumentierten Geraete-Smoke hinaus festziehen
-3. Reviermeldungen und Aufgaben v1 als naechsten fachlichen Codeblock schneiden
-4. Android-Emulator-Smoke als optionalen Zweitpfad bei Bedarf praktisch durchlaufen
-5. Kartenfunktionen in Web und Mobile danach auf Google Maps ausrichten
+1. iPhone-/iOS-Geräte-Smoke auf Production mit Foto-Upload, automatischer Standortauflösung und leerer Queue erneut ausführen
+2. `GOOGLE_MAPS_SERVER_API_KEY` für Preview/Production setzen und die echte Adressauflösung erneut prüfen
+3. GIP-Straßenkilometer-Resolver oder OGD-Import als nächsten Standort-Härtungsblock schneiden
+4. Mobile-E2E-Strategie über den dokumentierten Geräte-Smoke hinaus festziehen
+5. Reviermeldungen und Aufgaben v1 als nächsten fachlichen Codeblock umsetzen
+6. Android-Emulator-Smoke als optionalen Zweitpfad bei Bedarf praktisch durchlaufen
 
 ## Detaildokumente
 

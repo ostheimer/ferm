@@ -41,10 +41,18 @@ export type BergungsStatus = "erfasst" | "geborgen" | "entsorgt" | "an-behoerde-
 
 export type ProtokollStatus = "entwurf" | "freigegeben";
 
+export type LocationSource = "manual" | "device-gps" | "reverse-geocode";
+
+export type RoadKilometerSource = "manual" | "gip" | "unavailable";
+
 export interface GeoPoint {
   lat: number;
   lng: number;
   label?: string;
+  accuracyMeters?: number;
+  source?: LocationSource;
+  addressLabel?: string;
+  placeId?: string;
 }
 
 export interface User {
@@ -178,8 +186,16 @@ export interface FallwildVorgang {
   bergungsStatus: BergungsStatus;
   gemeinde: string;
   strasse?: string;
+  roadReference?: FallwildRoadReference;
   note?: string;
   photos: PhotoAsset[];
+}
+
+export interface FallwildRoadReference {
+  roadName?: string;
+  roadKilometer?: string;
+  source?: RoadKilometerSource;
+  placeId?: string;
 }
 
 export interface Beschluss {
@@ -318,6 +334,7 @@ export interface CreateFallwildPayload {
   altersklasse: Altersklasse;
   gemeinde: string;
   strasse?: string;
+  roadReference?: FallwildRoadReference;
   bergungsStatus: BergungsStatus;
   note?: string;
 }

@@ -13,7 +13,11 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
   await redirectAuthenticatedUser(nextTarget);
 
-  return <LoginForm nextTarget={nextTarget} />;
+  return (
+    <main className="auth-layout">
+      <LoginForm nextTarget={nextTarget} />
+    </main>
+  );
 }
 
 function readSearchParam(value: string | string[] | undefined) {

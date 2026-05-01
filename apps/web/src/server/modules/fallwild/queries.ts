@@ -1,4 +1,4 @@
-import type { FallwildVorgang, PhotoAsset } from "@hege/domain";
+import type { FallwildVorgang, LocationSource, PhotoAsset, RoadKilometerSource } from "@hege/domain";
 import { and, desc, eq, inArray } from "drizzle-orm";
 
 import { getRequestContext } from "../../auth/context";
@@ -55,7 +55,11 @@ export function mapFallwildRowToDomain(record: FallwildVorgangRecord): FallwildV
     location: {
       lat: record.locationLat,
       lng: record.locationLng,
-      label: record.locationLabel ?? undefined
+      label: record.locationLabel ?? undefined,
+      accuracyMeters: record.locationAccuracyMeters ?? undefined,
+      source: parseLocationSource(record.locationSource),
+      addressLabel: record.addressLabel ?? undefined,
+      placeId: record.googlePlaceId ?? undefined
     },
     wildart: record.wildart,
     geschlecht: record.geschlecht,
@@ -63,6 +67,7 @@ export function mapFallwildRowToDomain(record: FallwildVorgangRecord): FallwildV
     bergungsStatus: record.bergungsStatus,
     gemeinde: record.gemeinde,
     strasse: record.strasse ?? undefined,
+    roadReference: buildRoadReference(record),
     note: record.note ?? undefined,
     photos: []
   };
@@ -89,6 +94,10 @@ export async function exportFallwildCsv(): Promise<string> {
       "bergungs_status",
       "gemeinde",
       "strasse",
+      "road_name",
+      "road_kilometer",
+      "road_kilometer_source",
+      "address_label",
       "location_label",
       "lat",
       "lng",
@@ -103,6 +112,10 @@ export async function exportFallwildCsv(): Promise<string> {
       entry.bergungsStatus,
       entry.gemeinde,
       entry.strasse ?? "",
+      entry.roadReference?.roadName ?? "",
+      entry.roadReference?.roadKilometer ?? "",
+      entry.roadReference?.source ?? "",
+      entry.location.addressLabel ?? "",
       entry.location.label ?? "",
       String(entry.location.lat),
       String(entry.location.lng),
@@ -111,6 +124,27 @@ export async function exportFallwildCsv(): Promise<string> {
   ];
 
   return rows.map((row) => row.map(escapeCsvCell).join(",")).join("\n");
+}
+
+function buildRoadReference(record: FallwildVorgangRecord): FallwildVorgang["roadReference"] {
+  if (!record.roadName && !record.roadKilometer && !record.roadKilometerSource && !record.roadPlaceId) {
+    return undefined;
+  }
+
+  return {
+    roadName: record.roadName ?? undefined,
+    roadKilometer: record.roadKilometer ?? undefined,
+    source: parseRoadKilometerSource(record.roadKilometerSource),
+    placeId: record.roadPlaceId ?? undefined
+  };
+}
+
+function parseLocationSource(value: string | null): LocationSource | undefined {
+  return value === "manual" || value === "device-gps" || value === "reverse-geocode" ? value : undefined;
+}
+
+function parseRoadKilometerSource(value: string | null): RoadKilometerSource | undefined {
+  return value === "manual" || value === "gip" || value === "unavailable" ? value : undefined;
 }
 
 function listFallwildFromDemoStore(): FallwildVorgang[] {

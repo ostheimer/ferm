@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ChangeEvent, FormEvent } from "react";
 import { useState, useTransition } from "react";
@@ -88,17 +89,18 @@ export function RegistrationForm({ defaultPlanKey }: { defaultPlanKey: PlanKey }
   return (
     <section className="login-card">
       <div className="login-copy">
+        <img alt="" aria-hidden="true" className="auth-logo" src="/brand/hege-logo-mark.png" />
         <p className="eyebrow">Registrierung</p>
         <h1>Neues Revier und Erstkonto anlegen.</h1>
         <p>
-          Das erste Konto wird als Revier-Admin erstellt. Das Revier startet mit 0 ha und einem
-          Austria-Center-Platzhalter, danach geht es direkt ins Setup.
+          Das erste Konto wird als Revier-Admin erstellt. Danach vervollständigst du Revierdaten,
+          Fläche und Mittelpunkt direkt im Setup.
         </p>
       </div>
 
       <div className="login-helper">
         <strong>Plan-Vorbelegung</strong>
-        <p>{formValues.planKey === "starter" ? "Starter" : "Revier"} ist vorausgewaehlt.</p>
+        <p>{formValues.planKey === "starter" ? "Starter" : "Revier"} ist vorausgewählt.</p>
         <p>Die Registrierung legt Benutzer, Revier und Mitgliedschaft in einem Schritt an.</p>
       </div>
 
@@ -244,7 +246,7 @@ export function RegistrationForm({ defaultPlanKey }: { defaultPlanKey: PlanKey }
               id="register-bundesland"
               name="bundesland"
               onChange={updateField("bundesland")}
-              placeholder="Oberoesterreich"
+              placeholder="Oberösterreich"
               required
               type="text"
               value={formValues.bundesland}
@@ -257,7 +259,7 @@ export function RegistrationForm({ defaultPlanKey }: { defaultPlanKey: PlanKey }
               id="register-bezirk"
               name="bezirk"
               onChange={updateField("bezirk")}
-              placeholder="Voecklabruck"
+              placeholder="Vöcklabruck"
               required
               type="text"
               value={formValues.bezirk}
@@ -270,10 +272,14 @@ export function RegistrationForm({ defaultPlanKey }: { defaultPlanKey: PlanKey }
             {error ? <p className="feedback feedback-error">{error}</p> : null}
           </div>
           <button className="button-control" disabled={isPending} type="submit">
-            {isPending ? "Registrierung..." : "Revier anlegen"}
+            {isPending ? "Registrierung läuft..." : "Revier anlegen"}
           </button>
         </div>
       </form>
+
+      <p className="auth-switch">
+        Schon ein Konto? <Link href="/login">Anmelden</Link>
+      </p>
     </section>
   );
 }

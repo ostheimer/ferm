@@ -197,7 +197,7 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
             <p className="eyebrow">Versionen</p>
             <strong>{sitzung.versions.length}</strong>
             <span>Teilnehmer: {sitzung.participants.length}</span>
-            <span>{sitzung.publishedDocument ? "PDF veroeffentlicht" : "Noch kein PDF"}</span>
+            <span>{sitzung.publishedDocument ? "PDF veröffentlicht" : "Noch kein PDF"}</span>
           </article>
         </div>
       </section>
@@ -272,7 +272,7 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
         <header className="section-header">
           <div>
             <p className="eyebrow">Protokollversion</p>
-            <h2>Zusammenfassung, Agenda und Beschluesse</h2>
+            <h2>Zusammenfassung, Agenda und Beschlüsse</h2>
           </div>
         </header>
 
@@ -313,7 +313,7 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
                   <input onChange={updateBeschluss(index, "owner")} value={entry.owner} />
                 </label>
                 <label className="field">
-                  <span>Faelligkeit</span>
+                  <span>Fälligkeit</span>
                   <input onChange={updateBeschluss(index, "dueAt")} type="datetime-local" value={entry.dueAt} />
                 </label>
               </article>
@@ -325,7 +325,7 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
               }
               type="button"
             >
-              Weiteren Beschluss hinzufuegen
+              Weiteren Beschluss hinzufügen
             </button>
           </div>
 
@@ -345,7 +345,7 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
         <header className="section-header">
           <div>
             <p className="eyebrow">Historie</p>
-            <h2>Bisherige Protokollstaende</h2>
+            <h2>Bisherige Protokollstände</h2>
           </div>
         </header>
         <div className="card-grid">
@@ -356,7 +356,7 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
                   <p className="eyebrow">{entry.id}</p>
                   <h2>{formatDateTime(entry.createdAt)}</h2>
                 </div>
-                <span className="status-pill status-ok">{entry.beschluesse.length} Beschluesse</span>
+                <span className="status-pill status-ok">{entry.beschluesse.length} Beschlüsse</span>
               </div>
               <p>{entry.summary}</p>
               <div className="simple-list">
@@ -369,8 +369,8 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
                   ))
                 ) : (
                   <div>
-                    <strong>Keine Beschluesse</strong>
-                    <span>Diese Version enthaelt noch keine Beschluesse.</span>
+                    <strong>Keine Beschlüsse</strong>
+                    <span>Diese Version enthält noch keine Beschlüsse.</span>
                   </div>
                 )}
               </div>

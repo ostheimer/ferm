@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ChangeEvent, FormEvent } from "react";
 import { useState, useTransition } from "react";
@@ -62,6 +63,7 @@ export function LoginForm({ nextTarget }: LoginFormProps) {
   return (
     <section className="login-card">
       <div className="login-copy">
+        <img alt="" aria-hidden="true" className="auth-logo" src="/brand/hege-logo-mark.png" />
         <p className="eyebrow">Anmeldung</p>
         <h1>Backoffice und App jetzt mit echter Session.</h1>
         <p>Melde dich mit E-Mail oder Benutzername und deiner vierstelligen PIN an.</p>
@@ -110,6 +112,10 @@ export function LoginForm({ nextTarget }: LoginFormProps) {
           </button>
         </div>
       </form>
+
+      <p className="auth-switch">
+        Noch kein Konto? <Link href="/registrieren?plan=starter">Revier registrieren</Link>
+      </p>
     </section>
   );
 }

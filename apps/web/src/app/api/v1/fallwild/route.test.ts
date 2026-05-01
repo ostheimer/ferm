@@ -40,13 +40,22 @@ describe("POST /api/v1/fallwild", () => {
         body: JSON.stringify({
           location: {
             lat: 47.92,
-            lng: 13.51
+            lng: 13.51,
+            source: "device-gps",
+            addressLabel: "L9, 2230 Gänserndorf",
+            accuracyMeters: 8
           },
           wildart: "Fuchs",
           geschlecht: "weiblich",
           altersklasse: "Adult",
           bergungsStatus: "geborgen",
-          gemeinde: "Steinbach am Attersee"
+          gemeinde: "Gänserndorf",
+          strasse: "L9",
+          roadReference: {
+            roadName: "L9",
+            roadKilometer: "12,4",
+            source: "gip"
+          }
         })
       })
     );
@@ -60,13 +69,22 @@ describe("POST /api/v1/fallwild", () => {
       revierId: "revier-attersee",
       location: {
         lat: 47.92,
-        lng: 13.51
+        lng: 13.51,
+        source: "device-gps",
+        addressLabel: "L9, 2230 Gänserndorf",
+        accuracyMeters: 8
       },
       wildart: "Fuchs",
       geschlecht: "weiblich",
       altersklasse: "Adult",
       bergungsStatus: "geborgen",
-      gemeinde: "Steinbach am Attersee"
+      gemeinde: "Gänserndorf",
+      strasse: "L9",
+      roadReference: {
+        roadName: "L9",
+        roadKilometer: "12,4",
+        source: "gip"
+      }
     });
   });
 

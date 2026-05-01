@@ -85,10 +85,16 @@ p {
   width: 56px;
   height: 56px;
   border-radius: 18px;
-  background: linear-gradient(135deg, #d8dfb2, #6e8f64);
-  color: #10231d;
-  font-size: 2rem;
-  font-family: var(--font-heading), serif;
+  background: #f3efe3;
+  box-shadow: inset 0 0 0 1px rgba(25, 57, 44, 0.08);
+  overflow: hidden;
+}
+
+.brand-logo-image {
+  display: block;
+  width: 86%;
+  height: 86%;
+  object-fit: contain;
 }
 
 .eyebrow {
@@ -166,7 +172,7 @@ p {
 }
 
 .login-card {
-  width: min(100%, 960px);
+  width: min(100%, 820px);
   display: grid;
   gap: 24px;
   padding: 32px;
@@ -183,6 +189,12 @@ p {
   gap: 12px;
 }
 
+.auth-logo {
+  width: 86px;
+  height: 86px;
+  object-fit: contain;
+}
+
 .login-copy h1 {
   margin: 0;
   font-size: clamp(2.2rem, 4vw, 4rem);
@@ -195,6 +207,10 @@ p {
   gap: 16px;
 }
 
+.login-card .button-control {
+  min-width: 150px;
+}
+
 .login-helper {
   display: grid;
   gap: 6px;
@@ -202,6 +218,15 @@ p {
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.55);
   border: 1px solid rgba(25, 57, 44, 0.08);
+}
+
+.auth-switch {
+  color: var(--muted);
+}
+
+.auth-switch a {
+  color: var(--accent-strong);
+  font-weight: 700;
 }
 
 .page-stack {
@@ -706,10 +731,9 @@ td span {
   width: 48px;
   height: 48px;
   border-radius: 16px;
-  background: linear-gradient(135deg, #213d31, #94aa68);
-  color: #f5f1e7;
-  font-family: var(--font-heading), serif;
-  font-size: 1.7rem;
+  background: #f3efe3;
+  box-shadow: inset 0 0 0 1px rgba(25, 57, 44, 0.1);
+  overflow: hidden;
 }
 
 .public-topbar-actions,

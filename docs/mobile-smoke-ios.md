@@ -2,13 +2,14 @@
 
 ## Ziel
 
-Dieses Runbook beschreibt die reproduzierbare native Smoke-Abnahme der Expo-Mobile-App auf einem iPhone-Simulator. iOS ist der primäre native Abnahmepfad für die Mobile-App; Android bleibt fachlich Zielplattform, wird aber separat standardisiert.
+Dieses Runbook beschreibt die reproduzierbare native Smoke-Abnahme der Expo-Mobile-App auf einem iPhone-Simulator oder einem angeschlossenen iPhone. iOS ist der primäre native Abnahmepfad für die Mobile-App; Android bleibt fachlich Zielplattform, wird aber separat standardisiert.
 
 Der Smoke prüft keine vollständige Regression, sondern die wichtigsten nativen Pfade:
 
 - Login mit vorhandenem internen Testkonto
 - Dashboard laden und aktualisieren
 - Ansitz-Screen laden und optional in einem abgestimmten Test-Revier starten
+- Fallwild-Standort über iPhone-GPS erfassen und Adresse, Straße sowie Straßenkilometer-Felder prüfen
 - Fallwild-Fotoauswahl prüfen und nur in einem abgestimmten Test-Revier speichern
 - Offline-Queue v2, Retry-Hinweise und anschließenden Sync prüfen
 
@@ -22,7 +23,26 @@ Der Smoke prüft keine vollständige Regression, sondern die wichtigsten nativen
 - Ein vorhandenes internes Login-Testkonto aus den bestehenden Testdaten ist verfügbar.
 - Keine Zugangsdaten, Tokens oder neuen Test-Secrets in dieses Runbook eintragen.
 
-## Simulator-Auswahl
+## Simulator- oder Geräteauswahl
+
+Ein physisches iPhone ist für die finale native Abnahme vorzuziehen, wenn Fotoauswahl, Standortfreigabe und Production-API gemeinsam geprüft werden sollen. Der Simulator bleibt der reproduzierbare Standardpfad für lokale Entwicklung.
+
+### Angeschlossenes iPhone prüfen
+
+```sh
+xcrun devicectl list devices
+xcrun xctrace list devices | grep -i iPhone
+```
+
+Wenn ein iPhone verbunden ist, kann die Release-App direkt auf das Gerät gespielt werden:
+
+```sh
+EXPO_PUBLIC_API_BASE_URL=https://hege.app/api/v1 pnpm --filter @hege/mobile exec expo run:ios --device "Andreas iPhone" --configuration Release --no-bundler
+```
+
+Nach erfolgreicher Installation die App auf dem iPhone öffnen und die untenstehenden Smoke-Schritte manuell durchführen.
+
+### Simulator-Auswahl
 
 1. Verfügbare iPhone-Simulatoren prüfen:
 
@@ -55,7 +75,7 @@ Wenn der Simulator nicht gebootet ist, zuerst den gewünschten iPhone-Simulator 
 
 ## App starten
 
-Aus dem Mobile-Verzeichnis starten, damit Expo die App-Konfiguration eindeutig findet:
+Für den Simulator aus dem Mobile-Verzeichnis starten, damit Expo die App-Konfiguration eindeutig findet:
 
 ```sh
 cd apps/mobile
@@ -108,14 +128,21 @@ Erwartung:
 ## Fallwild-Fotoauswahl-Smoke
 
 1. Den Tab `Fallwild` öffnen.
-2. Pflichtfelder in einem abgestimmten Test-Revier ausfüllen.
-3. Foto hinzufügen und die iOS-Fotoauswahl öffnen.
-4. Das zuvor importierte Testbild auswählen.
-5. Prüfen, dass maximal drei Fotos auswählbar bleiben.
-6. Nur wenn Testdaten in diesem Revier ausdrücklich erlaubt sind, den Fallwild-Vorgang speichern.
+2. `Standort automatisch erfassen` antippen und die iOS-Standortberechtigung erlauben.
+3. Prüfen, dass Breitengrad, Längengrad und GPS-Genauigkeit übernommen werden.
+4. Falls Google/GIP in der Zielumgebung nicht konfiguriert sind, Gemeinde, Straße und Straßenkilometer manuell ergänzen.
+5. Foto hinzufügen und die iOS-Fotoauswahl öffnen.
+6. Das zuvor importierte Testbild auswählen.
+7. Prüfen, dass maximal drei Fotos auswählbar bleiben.
+8. Nur wenn Testdaten in diesem Revier ausdrücklich erlaubt sind, den Fallwild-Vorgang speichern.
 
 Erwartung:
 
+- Die native iOS-Standortabfrage erscheint beim ersten Zugriff.
+- GPS wird auch dann übernommen, wenn Adresse oder GIP-Straßenkilometer nicht automatisch verfügbar sind.
+- Adresse und Straße werden übernommen, wenn `GOOGLE_MAPS_SERVER_API_KEY` in der Zielumgebung konfiguriert ist.
+- Straßenkilometer bleiben manuell editierbar, solange kein produktiver GIP-Resolver aktiv ist.
+- Mit `HEGE_GEO_PROVIDER=mock` kann der UI-Fluss ohne externe Keys gegen lokale Gänserndorf-Testdaten geprüft werden; sichtbare Hinweise müssen klar als Mock-/Testdaten erkennbar bleiben.
 - Die native iOS-Fotoauswahl öffnet sich.
 - Das importierte Testbild ist auswählbar.
 - Die Vorschau zeigt Dateiname und Anhang nachvollziehbar an.

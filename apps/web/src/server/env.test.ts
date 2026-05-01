@@ -9,6 +9,11 @@ const STORAGE_ENV_KEYS = [
   "S3_PUBLIC_BASE_URL",
   "S3_ACCESS_KEY",
   "S3_SECRET_KEY",
+  "GOOGLE_MAPS_SERVER_API_KEY",
+  "GOOGLE_MAPS_LANGUAGE",
+  "GOOGLE_MAPS_REGION",
+  "GIP_ROAD_KILOMETER_ENDPOINT",
+  "HEGE_GEO_PROVIDER",
   "AUTH_TOKEN_SECRET",
   "VERCEL_ENV"
 ] as const;
@@ -48,6 +53,24 @@ describe("server env", () => {
     expect(env.s3PublicBaseUrl).toBe("https://assets.hege.app/");
     expect(env.s3AccessKey).toBe("access-key");
     expect(env.s3SecretKey).toBe("secret-key");
+  });
+
+  it("normalisiert Standort-Integrationsvariablen", () => {
+    process.env.VERCEL_ENV = "production";
+    process.env.AUTH_TOKEN_SECRET = "test-auth-secret";
+    process.env.GOOGLE_MAPS_SERVER_API_KEY = " google-key\n";
+    process.env.GOOGLE_MAPS_LANGUAGE = " de ";
+    process.env.GOOGLE_MAPS_REGION = " AT\n";
+    process.env.GIP_ROAD_KILOMETER_ENDPOINT = " https://gip.example.test/resolve ";
+    process.env.HEGE_GEO_PROVIDER = " mock ";
+
+    const env = getServerEnv();
+
+    expect(env.googleMapsServerApiKey).toBe("google-key");
+    expect(env.googleMapsLanguage).toBe("de");
+    expect(env.googleMapsRegion).toBe("AT");
+    expect(env.gipRoadKilometerEndpoint).toBe("https://gip.example.test/resolve");
+    expect(env.geoProviderMode).toBe("mock");
   });
 
   it("behandelt leere Storage-Werte in Vercel als nicht konfiguriert", () => {

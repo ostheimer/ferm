@@ -4,8 +4,8 @@ import { PublicLanding } from "../components/public-landing";
 import { redirectAuthenticatedUser } from "../server/auth/guards";
 
 export const metadata: Metadata = {
-  title: "hege | Reviermanagement fuer Revierleitung und Team",
-  description: "Oeffentliche Produktseite fuer Reviermanagement, Protokolle, Fallwild und mobile Meldungen."
+  title: "hege | Reviermanagement für Revierleitung und Team",
+  description: "Öffentliche Produktseite für Reviermanagement, Protokolle, Fallwild und mobile Meldungen."
 };
 
 export const dynamic = "force-dynamic";

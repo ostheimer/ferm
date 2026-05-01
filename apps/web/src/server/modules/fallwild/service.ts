@@ -78,6 +78,7 @@ export function createFallwildService({
         bergungsStatus: command.bergungsStatus,
         gemeinde: command.gemeinde,
         strasse: command.strasse,
+        roadReference: command.roadReference,
         note: command.note,
         photos: []
       });

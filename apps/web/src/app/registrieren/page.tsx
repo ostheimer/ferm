@@ -14,7 +14,11 @@ export default async function RegistrierenPage({
   const query = (await Promise.resolve(searchParams)) ?? {};
   const defaultPlanKey = readPlanKey(query.planKey ?? query.plan) ?? "starter";
 
-  return <RegistrationForm defaultPlanKey={defaultPlanKey} />;
+  return (
+    <main className="auth-layout">
+      <RegistrationForm defaultPlanKey={defaultPlanKey} />
+    </main>
+  );
 }
 
 function readPlanKey(value: string | string[] | undefined) {

@@ -41,7 +41,7 @@ export async function GET(_request: Request, context: RouteContext) {
       });
     }
 
-    return new Response("Dieses Dokument ist in der Demo nur als PDF-Download verfuegbar.", {
+    return new Response("Dieses Dokument ist in der Demo nur als PDF-Download verfügbar.", {
       status: 200,
       headers: {
         "content-type": "text/plain; charset=utf-8"

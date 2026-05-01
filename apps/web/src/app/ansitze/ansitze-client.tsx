@@ -193,7 +193,7 @@ export function AnsitzeClient({ activeAnsitze }: AnsitzeClientProps) {
         <header className="section-header">
           <div>
             <p className="eyebrow">Neuer Ansitz</p>
-            <h2>Ansitz fuer das Revier melden</h2>
+            <h2>Ansitz für das Revier melden</h2>
           </div>
           {isPending ? <span className="badge">Synchronisiert...</span> : null}
         </header>
@@ -246,7 +246,7 @@ export function AnsitzeClient({ activeAnsitze }: AnsitzeClientProps) {
           </label>
 
           <label className="field" htmlFor="ansitz-lng">
-            <span>Laengengrad</span>
+            <span>Längengrad</span>
             <input
               id="ansitz-lng"
               inputMode="decimal"
@@ -274,7 +274,7 @@ export function AnsitzeClient({ activeAnsitze }: AnsitzeClientProps) {
               id="ansitz-note"
               name="note"
               onChange={updateTextarea("note")}
-              placeholder="Kurzbeschreibung fuer den Ansitz"
+              placeholder="Kurzbeschreibung für den Ansitz"
               rows={4}
               value={formValues.note}
             />
