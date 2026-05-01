@@ -58,10 +58,10 @@ function buildPdfLines(sitzung: Sitzung) {
     "Agenda",
     ...(agenda.length > 0 ? agenda.map((entry, index) => `${index + 1}. ${entry}`) : ["Keine Agenda hinterlegt."]),
     "",
-    "Beschluesse",
+    "Beschlüsse",
     ...(beschluesse.length > 0
       ? beschluesse.map((entry, index) => `${index + 1}. ${entry.title}: ${entry.decision}`)
-      : ["Keine Beschluesse hinterlegt."])
+      : ["Keine Beschlüsse hinterlegt."])
   ];
 }
 

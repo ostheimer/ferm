@@ -17,6 +17,7 @@ import { isMissingColumnError } from "../db/compat";
 import { memberships, reviere, type RevierRecord, users } from "../db/schema";
 import { getServerEnv } from "../env";
 import { RouteError } from "../http/errors";
+import { normalizeDeAtVisibleText } from "../text/de-at";
 import { hashPassword, verifyPassword } from "./passwords";
 import { issueSessionTokens, type SessionTokenContext, verifyRefreshToken } from "./tokens";
 
@@ -656,15 +657,15 @@ function mapRevierRecordToDomain(record: RevierRecord): Revier {
   return {
     id: record.id,
     tenantKey: record.tenantKey,
-    name: record.name,
-    bundesland: record.bundesland,
-    bezirk: record.bezirk,
+    name: normalizeDeAtVisibleText(record.name),
+    bundesland: normalizeDeAtVisibleText(record.bundesland),
+    bezirk: normalizeDeAtVisibleText(record.bezirk),
     flaecheHektar: record.flaecheHektar,
     setupCompletedAt: record.setupCompletedAt ?? undefined,
     zentrum: {
       lat: record.zentrumLat,
       lng: record.zentrumLng,
-      label: record.zentrumLabel ?? undefined
+      label: normalizeDeAtVisibleText(record.zentrumLabel) ?? undefined
     }
   };
 }

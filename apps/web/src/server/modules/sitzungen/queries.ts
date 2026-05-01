@@ -14,6 +14,7 @@ import {
   users
 } from "../../db/schema";
 import { getServerEnv } from "../../env";
+import { normalizeDeAtVisibleText } from "../../text/de-at";
 
 export interface RevierMembershipOption {
   membershipId: string;
@@ -154,22 +155,22 @@ async function assembleSitzungen(sitzungIds: string[], revierId: string): Promis
           id: version.id,
           createdAt: version.createdAt,
           createdByMembershipId: version.createdByMembershipId,
-          summary: version.summary,
+          summary: normalizeDeAtVisibleText(version.summary),
           agenda: splitAgenda(version.agendaText),
           beschluesse: beschlussRows
             .filter((beschluss) => beschluss.versionId === version.id)
             .map((beschluss) => ({
               id: beschluss.id,
-              title: beschluss.title,
-              decision: beschluss.decision,
-              owner: beschluss.owner ?? undefined,
+              title: normalizeDeAtVisibleText(beschluss.title),
+              decision: normalizeDeAtVisibleText(beschluss.decision),
+              owner: normalizeDeAtVisibleText(beschluss.owner) ?? undefined,
               dueAt: beschluss.dueAt ?? undefined
             })),
           attachments: documentRows
             .filter((document) => document.versionId === version.id && document.kind === "attachment")
             .map((document) => ({
               id: document.id,
-              title: document.title,
+              title: normalizeDeAtVisibleText(document.title),
               fileName: document.fileName,
               contentType: document.contentType,
               createdAt: document.createdAt,
@@ -184,9 +185,9 @@ async function assembleSitzungen(sitzungIds: string[], revierId: string): Promis
       return {
         id: entry.id,
         revierId: entry.revierId,
-        title: entry.title,
+        title: normalizeDeAtVisibleText(entry.title),
         scheduledAt: entry.scheduledAt,
-        locationLabel: entry.locationLabel,
+        locationLabel: normalizeDeAtVisibleText(entry.locationLabel),
         status: entry.status,
         participants: participantRows
           .filter((participant) => participant.sitzungId === entry.id)
@@ -198,7 +199,7 @@ async function assembleSitzungen(sitzungIds: string[], revierId: string): Promis
         publishedDocument: publishedDocument
           ? {
               id: publishedDocument.id,
-              title: publishedDocument.title,
+              title: normalizeDeAtVisibleText(publishedDocument.title),
               fileName: publishedDocument.fileName,
               contentType: publishedDocument.contentType,
               createdAt: publishedDocument.createdAt,
@@ -218,7 +219,7 @@ function listDemoSitzungen(): Promise<Sitzung[]> {
 }
 
 function splitAgenda(value: string) {
-  return value
+  return normalizeDeAtVisibleText(value)
     .split("\n")
     .map((entry) => entry.trim())
     .filter(Boolean);

@@ -93,7 +93,7 @@ test.describe("Sitzungen", () => {
     }
 
     await page.locator("#version-summary").fill("Freigabe-E2E-Zusammenfassung.");
-    await page.locator("#version-agenda").fill("Rueckblick\nBeschluesse");
+    await page.locator("#version-agenda").fill("Rückblick\nBeschlüsse");
     await page.locator("article.detail-card").first().locator("input").first().fill("E2E Freigabebeschluss");
     await page.locator("article.detail-card").first().locator("textarea").nth(0).fill("Freigabe für den PDF-Test vorbereiten.");
     await page.getByRole("button", { name: "Neue Version speichern" }).click();

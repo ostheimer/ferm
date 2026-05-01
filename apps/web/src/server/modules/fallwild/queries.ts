@@ -8,6 +8,7 @@ import { type FallwildVorgangRecord, fallwildVorgaenge, mediaAssets } from "../.
 import { createDemoStore } from "../../demo-store";
 import { getServerEnv } from "../../env";
 import { buildStoragePublicUrl, isStorageConfigured } from "../../storage/s3";
+import { normalizeDeAtVisibleText } from "../../text/de-at";
 
 export async function listFallwild(): Promise<FallwildVorgang[]> {
   if (getServerEnv().useDemoStore) {
@@ -55,20 +56,20 @@ export function mapFallwildRowToDomain(record: FallwildVorgangRecord): FallwildV
     location: {
       lat: record.locationLat,
       lng: record.locationLng,
-      label: record.locationLabel ?? undefined,
+      label: normalizeDeAtVisibleText(record.locationLabel) ?? undefined,
       accuracyMeters: record.locationAccuracyMeters ?? undefined,
       source: parseLocationSource(record.locationSource),
-      addressLabel: record.addressLabel ?? undefined,
+      addressLabel: normalizeDeAtVisibleText(record.addressLabel) ?? undefined,
       placeId: record.googlePlaceId ?? undefined
     },
     wildart: record.wildart,
     geschlecht: record.geschlecht,
     altersklasse: record.altersklasse,
     bergungsStatus: record.bergungsStatus,
-    gemeinde: record.gemeinde,
-    strasse: record.strasse ?? undefined,
+    gemeinde: normalizeDeAtVisibleText(record.gemeinde),
+    strasse: normalizeDeAtVisibleText(record.strasse) ?? undefined,
     roadReference: buildRoadReference(record),
-    note: record.note ?? undefined,
+    note: normalizeDeAtVisibleText(record.note) ?? undefined,
     photos: []
   };
 }
@@ -76,7 +77,7 @@ export function mapFallwildRowToDomain(record: FallwildVorgangRecord): FallwildV
 export function mapMediaAssetRowToPhotoAsset(record: MediaAssetRecord): PhotoAsset {
   return {
     id: record.id,
-    title: record.title,
+    title: normalizeDeAtVisibleText(record.title),
     url: buildStoragePublicUrl(record.objectKey),
     createdAt: record.createdAt
   };
@@ -132,7 +133,7 @@ function buildRoadReference(record: FallwildVorgangRecord): FallwildVorgang["roa
   }
 
   return {
-    roadName: record.roadName ?? undefined,
+    roadName: normalizeDeAtVisibleText(record.roadName) ?? undefined,
     roadKilometer: record.roadKilometer ?? undefined,
     source: parseRoadKilometerSource(record.roadKilometerSource),
     placeId: record.roadPlaceId ?? undefined

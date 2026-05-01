@@ -10,6 +10,7 @@ import type {
   ReviereinrichtungRecord,
   ReviereinrichtungWartungRecord
 } from "../../db/schema";
+import { normalizeDeAtVisibleText } from "../../text/de-at";
 
 export function mapDemoReviereinrichtungToListItem(
   entry: Reviereinrichtung
@@ -40,14 +41,14 @@ export function mapDbReviereinrichtungToListItem(
     id: entry.id,
     revierId: entry.revierId,
     type: entry.type,
-    name: entry.name,
+    name: normalizeDeAtVisibleText(entry.name),
     status: entry.status,
     location: {
       lat: entry.locationLat,
       lng: entry.locationLng,
-      label: entry.locationLabel ?? undefined
+      label: normalizeDeAtVisibleText(entry.locationLabel) ?? undefined
     },
-    beschreibung: entry.beschreibung ?? undefined,
+    beschreibung: normalizeDeAtVisibleText(entry.beschreibung) ?? undefined,
     photos: [],
     kontrollen: sortedKontrollen,
     wartung: sortedWartungen,
@@ -62,7 +63,7 @@ function mapKontrolleRecordToDomain(record: ReviereinrichtungKontrolleRecord): R
     createdAt: record.createdAt,
     createdByMembershipId: record.createdByMembershipId,
     zustand: record.zustand as EinrichtungZustand,
-    note: record.note ?? undefined
+    note: normalizeDeAtVisibleText(record.note) ?? undefined
   };
 }
 
@@ -71,7 +72,7 @@ function mapWartungRecordToDomain(record: ReviereinrichtungWartungRecord): Wartu
     id: record.id,
     dueAt: record.dueAt,
     status: record.status,
-    title: record.title,
-    note: record.note ?? undefined
+    title: normalizeDeAtVisibleText(record.title),
+    note: normalizeDeAtVisibleText(record.note) ?? undefined
   };
 }

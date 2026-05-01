@@ -6,6 +6,7 @@ import { getDb } from "../../db/client";
 import { type AnsitzSessionRecord, ansitzSessions } from "../../db/schema";
 import { createDemoStore } from "../../demo-store";
 import { getServerEnv } from "../../env";
+import { normalizeDeAtVisibleText } from "../../text/de-at";
 
 export async function listAnsitze(): Promise<AnsitzSession[]> {
   if (getServerEnv().useDemoStore) {
@@ -33,16 +34,16 @@ export function mapAnsitzRowToDomain(record: AnsitzSessionRecord): AnsitzSession
     revierId: record.revierId,
     membershipId: record.membershipId,
     standortId: record.standortId ?? undefined,
-    standortName: record.standortName,
+    standortName: normalizeDeAtVisibleText(record.standortName),
     location: {
       lat: record.locationLat,
       lng: record.locationLng,
-      label: record.locationLabel ?? undefined
+      label: normalizeDeAtVisibleText(record.locationLabel) ?? undefined
     },
     startedAt: record.startedAt,
     plannedEndAt: record.plannedEndAt ?? undefined,
     endedAt: record.endedAt ?? undefined,
-    note: record.note ?? undefined,
+    note: normalizeDeAtVisibleText(record.note) ?? undefined,
     status: record.status,
     conflict: record.conflict
   };

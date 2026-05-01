@@ -42,7 +42,7 @@ test.describe("Leitstand und Protokolle", () => {
   test("renders the protokolle list on desktop and mobile", async ({ page }, testInfo) => {
     await page.goto("/app/protokolle");
 
-    await expect(page.getByRole("heading", { name: "Freigegebene Protokolle und Beschluesse" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Freigegebene Protokolle und Beschlüsse" })).toBeVisible();
     await expect(page.locator('a[href="/api/v1/documents/document-sitzung-2/download"]')).toBeVisible();
     await expect(page.locator('a[href="/api/v1/documents/document-sitzung-2/download"]')).toHaveText("Dokument oeffnen");
     await expect(page.locator("main")).toHaveScreenshot("protokolle-overview.png", visualSnapshotOptions);

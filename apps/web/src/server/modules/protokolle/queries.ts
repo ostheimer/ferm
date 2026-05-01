@@ -26,6 +26,7 @@ import {
 } from "../../db/schema";
 import { createDemoStore } from "../../demo-store";
 import { getServerEnv } from "../../env";
+import { normalizeDeAtVisibleText } from "../../text/de-at";
 
 export async function listProtokolle(): Promise<ProtokollListItem[]> {
   if (getServerEnv().useDemoStore) {
@@ -72,9 +73,9 @@ async function buildListItemFromRow(row: SitzungRecord): Promise<ProtokollListIt
   return {
     id: row.id,
     revierId: row.revierId,
-    title: row.title,
+    title: normalizeDeAtVisibleText(row.title),
     scheduledAt: row.scheduledAt,
-    locationLabel: row.locationLabel,
+    locationLabel: normalizeDeAtVisibleText(row.locationLabel),
     status: row.status,
     latestVersionCreatedAt: latestVersion?.createdAt,
     summaryPreview: latestVersion ? createSummaryPreview(latestVersion.summary) : undefined,
@@ -95,9 +96,9 @@ async function buildDetailFromRow(row: SitzungRecord): Promise<ProtokollDetail> 
   return {
     id: row.id,
     revierId: row.revierId,
-    title: row.title,
+    title: normalizeDeAtVisibleText(row.title),
     scheduledAt: row.scheduledAt,
-    locationLabel: row.locationLabel,
+    locationLabel: normalizeDeAtVisibleText(row.locationLabel),
     status: row.status,
     latestVersionCreatedAt: latestVersion?.createdAt,
     summaryPreview: latestVersion ? createSummaryPreview(latestVersion.summary) : undefined,
@@ -155,7 +156,7 @@ async function toProtokollVersion(row: ProtokollVersionRecord): Promise<Protokol
     id: row.id,
     createdAt: row.createdAt,
     createdByMembershipId: row.createdByMembershipId,
-    summary: row.summary,
+    summary: normalizeDeAtVisibleText(row.summary),
     agenda: parseAgenda(row.agendaText),
     beschluesse: beschlussRows,
     attachments: attachmentRows
@@ -185,9 +186,9 @@ async function loadAttachments(versionId: string): Promise<DocumentAsset[]> {
 function toBeschluss(row: ProtokollBeschlussRecord): Beschluss {
   return {
     id: row.id,
-    title: row.title,
-    decision: row.decision,
-    owner: row.owner ?? undefined,
+    title: normalizeDeAtVisibleText(row.title),
+    decision: normalizeDeAtVisibleText(row.decision),
+    owner: normalizeDeAtVisibleText(row.owner) ?? undefined,
     dueAt: row.dueAt ?? undefined
   };
 }
@@ -197,7 +198,7 @@ function toDocumentAsset(row: DokumentRecord): DocumentAsset {
 
   return {
     id: row.id,
-    title: row.title,
+    title: normalizeDeAtVisibleText(row.title),
     fileName: row.fileName,
     contentType: row.contentType,
     url: downloadUrl,
@@ -222,14 +223,14 @@ function toTeilnehmer(row: SitzungTeilnehmerRecord): Teilnehmer {
 }
 
 function parseAgenda(agendaText: string): string[] {
-  return agendaText
+  return normalizeDeAtVisibleText(agendaText)
     .split("\n")
     .map((entry) => entry.trim())
     .filter((entry) => entry.length > 0);
 }
 
 function createSummaryPreview(summary: string): string {
-  const trimmed = summary.trim();
+  const trimmed = normalizeDeAtVisibleText(summary).trim();
 
   if (trimmed.length <= 120) {
     return trimmed;
@@ -250,9 +251,9 @@ function listProtokolleFromDemoStore(): ProtokollListItem[] {
       return {
         id: entry.id,
         revierId: entry.revierId,
-        title: entry.title,
+        title: normalizeDeAtVisibleText(entry.title),
         scheduledAt: entry.scheduledAt,
-        locationLabel: entry.locationLabel,
+        locationLabel: normalizeDeAtVisibleText(entry.locationLabel),
         status: entry.status,
         latestVersionCreatedAt: latestVersion?.createdAt,
         summaryPreview: latestVersion ? createSummaryPreview(latestVersion.summary) : undefined,
@@ -280,9 +281,9 @@ function getProtokollDetailFromDemoStore(protokollId: string): ProtokollDetail |
   return {
     id: entry.id,
     revierId: entry.revierId,
-    title: entry.title,
+    title: normalizeDeAtVisibleText(entry.title),
     scheduledAt: entry.scheduledAt,
-    locationLabel: entry.locationLabel,
+    locationLabel: normalizeDeAtVisibleText(entry.locationLabel),
     status: entry.status,
     latestVersionCreatedAt: latestVersion?.createdAt,
     summaryPreview: latestVersion ? createSummaryPreview(latestVersion.summary) : undefined,
