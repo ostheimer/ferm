@@ -137,8 +137,8 @@ function createSelectBuilder() {
               async limit() {
                 return [
                   {
-                    bezirk: "Voecklabruck",
-                    bundesland: "Oberoesterreich",
+                    bezirk: "Vöcklabruck",
+                    bundesland: "Oberösterreich",
                     flaecheHektar: 1480,
                     id: "revier-attersee",
                     name: "Jagdgesellschaft Attersee Nord",

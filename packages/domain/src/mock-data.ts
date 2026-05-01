@@ -6,8 +6,8 @@ export const demoData: DemoData = {
       id: "revier-attersee",
       tenantKey: "attersee-nord",
       name: "Jagdgesellschaft Attersee Nord",
-      bundesland: "Oberoesterreich",
-      bezirk: "Voecklabruck",
+      bundesland: "Oberösterreich",
+      bezirk: "Vöcklabruck",
       flaecheHektar: 1480,
       setupCompletedAt: "2026-04-01T09:00:00+02:00",
       zentrum: {
@@ -112,7 +112,7 @@ export const demoData: DemoData = {
         label: "Wiesenrand"
       },
       startedAt: "2026-04-03T06:10:00+02:00",
-      note: "Kurzer Fruehansitz wegen Wildschaden.",
+      note: "Kurzer Frühansitz wegen Wildschaden.",
       status: "active",
       conflict: false
     }
@@ -153,14 +153,14 @@ export const demoData: DemoData = {
       id: "einrichtung-2",
       revierId: "revier-attersee",
       type: "fuetterung",
-      name: "Fuetterung Forststrasse",
+      name: "Fütterung Forststraße",
       status: "wartung-faellig",
       location: {
         lat: 47.9184,
         lng: 13.5219,
         label: "Forststrasse"
       },
-      beschreibung: "Winterfuetterung oberhalb der Kehre.",
+      beschreibung: "Winterfütterung oberhalb der Kehre.",
       photos: [],
       kontrollen: [
         {
@@ -168,7 +168,7 @@ export const demoData: DemoData = {
           createdAt: "2026-04-01T07:15:00+02:00",
           createdByMembershipId: "member-jaeger",
           zustand: "wartung-faellig",
-          note: "Deckel verzogen, Nachfuellung schwierig."
+          note: "Deckel verzogen, Nachfüllung schwierig."
         }
       ],
       wartung: [
@@ -237,7 +237,7 @@ export const demoData: DemoData = {
     {
       id: "sitzung-1",
       revierId: "revier-attersee",
-      title: "Fruehjahrsbesprechung 2026",
+      title: "Frühjahrsbesprechung 2026",
       scheduledAt: "2026-04-11T19:00:00+02:00",
       locationLabel: "Jagdhaus Attersee Nord",
       status: "entwurf",
@@ -261,12 +261,12 @@ export const demoData: DemoData = {
           createdAt: "2026-04-02T21:15:00+02:00",
           createdByMembershipId: "member-schrift",
           summary: "Erster Entwurf mit Themen zu Fallwild und Hochstandwartung.",
-          agenda: ["Begruessung", "Fallwildstatistik", "Wartungsplan Hochstaende"],
+          agenda: ["Begrüßung", "Fallwildstatistik", "Wartungsplan Hochstände"],
           beschluesse: [
             {
               id: "beschluss-1",
               title: "Wartung Buchenhang",
-              decision: "Kontrolle aller Leiterstaende bis 20. April abschliessen.",
+              decision: "Kontrolle aller Leiterstände bis 20. April abschließen.",
               owner: "Andreas Ostheimer",
               dueAt: "2026-04-20T18:00:00+02:00"
             }
@@ -342,7 +342,7 @@ export const demoData: DemoData = {
       id: "notification-3",
       revierId: "revier-attersee",
       channel: "in-app",
-      title: "Protokoll veroeffentlicht",
+      title: "Protokoll veröffentlicht",
       body: "Das Protokoll Winterabschluss 2025 steht mobil zum Lesen bereit.",
       createdAt: "2026-02-15T08:32:00+01:00"
     }

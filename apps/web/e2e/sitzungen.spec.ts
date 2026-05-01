@@ -39,10 +39,10 @@ test.describe("Sitzungen", () => {
     await expect(page.locator(".feedback-success").filter({ hasText: "Sitzung gespeichert." }).first()).toBeVisible();
     await expect(page.getByRole("heading", { name: updatedTitle })).toBeVisible();
 
-    await page.locator("#version-summary").fill("E2E Zusammenfassung fuer die neue Sitzung.");
-    await page.locator("#version-agenda").fill("Begruessung\nRevierlage\nWartung");
+    await page.locator("#version-summary").fill("E2E Zusammenfassung für die neue Sitzung.");
+    await page.locator("#version-agenda").fill("Begrüßung\nRevierlage\nWartung");
     await page.locator("article.detail-card").first().locator("input").first().fill("E2E Beschluss");
-    await page.locator("article.detail-card").first().locator("textarea").nth(0).fill("Wartung bis Monatsende abschliessen.");
+    await page.locator("article.detail-card").first().locator("textarea").nth(0).fill("Wartung bis Monatsende abschließen.");
     await page.locator("article.detail-card").first().locator("input").nth(1).fill("Andreas Ostheimer");
     await page.locator("article.detail-card").first().locator("input").nth(2).fill("2026-04-20T18:00");
     await page.getByRole("button", { name: "Neue Version speichern" }).click();
@@ -95,7 +95,7 @@ test.describe("Sitzungen", () => {
     await page.locator("#version-summary").fill("Freigabe-E2E-Zusammenfassung.");
     await page.locator("#version-agenda").fill("Rueckblick\nBeschluesse");
     await page.locator("article.detail-card").first().locator("input").first().fill("E2E Freigabebeschluss");
-    await page.locator("article.detail-card").first().locator("textarea").nth(0).fill("Freigabe fuer den PDF-Test vorbereiten.");
+    await page.locator("article.detail-card").first().locator("textarea").nth(0).fill("Freigabe für den PDF-Test vorbereiten.");
     await page.getByRole("button", { name: "Neue Version speichern" }).click();
     await expect(
       page.locator(".feedback-success").filter({ hasText: "Neue Protokollversion gespeichert." }).first()

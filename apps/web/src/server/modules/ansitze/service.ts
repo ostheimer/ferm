@@ -113,6 +113,6 @@ export async function startAnsitzSession(command: CreateAnsitzCommand) {
 
 function assertMutationsEnabled(useDemoStore: boolean) {
   if (useDemoStore) {
-    throw new AnsitzServiceError("Ansitz-Mutationen benoetigen eine aktive Datenbank.", 503);
+    throw new AnsitzServiceError("Ansitz-Mutationen benötigen eine aktive Datenbank.", 503);
   }
 }

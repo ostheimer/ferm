@@ -215,7 +215,7 @@ export async function freigebenSitzung(command: FreigabeCommand): Promise<Sitzun
 
 function assertMutationPrerequisites(role: Role, allowedRoles: Role[]) {
   if (getServerEnv().useDemoStore) {
-    throw new RouteError("Sitzungs-Mutationen benoetigen eine aktive Datenbank.", 503, "service-unavailable");
+    throw new RouteError("Sitzungs-Mutationen benötigen eine aktive Datenbank.", 503, "service-unavailable");
   }
 
   assertRole(role, allowedRoles);

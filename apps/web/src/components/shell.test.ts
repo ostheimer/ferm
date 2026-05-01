@@ -46,8 +46,8 @@ const viewer: AuthContextResponse = {
     id: "revier-attersee",
     tenantKey: "attersee-nord",
     name: "Jagdgesellschaft Attersee Nord",
-    bundesland: "Oberoesterreich",
-    bezirk: "Voecklabruck",
+    bundesland: "Oberösterreich",
+    bezirk: "Vöcklabruck",
     flaecheHektar: 1480,
     zentrum: {
       lat: 47.9134,

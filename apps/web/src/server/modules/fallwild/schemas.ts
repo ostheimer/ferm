@@ -149,7 +149,7 @@ function parseOptionalIsoString(value: unknown, field: string): string | undefin
 
 function parseEnum(value: unknown, field: string, allowed: readonly string[]): string {
   if (typeof value !== "string" || !allowed.includes(value)) {
-    throw validationError(`${field} ist ungueltig.`);
+    throw validationError(`${field} ist ungültig.`);
   }
 
   return value;

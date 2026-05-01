@@ -28,7 +28,7 @@ async function readBody(request: Request): Promise<unknown> {
     try {
       return await request.json();
     } catch {
-      throw new Error("Der Request-Body muss gueltiges JSON sein.");
+      throw new Error("Der Request-Body muss gültiges JSON sein.");
     }
   }
 

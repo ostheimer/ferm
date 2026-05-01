@@ -38,7 +38,7 @@ test.describe("Fallwild", () => {
     await page.locator("#fallwild-lat").fill("47.9105");
     await page.locator("#fallwild-lng").fill("13.5792");
     await page.locator("#fallwild-wildart").selectOption("Fuchs");
-    await page.locator("#fallwild-note").fill("Automatischer E2E-Test fuer Fallwild.");
+    await page.locator("#fallwild-note").fill("Automatischer E2E-Test für Fallwild.");
     await page.getByRole("button", { name: "Fallwild erfassen" }).click();
 
     await expect(page.getByText("Fallwild wurde erfasst.")).toBeVisible();

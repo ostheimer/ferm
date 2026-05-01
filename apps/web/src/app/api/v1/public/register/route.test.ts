@@ -36,8 +36,8 @@ describe("POST /api/v1/public/register", () => {
         id: "revier-new",
         tenantKey: "jagdgesellschaft-beispielwald",
         name: "Jagdgesellschaft Beispielwald",
-        bundesland: "Oberoesterreich",
-        bezirk: "Voecklabruck",
+        bundesland: "Oberösterreich",
+        bezirk: "Vöcklabruck",
         flaecheHektar: 0,
         zentrum: {
           lat: 48.234913,
@@ -72,8 +72,8 @@ describe("POST /api/v1/public/register", () => {
           pin: "1234",
           jagdzeichen: "AO-01",
           revierName: "Jagdgesellschaft Beispielwald",
-          bundesland: "Oberoesterreich",
-          bezirk: "Voecklabruck",
+          bundesland: "Oberösterreich",
+          bezirk: "Vöcklabruck",
           planKey: "starter"
         })
       })
@@ -106,8 +106,8 @@ describe("POST /api/v1/public/register", () => {
           pin: "1234",
           jagdzeichen: "AO-01",
           revierName: "Jagdgesellschaft Beispielwald",
-          bundesland: "Oberoesterreich",
-          bezirk: "Voecklabruck",
+          bundesland: "Oberösterreich",
+          bezirk: "Vöcklabruck",
           planKey: "organisation"
         })
       })

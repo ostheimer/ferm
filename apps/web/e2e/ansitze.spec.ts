@@ -33,7 +33,7 @@ test.describe("Ansitze", () => {
     await page.locator("#ansitz-standort-name").fill(standortName);
     await page.locator("#ansitz-standort-id").fill(`e2e-${suffix}`);
     await page.locator("#ansitz-location-label").fill("E2E Schneise");
-    await page.locator("#ansitz-note").fill("Automatischer E2E-Test fuer Ansitze.");
+    await page.locator("#ansitz-note").fill("Automatischer E2E-Test für Ansitze.");
     await page.getByRole("button", { name: "Ansitz starten" }).click();
 
     await expect(page.getByText("Ansitz wurde gestartet.")).toBeVisible();

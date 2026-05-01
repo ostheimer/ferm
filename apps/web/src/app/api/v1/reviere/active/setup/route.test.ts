@@ -52,8 +52,8 @@ describe("PATCH /api/v1/reviere/active/setup", () => {
         },
         body: JSON.stringify({
           revierName: "Jagdgesellschaft Beispielwald",
-          bundesland: "Oberoesterreich",
-          bezirk: "Voecklabruck",
+          bundesland: "Oberösterreich",
+          bezirk: "Vöcklabruck",
           flaecheHektar: 1480
         })
       })
@@ -69,8 +69,8 @@ describe("PATCH /api/v1/reviere/active/setup", () => {
       },
       {
         revierName: "Jagdgesellschaft Beispielwald",
-        bundesland: "Oberoesterreich",
-        bezirk: "Voecklabruck",
+        bundesland: "Oberösterreich",
+        bezirk: "Vöcklabruck",
         flaecheHektar: 1480
       }
     );

@@ -83,7 +83,7 @@ function parseOptionalString(value: unknown, field: string): string | undefined 
 
 function parseNumber(value: unknown, field: string): number {
   if (typeof value !== "number" || !Number.isFinite(value)) {
-    throw validationError(`${field} muss eine gueltige Zahl sein.`);
+    throw validationError(`${field} muss eine gültige Zahl sein.`);
   }
 
   return value;
@@ -101,7 +101,7 @@ function parseOptionalIsoString(value: unknown, field: string): string | undefin
   const parsed = new Date(value);
 
   if (Number.isNaN(parsed.valueOf())) {
-    throw validationError(`${field} muss ein gueltiges Datum sein.`);
+    throw validationError(`${field} muss ein gültiges Datum sein.`);
   }
 
   return parsed.toISOString();
