@@ -338,6 +338,10 @@ export default function FallwildScreen() {
         typeof position.coords.accuracy === "number" && Number.isFinite(position.coords.accuracy)
           ? String(Math.round(position.coords.accuracy))
           : "";
+      const numericAccuracyMeters =
+        typeof position.coords.accuracy === "number" && Number.isFinite(position.coords.accuracy)
+          ? position.coords.accuracy
+          : undefined;
 
       setForm((current) => ({
         ...current,
@@ -348,7 +352,11 @@ export default function FallwildScreen() {
       }));
 
       try {
-        const suggestion = await resolveFallwildLocation(position.coords.latitude, position.coords.longitude);
+        const suggestion = await resolveFallwildLocation(
+          position.coords.latitude,
+          position.coords.longitude,
+          numericAccuracyMeters
+        );
         setForm((current) => ({
           ...applyFallwildLocationSuggestion(current, suggestion),
           accuracyMeters,

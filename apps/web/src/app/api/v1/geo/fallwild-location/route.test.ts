@@ -52,7 +52,8 @@ describe("POST /api/v1/geo/fallwild-location", () => {
         },
         body: JSON.stringify({
           lat: 48.339,
-          lng: 16.7201
+          lng: 16.7201,
+          accuracyMeters: 18
         })
       })
     );
@@ -67,7 +68,8 @@ describe("POST /api/v1/geo/fallwild-location", () => {
     });
     expect(mockResolveFallwildLocation).toHaveBeenCalledWith({
       lat: 48.339,
-      lng: 16.7201
+      lng: 16.7201,
+      accuracyMeters: 18
     });
   });
 
@@ -81,6 +83,25 @@ describe("POST /api/v1/geo/fallwild-location", () => {
         body: JSON.stringify({
           lat: "48.339",
           lng: 16.7201
+        })
+      })
+    );
+
+    expect(response.status).toBe(400);
+    expect(mockResolveFallwildLocation).not.toHaveBeenCalled();
+  });
+
+  it("returns 400 for invalid GPS accuracy", async () => {
+    const response = await POST(
+      new Request("http://localhost/api/v1/geo/fallwild-location", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({
+          lat: 48.339,
+          lng: 16.7201,
+          accuracyMeters: -1
         })
       })
     );

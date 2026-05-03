@@ -13,6 +13,7 @@ export interface FallwildLocationSuggestion {
 interface ResolveFallwildLocationInput {
   lat: number;
   lng: number;
+  accuracyMeters?: number;
   fetchImpl?: typeof fetch;
   providers?: FallwildLocationProviders;
 }
@@ -33,6 +34,7 @@ export interface RoadKilometerResolver {
 interface GeoProviderInput {
   lat: number;
   lng: number;
+  accuracyMeters?: number;
   fetchImpl: typeof fetch;
 }
 
@@ -79,9 +81,52 @@ const LOCATION_FIXTURES: LocationFixture[] = [
   }
 ];
 
+const GIP_ROAD_NAME_KEYS = [
+  "roadName",
+  "road_name",
+  "route",
+  "routeName",
+  "streetName",
+  "strasse",
+  "straße",
+  "FEATURENAME",
+  "STREETNAME",
+  "NAME",
+  "ROUTENAME"
+] as const;
+
+const GIP_ROAD_KILOMETER_KEYS = [
+  "roadKilometer",
+  "road_kilometer",
+  "kilometer",
+  "km",
+  "KM",
+  "FROMKM",
+  "fromkm",
+  "TOKM",
+  "tokm",
+  "STATION",
+  "station"
+] as const;
+
+const GIP_PLACE_ID_KEYS = [
+  "placeId",
+  "place_id",
+  "segmentId",
+  "OBJECTID",
+  "objectid",
+  "EDGE_OBJECTID",
+  "edge_objectid",
+  "ROUTEID",
+  "routeid"
+] as const;
+
+const GIP_DISTANCE_KEYS = ["distanceMeters", "distance", "DISTANCE"] as const;
+
 export async function resolveFallwildLocation({
   lat,
   lng,
+  accuracyMeters,
   fetchImpl = fetch,
   providers
 }: ResolveFallwildLocationInput): Promise<FallwildLocationSuggestion> {
@@ -92,9 +137,13 @@ export async function resolveFallwildLocation({
   let googleAddress: GoogleAddressSuggestion | undefined;
   let gipRoadKilometer: GipRoadKilometerSuggestion | undefined;
 
+  if (typeof accuracyMeters === "number" && accuracyMeters > 100) {
+    warnings.push("GPS-Genauigkeit ist größer als 100 m; Standort bitte vor dem Speichern prüfen.");
+  }
+
   if (reverseGeocoder) {
     try {
-      googleAddress = await reverseGeocoder.reverseGeocode({ fetchImpl, lat, lng });
+      googleAddress = await reverseGeocoder.reverseGeocode({ accuracyMeters, fetchImpl, lat, lng });
       warnings.push(...(googleAddress?.warnings ?? []));
 
       if (!googleAddress) {
@@ -110,6 +159,7 @@ export async function resolveFallwildLocation({
   if (roadKilometerResolver) {
     try {
       gipRoadKilometer = await roadKilometerResolver.resolveRoadKilometer({
+        accuracyMeters,
         fetchImpl,
         lat,
         lng,
@@ -143,6 +193,7 @@ export async function resolveFallwildLocation({
     location: {
       lat,
       lng,
+      accuracyMeters,
       label: googleAddress?.route ?? googleAddress?.addressLabel,
       source: "device-gps",
       addressLabel: googleAddress?.addressLabel,
@@ -215,12 +266,14 @@ function createGoogleReverseGeocoder({
 
 function createGipEndpointRoadKilometerResolver(endpoint: string): RoadKilometerResolver {
   return {
-    resolveRoadKilometer: ({ fetchImpl, lat, lng }) =>
+    resolveRoadKilometer: ({ accuracyMeters, fetchImpl, lat, lng, roadNameHint }) =>
       resolveGipRoadKilometer({
+        accuracyMeters,
         endpoint,
         fetchImpl,
         lat,
-        lng
+        lng,
+        roadNameHint
       })
   };
 }
@@ -329,19 +382,29 @@ async function reverseGeocodeWithGoogle({
 }
 
 async function resolveGipRoadKilometer({
+  accuracyMeters,
   endpoint,
   fetchImpl,
   lat,
-  lng
+  lng,
+  roadNameHint
 }: {
+  accuracyMeters?: number;
   endpoint: string;
   fetchImpl: typeof fetch;
   lat: number;
   lng: number;
+  roadNameHint?: string;
 }): Promise<GipRoadKilometerSuggestion | undefined> {
   const url = new URL(endpoint);
   url.searchParams.set("lat", String(lat));
   url.searchParams.set("lng", String(lng));
+  if (roadNameHint) {
+    url.searchParams.set("roadName", roadNameHint);
+  }
+  if (typeof accuracyMeters === "number" && Number.isFinite(accuracyMeters)) {
+    url.searchParams.set("accuracyMeters", String(Math.round(accuracyMeters)));
+  }
 
   const response = await fetchImpl(url, {
     headers: {
@@ -353,21 +416,98 @@ async function resolveGipRoadKilometer({
     throw new Error(`GIP-Straßenkilometer-Resolver ist fehlgeschlagen (${response.status}).`);
   }
 
-  const payload = (await response.json().catch(() => null)) as Record<string, unknown> | null;
+  const payload = (await response.json().catch(() => null)) as unknown;
 
   if (!payload) {
     return undefined;
   }
 
+  return readGipRoadKilometerSuggestion(payload, roadNameHint);
+}
+
+function readGipRoadKilometerSuggestion(payload: unknown, roadNameHint?: string): GipRoadKilometerSuggestion | undefined {
+  const candidate = findBestGipCandidate(payload);
+
+  if (!candidate) {
+    return undefined;
+  }
+
+  const rawRoadName = readFirstString(candidate, GIP_ROAD_NAME_KEYS);
+  const parsedReference = rawRoadName ? parseRoadReferenceText(rawRoadName) : {};
+  const roadName = parsedReference.roadName ?? rawRoadName;
+  const roadKilometer = readFirstRoadKilometer(candidate, GIP_ROAD_KILOMETER_KEYS) ?? parsedReference.roadKilometer;
+  const warnings: string[] = [];
+
+  if (roadName && roadNameHint && normalizeRoadName(roadName) !== normalizeRoadName(roadNameHint)) {
+    warnings.push("GIP-Straßenname weicht von Google-Straßenname ab; bitte vor dem Speichern prüfen.");
+  }
+
   return {
-    roadName: readString(payload.roadName) ?? readString(payload.road_name) ?? readString(payload.route),
-    roadKilometer:
-      readString(payload.roadKilometer) ??
-      readString(payload.road_kilometer) ??
-      readString(payload.kilometer) ??
-      readString(payload.km),
-    placeId: readString(payload.placeId) ?? readString(payload.place_id) ?? readString(payload.segmentId)
+    roadName,
+    roadKilometer,
+    placeId: readFirstStringOrNumber(candidate, GIP_PLACE_ID_KEYS),
+    warnings
   };
+}
+
+function findBestGipCandidate(payload: unknown): Record<string, unknown> | undefined {
+  const candidates = collectGipCandidates(payload).filter(hasGipCandidateSignal);
+
+  if (candidates.length === 0) {
+    return undefined;
+  }
+
+  return [...candidates].sort((left, right) => readCandidateDistance(left) - readCandidateDistance(right))[0];
+}
+
+function collectGipCandidates(payload: unknown): Array<Record<string, unknown>> {
+  if (Array.isArray(payload)) {
+    return payload.flatMap(collectGipCandidates);
+  }
+
+  const record = readRecord(payload);
+
+  if (!record) {
+    return [];
+  }
+
+  if (Array.isArray(record.features)) {
+    return record.features.flatMap((feature) => {
+      const featureRecord = readRecord(feature);
+      const properties = readRecord(featureRecord?.properties);
+
+      if (!featureRecord && !properties) {
+        return [];
+      }
+
+      return [
+        {
+          ...(featureRecord ?? {}),
+          ...(properties ?? {})
+        }
+      ];
+    });
+  }
+
+  if (Array.isArray(record.results)) {
+    return record.results.flatMap(collectGipCandidates);
+  }
+
+  if (Array.isArray(record.items)) {
+    return record.items.flatMap(collectGipCandidates);
+  }
+
+  return [record];
+}
+
+function hasGipCandidateSignal(candidate: Record<string, unknown>) {
+  return Boolean(
+    readFirstString(candidate, GIP_ROAD_NAME_KEYS) ?? readFirstRoadKilometer(candidate, GIP_ROAD_KILOMETER_KEYS)
+  );
+}
+
+function readCandidateDistance(candidate: Record<string, unknown>) {
+  return readFirstNumber(candidate, GIP_DISTANCE_KEYS) ?? Number.POSITIVE_INFINITY;
 }
 
 function findNearestFixture(lat: number, lng: number): LocationFixture | undefined {
@@ -424,6 +564,111 @@ function readErrorMessage(error: unknown) {
 
 function readString(value: unknown) {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : undefined;
+}
+
+function readRecord(value: unknown): Record<string, unknown> | undefined {
+  return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : undefined;
+}
+
+function readField(record: Record<string, unknown>, keys: readonly string[]) {
+  for (const key of keys) {
+    if (Object.prototype.hasOwnProperty.call(record, key)) {
+      return record[key];
+    }
+
+    const matchingKey = Object.keys(record).find((candidate) => candidate.toLowerCase() === key.toLowerCase());
+    if (matchingKey) {
+      return record[matchingKey];
+    }
+  }
+
+  return undefined;
+}
+
+function readFirstString(record: Record<string, unknown>, keys: readonly string[]) {
+  return readString(readField(record, keys));
+}
+
+function readFirstStringOrNumber(record: Record<string, unknown>, keys: readonly string[]) {
+  const value = readField(record, keys);
+
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return String(value);
+  }
+
+  return readString(value);
+}
+
+function readFirstNumber(record: Record<string, unknown>, keys: readonly string[]) {
+  return readNumber(readField(record, keys));
+}
+
+function readFirstRoadKilometer(record: Record<string, unknown>, keys: readonly string[]) {
+  return formatRoadKilometer(readField(record, keys));
+}
+
+function formatRoadKilometer(value: unknown) {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return formatRoadKilometerNumber(value);
+  }
+
+  const stringValue = readString(value);
+
+  if (!stringValue) {
+    return undefined;
+  }
+
+  const parsedReference = parseRoadReferenceText(stringValue);
+
+  if (parsedReference.roadKilometer) {
+    return parsedReference.roadKilometer;
+  }
+
+  const numberValue = readNumber(stringValue);
+
+  return typeof numberValue === "number" ? formatRoadKilometerNumber(numberValue) : stringValue;
+}
+
+function parseRoadReferenceText(value: string): { roadName?: string; roadKilometer?: string } {
+  const match = value.match(/^(?<road>.*?)\s*(?:km|kilometer)\s*(?<kilometer>\d+(?:[,.]\d+)?)/i);
+
+  if (!match?.groups) {
+    return {};
+  }
+
+  const roadName = readString((match.groups.road ?? "").replace(/[,:;|\-–—]+$/u, ""));
+  const kilometer = readNumber(match.groups.kilometer);
+
+  return {
+    roadName,
+    roadKilometer: typeof kilometer === "number" ? formatRoadKilometerNumber(kilometer) : undefined
+  };
+}
+
+function readNumber(value: unknown) {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value !== "string") {
+    return undefined;
+  }
+
+  const normalized = value.trim().replace(",", ".");
+
+  if (!/^-?\d+(?:\.\d+)?$/.test(normalized)) {
+    return undefined;
+  }
+
+  const parsed = Number(normalized);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function formatRoadKilometerNumber(value: number) {
+  return new Intl.NumberFormat("de-AT", {
+    maximumFractionDigits: 3,
+    useGrouping: false
+  }).format(value);
 }
 
 interface GoogleGeocodeResponse {

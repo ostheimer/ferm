@@ -211,12 +211,17 @@ export async function createFallwild(payload: CreateFallwildRequest): Promise<Mu
   });
 }
 
-export async function resolveFallwildLocation(lat: number, lng: number): Promise<FallwildLocationSuggestionResponse> {
+export async function resolveFallwildLocation(
+  lat: number,
+  lng: number,
+  accuracyMeters?: number
+): Promise<FallwildLocationSuggestionResponse> {
   return requestJson<FallwildLocationSuggestionResponse>("/v1/geo/fallwild-location", {
     method: "POST",
     body: {
       lat,
-      lng
+      lng,
+      ...(typeof accuracyMeters === "number" ? { accuracyMeters } : {})
     }
   });
 }

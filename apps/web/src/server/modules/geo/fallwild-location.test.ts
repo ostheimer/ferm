@@ -35,12 +35,14 @@ describe("fallwild location resolver", () => {
 
     await expect(
       resolveFallwildLocation({
+        accuracyMeters: 18,
         lat: 48.339,
         lng: 16.7201,
         fetchImpl: fetchImpl as unknown as typeof fetch
       })
     ).resolves.toMatchObject({
       location: {
+        accuracyMeters: 18,
         label: "L9",
         addressLabel: "L9, 2230 Gänserndorf",
         placeId: "google-place-1"
@@ -55,6 +57,11 @@ describe("fallwild location resolver", () => {
       },
       warnings: []
     });
+    const gipUrl = fetchImpl.mock.calls[1]?.[0] as URL;
+    expect(gipUrl.searchParams.get("lat")).toBe("48.339");
+    expect(gipUrl.searchParams.get("lng")).toBe("16.7201");
+    expect(gipUrl.searchParams.get("roadName")).toBe("L9");
+    expect(gipUrl.searchParams.get("accuracyMeters")).toBe("18");
   });
 
   it("keeps GPS usable when Google and GIP are not configured", async () => {
@@ -155,6 +162,96 @@ describe("fallwild location resolver", () => {
       warnings: expect.arrayContaining([
         "Google Reverse Geocoding hat mehrere Treffer geliefert; erster Treffer wurde übernommen.",
         "GIP-Straßenkilometer ist noch nicht automatisiert; bitte manuell ergänzen."
+      ])
+    });
+  });
+
+  it("parses GeoJSON-like GIP feature responses and picks the closest candidate", async () => {
+    const { resolveFallwildLocation } = await loadModule({
+      googleMapsServerApiKey: "google-key",
+      googleMapsLanguage: "de",
+      googleMapsRegion: "AT",
+      gipRoadKilometerEndpoint: "https://gip.example.test/resolve"
+    });
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(
+        jsonResponse({
+          status: "OK",
+          results: [
+            {
+              formatted_address: "B8, 2230 Gänserndorf",
+              place_id: "google-place-b8",
+              address_components: [
+                { long_name: "B8", types: ["route"] },
+                { long_name: "Gänserndorf", types: ["locality"] }
+              ]
+            }
+          ]
+        })
+      )
+      .mockResolvedValueOnce(
+        jsonResponse({
+          type: "FeatureCollection",
+          features: [
+            {
+              type: "Feature",
+              properties: {
+                FEATURENAME: "L9 km 12,4",
+                FROMKM: 12.4,
+                OBJECTID: 100,
+                DISTANCE: 45
+              }
+            },
+            {
+              type: "Feature",
+              properties: {
+                FEATURENAME: "B8 km 33,247",
+                FROMKM: 33.247,
+                OBJECTID: 123,
+                DISTANCE: 6
+              }
+            }
+          ]
+        })
+      );
+
+    await expect(
+      resolveFallwildLocation({
+        lat: 48.339,
+        lng: 16.7201,
+        fetchImpl: fetchImpl as unknown as typeof fetch
+      })
+    ).resolves.toMatchObject({
+      roadReference: {
+        roadName: "B8",
+        roadKilometer: "33,247",
+        source: "gip",
+        placeId: "123"
+      },
+      warnings: []
+    });
+  });
+
+  it("warns when GPS accuracy is too low for reliable fallwild capture", async () => {
+    const { resolveFallwildLocation } = await loadModule({
+      googleMapsLanguage: "de",
+      googleMapsRegion: "AT"
+    });
+
+    await expect(
+      resolveFallwildLocation({
+        accuracyMeters: 145,
+        lat: 48.339,
+        lng: 16.7201,
+        fetchImpl: vi.fn() as unknown as typeof fetch
+      })
+    ).resolves.toMatchObject({
+      location: {
+        accuracyMeters: 145
+      },
+      warnings: expect.arrayContaining([
+        "GPS-Genauigkeit ist größer als 100 m; Standort bitte vor dem Speichern prüfen."
       ])
     });
   });
