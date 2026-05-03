@@ -35,6 +35,13 @@ export async function login(payload: LoginPayload): Promise<AuthSessionResponse>
   }
 
   const normalizedIdentifier = normalizeIdentifier(payload.identifier);
+
+  if (isKnownSeedIdentifier(normalizedIdentifier)) {
+    // During the live-test phase, seeded accounts should follow code changes
+    // without a one-off database migration for every role or revier update.
+    await syncKnownSeedAuthData();
+  }
+
   let user = await loadDbUserByIdentifier(normalizedIdentifier);
   let isValidPin = user ? verifyPassword(payload.pin, user.passwordHash) : false;
 

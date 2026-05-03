@@ -17,7 +17,8 @@ describe("protokolle queries", () => {
 
     expect(result).toBeDefined();
     expect(result?.versions).toHaveLength(1);
-    expect(result?.participants).toHaveLength(2);
+    expect(result?.participants).toHaveLength(3);
+    expect(result?.participants.map((entry) => entry.membershipId)).toContain("member-ausgeher");
     expect(result?.publishedDocument?.downloadUrl).toBe("/api/v1/documents/document-sitzung-2/download");
   });
 

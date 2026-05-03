@@ -29,7 +29,7 @@ export function SitzungenClient({ entries, memberships }: SitzungenClientProps) 
   const [success, setSuccess] = useState<string | null>(null);
   const [title, setTitle] = useState("Neue Revierbesprechung");
   const [scheduledAt, setScheduledAt] = useState(DEFAULT_DATE);
-  const [locationLabel, setLocationLabel] = useState("Jagdhaus Attersee Nord");
+  const [locationLabel, setLocationLabel] = useState("Jagdhaus Gänserndorf");
   const [participants, setParticipants] = useState<Record<string, boolean>>(
     Object.fromEntries(memberships.map((entry) => [entry.membershipId, true]))
   );

@@ -205,7 +205,7 @@ export function AnsitzeClient({ activeAnsitze }: AnsitzeClientProps) {
               id="ansitz-standort-name"
               name="standortName"
               onChange={updateInput("standortName")}
-              placeholder="Hochstand Buchenhang"
+              placeholder="Hochstand Weikendorfer Remise"
               required
               value={formValues.standortName}
             />

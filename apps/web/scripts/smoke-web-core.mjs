@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 
-const DEMO_IDENTIFIER = "ostheimer";
+const DEMO_IDENTIFIER = "revieradmin";
 const DEMO_PIN = "9526";
 const ACCESS_TOKEN_COOKIE = "hege_access_token";
 const REFRESH_TOKEN_COOKIE = "hege_refresh_token";

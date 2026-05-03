@@ -1,4 +1,4 @@
-export type Role = "platform-admin" | "revier-admin" | "schriftfuehrer" | "jaeger";
+export type Role = "platform-admin" | "revier-admin" | "schriftfuehrer" | "jaeger" | "ausgeher";
 export type PublicPlanKey = "starter" | "revier" | "organisation";
 
 export type ApiErrorCode =

@@ -489,6 +489,8 @@ function formatRoleLabel(role: DashboardResponse["membership"]["role"]) {
       return "Schriftführung";
     case "jaeger":
       return "Jäger";
+    case "ausgeher":
+      return "Ausgeher";
     case "platform-admin":
       return "Plattform";
     default:
