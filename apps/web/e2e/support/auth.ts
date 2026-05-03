@@ -2,14 +2,14 @@ import { expect, type Page } from "@playwright/test";
 
 import { e2eBaseUrl } from "./e2e-env";
 
-type DemoUserRole = "revier-admin" | "schriftfuehrer" | "jaeger";
+type DemoUserRole = "revier-admin" | "schriftfuehrer" | "jaeger" | "ausgeher";
 
 const DEMO_PIN = "9526";
 
 const credentialsByRole: Record<DemoUserRole, { identifier: string; name: string }> = {
   "revier-admin": {
-    identifier: "ostheimer",
-    name: "Andreas Ostheimer"
+    identifier: "revieradmin",
+    name: "Revierleitung Gänserndorf"
   },
   schriftfuehrer: {
     identifier: "martin.mair@hege.app",
@@ -18,6 +18,10 @@ const credentialsByRole: Record<DemoUserRole, { identifier: string; name: string
   jaeger: {
     identifier: "lukas.huber@hege.app",
     name: "Lukas Huber"
+  },
+  ausgeher: {
+    identifier: "ostheimer",
+    name: "Andreas Ostheimer"
   }
 };
 

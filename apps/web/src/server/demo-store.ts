@@ -1,7 +1,7 @@
 import { cloneDemoData, defaultRevierId } from "@hege/domain";
 
-export const defaultMembershipId = "member-jaeger";
-export const defaultUserId = "user-huber";
+export const defaultMembershipId = "member-ausgeher";
+export const defaultUserId = "user-steyrer";
 
 export interface DevContext {
   userId: string;

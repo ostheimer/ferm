@@ -4,16 +4,16 @@ export const demoData: DemoData = {
   reviere: [
     {
       id: "revier-attersee",
-      tenantKey: "attersee-nord",
-      name: "Jagdgesellschaft Attersee Nord",
-      bundesland: "Oberösterreich",
-      bezirk: "Vöcklabruck",
-      flaecheHektar: 1480,
+      tenantKey: "gaenserndorf",
+      name: "Jagdgesellschaft Gänserndorf",
+      bundesland: "Niederösterreich",
+      bezirk: "Gänserndorf",
+      flaecheHektar: 2150,
       setupCompletedAt: "2026-04-01T09:00:00+02:00",
       zentrum: {
-        lat: 47.9134,
-        lng: 13.5251,
-        label: "Attersee Nord"
+        lat: 48.3394,
+        lng: 16.7202,
+        label: "Gänserndorf"
       }
     }
   ],
@@ -24,6 +24,13 @@ export const demoData: DemoData = {
       phone: "+43 660 0000000",
       email: "andreas@ostheimer.at",
       username: "ostheimer"
+    },
+    {
+      id: "user-revierleitung",
+      name: "Revierleitung Gänserndorf",
+      phone: "+43 660 1001001",
+      email: "revierleitung@hege.app",
+      username: "revieradmin"
     },
     {
       id: "user-huber",
@@ -43,9 +50,17 @@ export const demoData: DemoData = {
   memberships: [
     {
       id: "member-admin",
-      userId: "user-steyrer",
+      userId: "user-revierleitung",
       revierId: "revier-attersee",
       role: "revier-admin",
+      jagdzeichen: "RL-01",
+      pushEnabled: true
+    },
+    {
+      id: "member-ausgeher",
+      userId: "user-steyrer",
+      revierId: "revier-attersee",
+      role: "ausgeher",
       jagdzeichen: "AO-01",
       pushEnabled: true
     },
@@ -68,10 +83,10 @@ export const demoData: DemoData = {
   ],
   devices: [
     {
-      id: "device-anna",
-      membershipId: "member-admin",
+      id: "device-andreas",
+      membershipId: "member-ausgeher",
       platform: "ios",
-      pushToken: "expo-token-anna",
+      pushToken: "expo-token-andreas",
       lastSeenAt: "2026-04-03T08:05:00+02:00"
     },
     {
@@ -86,17 +101,17 @@ export const demoData: DemoData = {
     {
       id: "ansitz-1",
       revierId: "revier-attersee",
-      membershipId: "member-jaeger",
+      membershipId: "member-ausgeher",
       standortId: "einrichtung-1",
-      standortName: "Hochstand Buchenhang",
+      standortName: "Hochstand Weikendorfer Remise",
       location: {
-        lat: 47.9161,
-        lng: 13.5182,
-        label: "Buchenhang"
+        lat: 48.3512,
+        lng: 16.7258,
+        label: "Weikendorfer Remise"
       },
       startedAt: "2026-04-03T05:45:00+02:00",
       plannedEndAt: "2026-04-03T09:30:00+02:00",
-      note: "Sauenwechsel im unteren Graben beobachten.",
+      note: "Rehwildwechsel am Feldrand beobachten.",
       status: "active",
       conflict: false
     },
@@ -105,14 +120,14 @@ export const demoData: DemoData = {
       revierId: "revier-attersee",
       membershipId: "member-admin",
       standortId: "einrichtung-3",
-      standortName: "Ansitz Wiesenrand",
+      standortName: "Ansitz Marchfeldrand",
       location: {
-        lat: 47.9124,
-        lng: 13.5312,
-        label: "Wiesenrand"
+        lat: 48.3336,
+        lng: 16.7014,
+        label: "Marchfeldrand"
       },
       startedAt: "2026-04-03T06:10:00+02:00",
-      note: "Kurzer Frühansitz wegen Wildschaden.",
+      note: "Kurzer Frühansitz wegen Wildschaden am Mais.",
       status: "active",
       conflict: false
     }
@@ -122,19 +137,19 @@ export const demoData: DemoData = {
       id: "einrichtung-1",
       revierId: "revier-attersee",
       type: "hochstand",
-      name: "Hochstand Buchenhang",
+      name: "Hochstand Weikendorfer Remise",
       status: "gut",
       location: {
-        lat: 47.9161,
-        lng: 13.5182,
-        label: "Buchenhang"
+        lat: 48.3512,
+        lng: 16.7258,
+        label: "Weikendorfer Remise"
       },
-      beschreibung: "Leiterstand mit Blick auf Schneise und Graben.",
+      beschreibung: "Leiterstand mit Blick auf Remise und Feldkante.",
       photos: [
         {
           id: "photo-stand-1",
-          title: "Buchenhang Ostseite",
-          url: "https://images.example.invalid/buchenhang.jpg",
+          title: "Weikendorfer Remise Ostseite",
+          url: "https://images.example.invalid/weikendorfer-remise.jpg",
           createdAt: "2026-03-28T10:00:00+01:00"
         }
       ],
@@ -153,14 +168,14 @@ export const demoData: DemoData = {
       id: "einrichtung-2",
       revierId: "revier-attersee",
       type: "fuetterung",
-      name: "Fütterung Forststraße",
+      name: "Fütterung Feldweg Nord",
       status: "wartung-faellig",
       location: {
-        lat: 47.9184,
-        lng: 13.5219,
-        label: "Forststraße"
+        lat: 48.3468,
+        lng: 16.7361,
+        label: "Feldweg Nord"
       },
-      beschreibung: "Winterfütterung oberhalb der Kehre.",
+      beschreibung: "Winterfütterung entlang der Windschutzhecke.",
       photos: [],
       kontrollen: [
         {
@@ -185,14 +200,14 @@ export const demoData: DemoData = {
       id: "einrichtung-3",
       revierId: "revier-attersee",
       type: "hochstand",
-      name: "Ansitz Wiesenrand",
+      name: "Ansitz Marchfeldrand",
       status: "gut",
       location: {
-        lat: 47.9124,
-        lng: 13.5312,
-        label: "Wiesenrand"
+        lat: 48.3336,
+        lng: 16.7014,
+        label: "Marchfeldrand"
       },
-      beschreibung: "Schwenkbarer Stuhl, ideal bei Westwind.",
+      beschreibung: "Schwenkbarer Stuhl, ideal bei Nordwestwind.",
       photos: [],
       kontrollen: [],
       wartung: []
@@ -202,24 +217,24 @@ export const demoData: DemoData = {
     {
       id: "fallwild-1",
       revierId: "revier-attersee",
-      reportedByMembershipId: "member-jaeger",
+      reportedByMembershipId: "member-ausgeher",
       recordedAt: "2026-04-03T06:55:00+02:00",
       location: {
-        lat: 47.9201,
-        lng: 13.5194,
-        label: "L127 Abzweigung Weyregg",
+        lat: 48.3441,
+        lng: 16.7289,
+        label: "B8 Abzweigung Weikendorf",
         source: "device-gps",
-        addressLabel: "L127, 4853 Steinbach am Attersee"
+        addressLabel: "B8, 2230 Gänserndorf"
       },
       wildart: "Reh",
       geschlecht: "weiblich",
       altersklasse: "Adult",
       bergungsStatus: "geborgen",
-      gemeinde: "Steinbach am Attersee",
-      strasse: "L127",
+      gemeinde: "Gänserndorf",
+      strasse: "B8",
       roadReference: {
-        roadName: "L127",
-        roadKilometer: "8,2",
+        roadName: "B8",
+        roadKilometer: "33,4",
         source: "gip"
       },
       note: "Gemeinsam mit Straßenmeisterei gesichert.",
@@ -239,11 +254,15 @@ export const demoData: DemoData = {
       revierId: "revier-attersee",
       title: "Frühjahrsbesprechung 2026",
       scheduledAt: "2026-04-11T19:00:00+02:00",
-      locationLabel: "Jagdhaus Attersee Nord",
+      locationLabel: "Jagdhaus Gänserndorf",
       status: "entwurf",
       participants: [
         {
           membershipId: "member-admin",
+          anwesend: true
+        },
+        {
+          membershipId: "member-ausgeher",
           anwesend: true
         },
         {
@@ -265,7 +284,7 @@ export const demoData: DemoData = {
           beschluesse: [
             {
               id: "beschluss-1",
-              title: "Wartung Buchenhang",
+              title: "Wartung Weikendorfer Remise",
               decision: "Kontrolle aller Leiterstände bis 20. April abschließen.",
               owner: "Andreas Ostheimer",
               dueAt: "2026-04-20T18:00:00+02:00"
@@ -280,11 +299,15 @@ export const demoData: DemoData = {
       revierId: "revier-attersee",
       title: "Winterabschluss 2025",
       scheduledAt: "2026-02-14T18:30:00+01:00",
-      locationLabel: "Jagdhaus Attersee Nord",
+      locationLabel: "Jagdhaus Gänserndorf",
       status: "freigegeben",
       participants: [
         {
           membershipId: "member-admin",
+          anwesend: true
+        },
+        {
+          membershipId: "member-ausgeher",
           anwesend: true
         },
         {
@@ -327,7 +350,7 @@ export const demoData: DemoData = {
       revierId: "revier-attersee",
       channel: "push",
       title: "Ansitz aktiv",
-      body: "Lukas Huber sitzt am Hochstand Buchenhang an.",
+      body: "Andreas Ostheimer sitzt am Hochstand Weikendorfer Remise an.",
       createdAt: "2026-04-03T05:46:00+02:00"
     },
     {
@@ -335,7 +358,7 @@ export const demoData: DemoData = {
       revierId: "revier-attersee",
       channel: "in-app",
       title: "Fallwild geborgen",
-      body: "Ein Reh an der L127 wurde dokumentiert und geborgen.",
+      body: "Ein Reh an der B8 wurde dokumentiert und geborgen.",
       createdAt: "2026-04-03T06:57:00+02:00"
     },
     {

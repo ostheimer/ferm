@@ -30,9 +30,7 @@ describe("auth service legacy schema compatibility", () => {
   });
 
   it("logs in with a derived username when users.username is missing", async () => {
-    mockDb.execute.mockResolvedValueOnce({
-      rows: [createLegacyUserRow()]
-    });
+    mockDb.execute.mockImplementation(createSeedSyncThenLegacyUserExecuteMock());
 
     const session = await login({
       identifier: "ostheimer",
@@ -41,8 +39,8 @@ describe("auth service legacy schema compatibility", () => {
 
     expect(session.user.email).toBe("andreas@ostheimer.at");
     expect(session.user.username).toBe("ostheimer");
-    expect(session.membership.role).toBe("revier-admin");
-    expect(mockDb.execute).toHaveBeenCalledTimes(1);
+    expect(session.membership.role).toBe("ausgeher");
+    expect(mockDb.execute).toHaveBeenCalled();
   });
 
   it("resolves auth context from a legacy users table without username", async () => {
@@ -51,40 +49,19 @@ describe("auth service legacy schema compatibility", () => {
     });
 
     const context = await resolveAuthContext({
-      membershipId: "member-admin",
+      membershipId: "member-ausgeher",
       revierId: "revier-attersee",
-      role: "revier-admin",
+      role: "ausgeher",
       userId: "user-steyrer"
     });
 
     expect(context.user.email).toBe("andreas@ostheimer.at");
     expect(context.user.username).toBe("ostheimer");
-    expect(context.revier.name).toBe("Jagdgesellschaft Attersee Nord");
+    expect(context.revier.name).toBe("Jagdgesellschaft Gänserndorf");
   });
 
-  it("repairs known seed users on legacy schemas before retrying login", async () => {
-    let callCount = 0;
-    mockDb.execute.mockImplementation(async () => {
-      callCount += 1;
-
-      if (callCount === 1) {
-        return { rows: [] };
-      }
-
-      if (callCount === 2) {
-        return {
-          rows: [{ hasUsername: false }]
-        };
-      }
-
-      if (callCount >= 8) {
-        return {
-          rows: [createLegacyUserRow()]
-        };
-      }
-
-      return { rows: [] };
-    });
+  it("syncs known seed users on legacy schemas before login", async () => {
+    mockDb.execute.mockImplementation(createSeedSyncThenLegacyUserExecuteMock());
 
     const session = await login({
       identifier: "ostheimer",
@@ -118,11 +95,11 @@ function createSelectBuilder() {
           async where() {
             return [
               {
-                id: "member-admin",
+                id: "member-ausgeher",
                 jagdzeichen: "AO-01",
                 pushEnabled: true,
                 revierId: "revier-attersee",
-                role: "revier-admin",
+                role: "ausgeher",
                 userId: "user-steyrer"
               }
             ];
@@ -137,15 +114,15 @@ function createSelectBuilder() {
               async limit() {
                 return [
                   {
-                    bezirk: "Vöcklabruck",
-                    bundesland: "Oberösterreich",
-                    flaecheHektar: 1480,
+                    bezirk: "Gänserndorf",
+                    bundesland: "Niederösterreich",
+                    flaecheHektar: 2150,
                     id: "revier-attersee",
-                    name: "Jagdgesellschaft Attersee Nord",
-                    tenantKey: "attersee",
-                    zentrumLabel: "Revierzentrum",
-                    zentrumLat: 47.91,
-                    zentrumLng: 13.52
+                    name: "Jagdgesellschaft Gänserndorf",
+                    tenantKey: "gaenserndorf",
+                    zentrumLabel: "Gänserndorf",
+                    zentrumLat: 48.3394,
+                    zentrumLng: 16.7202
                   }
                 ];
               }
@@ -156,6 +133,28 @@ function createSelectBuilder() {
 
       throw new Error("Unexpected table access in auth compatibility test.");
     }
+  };
+}
+
+function createSeedSyncThenLegacyUserExecuteMock() {
+  let callCount = 0;
+
+  return async () => {
+    callCount += 1;
+
+    if (callCount === 1) {
+      return { rows: [{ hasSetupCompletedAt: false }] };
+    }
+
+    if (callCount === 3) {
+      return { rows: [{ hasUsername: false }] };
+    }
+
+    if (callCount === 12) {
+      return { rows: [createLegacyUserRow()] };
+    }
+
+    return { rows: [] };
   };
 }
 

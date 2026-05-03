@@ -1,5 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { Image, StyleSheet, Text, View } from "react-native";
+import { Image, Platform, StyleSheet, Text, View } from "react-native";
 
 import { colors } from "../lib/theme";
 
@@ -9,8 +9,10 @@ export function AppLoader() {
   return (
     <LinearGradient colors={["#fff8ec", "#dde6c3"]} style={styles.root}>
       <View style={styles.card}>
-        <Image accessibilityIgnoresInvertColors source={logoMark} style={styles.logo} />
-        <Text style={styles.eyebrow}>hege</Text>
+        <View accessibilityLabel="hege" accessibilityRole="image" style={styles.brand}>
+          <Image accessibilityIgnoresInvertColors source={logoMark} style={styles.logo} />
+          <Text style={styles.brandText}>ege</Text>
+        </View>
         <Text style={styles.title}>Session wird geladen</Text>
         <Text style={styles.copy}>Wir stellen den gesicherten Revier-Kontext wieder her.</Text>
       </View>
@@ -38,16 +40,24 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 18 },
     elevation: 4
   },
+  brand: {
+    flexDirection: "row",
+    alignItems: "flex-end"
+  },
   logo: {
-    width: 72,
-    height: 72,
+    width: 64,
+    height: 64,
     resizeMode: "contain"
   },
-  eyebrow: {
-    fontSize: 12,
-    textTransform: "uppercase",
-    letterSpacing: 1.4,
-    color: colors.muted
+  brandText: {
+    marginLeft: -7,
+    marginBottom: 6,
+    color: colors.accent,
+    fontFamily: Platform.select({ ios: "Georgia", default: "serif" }),
+    fontSize: 36,
+    lineHeight: 40,
+    fontWeight: "700",
+    letterSpacing: -1.5
   },
   title: {
     fontSize: 28,

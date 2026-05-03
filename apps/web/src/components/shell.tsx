@@ -93,6 +93,8 @@ function formatRoleLabel(role: AuthContextResponse["membership"]["role"]) {
       return "Schriftführung";
     case "jaeger":
       return "Jäger";
+    case "ausgeher":
+      return "Ausgeher";
     case "platform-admin":
       return "Plattform";
     default:
