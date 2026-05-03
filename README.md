@@ -104,7 +104,7 @@ Wichtige Env-Variablen:
 - `S3_*` für lokales MinIO und R2
 - `HEGE_GEO_PROVIDER=live|mock|disabled` für echte Standortprovider, lokale Gänserndorf-Testdaten oder rein manuelle Standortergänzung
 - `GOOGLE_MAPS_SERVER_API_KEY`, `GOOGLE_MAPS_REGION=AT`, `GOOGLE_MAPS_LANGUAGE=de` für serverseitige Fallwild-Adressauflösung
-- `GIP_ROAD_KILOMETER_ENDPOINT` für den späteren internen Straßenkilometer-Resolver gegen GIP-OGD-Daten
+- `GIP_ROAD_KILOMETER_ENDPOINT` für den internen Straßenkilometer-Resolver gegen GIP-OGD-Daten; der Resolver bekommt `lat`, `lng`, optional `roadName` und `accuracyMeters`
 
 ## Workspace-Befehle
 

@@ -92,11 +92,13 @@ Request:
 
 - `lat` als Dezimalgrad
 - `lng` als Dezimalgrad
+- `accuracyMeters` optional, vom Gerät gelieferte GPS-Genauigkeit in Metern
 
 Antwort:
 
 - `location.lat`
 - `location.lng`
+- `location.accuracyMeters`, falls im Request übergeben
 - `location.label`, falls ableitbar
 - `location.addressLabel`, falls Google Reverse Geocoding konfiguriert ist
 - `location.placeId`, falls Google einen Treffer liefert
@@ -115,7 +117,7 @@ Konfiguration:
 - `GOOGLE_MAPS_LANGUAGE=de`
 - `GIP_ROAD_KILOMETER_ENDPOINT`
 
-GIP ist die fachliche Zielquelle für Straßenkilometer. Google liefert in v1 nur Adresse, Gemeinde und Straße. Mit `HEGE_GEO_PROVIDER=mock` liefert der Endpunkt lokale Gänserndorf-Testdaten ohne externe Keys; diese Antworten sind über `warnings` als Testdaten gekennzeichnet und nicht für echte Production-Erfassung gedacht.
+GIP ist die fachliche Zielquelle für Straßenkilometer. Google liefert in v1 nur Adresse, Gemeinde und Straße. Der konfigurierte `GIP_ROAD_KILOMETER_ENDPOINT` bekommt `lat`, `lng`, optional `roadName` und optional `accuracyMeters`; akzeptiert werden einfache JSON-Felder wie `roadName`/`roadKilometer` oder GeoJSON-ähnliche `FeatureCollection`-Antworten mit `properties`. Mit `HEGE_GEO_PROVIDER=mock` liefert der Endpunkt lokale Gänserndorf-Testdaten ohne externe Keys; diese Antworten sind über `warnings` als Testdaten gekennzeichnet und nicht für echte Production-Erfassung gedacht.
 
 #### `POST /api/v1/fallwild`
 
