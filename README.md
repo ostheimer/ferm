@@ -161,3 +161,5 @@ Wichtige Testwege:
 - [Passkeys und Face ID v1](./docs/passkeys-faceid-v1.md)
 - [Rollen, Aufgaben und Nachrichten v1](./docs/rollen-aufgaben-nachrichten-v1.md)
 - [Reviermeldungen und Aufgaben v1](./docs/reviermeldungen-aufgaben-v1-plan.md)
+- [UI-Audit 2026-05-07](./docs/ui-audit-2026-05-07.md)
+- [Test-Accounts und Rollen-Übersicht](./docs/test-accounts.md)
