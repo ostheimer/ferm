@@ -6,15 +6,37 @@ import { listReviereinrichtungen } from "../../server/modules/reviereinrichtunge
 
 export const dynamic = "force-dynamic";
 
-export default async function DashboardPage() {
+type DashboardSearchParams = { error?: string | string[]; path?: string | string[] };
+
+interface DashboardPageProps {
+  searchParams?: Promise<DashboardSearchParams>;
+}
+
+export default async function DashboardPage({ searchParams }: DashboardPageProps = {}) {
   const context = await requirePageAuth({ next: "/app" });
-  const [dashboard, einrichtungen] = await Promise.all([
+  const [dashboard, einrichtungen, resolvedSearchParams] = await Promise.all([
     getDashboardSnapshot({ context }),
-    listReviereinrichtungen()
+    listReviereinrichtungen(),
+    searchParams ?? Promise.resolve<DashboardSearchParams>({})
   ]);
+
+  const errorParam = pickFirstParam(resolvedSearchParams.error);
+  const attemptedPath = pickFirstParam(resolvedSearchParams.path);
+  const showForbiddenNotice = errorParam === "keine-berechtigung";
 
   return (
     <div className="page-stack">
+      {showForbiddenNotice ? (
+        <section className="feedback feedback-error" role="alert">
+          <strong>Keine Berechtigung</strong>
+          <p>
+            {attemptedPath
+              ? `Der Bereich ${attemptedPath} ist für deine Rolle nicht freigegeben. Bitte wende dich an die Revierleitung.`
+              : "Dieser Bereich ist für deine Rolle nicht freigegeben. Bitte wende dich an die Revierleitung."}
+          </p>
+        </section>
+      ) : null}
+
       <section className="hero-card">
         <div>
           <p className="eyebrow">Interner Leitstand</p>
@@ -119,4 +141,12 @@ function formatTime(value: string) {
     minute: "2-digit",
     timeZone: "Europe/Vienna"
   }).format(new Date(value));
+}
+
+function pickFirstParam(value: string | string[] | undefined): string | undefined {
+  if (Array.isArray(value)) {
+    return value[0];
+  }
+
+  return value;
 }

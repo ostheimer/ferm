@@ -17,7 +17,7 @@ vi.mock("./context", () => ({
 }));
 
 import { toSafePostAuthPath } from "../../lib/auth-redirects";
-import { requirePageAuth, requireSetupPageAuth, redirectAuthenticatedUser } from "./guards";
+import { redirectAuthenticatedUser, requirePageAuth, requirePageRoles, requireSetupPageAuth } from "./guards";
 
 describe("auth redirects", () => {
   const authenticatedContext = createContext({ setupRequired: false });
@@ -72,9 +72,48 @@ describe("auth redirects", () => {
     await expect(requireSetupPageAuth()).rejects.toThrow("redirect:/app");
     expect(mockRedirect).toHaveBeenCalledWith("/app");
   });
+
+  it("returns the context when the role is allowed", async () => {
+    mockGetOptionalAuthContext.mockResolvedValue(authenticatedContext);
+
+    await expect(
+      requirePageRoles(["schriftfuehrer", "revier-admin"], { next: "/app/sitzungen" })
+    ).resolves.toBe(authenticatedContext);
+    expect(mockRedirect).not.toHaveBeenCalled();
+  });
+
+  it("redirects forbidden roles to /app with a keine-berechtigung query and the attempted path", async () => {
+    mockGetOptionalAuthContext.mockResolvedValue(
+      createContext({ setupRequired: false, role: "ausgeher" })
+    );
+
+    await expect(
+      requirePageRoles(["schriftfuehrer", "revier-admin"], { next: "/app/sitzungen" })
+    ).rejects.toThrow("redirect:/app?error=keine-berechtigung&path=%2Fapp%2Fsitzungen");
+    expect(mockRedirect).toHaveBeenCalledWith(
+      "/app?error=keine-berechtigung&path=%2Fapp%2Fsitzungen"
+    );
+  });
+
+  it("falls back to a path-less keine-berechtigung redirect when no next is provided", async () => {
+    mockGetOptionalAuthContext.mockResolvedValue(
+      createContext({ setupRequired: false, role: "jaeger" })
+    );
+
+    await expect(requirePageRoles(["revier-admin"])).rejects.toThrow(
+      "redirect:/app?error=keine-berechtigung"
+    );
+    expect(mockRedirect).toHaveBeenCalledWith("/app?error=keine-berechtigung");
+  });
 });
 
-function createContext({ setupRequired }: { setupRequired: boolean }): AuthContextResponse {
+function createContext({
+  setupRequired,
+  role = "schriftfuehrer"
+}: {
+  setupRequired: boolean;
+  role?: AuthContextResponse["membership"]["role"];
+}): AuthContextResponse {
   return {
     user: {
       id: "user-mair",
@@ -86,7 +125,7 @@ function createContext({ setupRequired }: { setupRequired: boolean }): AuthConte
       id: "member-schrift",
       userId: "user-mair",
       revierId: "revier-attersee",
-      role: "schriftfuehrer",
+      role,
       jagdzeichen: "MM-04",
       pushEnabled: true
     },

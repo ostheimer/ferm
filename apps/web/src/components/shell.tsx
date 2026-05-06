@@ -1,17 +1,35 @@
 "use client";
 
-import type { AuthContextResponse } from "@hege/domain";
+import type { AuthContextResponse, Role } from "@hege/domain";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const navigation = [
+interface NavigationItem {
+  href: string;
+  label: string;
+  allowedRoles?: ReadonlyArray<Role>;
+}
+
+const navigation: ReadonlyArray<NavigationItem> = [
   { href: "/app", label: "Dashboard" },
-  { href: "/app/sitzungen", label: "Sitzungen" },
+  { href: "/app/sitzungen", label: "Sitzungen", allowedRoles: ["schriftfuehrer", "revier-admin", "platform-admin"] },
   { href: "/app/ansitze", label: "Ansitze" },
   { href: "/app/reviereinrichtungen", label: "Reviereinrichtungen" },
   { href: "/app/fallwild", label: "Fallwild" },
   { href: "/app/protokolle", label: "Protokolle" }
 ];
+
+export function isNavigationItemVisible(item: NavigationItem, role: Role | null | undefined): boolean {
+  if (!item.allowedRoles) {
+    return true;
+  }
+
+  if (!role) {
+    return false;
+  }
+
+  return item.allowedRoles.includes(role);
+}
 
 interface ShellProps {
   children?: React.ReactNode;
@@ -27,6 +45,8 @@ export function Shell({ children, viewer }: ShellProps) {
     return <main className="auth-layout">{children}</main>;
   }
 
+  const visibleNavigation = navigation.filter((item) => isNavigationItemVisible(item, viewer?.membership.role));
+
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -41,7 +61,7 @@ export function Shell({ children, viewer }: ShellProps) {
         </Link>
 
         <nav className="nav-list" aria-label="Hauptnavigation">
-          {navigation.map((item) => {
+          {visibleNavigation.map((item) => {
             const active =
               currentPath === item.href ||
               (item.href !== "/app" && currentPath.startsWith(`${item.href}/`));
