@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "build": "next build",
+    "cleanup:e2e": "tsx ./scripts/cleanup-e2e-data.mjs",
     "db:check": "tsx src/server/db/check.ts",
     "db:generate": "drizzle-kit generate --config ./drizzle.config.ts",
     "db:migrate": "drizzle-kit migrate --config ./drizzle.config.ts",
