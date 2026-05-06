@@ -28,6 +28,7 @@ import {
   applyFallwildLocationSuggestion,
   buildFallwildRoadReference,
   formatCoordinate,
+  formatRoadKilometerSourceLabel,
   summarizeFallwildLocationSuggestion
 } from "../../lib/fallwild-location";
 import {
@@ -518,7 +519,10 @@ export default function FallwildScreen() {
             value={form.roadKilometer}
             onChangeText={updateRoadKilometer(setForm)}
           />
-          <Text style={styles.helperCopy}>Wichtig für Fallwild. Wenn GIP keinen Wert liefert, bitte vor Ort manuell ergänzen.</Text>
+          <Text style={styles.helperCopy}>
+            Wichtig für Fallwild. {formatRoadKilometerSourceLabel(form.roadKilometerSource)}.
+          </Text>
+          <Text style={styles.helperCopy}>Wenn GIP keinen Wert liefert, bitte vor Ort manuell ergänzen.</Text>
         </View>
 
         <ChoiceGroup

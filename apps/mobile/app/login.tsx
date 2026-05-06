@@ -5,7 +5,13 @@ import { Redirect, useRouter } from "expo-router";
 
 import { AppLoader } from "../components/app-loader";
 import { loginWithCredentials, MobileApiError } from "../lib/api";
-import { useSessionSnapshot } from "../lib/session";
+import {
+  authenticateDeviceUnlock,
+  enableDeviceUnlock,
+  getDeviceUnlockState,
+  type DeviceUnlockState
+} from "../lib/device-unlock";
+import { unlockStoredSession, useSessionSnapshot } from "../lib/session";
 import { colors } from "../lib/theme";
 
 const logoMark = require("../assets/logo-mark.png");
@@ -16,11 +22,40 @@ export default function LoginScreen() {
   const [identifier, setIdentifier] = useState("");
   const [pin, setPin] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUnlocking, setIsUnlocking] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [deviceUnlock, setDeviceUnlock] = useState<DeviceUnlockState | null>(null);
 
   useEffect(() => {
     setError(null);
   }, [identifier, pin]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    if (!session.hydrated || !session.session) {
+      setDeviceUnlock(null);
+      return () => {
+        isMounted = false;
+      };
+    }
+
+    getDeviceUnlockState()
+      .then((state) => {
+        if (isMounted) {
+          setDeviceUnlock(state);
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setDeviceUnlock(null);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [session.hydrated, session.session?.user.id]);
 
   if (session.status === "loading" || !session.hydrated) {
     return <AppLoader />;
@@ -40,6 +75,7 @@ export default function LoginScreen() {
 
     try {
       await loginWithCredentials({ identifier, pin });
+      await enableDeviceUnlock().catch(() => null);
       router.replace("/");
     } catch (loginError) {
       if (loginError instanceof MobileApiError) {
@@ -54,6 +90,44 @@ export default function LoginScreen() {
     }
   }
 
+  async function handleDeviceUnlock() {
+    if (isUnlocking) {
+      return;
+    }
+
+    setIsUnlocking(true);
+    setError(null);
+
+    try {
+      const result = await authenticateDeviceUnlock();
+
+      if (!result.success) {
+        setError(result.reason ?? "Entsperren fehlgeschlagen.");
+        return;
+      }
+
+      const unlockedSession = unlockStoredSession();
+
+      if (!unlockedSession) {
+        setError("Keine gespeicherte Sitzung gefunden. Bitte melde dich mit PIN an.");
+        return;
+      }
+
+      router.replace("/");
+    } catch (unlockError) {
+      if (unlockError instanceof Error) {
+        setError(unlockError.message);
+      } else {
+        setError("Entsperren fehlgeschlagen.");
+      }
+    } finally {
+      setIsUnlocking(false);
+    }
+  }
+
+  const unlockLabel = deviceUnlock?.label ?? "Face ID";
+  const canUseDeviceUnlock = session.status === "locked" && deviceUnlock?.available && deviceUnlock.enabled;
+
   return (
     <LinearGradient colors={["#fff8ec", "#dde6c3"]} style={styles.root}>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.flex}>
@@ -63,7 +137,36 @@ export default function LoginScreen() {
             <Text style={styles.brandText}>ege</Text>
           </View>
           <Text style={styles.title}>Anmelden und Revierkontext laden</Text>
-          <Text style={styles.copy}>Der Zugriff läuft jetzt über E-Mail oder Benutzername und eine vierstellige PIN.</Text>
+          <Text style={styles.copy}>
+            {session.status === "locked"
+              ? `Deine Sitzung ist gespeichert. Entsperre hege mit ${unlockLabel} oder melde dich erneut mit PIN an.`
+              : "Der Zugriff läuft jetzt über E-Mail oder Benutzername und eine vierstellige PIN."}
+          </Text>
+
+          {session.status === "locked" ? (
+            <View style={styles.unlockPanel}>
+              <Text style={styles.unlockTitle}>Sitzung gesperrt</Text>
+              {canUseDeviceUnlock ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`Mit ${unlockLabel} entsperren`}
+                  style={[styles.secondaryButton, isUnlocking ? styles.primaryButtonDisabled : null]}
+                  onPress={() => void handleDeviceUnlock()}
+                  disabled={isUnlocking}
+                >
+                  {isUnlocking ? (
+                    <ActivityIndicator color={colors.accent} />
+                  ) : (
+                    <Text style={styles.secondaryButtonText}>Mit {unlockLabel} entsperren</Text>
+                  )}
+                </Pressable>
+              ) : (
+                <Text style={styles.unlockHint}>
+                  {deviceUnlock?.reason ?? "Face ID wird geprüft. Du kannst dich jederzeit mit PIN anmelden."}
+                </Text>
+              )}
+            </View>
+          ) : null}
 
           <View style={styles.form}>
             <View style={styles.field}>
@@ -141,7 +244,10 @@ const styles = StyleSheet.create({
   },
   brand: {
     flexDirection: "row",
-    alignItems: "flex-end"
+    alignItems: "flex-end",
+    alignSelf: "center",
+    justifyContent: "center",
+    marginBottom: 4
   },
   logo: {
     width: 74,
@@ -149,14 +255,14 @@ const styles = StyleSheet.create({
     resizeMode: "contain"
   },
   brandText: {
-    marginLeft: -8,
-    marginBottom: 7,
+    marginLeft: -22,
+    marginBottom: -6,
     color: colors.accent,
     fontFamily: Platform.select({ ios: "Georgia", default: "serif" }),
-    fontSize: 42,
-    lineHeight: 46,
+    fontSize: 80,
+    lineHeight: 82,
     fontWeight: "700",
-    letterSpacing: -1.8
+    letterSpacing: -3.6
   },
   title: {
     fontSize: 30,
@@ -168,6 +274,22 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 22,
     color: colors.muted
+  },
+  unlockPanel: {
+    gap: 10,
+    padding: 14,
+    borderRadius: 20,
+    backgroundColor: "#f0eadc"
+  },
+  unlockTitle: {
+    color: colors.ink,
+    fontSize: 14,
+    fontWeight: "700"
+  },
+  unlockHint: {
+    color: colors.muted,
+    fontSize: 13,
+    lineHeight: 19
   },
   form: {
     gap: 14
@@ -208,6 +330,20 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     color: colors.surface,
     fontSize: 16,
+    fontWeight: "700"
+  },
+  secondaryButton: {
+    minHeight: 48,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#cfc7b7",
+    backgroundColor: colors.surface
+  },
+  secondaryButtonText: {
+    color: colors.accent,
+    fontSize: 15,
     fontWeight: "700"
   },
   footer: {

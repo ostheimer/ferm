@@ -9,9 +9,12 @@ import {
   mediaAssets,
   memberships,
   notifications,
+  aufgabeAssignees,
+  aufgaben,
   protokollBeschluesse,
   protokollVersionen,
   reviere,
+  reviermeldungen,
   reviereinrichtungKontrollen,
   reviereinrichtungWartungen,
   reviereinrichtungen,
@@ -21,7 +24,7 @@ import {
 } from "./schema";
 
 export const SEED_COMPLETION_MESSAGE =
-  "Seed completed for users, reviere, memberships, ansitz sessions, fallwild, media assets, notifications, reviereinrichtungen and sitzungen.";
+  "Seed completed for users, reviere, memberships, ansitz sessions, fallwild, reviermeldungen, aufgaben, media assets, notifications, reviereinrichtungen and sitzungen.";
 
 export async function seedDatabase(db: HegeDb) {
   const passwordHash = createSeedPasswordHash();
@@ -246,6 +249,105 @@ export async function seedDatabase(db: HegeDb) {
             fileName: `${photo.id}.jpg`,
             contentType: "image/jpeg",
             createdAt: photo.createdAt
+          }
+        });
+    }
+  }
+
+  for (const entry of demoData.reviermeldungen) {
+    await db
+      .insert(reviermeldungen)
+      .values({
+        id: entry.id,
+        revierId: entry.revierId,
+        createdByMembershipId: entry.createdByMembershipId,
+        category: entry.category,
+        status: entry.status,
+        occurredAt: entry.occurredAt,
+        title: entry.title,
+        description: entry.description ?? null,
+        locationLat: entry.location?.lat ?? null,
+        locationLng: entry.location?.lng ?? null,
+        locationLabel: entry.location?.label ?? null,
+        relatedType: entry.relatedType ?? null,
+        relatedId: entry.relatedId ?? null,
+        createdAt: entry.createdAt,
+        updatedAt: entry.updatedAt
+      })
+      .onConflictDoUpdate({
+        target: reviermeldungen.id,
+        set: {
+          revierId: entry.revierId,
+          createdByMembershipId: entry.createdByMembershipId,
+          category: entry.category,
+          status: entry.status,
+          occurredAt: entry.occurredAt,
+          title: entry.title,
+          description: entry.description ?? null,
+          locationLat: entry.location?.lat ?? null,
+          locationLng: entry.location?.lng ?? null,
+          locationLabel: entry.location?.label ?? null,
+          relatedType: entry.relatedType ?? null,
+          relatedId: entry.relatedId ?? null,
+          createdAt: entry.createdAt,
+          updatedAt: entry.updatedAt
+        }
+      });
+  }
+
+  for (const entry of demoData.aufgaben) {
+    await db
+      .insert(aufgaben)
+      .values({
+        id: entry.id,
+        revierId: entry.revierId,
+        createdByMembershipId: entry.createdByMembershipId,
+        sourceType: entry.sourceType ?? null,
+        sourceId: entry.sourceId ?? null,
+        title: entry.title,
+        description: entry.description ?? null,
+        status: entry.status,
+        priority: entry.priority,
+        dueAt: entry.dueAt ?? null,
+        completedAt: entry.completedAt ?? null,
+        completionNote: entry.completionNote ?? null,
+        createdAt: entry.createdAt,
+        updatedAt: entry.updatedAt
+      })
+      .onConflictDoUpdate({
+        target: aufgaben.id,
+        set: {
+          revierId: entry.revierId,
+          createdByMembershipId: entry.createdByMembershipId,
+          sourceType: entry.sourceType ?? null,
+          sourceId: entry.sourceId ?? null,
+          title: entry.title,
+          description: entry.description ?? null,
+          status: entry.status,
+          priority: entry.priority,
+          dueAt: entry.dueAt ?? null,
+          completedAt: entry.completedAt ?? null,
+          completionNote: entry.completionNote ?? null,
+          createdAt: entry.createdAt,
+          updatedAt: entry.updatedAt
+        }
+      });
+
+    for (const membershipId of entry.assigneeMembershipIds) {
+      await db
+        .insert(aufgabeAssignees)
+        .values({
+          id: `${entry.id}-${membershipId}`,
+          aufgabeId: entry.id,
+          membershipId,
+          createdAt: entry.createdAt
+        })
+        .onConflictDoUpdate({
+          target: aufgabeAssignees.id,
+          set: {
+            aufgabeId: entry.id,
+            membershipId,
+            createdAt: entry.createdAt
           }
         });
     }

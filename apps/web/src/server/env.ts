@@ -24,6 +24,8 @@ export interface ServerEnv {
   googleMapsLanguage: string;
   googleMapsRegion: string;
   gipRoadKilometerEndpoint?: string;
+  gipRoadKilometerIndexPath?: string;
+  gipRoadKilometerMaxDistanceMeters: number;
   geoProviderMode: "live" | "mock" | "disabled";
 }
 
@@ -43,6 +45,11 @@ export function getServerEnv(): ServerEnv {
   const googleMapsLanguage = resolveOptionalEnv("GOOGLE_MAPS_LANGUAGE") ?? "de";
   const googleMapsRegion = resolveOptionalEnv("GOOGLE_MAPS_REGION") ?? "AT";
   const gipRoadKilometerEndpoint = resolveOptionalEnv("GIP_ROAD_KILOMETER_ENDPOINT");
+  const gipRoadKilometerIndexPath = resolveOptionalEnv("GIP_ROAD_KILOMETER_INDEX_PATH");
+  const gipRoadKilometerMaxDistanceMeters = readOptionalPositiveNumber(
+    resolveOptionalEnv("GIP_ROAD_KILOMETER_MAX_DISTANCE_METERS"),
+    150
+  );
   const geoProviderMode = readGeoProviderMode(resolveOptionalEnv("HEGE_GEO_PROVIDER"));
 
   return {
@@ -61,6 +68,8 @@ export function getServerEnv(): ServerEnv {
     googleMapsLanguage,
     googleMapsRegion,
     gipRoadKilometerEndpoint,
+    gipRoadKilometerIndexPath,
+    gipRoadKilometerMaxDistanceMeters,
     geoProviderMode
   };
 }
@@ -101,4 +110,14 @@ function readGeoProviderMode(value: string | undefined): ServerEnv["geoProviderM
   }
 
   return "live";
+}
+
+function readOptionalPositiveNumber(value: string | undefined, fallbackValue: number) {
+  if (!value) {
+    return fallbackValue;
+  }
+
+  const parsed = Number(value.replace(",", "."));
+
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallbackValue;
 }

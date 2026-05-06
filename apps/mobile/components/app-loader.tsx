@@ -42,7 +42,10 @@ const styles = StyleSheet.create({
   },
   brand: {
     flexDirection: "row",
-    alignItems: "flex-end"
+    alignItems: "flex-end",
+    alignSelf: "center",
+    justifyContent: "center",
+    marginBottom: 4
   },
   logo: {
     width: 64,
@@ -50,14 +53,14 @@ const styles = StyleSheet.create({
     resizeMode: "contain"
   },
   brandText: {
-    marginLeft: -7,
-    marginBottom: 6,
+    marginLeft: -19,
+    marginBottom: -5,
     color: colors.accent,
     fontFamily: Platform.select({ ios: "Georgia", default: "serif" }),
-    fontSize: 36,
-    lineHeight: 40,
+    fontSize: 69,
+    lineHeight: 71,
     fontWeight: "700",
-    letterSpacing: -1.5
+    letterSpacing: -3.2
   },
   title: {
     fontSize: 28,

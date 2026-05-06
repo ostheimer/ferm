@@ -22,16 +22,20 @@ Die bestehende NestJS-API bleibt als Referenzpfad im Repository. Die produktive 
 - Drizzle-Konfiguration und Migrationen für Auth, Ansitze, Fallwild, `media_assets`, Reviereinrichtungen, Sitzungen, Protokolle, Dokumente, Notifications und Fallwild-Standortmetadaten
 - Route Handler für `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `reviereinrichtungen`, `protokolle`, `sitzungen`, `documents` und `geo`
 - Fallwild-Detail und Foto-Upload über `GET /api/v1/fallwild/:id` und `POST /api/v1/fallwild/:id/fotos`
-- Fallwild-Standort v1 über `POST /api/v1/geo/fallwild-location`, iPhone-GPS, vorbereitete serverseitige Adressauflösung und gespeicherte Standort-/Straßenkilometer-Metadaten
+- Fallwild-Standort v1 über `POST /api/v1/geo/fallwild-location`, iPhone-GPS, serverseitige Google-Adressauflösung, GIP-Index-/Endpoint-Resolver und gespeicherte Standort-/Straßenkilometer-Metadaten
+- Reviermeldungen und Aufgaben als API-/Datenmodell-Slice über `GET/POST/PATCH /api/v1/reviermeldungen` und `/api/v1/aufgaben`
 - S3-kompatible Storage-Schicht für lokales MinIO und Cloudflare R2 inklusive best-effort Rollback nach fehlgeschlagenem Medien-Insert
 - Seed-Skript auf Basis der bestehenden Demo-Daten
 - Login in Web und App über E-Mail oder Benutzername plus vierstellige PIN
+- Mobile-Entsperren einer gespeicherten Sitzung per Face ID, Touch ID oder Geräteprüfung; der iPhone-Flow wurde am 2026-05-06 auf dem angeschlossenen Gerät bestätigt
 - Demo-Fallback fuer lokale Read-Tests, solange keine DB aktiv ist
 - Web-Ansitzseite mit Starten, Beenden und manuellem Refresh gegen den neuen API-Pfad
 - Web-Fallwildseite mit Erfassung, CSV-Export und mobilem Layout gegen denselben API-Pfad
 - Web-Dashboard, Reviereinrichtungen, Protokolle und Sitzungen gegen dieselbe Server-Schicht
 - Public Landing, Login, Registrierung und Setup-Flow mit neuem `hege`-Logo; die Website ist auf `https://hege.app` produktiv geprüft
 - Mobile-Screens für Dashboard, Ansitze, Fallwild, Reviereinrichtungen und Protokolle gegen denselben API-Slice
+- Mobile-Tab `Meldungen` für Reviermeldungen und Aufgaben: Meldung erfassen, Aufgaben lesen und Aufgabenstatus ändern
+- lokaler iPhone-Smoke für `Meldungen` vom 2026-05-05: Login, Aufgabenliste, Statusänderung auf `In Arbeit` und neue Reviermeldung `Smoke Test` wurden gegen `http://10.0.0.242:3000/api/v1` mit `200`/`201` bestätigt
 - Mobile Fallwild-Fotoauswahl mit Queue-v2-Weitergabe, Retry-Backoff und sichtbaren Aktionen für problematische Uploads
 - dokumentierten iPhone-/iOS-Simulator-Smoke als primären nativen Expo-Abnahmepfad; der Lauf vom 2026-04-26 bestätigt Queue-v2-Fehleranzeigen, R2-Storage ist auf Production aktiviert und ein direkter Fallwild-Foto-Upload gegen `hege.app` ist verifiziert
 - Mobile Vitest-Abdeckung für Foto-Normalisierung, Foto-Limit, Submission-Fallback, Standortauflösung und Queue-Retry-Policy
@@ -59,7 +63,7 @@ Environment-Matrix:
 
 Preview-Deployments bekommen dabei bewusst keinen eigenen Neon-Branch pro Deployment. `Development` und `Preview` teilen sich denselben Neon-Zweig `development`.
 
-Kartenfunktionen werden im ganzen Produkt auf Google Maps ausgerichtet. Karten-UI, Marker, Standortsuche und spätere Geocoding-Schritte sollen deshalb direkt auf Google-Maps-kompatible Integrationen zielen. Für Fallwild ist der erste Standort-Slice aktiv: Der Endpunkt ist produktiv erreichbar und Google kann nach gesetztem Server-Key Adresse und Straße ergänzen, während GIP die fachliche Zielquelle für österreichische Straßenkilometer bleibt.
+Kartenfunktionen werden im ganzen Produkt auf Google Maps ausgerichtet. Karten-UI, Marker, Standortsuche und spätere Geocoding-Schritte sollen deshalb direkt auf Google-Maps-kompatible Integrationen zielen. Für Fallwild ist der erste Standort-Slice aktiv: Der Endpunkt ist produktiv erreichbar, Google ergänzt Adresse und Straße serverseitig, während GIP die fachliche Zielquelle für österreichische Straßenkilometer bleibt.
 
 `apps/api` bleibt vorerst als Referenz und Übergangspfad im Repository, ist aber nicht die langfristige Zielarchitektur.
 
@@ -104,7 +108,10 @@ Wichtige Env-Variablen:
 - `S3_*` für lokales MinIO und R2
 - `HEGE_GEO_PROVIDER=live|mock|disabled` für echte Standortprovider, lokale Gänserndorf-Testdaten oder rein manuelle Standortergänzung
 - `GOOGLE_MAPS_SERVER_API_KEY`, `GOOGLE_MAPS_REGION=AT`, `GOOGLE_MAPS_LANGUAGE=de` für serverseitige Fallwild-Adressauflösung
-- `GIP_ROAD_KILOMETER_ENDPOINT` für den internen Straßenkilometer-Resolver gegen GIP-OGD-Daten; der Resolver bekommt `lat`, `lng`, optional `roadName` und `accuracyMeters`
+- `GIP_ROAD_KILOMETER_ENDPOINT` für einen internen Straßenkilometer-Resolver gegen GIP-OGD-Daten; der Resolver bekommt `lat`, `lng`, optional `roadName` und `accuracyMeters`
+- `GIP_ROAD_KILOMETER_INDEX_PATH` für einen kompakten JSON-Index aus GIP-OGD-BEPU-Punkten
+- `GIP_ROAD_KILOMETER_MAX_DISTANCE_METERS=150` als Standard-Suchradius für den lokalen GIP-Index
+- ohne expliziten GIP-Index nutzt das Backend einen gebündelten regionalen Gänserndorf-Index aus dem offiziellen GIP-OGD-Referenzexport
 
 ## Workspace-Befehle
 
@@ -130,26 +137,27 @@ Wichtige Testwege:
 ## Nächste Ausbauschritte
 
 - iPhone-/iOS-Geräte-Smoke für erfolgreichen Foto-Upload, automatische Standortauflösung und leere Queue nachziehen
-- `GOOGLE_MAPS_SERVER_API_KEY` für Preview und Production setzen und Adressauflösung erneut prüfen
-- GIP-Straßenkilometer-Resolver oder OGD-Import als nächsten Standort-Härtungsblock schneiden
+- Production-Fallwild-Standortauflösung mit gesetztem Google-Server-Key und gebündeltem GIP-Index im nativen iPhone-Smoke prüfen
+- GIP-Bounding-Box mit dem tatsächlichen Revier abgleichen und bei Bedarf größeren Index in Preview/Production aktivieren
 - Mobile-E2E-Strategie über den dokumentierten Geräte-Smoke hinaus festziehen
 - produktive Abnahme mit blockierendem Release-Check weiter beobachten
 - PDF-Erzeugung weiter härten
 - Android-Emulator-Smoke optional als Zweitpfad vorbereiten
-- Reviermeldungen und Aufgaben v1 als nächsten fachlichen Codeblock umsetzen
 - Rollen-, Aufgaben- und Nachrichtenmodell fachlich weiter ausarbeiten
 
 ## Dokumentation
 
-- [Dokumentationsuebersicht](./docs/README.md)
+- [Dokumentationsübersicht](./docs/README.md)
 - [Gesamtplan](./docs/reviermanagement-plan.md)
 - [Architektur](./docs/architektur.md)
-- [Backend v1 fuer Schriftfuehrer](./docs/backend-schriftfuehrer-v1.md)
-- [Mobile App v1 fuer Jaeger](./docs/mobile-jaeger-v1.md)
+- [Backend v1 für Schriftführer](./docs/backend-schriftfuehrer-v1.md)
+- [Mobile App v1 für Jäger](./docs/mobile-jaeger-v1.md)
 - [API v1](./docs/api-v1.md)
 - [Roadmap und Sprints](./docs/roadmap-v1.md)
 - [iOS-Smoke-Runbook](./docs/mobile-smoke-ios.md)
 - [Android-Smoke-Runbook](./docs/mobile-smoke-android.md)
 - [Google-Maps-Ausrichtung](./docs/maps-google-v1.md)
+- [GIP-Straßenkilometer v1](./docs/gip-strassenkilometer-v1.md)
+- [Passkeys und Face ID v1](./docs/passkeys-faceid-v1.md)
 - [Rollen, Aufgaben und Nachrichten v1](./docs/rollen-aufgaben-nachrichten-v1.md)
 - [Reviermeldungen und Aufgaben v1](./docs/reviermeldungen-aufgaben-v1-plan.md)

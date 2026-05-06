@@ -1,3 +1,7 @@
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
 import { describe, expect, it, vi } from "vitest";
 
 describe("fallwild location resolver", () => {
@@ -84,7 +88,7 @@ describe("fallwild location resolver", () => {
       },
       warnings: [
         "Google Reverse Geocoding ist nicht konfiguriert.",
-        "GIP-Straßenkilometer ist noch nicht automatisiert; bitte manuell ergänzen."
+        "Für diese Koordinate wurde kein GIP-Straßenkilometer gefunden; bitte manuell ergänzen."
       ]
     });
   });
@@ -124,6 +128,29 @@ describe("fallwild location resolver", () => {
     expect(fetchImpl).not.toHaveBeenCalled();
   });
 
+  it("uses the bundled Gänserndorf GIP OGD index in live mode", async () => {
+    const { resolveFallwildLocation } = await loadModule({
+      googleMapsLanguage: "de",
+      googleMapsRegion: "AT"
+    });
+
+    await expect(
+      resolveFallwildLocation({
+        lat: 48.33582305908203,
+        lng: 16.715426445007324,
+        fetchImpl: vi.fn() as unknown as typeof fetch
+      })
+    ).resolves.toMatchObject({
+      roadReference: {
+        roadName: "L9",
+        roadKilometer: "23,555",
+        source: "gip",
+        placeId: "6105729086"
+      },
+      warnings: ["Google Reverse Geocoding ist nicht konfiguriert."]
+    });
+  });
+
   it("surfaces ambiguous Google reverse geocoding results as a warning", async () => {
     const { resolveFallwildLocation } = await loadModule({
       googleMapsServerApiKey: "google-key",
@@ -161,7 +188,7 @@ describe("fallwild location resolver", () => {
       },
       warnings: expect.arrayContaining([
         "Google Reverse Geocoding hat mehrere Treffer geliefert; erster Treffer wurde übernommen.",
-        "GIP-Straßenkilometer ist noch nicht automatisiert; bitte manuell ergänzen."
+        "Für diese Koordinate wurde kein GIP-Straßenkilometer gefunden; bitte manuell ergänzen."
       ])
     });
   });
@@ -233,6 +260,125 @@ describe("fallwild location resolver", () => {
     });
   });
 
+  it("parses ArcGIS-like GIP attributes and accepts equivalent Austrian road names", async () => {
+    const { resolveFallwildLocation } = await loadModule({
+      googleMapsServerApiKey: "google-key",
+      googleMapsLanguage: "de",
+      googleMapsRegion: "AT",
+      gipRoadKilometerEndpoint: "https://gip.example.test/resolve"
+    });
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(
+        jsonResponse({
+          status: "OK",
+          results: [
+            {
+              formatted_address: "Landesstraße 9, 2230 Gänserndorf",
+              place_id: "google-place-l9",
+              address_components: [
+                { long_name: "Landesstraße 9", types: ["route"] },
+                { long_name: "Gänserndorf", types: ["locality"] }
+              ]
+            }
+          ]
+        })
+      )
+      .mockResolvedValueOnce(
+        jsonResponse({
+          features: [
+            {
+              attributes: {
+                STRASSE: "L 9",
+                KM_VON: 12.417,
+                GIP_ID: "gip-l9-12417",
+                DISTANZ: 4
+              }
+            }
+          ]
+        })
+      );
+
+    await expect(
+      resolveFallwildLocation({
+        lat: 48.339,
+        lng: 16.7201,
+        fetchImpl: fetchImpl as unknown as typeof fetch
+      })
+    ).resolves.toMatchObject({
+      strasse: "Landesstraße 9",
+      roadReference: {
+        roadName: "L 9",
+        roadKilometer: "12,417",
+        source: "gip",
+        placeId: "gip-l9-12417"
+      },
+      warnings: []
+    });
+  });
+
+  it("uses a local GIP OGD road kilometer index when configured", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "hege-gip-index-"));
+    const indexPath = join(tempDir, "gip-road-kilometer-index.json");
+
+    try {
+      await writeFile(
+        indexPath,
+        JSON.stringify({
+          entries: [
+            {
+              lat: 48.3414,
+              lng: 16.7556,
+              roadName: "B8 - Angerner Straße",
+              roadKilometer: "33,0",
+              placeId: "gip-b8-330"
+            }
+          ]
+        })
+      );
+      const { resolveFallwildLocation } = await loadModule({
+        googleMapsServerApiKey: "google-key",
+        googleMapsLanguage: "de",
+        googleMapsRegion: "AT",
+        gipRoadKilometerIndexPath: indexPath,
+        gipRoadKilometerMaxDistanceMeters: 200
+      });
+      const fetchImpl = vi.fn().mockResolvedValueOnce(
+        jsonResponse({
+          status: "OK",
+          results: [
+            {
+              formatted_address: "B8, 2230 Gänserndorf",
+              place_id: "google-place-b8",
+              address_components: [
+                { long_name: "B8", types: ["route"] },
+                { long_name: "Gänserndorf", types: ["locality"] }
+              ]
+            }
+          ]
+        })
+      );
+
+      await expect(
+        resolveFallwildLocation({
+          lat: 48.3414,
+          lng: 16.7556,
+          fetchImpl: fetchImpl as unknown as typeof fetch
+        })
+      ).resolves.toMatchObject({
+        roadReference: {
+          roadName: "B8 - Angerner Straße",
+          roadKilometer: "33,0",
+          source: "gip",
+          placeId: "gip-b8-330"
+        },
+        warnings: []
+      });
+    } finally {
+      await rm(tempDir, { force: true, recursive: true });
+    }
+  });
+
   it("warns when GPS accuracy is too low for reliable fallwild capture", async () => {
     const { resolveFallwildLocation } = await loadModule({
       googleMapsLanguage: "de",
@@ -294,6 +440,7 @@ async function loadModule(env: Record<string, unknown>) {
     getServerEnv: () => ({
       useDemoStore: false,
       geoProviderMode: "live",
+      gipRoadKilometerMaxDistanceMeters: 150,
       ...env
     })
   }));

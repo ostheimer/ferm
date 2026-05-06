@@ -191,6 +191,7 @@ export default function DashboardScreen() {
       <View style={styles.metricGrid}>
         <MetricTile label="Ansitze" value={snapshot?.activeAnsitze.length ?? "-"} detail="Aktuell im Revier gemeldet." />
         <MetricTile label="Wartungen" value={snapshot?.overview.offeneWartungen ?? "-"} detail="Offene Punkte an Einrichtungen." />
+        <MetricTile label="Aufgaben" value={snapshot?.overview.offeneAufgaben ?? "-"} detail="Offene Arbeiten im Revier." />
         <MetricTile label="Fallwild" value={snapshot?.overview.heutigeFallwildBergungen ?? "-"} detail="Heute erfasste Bergungen." />
         <MetricTile label="Protokolle" value={snapshot?.overview.unveroeffentlichteProtokolle ?? "-"} detail="Noch nicht freigegeben." />
         <MetricTile label="Queue" value={queueCount} detail="Offene Offline-Eingaben." />

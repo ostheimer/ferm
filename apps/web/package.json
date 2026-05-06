@@ -10,6 +10,7 @@
     "db:seed": "tsx src/server/db/seed.ts",
     "db:studio": "drizzle-kit studio --config ./drizzle.config.ts",
     "dev": "next dev",
+    "geo:gip:index": "node ./scripts/build-gip-road-kilometer-index.mjs",
     "lint": "node -e \"try { require('node:fs').unlinkSync('tsconfig.tsbuildinfo'); } catch {}\" && tsc -p tsconfig.json --noEmit",
     "storage:init": "node ./scripts/init-local-storage.mjs",
     "smoke:preview": "node ./scripts/smoke-preview.mjs",

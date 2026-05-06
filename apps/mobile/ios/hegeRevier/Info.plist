@@ -61,6 +61,8 @@
     <string>Allow $(PRODUCT_NAME) to access your location</string>
     <key>NSLocationAlwaysUsageDescription</key>
     <string>Allow $(PRODUCT_NAME) to access your location</string>
+    <key>NSFaceIDUsageDescription</key>
+    <string>hege nutzt Face ID nur, um eine bestehende Sitzung auf diesem Gerät zu entsperren.</string>
     <key>NSLocationWhenInUseUsageDescription</key>
     <string>hege nutzt den Standort nur, um Fallwild-Vorgänge im Revier zu dokumentieren.</string>
     <key>NSPhotoLibraryUsageDescription</key>

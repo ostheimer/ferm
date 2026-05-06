@@ -15,6 +15,7 @@ describe("dashboard queries", () => {
     expect(snapshot.overview.aktiveAnsitze).toBe(2);
     expect(snapshot.overview.ansitzeMitKonflikt).toBe(0);
     expect(snapshot.overview.offeneWartungen).toBe(1);
+    expect(snapshot.overview.offeneAufgaben).toBe(1);
     expect(snapshot.overview.heutigeFallwildBergungen).toBe(1);
     expect(snapshot.overview.unveroeffentlichteProtokolle).toBe(1);
     expect(snapshot.overview.naechsteSitzung?.id).toBe("sitzung-1");

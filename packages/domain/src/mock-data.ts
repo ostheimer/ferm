@@ -248,6 +248,43 @@ export const demoData: DemoData = {
       ]
     }
   ],
+  reviermeldungen: [
+    {
+      id: "reviermeldung-1",
+      revierId: "revier-attersee",
+      createdByMembershipId: "member-ausgeher",
+      category: "schaden",
+      status: "neu",
+      occurredAt: "2026-04-03T07:20:00+02:00",
+      title: "Frischer Wildschaden am Maisacker",
+      description: "Südlich vom Feldweg sind mehrere Reihen umgebrochen.",
+      location: {
+        lat: 48.3428,
+        lng: 16.7334,
+        label: "Feldweg Süd"
+      },
+      photos: [],
+      createdAt: "2026-04-03T07:24:00+02:00",
+      updatedAt: "2026-04-03T07:24:00+02:00"
+    }
+  ],
+  aufgaben: [
+    {
+      id: "aufgabe-1",
+      revierId: "revier-attersee",
+      createdByMembershipId: "member-admin",
+      sourceType: "reviereinrichtung",
+      sourceId: "einrichtung-2",
+      title: "Deckel der Fütterung richten",
+      description: "Holzleiste tauschen und Deckel wieder leichtgängig machen.",
+      status: "offen",
+      priority: "hoch",
+      dueAt: "2026-04-06T16:00:00+02:00",
+      assigneeMembershipIds: ["member-ausgeher"],
+      createdAt: "2026-04-03T08:00:00+02:00",
+      updatedAt: "2026-04-03T08:00:00+02:00"
+    }
+  ],
   sitzungen: [
     {
       id: "sitzung-1",

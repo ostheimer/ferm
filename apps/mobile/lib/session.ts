@@ -2,9 +2,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { AuthSessionResponse } from "@hege/domain";
 import { useSyncExternalStore } from "react";
 
+import { isDeviceUnlockEnabled } from "./device-unlock";
+
 const STORAGE_KEY = "hege.mobile.session";
 
-export type SessionStatus = "loading" | "authenticated" | "unauthenticated";
+export type SessionStatus = "loading" | "locked" | "authenticated" | "unauthenticated";
 
 export interface SessionSnapshot {
   status: SessionStatus;
@@ -64,9 +66,10 @@ export async function restoreSession() {
 
   try {
     const session = JSON.parse(rawSession) as AuthSessionResponse;
+    const shouldLock = await isDeviceUnlockEnabled().catch(() => false);
 
     setSnapshot({
-      status: "authenticated",
+      status: shouldLock ? "locked" : "authenticated",
       session,
       hydrated: true
     });
@@ -91,6 +94,26 @@ export async function saveSession(session: AuthSessionResponse) {
 
   await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(session));
   return session;
+}
+
+export function unlockStoredSession() {
+  if (!snapshot.session) {
+    setSnapshot({
+      status: "unauthenticated",
+      session: null,
+      hydrated: true
+    });
+
+    return null;
+  }
+
+  setSnapshot({
+    status: "authenticated",
+    session: snapshot.session,
+    hydrated: true
+  });
+
+  return snapshot.session;
 }
 
 export async function clearSession() {

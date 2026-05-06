@@ -1,6 +1,9 @@
 import type {
   Altersklasse,
   AnsitzSession,
+  Aufgabe,
+  AufgabePrioritaet,
+  AufgabeStatus,
   AuthContextResponse,
   AuthSessionResponse,
   BergungsStatus,
@@ -15,6 +18,9 @@ import type {
   ProtokollListItem,
   Reviereinrichtung,
   ReviereinrichtungListItem,
+  Reviermeldung,
+  ReviermeldungKategorie,
+  RevierResourceType,
   Role,
   FallwildVorgang,
   Membership,
@@ -47,6 +53,10 @@ export type ApiMeResponse = AuthContextResponse;
 
 export type FallwildListItem = FallwildVorgang;
 
+export type ReviermeldungListItem = Reviermeldung;
+
+export type AufgabeListItem = Aufgabe;
+
 export interface LoginResult extends AuthSessionResponse {}
 
 export interface CreateAnsitzRequest {
@@ -69,6 +79,37 @@ export interface CreateFallwildRequest {
   strasse?: string;
   roadReference?: FallwildRoadReference;
   note?: string;
+}
+
+export interface CreateReviermeldungRequest {
+  category: ReviermeldungKategorie;
+  occurredAt?: string;
+  title: string;
+  description?: string;
+  location?: GeoPoint;
+  relatedType?: RevierResourceType;
+  relatedId?: string;
+}
+
+export interface CreateAufgabeRequest {
+  sourceType?: RevierResourceType;
+  sourceId?: string;
+  title: string;
+  description?: string;
+  status?: AufgabeStatus;
+  priority?: AufgabePrioritaet;
+  dueAt?: string;
+  assigneeMembershipIds?: string[];
+}
+
+export interface UpdateAufgabeRequest {
+  title?: string;
+  description?: string | null;
+  status?: AufgabeStatus;
+  priority?: AufgabePrioritaet;
+  dueAt?: string | null;
+  completionNote?: string | null;
+  assigneeMembershipIds?: string[];
 }
 
 export interface FallwildLocationSuggestionResponse {
@@ -197,6 +238,24 @@ export async function fetchFallwildDetail(id: string): Promise<FallwildListItem>
   });
 }
 
+export async function fetchReviermeldungenList(): Promise<ReviermeldungListItem[]> {
+  return requestJson<ReviermeldungListItem[]>("/v1/reviermeldungen", {
+    fallback: async () => {
+      const me = await fallbackCurrentUser();
+      return fallbackReviermeldungenList(me.revier.id);
+    }
+  });
+}
+
+export async function fetchAufgabenList(): Promise<AufgabeListItem[]> {
+  return requestJson<AufgabeListItem[]>("/v1/aufgaben", {
+    fallback: async () => {
+      const me = await fallbackCurrentUser();
+      return fallbackAufgabenList(me.revier.id, me.membership.id);
+    }
+  });
+}
+
 export async function createAnsitz(payload: CreateAnsitzRequest): Promise<MutationResponse> {
   return requestJson<MutationResponse>("/v1/ansitze", {
     method: "POST",
@@ -207,6 +266,27 @@ export async function createAnsitz(payload: CreateAnsitzRequest): Promise<Mutati
 export async function createFallwild(payload: CreateFallwildRequest): Promise<MutationResponse> {
   return requestJson<MutationResponse>("/v1/fallwild", {
     method: "POST",
+    body: payload
+  });
+}
+
+export async function createReviermeldung(payload: CreateReviermeldungRequest): Promise<MutationResponse> {
+  return requestJson<MutationResponse>("/v1/reviermeldungen", {
+    method: "POST",
+    body: payload
+  });
+}
+
+export async function createAufgabe(payload: CreateAufgabeRequest): Promise<MutationResponse> {
+  return requestJson<MutationResponse>("/v1/aufgaben", {
+    method: "POST",
+    body: payload
+  });
+}
+
+export async function updateAufgabe(id: string, payload: UpdateAufgabeRequest): Promise<AufgabeListItem> {
+  return requestJson<AufgabeListItem>(`/v1/aufgaben/${encodeURIComponent(id)}`, {
+    method: "PATCH",
     body: payload
   });
 }
@@ -448,6 +528,25 @@ async function fallbackFallwildList(revierId?: string): Promise<FallwildListItem
   const activeRevierId = revierId ?? demoData.reviere[0]?.id;
 
   return demoData.fallwild.filter((entry) => entry.revierId === activeRevierId);
+}
+
+async function fallbackReviermeldungenList(revierId?: string): Promise<ReviermeldungListItem[]> {
+  const activeRevierId = revierId ?? demoData.reviere[0]?.id;
+
+  return demoData.reviermeldungen.filter((entry) => entry.revierId === activeRevierId);
+}
+
+async function fallbackAufgabenList(revierId?: string, membershipId?: string): Promise<AufgabeListItem[]> {
+  const activeRevierId = revierId ?? demoData.reviere[0]?.id;
+
+  return demoData.aufgaben
+    .filter((entry) => entry.revierId === activeRevierId)
+    .filter(
+      (entry) =>
+        !membershipId ||
+        entry.createdByMembershipId === membershipId ||
+        entry.assigneeMembershipIds.includes(membershipId)
+    );
 }
 
 async function fallbackReviereinrichtungenList(revierId?: string): Promise<ReviereinrichtungListItem[]> {

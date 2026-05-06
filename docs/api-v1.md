@@ -116,8 +116,10 @@ Konfiguration:
 - `GOOGLE_MAPS_REGION=AT`
 - `GOOGLE_MAPS_LANGUAGE=de`
 - `GIP_ROAD_KILOMETER_ENDPOINT`
+- `GIP_ROAD_KILOMETER_INDEX_PATH`
+- `GIP_ROAD_KILOMETER_MAX_DISTANCE_METERS=150`
 
-GIP ist die fachliche Zielquelle für Straßenkilometer. Google liefert in v1 nur Adresse, Gemeinde und Straße. Der konfigurierte `GIP_ROAD_KILOMETER_ENDPOINT` bekommt `lat`, `lng`, optional `roadName` und optional `accuracyMeters`; akzeptiert werden einfache JSON-Felder wie `roadName`/`roadKilometer` oder GeoJSON-ähnliche `FeatureCollection`-Antworten mit `properties`. Mit `HEGE_GEO_PROVIDER=mock` liefert der Endpunkt lokale Gänserndorf-Testdaten ohne externe Keys; diese Antworten sind über `warnings` als Testdaten gekennzeichnet und nicht für echte Production-Erfassung gedacht.
+GIP ist die fachliche Zielquelle für Straßenkilometer. Google liefert in v1 nur Adresse, Gemeinde und Straße. Der konfigurierte `GIP_ROAD_KILOMETER_ENDPOINT` bekommt `lat`, `lng`, optional `roadName` und optional `accuracyMeters`; akzeptiert werden einfache JSON-Felder wie `roadName`/`roadKilometer`, GeoJSON-ähnliche `FeatureCollection`-Antworten mit `properties` sowie ArcGIS-ähnliche `features[].attributes`. Alternativ kann `GIP_ROAD_KILOMETER_INDEX_PATH` auf einen kompakten JSON-Index aus GIP-OGD-BEPU-Punkten zeigen; ohne expliziten Index nutzt das Backend einen gebündelten regionalen Gänserndorf-Index. Der lokale Resolver wählt den nächsten Punkt innerhalb von `GIP_ROAD_KILOMETER_MAX_DISTANCE_METERS`, erweitert den Radius bei schlechter GPS-Genauigkeit und bevorzugt passende Straßencodes. Österreichische Straßennamen werden für den Abgleich normalisiert, sodass etwa `Landesstraße 9`, `L 9` und `L9` als derselbe Straßenbezug gelten. Mit `HEGE_GEO_PROVIDER=mock` liefert der Endpunkt lokale Gänserndorf-Testdaten ohne externe Keys; diese Antworten sind über `warnings` als Testdaten gekennzeichnet und nicht für echte Production-Erfassung gedacht. Details stehen in [GIP-Straßenkilometer v1](./gip-strassenkilometer-v1.md).
 
 #### `POST /api/v1/fallwild`
 
@@ -180,15 +182,36 @@ Storage-Vertrag:
 - `GET /api/v1/notifications`
 - `GET /api/v1/documents/:id/download`
 
-### Rollen, Aufgaben und Nachrichten
+### Reviermeldungen und Aufgaben
 
-Diese Ressourcen sind fuer die naechste Ausbaustufe vorgesehen und werden fachlich bereits mitgedacht.
+Reviermeldungen und Aufgaben bilden den ersten fachlichen Arbeitsblock nach Fallwild/Queue v2. Beide Ressourcen sind pro aktivem Revier getrennt und nutzen die bestehende Mitgliedschaft aus der Auth-Session.
+
+- `GET /api/v1/reviermeldungen`
+- `POST /api/v1/reviermeldungen`
+- `GET /api/v1/reviermeldungen/:id`
+- `PATCH /api/v1/reviermeldungen/:id`
+- `GET /api/v1/aufgaben`
+- `POST /api/v1/aufgaben`
+- `GET /api/v1/aufgaben/:id`
+- `PATCH /api/v1/aufgaben/:id`
+
+Reviermeldungen erfassen Kategorie, Status, Zeitpunkt, Titel, Beschreibung, optionalen Standort und optionalen Ressourcenbezug. Aufgaben erfassen Titel, Status, Priorität, Fälligkeit, Verantwortliche und optional einen Bezug zu Reviermeldung, Reviereinrichtung, Fallwild, Sitzung oder Beschluss.
+
+Rollen für v1:
+
+- `revier-admin`
+- `schriftfuehrer`
+- `jaeger`
+- `ausgeher`
+
+Normale Mitglieder sehen eigene oder ihnen zugewiesene Aufgaben. Revier-Admins und Schriftführer sehen die Revierliste.
+
+### Rollen, Nachrichten und Veranstaltungen
+
+Diese Ressourcen bleiben für die nächste Ausbaustufe vorgesehen und werden fachlich bereits mitgedacht.
 
 - `GET /api/v1/roles`
 - `GET /api/v1/memberships`
-- `GET /api/v1/tasks`
-- `POST /api/v1/tasks`
-- `PATCH /api/v1/tasks/:id`
 - `GET /api/v1/messages`
 - `POST /api/v1/messages`
 
