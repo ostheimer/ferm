@@ -1,0 +1,1476 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-05-05T22:38:42.742Z",
+  "source": {
+    "kind": "gip-ogd-bepu",
+    "input": "https://open.gip.gv.at/ogd/C_gip_reference_ogd.zip",
+    "version": "1 GIPOGD2509 30.09.2025"
+  },
+  "bbox": {
+    "maxLat": 48.4,
+    "maxLng": 16.8,
+    "minLat": 48.28,
+    "minLng": 16.65
+  },
+  "entries": [
+    {
+      "lat": 48.291778564453125,
+      "lng": 16.710942268371582,
+      "roadName": "L9",
+      "roadKilometer": "18,578",
+      "placeId": "6166617495",
+      "roadCode": "L9"
+    },
+    {
+      "lat": 48.29915237426758,
+      "lng": 16.70967197418213,
+      "roadName": "L9",
+      "roadKilometer": "19,404",
+      "placeId": "6166617499",
+      "roadCode": "L9"
+    },
+    {
+      "lat": 48.314849853515625,
+      "lng": 16.712641716003418,
+      "roadName": "L9",
+      "roadKilometer": "21,178",
+      "placeId": "6166617517",
+      "roadCode": "L9"
+    },
+    {
+      "lat": 48.32382583618164,
+      "lng": 16.71442985534668,
+      "roadName": "L9",
+      "roadKilometer": "22,191",
+      "placeId": "6137605726",
+      "roadCode": "L9"
+    },
+    {
+      "lat": 48.33024978637695,
+      "lng": 16.71577548980713,
+      "roadName": "L9",
+      "roadKilometer": "22,915",
+      "placeId": "6137605773",
+      "roadCode": "L9"
+    },
+    {
+      "lat": 48.3336181640625,
+      "lng": 16.716538429260254,
+      "roadName": "L9",
+      "roadKilometer": "23,294",
+      "placeId": "6137605797",
+      "roadCode": "L9"
+    },
+    {
+      "lat": 48.33582305908203,
+      "lng": 16.715426445007324,
+      "roadName": "L9",
+      "roadKilometer": "23,555",
+      "placeId": "6105729086",
+      "roadCode": "L9"
+    },
+    {
+      "lat": 48.36698913574219,
+      "lng": 16.651944160461426,
+      "roadName": "L12",
+      "roadKilometer": "25,789",
+      "placeId": "6181370151",
+      "roadCode": "L12"
+    },
+    {
+      "lat": 48.367454528808594,
+      "lng": 16.65469455718994,
+      "roadName": "L12",
+      "roadKilometer": "26",
+      "placeId": "6181370093",
+      "roadCode": "L12"
+    },
+    {
+      "lat": 48.36821365356445,
+      "lng": 16.65917682647705,
+      "roadName": "L12",
+      "roadKilometer": "26,344",
+      "placeId": "6139538143",
+      "roadCode": "L12"
+    },
+    {
+      "lat": 48.3682861328125,
+      "lng": 16.65959644317627,
+      "roadName": "L12",
+      "roadKilometer": "26,376",
+      "placeId": "6136721697",
+      "roadCode": "L12"
+    },
+    {
+      "lat": 48.36965560913086,
+      "lng": 16.66774272918701,
+      "roadName": "L12",
+      "roadKilometer": "27",
+      "placeId": "6181370095",
+      "roadCode": "L12"
+    },
+    {
+      "lat": 48.37187194824219,
+      "lng": 16.680790901184082,
+      "roadName": "L12",
+      "roadKilometer": "28",
+      "placeId": "6181370097",
+      "roadCode": "L12"
+    },
+    {
+      "lat": 48.37253952026367,
+      "lng": 16.68478012084961,
+      "roadName": "L12",
+      "roadKilometer": "28,307",
+      "placeId": "6175747709",
+      "roadCode": "L12"
+    },
+    {
+      "lat": 48.28617858886719,
+      "lng": 16.656922340393066,
+      "roadName": "L11",
+      "roadKilometer": "12,364",
+      "placeId": "6144802437",
+      "roadCode": "L11"
+    },
+    {
+      "lat": 48.29499816894531,
+      "lng": 16.668171882629395,
+      "roadName": "L11",
+      "roadKilometer": "13,669",
+      "placeId": "6144802440",
+      "roadCode": "L11"
+    },
+    {
+      "lat": 48.30036544799805,
+      "lng": 16.67863368988037,
+      "roadName": "L11",
+      "roadKilometer": "14,667",
+      "placeId": "6144802443",
+      "roadCode": "L11"
+    },
+    {
+      "lat": 48.306312561035156,
+      "lng": 16.68660259246826,
+      "roadName": "L11",
+      "roadKilometer": "15,559",
+      "placeId": "6133751791",
+      "roadCode": "L11"
+    },
+    {
+      "lat": 48.30649185180664,
+      "lng": 16.686814308166504,
+      "roadName": "L11",
+      "roadKilometer": "15,583",
+      "placeId": "6133751789",
+      "roadCode": "L11"
+    },
+    {
+      "lat": 48.319114685058594,
+      "lng": 16.699986457824707,
+      "roadName": "L11",
+      "roadKilometer": "17,322",
+      "placeId": "6144802446",
+      "roadCode": "L11"
+    },
+    {
+      "lat": 48.34080505371094,
+      "lng": 16.71782398223877,
+      "roadName": "L11",
+      "roadKilometer": "19,37",
+      "placeId": "32892802",
+      "roadCode": "L11"
+    },
+    {
+      "lat": 48.33543014526367,
+      "lng": 16.71181583404541,
+      "roadName": "L11",
+      "roadKilometer": "19,37",
+      "placeId": "32910352",
+      "roadCode": "L11"
+    },
+    {
+      "lat": 48.34230041503906,
+      "lng": 16.719243049621582,
+      "roadName": "L11",
+      "roadKilometer": "19,567",
+      "placeId": "6133750098",
+      "roadCode": "L11"
+    },
+    {
+      "lat": 48.342411041259766,
+      "lng": 16.71938705444336,
+      "roadName": "L11",
+      "roadKilometer": "19,585",
+      "placeId": "6133750096",
+      "roadCode": "L11"
+    },
+    {
+      "lat": 48.350467681884766,
+      "lng": 16.727757453918457,
+      "roadName": "L11",
+      "roadKilometer": "20,677",
+      "placeId": "6131120546",
+      "roadCode": "L11"
+    },
+    {
+      "lat": 48.35188674926758,
+      "lng": 16.728894233703613,
+      "roadName": "L11",
+      "roadKilometer": "20,858",
+      "placeId": "6131120559",
+      "roadCode": "L11"
+    },
+    {
+      "lat": 48.36045837402344,
+      "lng": 16.73380756378174,
+      "roadName": "L11",
+      "roadKilometer": "21,883",
+      "placeId": "6144802449",
+      "roadCode": "L11"
+    },
+    {
+      "lat": 48.367027282714844,
+      "lng": 16.737614631652832,
+      "roadName": "L11",
+      "roadKilometer": "22,666",
+      "placeId": "6131120574",
+      "roadCode": "L11"
+    },
+    {
+      "lat": 48.36984634399414,
+      "lng": 16.73964023590088,
+      "roadName": "L11",
+      "roadKilometer": "23,016",
+      "placeId": "6131120589",
+      "roadCode": "L11"
+    },
+    {
+      "lat": 48.386173248291016,
+      "lng": 16.73876953125,
+      "roadName": "L11",
+      "roadKilometer": "24,953",
+      "placeId": "6131120617",
+      "roadCode": "L11"
+    },
+    {
+      "lat": 48.38633346557617,
+      "lng": 16.739249229431152,
+      "roadName": "L11",
+      "roadKilometer": "24,991",
+      "placeId": "6137318707",
+      "roadCode": "L11"
+    },
+    {
+      "lat": 48.39178466796875,
+      "lng": 16.74937152862549,
+      "roadName": "L11",
+      "roadKilometer": "26,008",
+      "placeId": "6144802452",
+      "roadCode": "L11"
+    },
+    {
+      "lat": 48.338134765625,
+      "lng": 16.72831630706787,
+      "roadName": "L3035",
+      "roadKilometer": "0",
+      "placeId": "32880122",
+      "roadCode": "L3035"
+    },
+    {
+      "lat": 48.338985443115234,
+      "lng": 16.728790283203125,
+      "roadName": "L3035",
+      "roadKilometer": "0,104",
+      "placeId": "6133748456",
+      "roadCode": "L3035"
+    },
+    {
+      "lat": 48.339134216308594,
+      "lng": 16.728819847106934,
+      "roadName": "L3035",
+      "roadKilometer": "0,115",
+      "placeId": "6132688006",
+      "roadCode": "L3035"
+    },
+    {
+      "lat": 48.33941650390625,
+      "lng": 16.72868251800537,
+      "roadName": "L3035",
+      "roadKilometer": "0,149",
+      "placeId": "6131668181",
+      "roadCode": "L3035"
+    },
+    {
+      "lat": 48.339698791503906,
+      "lng": 16.728503227233887,
+      "roadName": "L3035",
+      "roadKilometer": "0,185",
+      "placeId": "6132688021",
+      "roadCode": "L3035"
+    },
+    {
+      "lat": 48.32395935058594,
+      "lng": 16.681904792785645,
+      "roadName": "B8 - Angerner Straße",
+      "roadKilometer": "27,032",
+      "placeId": "6133704314",
+      "roadCode": "B8"
+    },
+    {
+      "lat": 48.32404327392578,
+      "lng": 16.682194709777832,
+      "roadName": "B8 - Angerner Straße",
+      "roadKilometer": "27,048",
+      "placeId": "6133704316",
+      "roadCode": "B8"
+    },
+    {
+      "lat": 48.33543014526367,
+      "lng": 16.711819648742676,
+      "roadName": "B8 - Angerner Straße",
+      "roadKilometer": "29,606",
+      "placeId": "32891982",
+      "roadCode": "B8"
+    },
+    {
+      "lat": 48.335941314697266,
+      "lng": 16.715214729309082,
+      "roadName": "B8 - Angerner Straße",
+      "roadKilometer": "29,856",
+      "placeId": "6132687863",
+      "roadCode": "B8"
+    },
+    {
+      "lat": 48.335968017578125,
+      "lng": 16.715561866760254,
+      "roadName": "B8 - Angerner Straße",
+      "roadKilometer": "29,881",
+      "placeId": "6132687865",
+      "roadCode": "B8"
+    },
+    {
+      "lat": 48.338134765625,
+      "lng": 16.72831630706787,
+      "roadName": "B8 - Angerner Straße",
+      "roadKilometer": "30,874",
+      "placeId": "6131625277",
+      "roadCode": "B8"
+    },
+    {
+      "lat": 48.34077072143555,
+      "lng": 16.754481315612793,
+      "roadName": "B8 - Angerner Straße",
+      "roadKilometer": "32,855",
+      "placeId": "6131625198",
+      "roadCode": "B8"
+    },
+    {
+      "lat": 48.34139633178711,
+      "lng": 16.755614280700684,
+      "roadName": "B8 - Angerner Straße",
+      "roadKilometer": "32,965",
+      "placeId": "32888451",
+      "roadCode": "B8"
+    },
+    {
+      "lat": 48.34164047241211,
+      "lng": 16.75594425201416,
+      "roadName": "B8 - Angerner Straße",
+      "roadKilometer": "32,996",
+      "placeId": "6132687997",
+      "roadCode": "B8"
+    },
+    {
+      "lat": 48.346466064453125,
+      "lng": 16.765223503112793,
+      "roadName": "B8 - Angerner Straße",
+      "roadKilometer": "33,887",
+      "placeId": "32896136",
+      "roadCode": "B8"
+    },
+    {
+      "lat": 48.37531661987305,
+      "lng": 16.684378623962402,
+      "roadName": "L18",
+      "roadKilometer": "0,048",
+      "placeId": "6106265570",
+      "roadCode": "L18"
+    },
+    {
+      "lat": 48.376495361328125,
+      "lng": 16.685842514038086,
+      "roadName": "L18",
+      "roadKilometer": "0,225",
+      "placeId": "32894630",
+      "roadCode": "L18"
+    },
+    {
+      "lat": 48.394378662109375,
+      "lng": 16.6934232711792,
+      "roadName": "L18",
+      "roadKilometer": "2,404",
+      "placeId": "6139279357",
+      "roadCode": "L18"
+    },
+    {
+      "lat": 48.39729309082031,
+      "lng": 16.695401191711426,
+      "roadName": "L18",
+      "roadKilometer": "2,76",
+      "placeId": "6131120716",
+      "roadCode": "L18"
+    },
+    {
+      "lat": 48.341461181640625,
+      "lng": 16.756028175354004,
+      "roadName": "B8a - B8a",
+      "roadKilometer": "0,019",
+      "placeId": "32882508",
+      "roadCode": "B8A"
+    },
+    {
+      "lat": 48.34153366088867,
+      "lng": 16.76281452178955,
+      "roadName": "B8a - B8a",
+      "roadKilometer": "0,557",
+      "placeId": "32888400",
+      "roadCode": "B8A"
+    },
+    {
+      "lat": 48.34381866455078,
+      "lng": 16.76676654815674,
+      "roadName": "B8a - B8a",
+      "roadKilometer": "0,941",
+      "placeId": "32894498",
+      "roadCode": "B8A"
+    },
+    {
+      "lat": 48.344058990478516,
+      "lng": 16.769906044006348,
+      "roadName": "B8a - B8a",
+      "roadKilometer": "1,184",
+      "placeId": "32904923",
+      "roadCode": "B8A"
+    },
+    {
+      "lat": 48.385807037353516,
+      "lng": 16.651440620422363,
+      "roadName": "L3032",
+      "roadKilometer": "2,399",
+      "placeId": "6143968425",
+      "roadCode": "L3032"
+    },
+    {
+      "lat": 48.3895378112793,
+      "lng": 16.654719352722168,
+      "roadName": "L3032",
+      "roadKilometer": "2,889",
+      "placeId": "6143968429",
+      "roadCode": "L3032"
+    },
+    {
+      "lat": 48.391929626464844,
+      "lng": 16.657675743103027,
+      "roadName": "L3032",
+      "roadKilometer": "3,236",
+      "placeId": "32892678",
+      "roadCode": "L3032"
+    },
+    {
+      "lat": 48.39328384399414,
+      "lng": 16.660441398620605,
+      "roadName": "L3032",
+      "roadKilometer": "3,495",
+      "placeId": "32890227",
+      "roadCode": "L3032"
+    },
+    {
+      "lat": 48.399383544921875,
+      "lng": 16.667698860168457,
+      "roadName": "L3032",
+      "roadKilometer": "4,371",
+      "placeId": "6143968437",
+      "roadCode": "L3032"
+    },
+    {
+      "lat": 48.336055755615234,
+      "lng": 16.71537494659424,
+      "roadName": "B220 - Gänserndorfer Straße",
+      "roadKilometer": "0",
+      "placeId": "6105822044",
+      "roadCode": "B220"
+    },
+    {
+      "lat": 48.34080505371094,
+      "lng": 16.71782398223877,
+      "roadName": "B220 - Gänserndorfer Straße",
+      "roadKilometer": "0,564",
+      "placeId": "6181044229",
+      "roadCode": "B220"
+    },
+    {
+      "lat": 48.34373474121094,
+      "lng": 16.71443462371826,
+      "roadName": "B220 - Gänserndorfer Straße",
+      "roadKilometer": "1",
+      "placeId": "6181043987",
+      "roadCode": "B220"
+    },
+    {
+      "lat": 48.35211944580078,
+      "lng": 16.70986270904541,
+      "roadName": "B220 - Gänserndorfer Straße",
+      "roadKilometer": "2",
+      "placeId": "6181044000",
+      "roadCode": "B220"
+    },
+    {
+      "lat": 48.36056900024414,
+      "lng": 16.705632209777832,
+      "roadName": "B220 - Gänserndorfer Straße",
+      "roadKilometer": "3",
+      "placeId": "6181044003",
+      "roadCode": "B220"
+    },
+    {
+      "lat": 48.36515808105469,
+      "lng": 16.698391914367676,
+      "roadName": "B220 - Gänserndorfer Straße",
+      "roadKilometer": "3,783",
+      "placeId": "6181044221",
+      "roadCode": "B220"
+    },
+    {
+      "lat": 48.36600112915039,
+      "lng": 16.69674587249756,
+      "roadName": "B220 - Gänserndorfer Straße",
+      "roadKilometer": "3,939",
+      "placeId": "6181044219",
+      "roadCode": "B220"
+    },
+    {
+      "lat": 48.366092681884766,
+      "lng": 16.69653606414795,
+      "roadName": "B220 - Gänserndorfer Straße",
+      "roadKilometer": "3,958",
+      "placeId": "6181044217",
+      "roadCode": "B220"
+    },
+    {
+      "lat": 48.36629867553711,
+      "lng": 16.696066856384277,
+      "roadName": "B220 - Gänserndorfer Straße",
+      "roadKilometer": "4",
+      "placeId": "6181044006",
+      "roadCode": "B220"
+    },
+    {
+      "lat": 48.368995666503906,
+      "lng": 16.690306663513184,
+      "roadName": "B220 - Gänserndorfer Straße",
+      "roadKilometer": "4,525",
+      "placeId": "6181044211",
+      "roadCode": "B220"
+    },
+    {
+      "lat": 48.371829986572266,
+      "lng": 16.686142921447754,
+      "roadName": "B220 - Gänserndorfer Straße",
+      "roadKilometer": "5",
+      "placeId": "6181044008",
+      "roadCode": "B220"
+    },
+    {
+      "lat": 48.37253952026367,
+      "lng": 16.68478012084961,
+      "roadName": "B220 - Gänserndorfer Straße",
+      "roadKilometer": "5,131",
+      "placeId": "6181044206",
+      "roadCode": "B220"
+    },
+    {
+      "lat": 48.37531661987305,
+      "lng": 16.684378623962402,
+      "roadName": "B220 - Gänserndorfer Straße",
+      "roadKilometer": "5,444",
+      "placeId": "6181044200",
+      "roadCode": "B220"
+    },
+    {
+      "lat": 48.37955093383789,
+      "lng": 16.68052577972412,
+      "roadName": "B220 - Gänserndorfer Straße",
+      "roadKilometer": "6",
+      "placeId": "6181044056",
+      "roadCode": "B220"
+    },
+    {
+      "lat": 48.384742736816406,
+      "lng": 16.66978168487549,
+      "roadName": "B220 - Gänserndorfer Straße",
+      "roadKilometer": "7",
+      "placeId": "6181044062",
+      "roadCode": "B220"
+    },
+    {
+      "lat": 48.3902587890625,
+      "lng": 16.659260749816895,
+      "roadName": "B220 - Gänserndorfer Straße",
+      "roadKilometer": "8",
+      "placeId": "6181044064",
+      "roadCode": "B220"
+    },
+    {
+      "lat": 48.391929626464844,
+      "lng": 16.65767765045166,
+      "roadName": "B220 - Gänserndorfer Straße",
+      "roadKilometer": "8,225",
+      "placeId": "6181044196",
+      "roadCode": "B220"
+    },
+    {
+      "lat": 48.394508361816406,
+      "lng": 16.657605171203613,
+      "roadName": "B220 - Gänserndorfer Straße",
+      "roadKilometer": "8,56",
+      "placeId": "6181044192",
+      "roadCode": "B220"
+    },
+    {
+      "lat": 48.39545822143555,
+      "lng": 16.652461051940918,
+      "roadName": "B220 - Gänserndorfer Straße",
+      "roadKilometer": "9",
+      "placeId": "6181044066",
+      "roadCode": "B220"
+    },
+    {
+      "lat": 48.36698913574219,
+      "lng": 16.651944160461426,
+      "roadName": "L3158",
+      "roadKilometer": "0",
+      "placeId": "32880120",
+      "roadCode": "L3158"
+    },
+    {
+      "lat": 48.3598747253418,
+      "lng": 16.663281440734863,
+      "roadName": "L3158",
+      "roadKilometer": "1,208",
+      "placeId": "6165937203",
+      "roadCode": "L3158"
+    },
+    {
+      "lat": 48.361026763916016,
+      "lng": 16.672715187072754,
+      "roadName": "L3158",
+      "roadKilometer": "1,986",
+      "placeId": "6131668187",
+      "roadCode": "L3158"
+    },
+    {
+      "lat": 48.36457824707031,
+      "lng": 16.686305046081543,
+      "roadName": "L3158",
+      "roadKilometer": "3,254",
+      "placeId": "6165937199",
+      "roadCode": "L3158"
+    },
+    {
+      "lat": 48.368995666503906,
+      "lng": 16.690306663513184,
+      "roadName": "L3158",
+      "roadKilometer": "3,831",
+      "placeId": "6106272043",
+      "roadCode": "L3158"
+    },
+    {
+      "lat": 48.368377685546875,
+      "lng": 16.65927791595459,
+      "roadName": "L3034",
+      "roadKilometer": "0",
+      "placeId": "6106265848",
+      "roadCode": "L3034"
+    },
+    {
+      "lat": 48.376495361328125,
+      "lng": 16.685842514038086,
+      "roadName": "L3161",
+      "roadKilometer": "0",
+      "placeId": "6106265382",
+      "roadCode": "L3161"
+    },
+    {
+      "lat": 48.37795639038086,
+      "lng": 16.701407432556152,
+      "roadName": "L3161",
+      "roadKilometer": "1,203",
+      "placeId": "32888438",
+      "roadCode": "L3161"
+    },
+    {
+      "lat": 48.37800979614258,
+      "lng": 16.70179557800293,
+      "roadName": "L3161",
+      "roadKilometer": "1,231",
+      "placeId": "6110269293",
+      "roadCode": "L3161"
+    },
+    {
+      "lat": 48.3795166015625,
+      "lng": 16.714152336120605,
+      "roadName": "L3161",
+      "roadKilometer": "2,166",
+      "placeId": "6160542539",
+      "roadCode": "L3161"
+    },
+    {
+      "lat": 48.38347244262695,
+      "lng": 16.718012809753418,
+      "roadName": "L3161",
+      "roadKilometer": "2,708",
+      "placeId": "6131668192",
+      "roadCode": "L3161"
+    },
+    {
+      "lat": 48.38555908203125,
+      "lng": 16.722973823547363,
+      "roadName": "L3161",
+      "roadKilometer": "3,144",
+      "placeId": "6160542507",
+      "roadCode": "L3161"
+    },
+    {
+      "lat": 48.38972473144531,
+      "lng": 16.733417510986328,
+      "roadName": "L3161",
+      "roadKilometer": "4,05",
+      "placeId": "6106367080",
+      "roadCode": "L3161"
+    },
+    {
+      "lat": 48.39729309082031,
+      "lng": 16.695401191711426,
+      "roadName": "L3159",
+      "roadKilometer": "0",
+      "placeId": "32880357",
+      "roadCode": "L3159"
+    },
+    {
+      "lat": 48.38904571533203,
+      "lng": 16.700105667114258,
+      "roadName": "L3159",
+      "roadKilometer": "1",
+      "placeId": "6180629695",
+      "roadCode": "L3159"
+    },
+    {
+      "lat": 48.38021469116211,
+      "lng": 16.700844764709473,
+      "roadName": "L3159",
+      "roadKilometer": "2",
+      "placeId": "6180629703",
+      "roadCode": "L3159"
+    },
+    {
+      "lat": 48.37810516357422,
+      "lng": 16.70151424407959,
+      "roadName": "L3159",
+      "roadKilometer": "2,249",
+      "placeId": "6132686817",
+      "roadCode": "L3159"
+    },
+    {
+      "lat": 48.377864837646484,
+      "lng": 16.70168399810791,
+      "roadName": "L3159",
+      "roadKilometer": "2,276",
+      "placeId": "6132686822",
+      "roadCode": "L3159"
+    },
+    {
+      "lat": 48.372066497802734,
+      "lng": 16.703316688537598,
+      "roadName": "L3159",
+      "roadKilometer": "2,946",
+      "placeId": "6180629730",
+      "roadCode": "L3159"
+    },
+    {
+      "lat": 48.37173080444336,
+      "lng": 16.703843116760254,
+      "roadName": "L3159",
+      "roadKilometer": "3",
+      "placeId": "6180629706",
+      "roadCode": "L3159"
+    },
+    {
+      "lat": 48.36766052246094,
+      "lng": 16.710265159606934,
+      "roadName": "L3159",
+      "roadKilometer": "3,661",
+      "placeId": "6180629728",
+      "roadCode": "L3159"
+    },
+    {
+      "lat": 48.36583709716797,
+      "lng": 16.71389865875244,
+      "roadName": "L3159",
+      "roadKilometer": "4",
+      "placeId": "6180629709",
+      "roadCode": "L3159"
+    },
+    {
+      "lat": 48.35841751098633,
+      "lng": 16.717679023742676,
+      "roadName": "L3159",
+      "roadKilometer": "5",
+      "placeId": "6180629712",
+      "roadCode": "L3159"
+    },
+    {
+      "lat": 48.35245895385742,
+      "lng": 16.72769260406494,
+      "roadName": "L3159",
+      "roadKilometer": "6",
+      "placeId": "6180629715",
+      "roadCode": "L3159"
+    },
+    {
+      "lat": 48.35188674926758,
+      "lng": 16.728896141052246,
+      "roadName": "L3159",
+      "roadKilometer": "6,113",
+      "placeId": "6106260426",
+      "roadCode": "L3159"
+    },
+    {
+      "lat": 48.394508361816406,
+      "lng": 16.657605171203613,
+      "roadName": "L3033",
+      "roadKilometer": "0",
+      "placeId": "32883140",
+      "roadCode": "L3033"
+    },
+    {
+      "lat": 48.39328384399414,
+      "lng": 16.66044330596924,
+      "roadName": "L3033",
+      "roadKilometer": "0,257",
+      "placeId": "6106508465",
+      "roadCode": "L3033"
+    },
+    {
+      "lat": 48.34153366088867,
+      "lng": 16.76281452178955,
+      "roadName": "L3123",
+      "roadKilometer": "0",
+      "placeId": "32880533",
+      "roadCode": "L3123"
+    },
+    {
+      "lat": 48.3388671875,
+      "lng": 16.763651847839355,
+      "roadName": "L3123",
+      "roadKilometer": "0,303",
+      "placeId": "6106300928",
+      "roadCode": "L3123"
+    },
+    {
+      "lat": 48.36453628540039,
+      "lng": 16.79047679901123,
+      "roadName": "L3027",
+      "roadKilometer": "0",
+      "placeId": "6106272707",
+      "roadCode": "L3027"
+    },
+    {
+      "lat": 48.36591720581055,
+      "lng": 16.79061794281006,
+      "roadName": "L3027",
+      "roadKilometer": "0,158",
+      "placeId": "6176828096",
+      "roadCode": "L3027"
+    },
+    {
+      "lat": 48.37418746948242,
+      "lng": 16.79415988922119,
+      "roadName": "L3027",
+      "roadKilometer": "1,118",
+      "placeId": "6176828140",
+      "roadCode": "L3027"
+    },
+    {
+      "lat": 48.377784729003906,
+      "lng": 16.793566703796387,
+      "roadName": "L3027",
+      "roadKilometer": "1,524",
+      "placeId": "32906534",
+      "roadCode": "L3027"
+    },
+    {
+      "lat": 48.378082275390625,
+      "lng": 16.793519020080566,
+      "roadName": "L3027",
+      "roadKilometer": "1,556",
+      "placeId": "6176518014",
+      "roadCode": "L3027"
+    },
+    {
+      "lat": 48.381072998046875,
+      "lng": 16.793198585510254,
+      "roadName": "L3027",
+      "roadKilometer": "1,889",
+      "placeId": "6176828145",
+      "roadCode": "L3027"
+    },
+    {
+      "lat": 48.396114349365234,
+      "lng": 16.790369987487793,
+      "roadName": "L3027",
+      "roadKilometer": "3,58",
+      "placeId": "6176828158",
+      "roadCode": "L3027"
+    },
+    {
+      "lat": 48.397705078125,
+      "lng": 16.791420936584473,
+      "roadName": "L3027",
+      "roadKilometer": "3,779",
+      "placeId": "6106271389",
+      "roadCode": "L3027"
+    },
+    {
+      "lat": 48.366092681884766,
+      "lng": 16.69653606414795,
+      "roadName": "L3160",
+      "roadKilometer": "0",
+      "placeId": "32883519",
+      "roadCode": "L3160"
+    },
+    {
+      "lat": 48.372066497802734,
+      "lng": 16.703316688537598,
+      "roadName": "L3160",
+      "roadKilometer": "0,838",
+      "placeId": "6106507973",
+      "roadCode": "L3160"
+    },
+    {
+      "lat": 48.397705078125,
+      "lng": 16.791419982910156,
+      "roadName": "L3026",
+      "roadKilometer": "25,462",
+      "placeId": "32896003",
+      "roadCode": "L3026"
+    },
+    {
+      "lat": 48.3934326171875,
+      "lng": 16.713632583618164,
+      "roadName": "L19",
+      "roadKilometer": "6,188",
+      "placeId": "6160884088",
+      "roadCode": "L19"
+    },
+    {
+      "lat": 48.38972854614258,
+      "lng": 16.73341655731201,
+      "roadName": "L19",
+      "roadKilometer": "7,749",
+      "placeId": "32895415",
+      "roadCode": "L19"
+    },
+    {
+      "lat": 48.38633346557617,
+      "lng": 16.739249229431152,
+      "roadName": "L19",
+      "roadKilometer": "8,344",
+      "placeId": "32888862",
+      "roadCode": "L19"
+    },
+    {
+      "lat": 48.386173248291016,
+      "lng": 16.73876953125,
+      "roadName": "L19",
+      "roadKilometer": "8,344",
+      "placeId": "6134611800",
+      "roadCode": "L19"
+    },
+    {
+      "lat": 48.383445739746094,
+      "lng": 16.743474006652832,
+      "roadName": "L19",
+      "roadKilometer": "8,812",
+      "placeId": "32907471",
+      "roadCode": "L19"
+    },
+    {
+      "lat": 48.383914947509766,
+      "lng": 16.75575351715088,
+      "roadName": "L19",
+      "roadKilometer": "9,754",
+      "placeId": "6160928223",
+      "roadCode": "L19"
+    },
+    {
+      "lat": 48.377986907958984,
+      "lng": 16.793320655822754,
+      "roadName": "L19",
+      "roadKilometer": "12,744",
+      "placeId": "32904663",
+      "roadCode": "L19"
+    },
+    {
+      "lat": 48.37788009643555,
+      "lng": 16.793749809265137,
+      "roadName": "L19",
+      "roadKilometer": "12,776",
+      "placeId": "6176517964",
+      "roadCode": "L19"
+    },
+    {
+      "lat": 48.32411575317383,
+      "lng": 16.682013511657715,
+      "roadName": "L3025",
+      "roadKilometer": "0,012",
+      "placeId": "6105728975",
+      "roadCode": "L3025"
+    },
+    {
+      "lat": 48.33790969848633,
+      "lng": 16.669726371765137,
+      "roadName": "L3025",
+      "roadKilometer": "1,946",
+      "placeId": "6131668210",
+      "roadCode": "L3025"
+    },
+    {
+      "lat": 48.36600112915039,
+      "lng": 16.69674587249756,
+      "roadName": "L3025",
+      "roadKilometer": "5,826",
+      "placeId": "32893200",
+      "roadCode": "L3025"
+    },
+    {
+      "lat": 48.36515808105469,
+      "lng": 16.698391914367676,
+      "roadName": "L3025",
+      "roadKilometer": "5,826",
+      "placeId": "6106300949",
+      "roadCode": "L3025"
+    },
+    {
+      "lat": 48.36766052246094,
+      "lng": 16.7102632522583,
+      "roadName": "L3025",
+      "roadKilometer": "6,924",
+      "placeId": "32889203",
+      "roadCode": "L3025"
+    },
+    {
+      "lat": 48.386173248291016,
+      "lng": 16.73876953125,
+      "roadName": "L3025",
+      "roadKilometer": "9,965",
+      "placeId": "6106260562",
+      "roadCode": "L3025"
+    },
+    {
+      "lat": 48.32561492919922,
+      "lng": 16.79625415802002,
+      "roadName": "L3005",
+      "roadKilometer": "5,722",
+      "placeId": "6144802111",
+      "roadCode": "L3005"
+    },
+    {
+      "lat": 48.32906723022461,
+      "lng": 16.789494514465332,
+      "roadName": "L3005",
+      "roadKilometer": "6,355",
+      "placeId": "6144802115",
+      "roadCode": "L3005"
+    },
+    {
+      "lat": 48.33544921875,
+      "lng": 16.778695106506348,
+      "roadName": "L3005",
+      "roadKilometer": "7,438",
+      "placeId": "6144802119",
+      "roadCode": "L3005"
+    },
+    {
+      "lat": 48.341732025146484,
+      "lng": 16.77171039581299,
+      "roadName": "L3005",
+      "roadKilometer": "8,314",
+      "placeId": "6144802123",
+      "roadCode": "L3005"
+    },
+    {
+      "lat": 48.344058990478516,
+      "lng": 16.76990795135498,
+      "roadName": "L3005",
+      "roadKilometer": "8,611",
+      "placeId": "6106268193",
+      "roadCode": "L3005"
+    },
+    {
+      "lat": 48.34381866455078,
+      "lng": 16.76676654815674,
+      "roadName": "L3005",
+      "roadKilometer": "8,611",
+      "placeId": "6106272613",
+      "roadCode": "L3005"
+    },
+    {
+      "lat": 48.346466064453125,
+      "lng": 16.765223503112793,
+      "roadName": "L3005",
+      "roadKilometer": "8,935",
+      "placeId": "32892429",
+      "roadCode": "L3005"
+    },
+    {
+      "lat": 48.34845733642578,
+      "lng": 16.75688076019287,
+      "roadName": "L3005",
+      "roadKilometer": "9,615",
+      "placeId": "6144802128",
+      "roadCode": "L3005"
+    },
+    {
+      "lat": 48.3559684753418,
+      "lng": 16.751893043518066,
+      "roadName": "L3005",
+      "roadKilometer": "10,631",
+      "placeId": "6144802132",
+      "roadCode": "L3005"
+    },
+    {
+      "lat": 48.364830017089844,
+      "lng": 16.751951217651367,
+      "roadName": "L3005",
+      "roadKilometer": "11,631",
+      "placeId": "6144802136",
+      "roadCode": "L3005"
+    },
+    {
+      "lat": 48.37575149536133,
+      "lng": 16.74769687652588,
+      "roadName": "L3005",
+      "roadKilometer": "12,893",
+      "placeId": "6144802149",
+      "roadCode": "L3005"
+    },
+    {
+      "lat": 48.381229400634766,
+      "lng": 16.743645668029785,
+      "roadName": "L3005",
+      "roadKilometer": "13,572",
+      "placeId": "6144802167",
+      "roadCode": "L3005"
+    },
+    {
+      "lat": 48.383445739746094,
+      "lng": 16.743474006652832,
+      "roadName": "L3005",
+      "roadKilometer": "13,832",
+      "placeId": "32885489",
+      "roadCode": "L3005"
+    },
+    {
+      "lat": 48.33969497680664,
+      "lng": 16.74796962738037,
+      "roadName": "B8 - Angerner Straße",
+      "roadKilometer": "33,412",
+      "placeId": "6108486280",
+      "roadCode": "B8"
+    },
+    {
+      "lat": 48.33952713012695,
+      "lng": 16.746731758117676,
+      "roadName": "B8 - Angerner Straße",
+      "roadKilometer": "33,422",
+      "placeId": "6134602043",
+      "roadCode": "B8"
+    },
+    {
+      "lat": 48.3392333984375,
+      "lng": 16.74636745452881,
+      "roadName": "B8 - Angerner Straße",
+      "roadKilometer": "33,425",
+      "placeId": "6134602042",
+      "roadCode": "B8"
+    },
+    {
+      "lat": 48.325923919677734,
+      "lng": 16.71496868133545,
+      "roadName": "B8 - Angerner Straße",
+      "roadKilometer": "35,843",
+      "placeId": "6122081330",
+      "roadCode": "B8"
+    },
+    {
+      "lat": 48.335941314697266,
+      "lng": 16.715214729309082,
+      "roadName": "B8 - Angerner Straße",
+      "roadKilometer": "0",
+      "placeId": "6133703916",
+      "roadCode": "B8"
+    },
+    {
+      "lat": 48.33595657348633,
+      "lng": 16.7152156829834,
+      "roadName": "B8 - Angerner Straße",
+      "roadKilometer": "0,083",
+      "placeId": "6133703917",
+      "roadCode": "B8"
+    },
+    {
+      "lat": 48.32395935058594,
+      "lng": 16.681904792785645,
+      "roadName": "B8 - Angerner Straße",
+      "roadKilometer": "0",
+      "placeId": "6133704425",
+      "roadCode": "B8"
+    },
+    {
+      "lat": 48.32400894165039,
+      "lng": 16.681885719299316,
+      "roadName": "B8 - Angerner Straße",
+      "roadKilometer": "0,074",
+      "placeId": "6133704424",
+      "roadCode": "B8"
+    },
+    {
+      "lat": 48.34139633178711,
+      "lng": 16.755614280700684,
+      "roadName": "B8 - Angerner Straße",
+      "roadKilometer": "0",
+      "placeId": "6133713722",
+      "roadCode": "B8"
+    },
+    {
+      "lat": 48.34141540527344,
+      "lng": 16.75559902191162,
+      "roadName": "B8 - Angerner Straße",
+      "roadKilometer": "0,116",
+      "placeId": "6133713721",
+      "roadCode": "B8"
+    },
+    {
+      "lat": 48.338985443115234,
+      "lng": 16.728790283203125,
+      "roadName": "L3035",
+      "roadKilometer": "0",
+      "placeId": "6133748398",
+      "roadCode": "L3035"
+    },
+    {
+      "lat": 48.33900451660156,
+      "lng": 16.728772163391113,
+      "roadName": "L3035",
+      "roadKilometer": "0,053",
+      "placeId": "6133748397",
+      "roadCode": "L3035"
+    },
+    {
+      "lat": 48.339698791503906,
+      "lng": 16.728503227233887,
+      "roadName": "L3035",
+      "roadKilometer": "0",
+      "placeId": "6133748731",
+      "roadCode": "L3035"
+    },
+    {
+      "lat": 48.339691162109375,
+      "lng": 16.728482246398926,
+      "roadName": "L3035",
+      "roadKilometer": "0,054",
+      "placeId": "6133748730",
+      "roadCode": "L3035"
+    },
+    {
+      "lat": 48.34230041503906,
+      "lng": 16.719243049621582,
+      "roadName": "L11",
+      "roadKilometer": "0",
+      "placeId": "6133750374",
+      "roadCode": "L11"
+    },
+    {
+      "lat": 48.342308044433594,
+      "lng": 16.719231605529785,
+      "roadName": "L11",
+      "roadKilometer": "0,059",
+      "placeId": "6133750373",
+      "roadCode": "L11"
+    },
+    {
+      "lat": 48.306312561035156,
+      "lng": 16.68660259246826,
+      "roadName": "L11",
+      "roadKilometer": "0",
+      "placeId": "6133752484",
+      "roadCode": "L11"
+    },
+    {
+      "lat": 48.30632400512695,
+      "lng": 16.686583518981934,
+      "roadName": "L11",
+      "roadKilometer": "0,077",
+      "placeId": "6133752483",
+      "roadCode": "L11"
+    },
+    {
+      "lat": 48.37810516357422,
+      "lng": 16.70151424407959,
+      "roadName": "L3159",
+      "roadKilometer": "0",
+      "placeId": "6133753694",
+      "roadCode": "L3159"
+    },
+    {
+      "lat": 48.37811279296875,
+      "lng": 16.70154094696045,
+      "roadName": "L3159",
+      "roadKilometer": "0,086",
+      "placeId": "6133753693",
+      "roadCode": "L3159"
+    },
+    {
+      "lat": 48.339561462402344,
+      "lng": 16.74532985687256,
+      "roadName": "B8 - Angerner Straße Rampe (kilometriert) 33R1",
+      "roadKilometer": "0",
+      "placeId": "6134604151",
+      "roadCode": "B8"
+    },
+    {
+      "lat": 48.339508056640625,
+      "lng": 16.746230125427246,
+      "roadName": "B8 - Angerner Straße Rampe (kilometriert) 33R1",
+      "roadKilometer": "0,068",
+      "placeId": "6134604152",
+      "roadCode": "B8"
+    },
+    {
+      "lat": 48.33952713012695,
+      "lng": 16.746731758117676,
+      "roadName": "B8 - Angerner Straße",
+      "roadKilometer": "0",
+      "placeId": "6134604200",
+      "roadCode": "B8"
+    },
+    {
+      "lat": 48.33951950073242,
+      "lng": 16.746743202209473,
+      "roadName": "B8 - Angerner Straße",
+      "roadKilometer": "0,137",
+      "placeId": "6134609749",
+      "roadCode": "B8"
+    },
+    {
+      "lat": 48.325923919677734,
+      "lng": 16.71496868133545,
+      "roadName": "B8 - Angerner Straße",
+      "roadKilometer": "0",
+      "placeId": "6134609845",
+      "roadCode": "B8"
+    },
+    {
+      "lat": 48.325904846191406,
+      "lng": 16.714959144592285,
+      "roadName": "B8 - Angerner Straße",
+      "roadKilometer": "0,137",
+      "placeId": "6134609844",
+      "roadCode": "B8"
+    },
+    {
+      "lat": 48.36821365356445,
+      "lng": 16.65917682647705,
+      "roadName": "L12",
+      "roadKilometer": "0",
+      "placeId": "6136721714",
+      "roadCode": "L12"
+    },
+    {
+      "lat": 48.368228912353516,
+      "lng": 16.659173011779785,
+      "roadName": "L12",
+      "roadKilometer": "0,103",
+      "placeId": "6136721713",
+      "roadCode": "L12"
+    },
+    {
+      "lat": 48.377986907958984,
+      "lng": 16.793320655822754,
+      "roadName": "L19",
+      "roadKilometer": "0",
+      "placeId": "6176829272",
+      "roadCode": "L19"
+    },
+    {
+      "lat": 48.37799835205078,
+      "lng": 16.793326377868652,
+      "roadName": "L19",
+      "roadKilometer": "0,102",
+      "placeId": "6176829270",
+      "roadCode": "L19"
+    },
+    {
+      "lat": 48.326995849609375,
+      "lng": 16.679768562316895,
+      "roadName": "L3025",
+      "roadKilometer": "0",
+      "placeId": "6177203393",
+      "roadCode": "L3025"
+    },
+    {
+      "lat": 48.330345153808594,
+      "lng": 16.67610263824463,
+      "roadName": "L3025",
+      "roadKilometer": "0,463",
+      "placeId": "6177203391",
+      "roadCode": "L3025"
+    },
+    {
+      "lat": 48.34071731567383,
+      "lng": 16.734951972961426,
+      "roadName": "Gänserndorf - Marchegg",
+      "roadKilometer": "31,509",
+      "placeId": "15533276033"
+    },
+    {
+      "lat": 48.341514587402344,
+      "lng": 16.751121520996094,
+      "roadName": "Gänserndorf - Marchegg",
+      "roadKilometer": "32,74",
+      "placeId": "15532576539"
+    },
+    {
+      "lat": 48.34077453613281,
+      "lng": 16.754454612731934,
+      "roadName": "Gänserndorf - Marchegg",
+      "roadKilometer": "33,003",
+      "placeId": "15532576537"
+    },
+    {
+      "lat": 48.33544921875,
+      "lng": 16.778695106506348,
+      "roadName": "Gänserndorf - Marchegg",
+      "roadKilometer": "34,893",
+      "placeId": "15532576541"
+    },
+    {
+      "lat": 48.341827392578125,
+      "lng": 16.739386558532715,
+      "roadName": "Gänserndorf - Pirawarth - (Gaweinstal - Mistelbach (LB))",
+      "roadKilometer": "0,059",
+      "placeId": "15532576019"
+    }
+  ]
+}

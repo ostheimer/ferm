@@ -13,6 +13,8 @@ Diese Dokumentation beschreibt den aktuellen Stand des Repositories und den gepl
 - [iOS-Smoke-Runbook](./mobile-smoke-ios.md)
 - [Android-Smoke-Runbook](./mobile-smoke-android.md)
 - [Google-Maps-Ausrichtung](./maps-google-v1.md)
+- [GIP-Straßenkilometer v1](./gip-strassenkilometer-v1.md)
+- [Passkeys und Face ID v1](./passkeys-faceid-v1.md)
 - [Rollen, Aufgaben und Nachrichten v1](./rollen-aufgaben-nachrichten-v1.md)
 - [Reviermeldungen und Aufgaben v1](./reviermeldungen-aufgaben-v1-plan.md)
 - [Umsetzungsbacklog](./umsetzungsbacklog.md)
@@ -36,11 +38,11 @@ Diese Dokumentation beschreibt den aktuellen Stand des Repositories und den gepl
 Das Repository enthält bereits ein produktiv orientiertes Monorepo mit:
 
 - Next.js-Backoffice in `apps/web` inklusive produktivem API-Slice über Route Handler und Drizzle
-- Expo-Mobile-App mit Login, Dashboard, Ansitz, Fallwild, Reviereinrichtungen und Protokollen gegen denselben API-Slice
+- Expo-Mobile-App mit Login, lokalem Face-ID-/Geräte-Entsperren, Dashboard, Ansitz, Fallwild, Reviereinrichtungen und Protokollen gegen denselben API-Slice
 - Shared Domain Package für Typen, Demo-Daten und Fachregeln
 - Route Handler für `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `reviereinrichtungen`, `protokolle`, `sitzungen`, `documents` und `geo`
 - Fallwild-Detail, Foto-Upload und S3-kompatible Storage-Schicht für MinIO lokal und R2 inklusive best-effort Rollback bei Medien-Insert-Fehlern
-- Fallwild-Standort v1 über `POST /api/v1/geo/fallwild-location`, Mobile-GPS, vorbereitete serverseitige Adressauflösung, Mock-Provider für Gänserndorf-Testdaten und gespeicherte Standort-/Straßenkilometer-Metadaten
+- Fallwild-Standort v1 über `POST /api/v1/geo/fallwild-location`, Mobile-GPS, serverseitige Google-Adressauflösung, GIP-Index-/Endpoint-Resolver, Mock-Provider für Gänserndorf-Testdaten und gespeicherte Standort-/Straßenkilometer-Metadaten
 - Mobile Offline-Queue v2 für Ansitz und Fallwild inklusive separater Foto-Upload-Operationen, Retry-Backoff, Konfliktstatus, manuellem Retry und Verwerfen problematischer Einträge
 - Mobile Vitest-Abdeckung für Foto-Normalisierung, Foto-Limit, Submission-Fallback, Standortauflösung und Queue-Retry-Policy
 - automatisierten Web-Tests mit Vitest für Route Handler, Services und Queries
@@ -48,6 +50,7 @@ Das Repository enthält bereits ein produktiv orientiertes Monorepo mit:
 - Preview-Smoke für Public Web, Session-Grundvertrag und die wichtigsten App-Read-Pfade
 - Release-Check für produktive Deployments mit separatem Workflow bei erfolgreichen Production-Deployments und manuellem `workflow_dispatch`
 - neues `hege`-Logo in Web und iOS-App; Landing, Login, Registrierung und Setup-Flow sind auf `https://hege.app` visuell geprüft
+- lokales Face-ID-/Touch-ID-Entsperren gespeicherter Mobile-Sessions; der iPhone-Flow wurde am 2026-05-06 auf dem angeschlossenen Gerät bestätigt
 - abgeschlossener iPhone-/iOS-Simulator-Smoke als primärer nativer Expo-Abnahmepfad; der Lauf vom 2026-04-26 bestätigt Queue-v2-Fehleranzeigen, R2-Storage ist in Production aktiv und ein direkter Fallwild-Foto-Upload gegen `hege.app` ist verifiziert
 - `apps/api` bleibt als Referenz- und Übergangspfad im Repository
 - Rollen, Aufgaben und Nachrichten werden als nächste Planungsstufe vorbereitet, inklusive späterer WhatsApp-/Telegram-Kanäle
@@ -56,7 +59,7 @@ Kartenfunktionen werden projektweit auf Google Maps ausgerichtet; das stabile Zi
 
 Die fachliche Dokumentation beschreibt bereits die nächste Ausbaustufe mit echter Persistenz, Authentifizierung, Rollenprüfung und produktionsreifen Workflows.
 
-Der aktuelle Entwicklungsfokus liegt auf dem iPhone-/iOS-Geräte-Smoke mit erfolgreichem Foto-Upload, Fallwild-Standortauflösung und leerer Queue. Ohne externe Keys kann der Standort-Flow über `HEGE_GEO_PROVIDER=mock` mit lokalen Gänserndorf-Testdaten geprüft werden; für echte Adresse und Straße muss der Google-Server-Key in Preview/Production gesetzt werden. Danach folgen GIP-Straßenkilometer-Härtung, Mobile-E2E-Strategie und Reviermeldungen/Aufgaben v1.
+Der aktuelle Entwicklungsfokus liegt auf dem iPhone-/iOS-Geräte-Smoke mit erfolgreichem Foto-Upload, Fallwild-Standortauflösung und leerer Queue. Google Reverse Geocoding ist für Preview/Production vorbereitet; GIP-Straßenkilometer können über einen HTTP-Resolver, einen kompakten OGD-BEPU-JSON-Index oder den gebündelten regionalen Gänserndorf-Index angebunden werden. Danach folgen Mobile-E2E-Strategie und der weitere Ausbau von Reviermeldungen/Aufgaben.
 
 Für den aktuellen Status sind [ROADMAP.md](../ROADMAP.md), [Roadmap v1](./roadmap-v1.md) und [TODO.md](../TODO.md) maßgeblich. Die Sprint-0/1-Backlogs und Agent-Workstreams bleiben als Planungsartefakte der zuletzt geschnittenen Arbeitsblöcke erhalten.
 

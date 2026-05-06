@@ -14,7 +14,7 @@ Der erste produktive Schritt ist bewusst kleiner als eine vollständige Kartenin
 - `POST /api/v1/geo/fallwild-location` löst Koordinaten serverseitig auf.
 - Google Reverse Geocoding liefert lesbare Adresse, Gemeinde und Straßenname.
 - Straßenkilometer werden als eigenes Feld gespeichert und bleiben manuell editierbar.
-- GIP ist als Resolver-Schnittstelle vorbereitet, wird aber noch nicht als kompletter OGD-Import mitgeliefert.
+- GIP ist als HTTP-Resolver oder lokaler OGD-BEPU-JSON-Index angebunden; der große Rohdatenexport wird nicht ins Repository übernommen.
 
 Warum diese Trennung wichtig ist: Google kann Adressen und Straßennamen gut ergänzen, ist aber nicht die fachliche Quelle für österreichische Straßenkilometer. Dafür wird GIP als OGD-Basis verwendet. Laut GIP-OGD-Seite wird der Export etwa alle zwei Monate aktualisiert; ab April 2026 wird der OGD-Export im neuen GIP-2.0-Format bereitgestellt. Quelle: [gip.gv.at OGD Daten](https://www.gip.gv.at/#ogd).
 
@@ -24,9 +24,13 @@ Aktuelle Env-Schalter:
 - `GOOGLE_MAPS_SERVER_API_KEY` für serverseitiges Reverse Geocoding
 - `GOOGLE_MAPS_REGION=AT`
 - `GOOGLE_MAPS_LANGUAGE=de`
-- `GIP_ROAD_KILOMETER_ENDPOINT` für einen späteren internen Resolver gegen GIP-OGD-Daten
+- `GIP_ROAD_KILOMETER_ENDPOINT` für einen internen Resolver gegen GIP-OGD-Daten
+- `GIP_ROAD_KILOMETER_INDEX_PATH` für einen deploybaren JSON-Index aus GIP-OGD-BEPU-Punkten
+- `GIP_ROAD_KILOMETER_MAX_DISTANCE_METERS=150` als Standard-Suchradius
 
-`mock` ist nur ein Entwicklungs- und Smoke-Hilfsmittel: Es liefert für Koordinaten rund um Gänserndorf eine lokale Adresse und einen lokalen Straßenkilometer-Hinweis, markiert die Antwort aber mit sichtbaren Warnungen. Production soll `live` verwenden; ohne Keys bleiben GPS und manuelle Ergänzung nutzbar.
+`mock` ist nur ein Entwicklungs- und Smoke-Hilfsmittel: Es liefert für Koordinaten rund um Gänserndorf eine lokale Adresse und einen lokalen Straßenkilometer-Hinweis, markiert die Antwort aber mit sichtbaren Warnungen. Production soll `live` verwenden; ohne expliziten GIP-Endpoint oder Index greift ein gebündelter regionaler Gänserndorf-Index aus echten GIP-OGD-Daten. Außerhalb dieses Ausschnitts bleiben GPS und manuelle Ergänzung nutzbar.
+
+Der Resolver-Vertrag ist bewusst tolerant gehalten, damit der GIP-Import nicht an einem einzelnen Exportformat hängt: einfache JSON-Antworten, GeoJSON-ähnliche `properties` und ArcGIS-ähnliche `attributes` werden gelesen. Für den lokalen Index wird die GIP-OGD-Tabelle `BEPU_OGD` mit `FROMKM`, `FEATURENAME` und RTree-Koordinaten in ein kleines JSON-Format exportiert. Straßennamen wie `Landesstraße 9`, `L 9` und `L9` werden beim Abgleich als äquivalent behandelt; der gespeicherte Wert bleibt aber der vom Resolver gelieferte Fachwert. Details stehen in [GIP-Straßenkilometer v1](./gip-strassenkilometer-v1.md).
 
 ## Grundprinzipien
 

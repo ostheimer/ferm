@@ -50,6 +50,13 @@
       "when": 1777411643712,
       "tag": "0006_fallwild_location_metadata",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1777841971811,
+      "tag": "0007_normal_zarda",
+      "breakpoints": true
     }
   ]
 }

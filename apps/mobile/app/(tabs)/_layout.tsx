@@ -27,6 +27,9 @@ export default function TabsLayout() {
           paddingBottom: 12,
           paddingTop: 8,
           backgroundColor: "#fff9ef"
+        },
+        tabBarLabelStyle: {
+          fontSize: 11
         }
       }}
     >
@@ -56,6 +59,13 @@ export default function TabsLayout() {
         options={{
           title: "Fallwild",
           tabBarIcon: ({ color, size }) => <Ionicons color={color} name="camera-outline" size={size} />
+        }}
+      />
+      <Tabs.Screen
+        name="revierarbeit"
+        options={{
+          title: "Meldungen",
+          tabBarIcon: ({ color, size }) => <Ionicons color={color} name="checkbox-outline" size={size} />
         }}
       />
       <Tabs.Screen

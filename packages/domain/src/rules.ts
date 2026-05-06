@@ -40,6 +40,9 @@ export function buildDashboardOverview(data: DemoData, revierId: string): Dashbo
     unveroeffentlichteProtokolle: data.sitzungen.filter(
       (entry) => entry.revierId === revierId && entry.status === "entwurf"
     ).length,
+    offeneAufgaben: data.aufgaben.filter(
+      (entry) => entry.revierId === revierId && !["erledigt", "abgelehnt", "archiviert"].includes(entry.status)
+    ).length,
     letzteBenachrichtigungen: data.notifications.filter((entry) => entry.revierId === revierId).slice(-3).reverse(),
     naechsteSitzung: data.sitzungen
       .filter((entry) => entry.revierId === revierId)

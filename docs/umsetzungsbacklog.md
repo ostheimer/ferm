@@ -9,7 +9,7 @@ Der historische Fokus lag auf:
 - `Sprint 0`: technische Produktbasis
 - `Sprint 1`: erste nutzbare Web-Version für Schriftführer
 
-Der aktuelle Anschlussfokus nach Medien-/Queue-v2 liegt auf der nativen iPhone-Abnahme und dem fachlichen Codeblock [Reviermeldungen und Aufgaben v1](./reviermeldungen-aufgaben-v1-plan.md).
+Der aktuelle Anschlussfokus nach Medien-/Queue-v2 liegt auf der Standort-Härtung für Fallwild: Google-Adressauflösung, GIP-Straßenkilometer und der erneute native iPhone-Smoke für Foto-Upload, Standort und leere Queue. Das lokale Face-ID-/Geräte-Entsperren gespeicherter Mobile-Sessions ist umgesetzt und auf dem angeschlossenen iPhone bestätigt.
 
 ## Planungsprinzipien
 
@@ -44,7 +44,7 @@ Die späteren Sprints bleiben vorerst auf Roadmap-Niveau und werden erst detaill
 
 - Sprint 2: Jäger-App Kern
 - Sprint 3: Fallwild produktiv inkl. Offline-Sync und Medien-/Queue-v2
-- Sprint 4: Reviermeldungen und Aufgaben v1
+- Sprint 4: Reviermeldungen und Aufgaben v1, begonnen mit Backend-/Mobile-Slice und lokal bestandenem iPhone-Smoke für `Meldungen`
 - Sprint 5: Reviereinrichtungen, Karten und weitere Härtung
 
 ## Definition of Ready für neue Sprint-Backlogs

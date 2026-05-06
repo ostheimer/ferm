@@ -6,6 +6,8 @@ Dieser Plan schneidet den nächsten fachlichen Codeblock nach Medien-/Queue-v2. 
 
 Reviermeldungen sind strukturierte Hinweise aus dem Feld. Aufgaben sind daraus oder manuell erzeugte Arbeitseinheiten im Revier. Beide Ressourcen bleiben pro `revier_id` getrennt und nutzen die bestehende Membership- und Rollenbasis.
 
+Status am 2026-05-05: Der Backend-/Mobile-Slice ist lokal nativ abgenommen. Tabellen, Seeds, API-Routen, Rollenprüfung, Aufgaben-Sichtbarkeit, Dashboard-Zähler und der Mobile-Tab `Meldungen` sind umgesetzt; der iPhone-Smoke bestätigt Login, Listenladen, Aufgabenstatusänderung und Reviermeldung-Erfassung. Fotos für Reviermeldungen folgen als späterer Medien-Slice.
+
 ## Scope
 
 - Reviermeldungen mit Kategorie, Status, Kurztext, optionalem Standort, optionalen Fotos und Ersteller speichern
@@ -204,7 +206,7 @@ Diese Regeln reichen für den ersten Slice. Feingranulare Empfängergruppen folg
 3. Web-Servermodule mit Revier-Scope, Rollenprüfung und API-Contract-Tests bauen.
 4. Web-Listen und einfache Detail-/Statusaktionen anschließen.
 5. Mobile-Lesepfade und Reviermeldung-Erfassung ohne große E2E-Infrastruktur anschließen.
-6. iPhone-Smoke um Reviermeldung-Erfassung und Aufgabenliste erweitern.
+6. iPhone-Smoke um Reviermeldung-Erfassung und Aufgabenliste erweitern. Erledigt am 2026-05-05 lokal gegen `http://10.0.0.242:3000/api/v1`.
 
 ## Akzeptanzkriterien
 

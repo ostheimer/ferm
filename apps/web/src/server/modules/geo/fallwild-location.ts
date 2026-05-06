@@ -1,6 +1,12 @@
 import type { FallwildRoadReference, GeoPoint } from "@hege/domain";
 
 import { getServerEnv, type ServerEnv } from "../../env";
+import bundledGipRoadKilometerIndex from "./data/gip-road-kilometer-gaenserndorf.json";
+import {
+  createGipRoadKilometerIndexResolver,
+  createGipRoadKilometerStaticIndexResolver,
+  readGipRoadKilometerIndexEntries
+} from "./gip-road-kilometer-index";
 
 export interface FallwildLocationSuggestion {
   location: GeoPoint;
@@ -84,11 +90,24 @@ const LOCATION_FIXTURES: LocationFixture[] = [
 const GIP_ROAD_NAME_KEYS = [
   "roadName",
   "road_name",
+  "ROAD_NAME",
+  "road",
+  "ROAD",
   "route",
   "routeName",
+  "route_name",
+  "ROUTE_NAME",
   "streetName",
+  "street_name",
   "strasse",
   "straße",
+  "Strasse",
+  "Straße",
+  "STRASSE",
+  "STRNAME",
+  "STRASSENNAME",
+  "BEZEICHNUNG",
+  "BESCHREIBUNG",
   "FEATURENAME",
   "STREETNAME",
   "NAME",
@@ -101,27 +120,67 @@ const GIP_ROAD_KILOMETER_KEYS = [
   "kilometer",
   "km",
   "KM",
+  "KILOMETER",
+  "KILOMETERWERT",
+  "KM_VALUE",
+  "kmValue",
+  "km_value",
+  "KM_VON",
+  "kmVon",
+  "km_von",
+  "VONKM",
+  "vonKm",
   "FROMKM",
   "fromkm",
+  "fromKm",
+  "KM_BIS",
+  "kmBis",
+  "km_bis",
+  "BISKM",
+  "bisKm",
   "TOKM",
   "tokm",
+  "toKm",
   "STATION",
-  "station"
+  "station",
+  "STATIONIERUNG",
+  "stationierung",
+  "Stationierung"
 ] as const;
 
 const GIP_PLACE_ID_KEYS = [
+  "id",
+  "ID",
   "placeId",
   "place_id",
   "segmentId",
+  "segment_id",
+  "SEGMENTID",
   "OBJECTID",
   "objectid",
+  "ObjectId",
   "EDGE_OBJECTID",
   "edge_objectid",
+  "EDGEID",
+  "edgeId",
+  "LINKID",
+  "linkId",
+  "GIP_ID",
+  "gipId",
+  "GIPID",
   "ROUTEID",
   "routeid"
 ] as const;
 
-const GIP_DISTANCE_KEYS = ["distanceMeters", "distance", "DISTANCE"] as const;
+const GIP_DISTANCE_KEYS = [
+  "distanceMeters",
+  "distance_meters",
+  "DISTANCE_METERS",
+  "distance",
+  "DISTANCE",
+  "distanz",
+  "DISTANZ"
+] as const;
 
 export async function resolveFallwildLocation({
   lat,
@@ -239,7 +298,17 @@ function createRoadKilometerResolver(env: ServerEnv): RoadKilometerResolver | un
     return createGipEndpointRoadKilometerResolver(env.gipRoadKilometerEndpoint);
   }
 
-  return undefined;
+  if (env.gipRoadKilometerIndexPath) {
+    return createGipRoadKilometerIndexResolver({
+      indexPath: env.gipRoadKilometerIndexPath,
+      maxDistanceMeters: env.gipRoadKilometerMaxDistanceMeters
+    });
+  }
+
+  return createGipRoadKilometerStaticIndexResolver({
+    entries: readGipRoadKilometerIndexEntries(bundledGipRoadKilometerIndex),
+    maxDistanceMeters: env.gipRoadKilometerMaxDistanceMeters
+  });
 }
 
 function createGoogleReverseGeocoder({
@@ -307,7 +376,7 @@ function createFixtureRoadKilometerResolver(): RoadKilometerResolver {
         return undefined;
       }
 
-      if (roadNameHint && normalizeRoadName(roadNameHint) !== normalizeRoadName(fixture.roadName)) {
+      if (roadNameHint && canonicalizeRoadName(roadNameHint) !== canonicalizeRoadName(fixture.roadName)) {
         return {
           roadName: roadNameHint,
           warnings: ["Mock-GIP hat keinen passenden Straßenkilometer zur ermittelten Straße gefunden."]
@@ -438,7 +507,7 @@ function readGipRoadKilometerSuggestion(payload: unknown, roadNameHint?: string)
   const roadKilometer = readFirstRoadKilometer(candidate, GIP_ROAD_KILOMETER_KEYS) ?? parsedReference.roadKilometer;
   const warnings: string[] = [];
 
-  if (roadName && roadNameHint && normalizeRoadName(roadName) !== normalizeRoadName(roadNameHint)) {
+  if (roadName && roadNameHint && canonicalizeRoadName(roadName) !== canonicalizeRoadName(roadNameHint)) {
     warnings.push("GIP-Straßenname weicht von Google-Straßenname ab; bitte vor dem Speichern prüfen.");
   }
 
@@ -475,15 +544,19 @@ function collectGipCandidates(payload: unknown): Array<Record<string, unknown>> 
     return record.features.flatMap((feature) => {
       const featureRecord = readRecord(feature);
       const properties = readRecord(featureRecord?.properties);
+      const attributes = readRecord(featureRecord?.attributes);
+      const nestedData = readRecord(featureRecord?.data);
 
-      if (!featureRecord && !properties) {
+      if (!featureRecord && !properties && !attributes && !nestedData) {
         return [];
       }
 
       return [
         {
           ...(featureRecord ?? {}),
-          ...(properties ?? {})
+          ...(properties ?? {}),
+          ...(attributes ?? {}),
+          ...(nestedData ?? {})
         }
       ];
     });
@@ -533,6 +606,24 @@ function toRadians(value: number) {
 
 function normalizeRoadName(value: string) {
   return value.trim().toLowerCase().replace(/\s+/g, "");
+}
+
+function canonicalizeRoadName(value: string) {
+  const normalized = normalizeRoadName(value)
+    .replace(/^landesstra(?:ß|ss)e/, "l")
+    .replace(/^bundesstra(?:ß|ss)e/, "b")
+    .replace(/^schnellstra(?:ß|ss)e/, "s")
+    .replace(/^autobahn/, "a")
+    .replace(/^straße/, "")
+    .replace(/^strasse/, "");
+
+  const roadClassMatch = normalized.match(/^(?<prefix>[abls])[-.]?(?<number>\d+[a-z]?)$/u);
+
+  if (roadClassMatch?.groups) {
+    return `${roadClassMatch.groups.prefix}${roadClassMatch.groups.number}`;
+  }
+
+  return normalized;
 }
 
 function findAddressComponent(result: GoogleGeocodeResult | undefined, type: string): string | undefined {

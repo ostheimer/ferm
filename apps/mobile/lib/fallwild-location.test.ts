@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   applyFallwildLocationSuggestion,
   buildFallwildRoadReference,
+  formatRoadKilometerSourceLabel,
   summarizeFallwildLocationSuggestion
 } from "./fallwild-location";
 
@@ -80,5 +81,11 @@ describe("fallwild location helpers", () => {
     ).toBe(
       "GPS übernommen. Adresse und Straßenkilometer bitte manuell ergänzen. Hinweis: Google Reverse Geocoding ist nicht konfiguriert. GIP-Straßenkilometer ist noch nicht automatisiert; bitte manuell ergänzen."
     );
+  });
+
+  it("formats road kilometer source labels for the Fallwild form", () => {
+    expect(formatRoadKilometerSourceLabel("gip")).toBe("Quelle: GIP");
+    expect(formatRoadKilometerSourceLabel("manual")).toBe("Quelle: manuell");
+    expect(formatRoadKilometerSourceLabel("unavailable")).toBe("Quelle: nicht automatisch verfügbar");
   });
 });

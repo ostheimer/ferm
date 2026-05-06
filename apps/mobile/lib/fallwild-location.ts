@@ -73,6 +73,17 @@ export function summarizeFallwildLocationSuggestion(suggestion: FallwildLocation
   return `${base} Hinweis: ${warnings.join(" ")}`;
 }
 
+export function formatRoadKilometerSourceLabel(source: FallwildLocationFormFields["roadKilometerSource"]) {
+  switch (source) {
+    case "gip":
+      return "Quelle: GIP";
+    case "unavailable":
+      return "Quelle: nicht automatisch verfügbar";
+    default:
+      return "Quelle: manuell";
+  }
+}
+
 export function formatCoordinate(value: number) {
   return value.toFixed(6);
 }

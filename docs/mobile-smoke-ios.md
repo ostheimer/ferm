@@ -7,6 +7,7 @@ Dieses Runbook beschreibt die reproduzierbare native Smoke-Abnahme der Expo-Mobi
 Der Smoke prüft keine vollständige Regression, sondern die wichtigsten nativen Pfade:
 
 - Login mit vorhandenem internen Testkonto
+- lokales Entsperren einer gespeicherten Sitzung per Face ID, Touch ID oder Geräteprüfung
 - Dashboard laden und aktualisieren
 - Ansitz-Screen laden und optional in einem abgestimmten Test-Revier starten
 - Fallwild-Standort über iPhone-GPS erfassen und Adresse, Straße sowie Straßenkilometer-Felder prüfen
@@ -96,6 +97,25 @@ Erwartung:
 - Login ist erfolgreich.
 - Die App wechselt auf die geschützte Hauptnavigation.
 - Das aktive Test-Revier ist sichtbar oder fachlich eindeutig erkennbar.
+
+## Face-ID-/Geräte-Entsperren-Smoke
+
+Dieser Schritt gilt für ein physisches iPhone oder einen Simulator mit eingerichteter Geräteprüfung. Er prüft bewusst nicht echten WebAuthn-Passkey-Login, sondern das lokale Entsperren einer bereits gespeicherten Session.
+
+1. Einmal mit Benutzername oder E-Mail und vierstelliger PIN anmelden.
+2. App vollständig schließen oder neu starten.
+3. App erneut öffnen.
+4. Wenn die gespeicherte Sitzung gesperrt ist, `Mit Face ID entsperren` beziehungsweise die angezeigte Geräteprüfung antippen.
+5. Den nativen iOS-Dialog erfolgreich bestätigen.
+
+Erwartung:
+
+- Die gespeicherte Sitzung wird als gesperrt behandelt und nicht ungefragt geöffnet.
+- Der native iOS-Dialog erscheint mit `hege entsperren`.
+- Nach erfolgreicher Geräteprüfung wechselt die App auf Dashboard und Tabs.
+- PIN-Login bleibt als Fallback sichtbar.
+
+Abnahmestand: Der Face-ID-Flow wurde am 2026-05-06 auf dem angeschlossenen iPhone mit der Production-App bestätigt.
 
 ## Dashboard-Smoke
 
@@ -203,6 +223,7 @@ Erwartung:
 Der iOS-Smoke gilt als bestanden, wenn:
 
 - Login mit internem Testkonto funktioniert.
+- Face-ID-/Geräte-Entsperren einer gespeicherten Sitzung funktioniert oder ist auf dem Testgerät nachvollziehbar nicht verfügbar.
 - Dashboard online lädt und aktualisiert.
 - Ansitz geladen und optional im Test-Revier gestartet werden kann.
 - Fallwild inklusive nativer Fotoauswahl mit importiertem Testbild geprüft und optional im Test-Revier gespeichert werden kann.

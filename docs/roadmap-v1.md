@@ -9,9 +9,10 @@ Diese Roadmap beschreibt die Ausbaustufen vom Repository-Grundgerüst zur ersten
 - `Sprint 0` ist abgeschlossen. Auth, Session, Revier-Scope, Rollenprüfung, Drizzle-Migrationen, Seeds und produktive Route Handler liegen in `apps/web`.
 - `Sprint 1` ist technisch abgeschlossen und in Stabilisierung. Dashboard, Reviereinrichtungen, Protokolle, Sitzungen, Freigabe/PDF-Basis, Preview-Smoke und blockierender Release-Check für Production sind umgesetzt.
 - `Sprint 1.5` ist produktiv sichtbar. Public Landing, Auth-Redirects, Registrierungsfluss, Setup-Flow, neues `hege`-Logo und Auth-UI sind auf `https://hege.app` deployed und per Playwright auf Desktop und Mobile geprüft.
-- `Sprint 2` ist weit fortgeschritten. Mobile Login, Session-Restore, Dashboard, Ansitz- und Fallwild-Formulare, Reviereinrichtungen und Protokolle lesen dieselbe API; der iPhone-/iOS-Geräte-Smoke ist als primärer nativer Abnahmepfad dokumentiert.
+- `Sprint 2` ist weit fortgeschritten. Mobile Login, Session-Restore, lokales Face-ID-/Touch-ID-Entsperren gespeicherter Sitzungen, Dashboard, Ansitz- und Fallwild-Formulare, Reviereinrichtungen und Protokolle lesen dieselbe API; der iPhone-/iOS-Geräte-Smoke ist als primärer nativer Abnahmepfad dokumentiert. Der Face-ID-Flow wurde am 2026-05-06 auf dem angeschlossenen iPhone bestätigt.
 - `Sprint 3` ist technisch gehärtet und nativ teilabgenommen. Fallwild anlegen, exportieren, offline vormerken, mit Fotos versehen, Standort auflösen und über Queue v2 synchronisieren ist umgesetzt; der iPhone-/iOS-Smoke vom 2026-04-26 bestätigt den Queue-v2-Fehlerpfad, R2-Storage ist in Production aktiv und ein direkter Fallwild-Foto-Upload gegen `hege.app` ist verifiziert.
-- `Standort v1` ist begonnen. Fallwild nutzt iPhone-GPS, einen produktiv erreichbaren Standort-Endpunkt, gespeicherte Standort-/Straßenkilometer-Metadaten und einen Mock-Provider für lokale Gänserndorf-Testdaten ohne externe Keys. Google Reverse Geocoding benötigt für echte Adressen noch den Production-Server-Key; GIP bleibt die fachliche Zielquelle für österreichische Straßenkilometer.
+- `Standort v1` ist begonnen. Fallwild nutzt iPhone-GPS, einen produktiv erreichbaren Standort-Endpunkt, gespeicherte Standort-/Straßenkilometer-Metadaten, Google Reverse Geocoding, einen GIP-Index-/Endpoint-Pfad und einen gebündelten regionalen Gänserndorf-Index für Straßenkilometer. Die Bounding Box muss noch mit dem tatsächlichen Revier abgeglichen werden.
+- `Sprint 4` ist begonnen und lokal nativ abgenommen. Reviermeldungen und Aufgaben haben einen ersten Backend-/Mobile-Slice mit Tabellen, Seeds, Rollenprüfung, Aufgaben-Sichtbarkeit, Dashboard-Zähler und Mobile-Tab `Meldungen`; der iPhone-Smoke vom 2026-05-05 bestätigt Laden, Aufgabenstatus und Reviermeldung-Erfassung gegen den lokalen API-Stand.
 
 ## Sprint 0: Fundament
 
@@ -85,6 +86,7 @@ Status: weit fortgeschritten
 Geliefert:
 
 - Login und Session-Restore
+- lokales Face-ID-/Touch-ID-Entsperren einer gespeicherten Sitzung nach erfolgreichem PIN-Login
 - Heute-im-Revier-Screen mit Queue-Anzeige
 - Ansitz-Formular mit Queue-Fallback
 - Fallwild-Formular mit Queue-Fallback und Standortübernahme
@@ -120,19 +122,21 @@ Lieferumfang dieses Blocks:
 Restblock:
 
 - iPhone-/iOS-Geräte-Smoke nach [iOS-Smoke-Runbook](./mobile-smoke-ios.md) erneut auf erfolgreichen Foto-Upload, automatische Standortauflösung und leere Queue durchlaufen
-- `GOOGLE_MAPS_SERVER_API_KEY` für Preview/Production setzen und echte Adresse/Gemeinde/Straße erneut prüfen
-- GIP-Straßenkilometer-Resolver oder OGD-Import produktionsnah schneiden
+- echte Adresse/Gemeinde/Straße mit gesetztem Google-Server-Key und gebündeltem GIP-Index im nativen iPhone-Smoke erneut prüfen
+- GIP-Bounding-Box mit dem tatsächlichen Revier abgleichen und bei Bedarf größeren Index deployen
 
 Ergebnis:
 
 - Fallwild kann draußen erfasst und mit Fotos vorgemerkt werden; die Queue zeigt Retry-Zeitpunkt, Fehlertext sowie manuelles Retry/Verwerfen, Production-Foto-Upload in R2 ist verifiziert
 
-## Sprint 4: Reviereinrichtungen und Haertung
+## Sprint 4: Reviermeldungen, Aufgaben und Haertung
 
-Status: geplant
+Status: begonnen
 
 Lieferumfang:
 
+- Reviermeldungen und Aufgaben als API-/Datenmodell-Slice
+- Mobile-UI zum Erfassen von Reviermeldungen, Lesen eigener Aufgaben und Ändern des Aufgabenstatus
 - Reviereinrichtungen lesend und spaeter mit Kontrollhinweisen in der App
 - Audit-Log, Monitoring und Logging
 - Fehlerbehandlung, Rechtepruefung und Abnahmeverfahren komplett
@@ -173,7 +177,7 @@ Ergebnis:
 ### Karten
 
 - Kartenfunktionen in Web und Mobile orientieren sich an Google Maps
-- Fallwild-Standort v1 nutzt serverseitige Standortauflösung; Google benötigt einen gesetzten Server-Key, GIP bleibt Zielquelle für Straßenkilometer
+- Fallwild-Standort v1 nutzt serverseitige Standortauflösung; Google ergänzt Adresse/Straße, GIP bleibt Zielquelle für Straßenkilometer
 - Karten-UI, Marker, Standortsuche und spätere Geocoding-Schritte werden gegen [Google-Maps-Ausrichtung](./maps-google-v1.md) geschärft
 
 ### Sprache und Lokalisierung
@@ -198,12 +202,11 @@ Ergebnis:
 Wenn unmittelbar weiterentwickelt wird, ist die sinnvollste Reihenfolge:
 
 1. iPhone-/iOS-Geräte-Smoke auf dem gehärteten Medien-/Queue-v2- und Standort-v1-Pfad mit erfolgreichem Foto-Upload, Standortauflösung und leerer Queue erneut ausführen
-2. `GOOGLE_MAPS_SERVER_API_KEY` für Preview/Production setzen und echte Adresse/Gemeinde/Straße erneut prüfen
-3. GIP-Straßenkilometer-Resolver oder OGD-Import als Standort-Härtungsblock schneiden
+2. echte Adresse/Gemeinde/Straße mit gesetztem Google-Server-Key und gebündeltem GIP-Index im nativen iPhone-Smoke erneut prüfen
+3. GIP-Bounding-Box mit dem tatsächlichen Revier abgleichen und bei Bedarf größeren Index in Preview/Production aktivieren
 4. Mobile-spezifische E2E-Strategie über den dokumentierten Geräte-Smoke hinaus festziehen
-5. Reviermeldungen und Aufgaben v1 als nächsten fachlichen Codeblock umsetzen
-6. optionalen Android-Emulator-Smoke für spätere Plattformabdeckung praktisch durchlaufen, falls Android-Abdeckung priorisiert wird
-7. danach Rollen, Nachrichten, Veranstaltungen und externe Messenger-Anstöße auf die bestehende Rechtebasis setzen
+5. optionalen Android-Emulator-Smoke für spätere Plattformabdeckung praktisch durchlaufen, falls Android-Abdeckung priorisiert wird
+6. danach Rollen, Nachrichten, Veranstaltungen und externe Messenger-Anstöße auf die bestehende Rechtebasis setzen
 
 ## Detaillierte Sprint-Backlogs
 

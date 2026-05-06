@@ -7,6 +7,11 @@ import type {
   Geschlecht,
   NotificationChannel,
   ProtokollStatus,
+  AufgabePrioritaet,
+  AufgabeStatus,
+  ReviermeldungKategorie,
+  ReviermeldungStatus,
+  RevierResourceType,
   Role,
   Wildart
 } from "@hege/domain";
@@ -242,6 +247,87 @@ export const reviereinrichtungWartungen = pgTable(
   ]
 );
 
+export const reviermeldungen = pgTable(
+  "reviermeldungen",
+  {
+    id: text("id").primaryKey(),
+    revierId: text("revier_id")
+      .notNull()
+      .references(() => reviere.id),
+    createdByMembershipId: text("created_by_membership_id")
+      .notNull()
+      .references(() => memberships.id),
+    category: text("category").$type<ReviermeldungKategorie>().notNull(),
+    status: text("status").$type<ReviermeldungStatus>().notNull(),
+    occurredAt: timestamp("occurred_at", { withTimezone: true, mode: "string" }).notNull(),
+    title: text("title").notNull(),
+    description: text("description"),
+    locationLat: doublePrecision("location_lat"),
+    locationLng: doublePrecision("location_lng"),
+    locationLabel: text("location_label"),
+    relatedType: text("related_type").$type<RevierResourceType>(),
+    relatedId: text("related_id"),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "string" }).notNull()
+  },
+  (table) => [
+    index("reviermeldungen_revier_idx").on(table.revierId),
+    index("reviermeldungen_revier_status_idx").on(table.revierId, table.status),
+    index("reviermeldungen_occurred_at_idx").on(table.occurredAt),
+    index("reviermeldungen_created_by_idx").on(table.createdByMembershipId)
+  ]
+);
+
+export const aufgaben = pgTable(
+  "aufgaben",
+  {
+    id: text("id").primaryKey(),
+    revierId: text("revier_id")
+      .notNull()
+      .references(() => reviere.id),
+    createdByMembershipId: text("created_by_membership_id")
+      .notNull()
+      .references(() => memberships.id),
+    sourceType: text("source_type").$type<RevierResourceType>(),
+    sourceId: text("source_id"),
+    title: text("title").notNull(),
+    description: text("description"),
+    status: text("status").$type<AufgabeStatus>().notNull(),
+    priority: text("priority").$type<AufgabePrioritaet>().notNull(),
+    dueAt: timestamp("due_at", { withTimezone: true, mode: "string" }),
+    completedAt: timestamp("completed_at", { withTimezone: true, mode: "string" }),
+    completionNote: text("completion_note"),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "string" }).notNull()
+  },
+  (table) => [
+    index("aufgaben_revier_idx").on(table.revierId),
+    index("aufgaben_revier_status_idx").on(table.revierId, table.status),
+    index("aufgaben_due_at_idx").on(table.dueAt),
+    index("aufgaben_created_by_idx").on(table.createdByMembershipId),
+    index("aufgaben_source_idx").on(table.sourceType, table.sourceId)
+  ]
+);
+
+export const aufgabeAssignees = pgTable(
+  "aufgabe_assignees",
+  {
+    id: text("id").primaryKey(),
+    aufgabeId: text("aufgabe_id")
+      .notNull()
+      .references(() => aufgaben.id),
+    membershipId: text("membership_id")
+      .notNull()
+      .references(() => memberships.id),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull()
+  },
+  (table) => [
+    index("aufgabe_assignees_aufgabe_idx").on(table.aufgabeId),
+    index("aufgabe_assignees_membership_idx").on(table.membershipId),
+    uniqueIndex("aufgabe_assignees_unique").on(table.aufgabeId, table.membershipId)
+  ]
+);
+
 export const sitzungen = pgTable(
   "sitzungen",
   {
@@ -346,6 +432,9 @@ export type NotificationRecord = typeof notifications.$inferSelect;
 export type ReviereinrichtungRecord = typeof reviereinrichtungen.$inferSelect;
 export type ReviereinrichtungKontrolleRecord = typeof reviereinrichtungKontrollen.$inferSelect;
 export type ReviereinrichtungWartungRecord = typeof reviereinrichtungWartungen.$inferSelect;
+export type ReviermeldungRecord = typeof reviermeldungen.$inferSelect;
+export type AufgabeRecord = typeof aufgaben.$inferSelect;
+export type AufgabeAssigneeRecord = typeof aufgabeAssignees.$inferSelect;
 export type SitzungRecord = typeof sitzungen.$inferSelect;
 export type SitzungTeilnehmerRecord = typeof sitzungTeilnehmer.$inferSelect;
 export type ProtokollVersionRecord = typeof protokollVersionen.$inferSelect;

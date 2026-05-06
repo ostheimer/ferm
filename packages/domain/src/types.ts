@@ -45,6 +45,41 @@ export type LocationSource = "manual" | "device-gps" | "reverse-geocode";
 
 export type RoadKilometerSource = "manual" | "gip" | "unavailable";
 
+export type ReviermeldungKategorie =
+  | "fuetterung"
+  | "wasserung"
+  | "reviereinrichtung"
+  | "schaden"
+  | "gefahr"
+  | "sichtung"
+  | "sonstiges";
+
+export type ReviermeldungStatus =
+  | "neu"
+  | "geprueft"
+  | "in_bearbeitung"
+  | "erledigt"
+  | "verworfen"
+  | "archiviert";
+
+export type AufgabeStatus =
+  | "offen"
+  | "angenommen"
+  | "in_arbeit"
+  | "blockiert"
+  | "erledigt"
+  | "abgelehnt"
+  | "archiviert";
+
+export type AufgabePrioritaet = "niedrig" | "normal" | "hoch" | "dringend";
+
+export type RevierResourceType =
+  | "reviermeldung"
+  | "reviereinrichtung"
+  | "fallwild_vorgang"
+  | "sitzung"
+  | "beschluss";
+
 export interface GeoPoint {
   lat: number;
   lng: number;
@@ -198,6 +233,41 @@ export interface FallwildRoadReference {
   placeId?: string;
 }
 
+export interface Reviermeldung {
+  id: string;
+  revierId: string;
+  createdByMembershipId: string;
+  category: ReviermeldungKategorie;
+  status: ReviermeldungStatus;
+  occurredAt: string;
+  title: string;
+  description?: string;
+  location?: GeoPoint;
+  relatedType?: RevierResourceType;
+  relatedId?: string;
+  photos: PhotoAsset[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Aufgabe {
+  id: string;
+  revierId: string;
+  createdByMembershipId: string;
+  sourceType?: RevierResourceType;
+  sourceId?: string;
+  title: string;
+  description?: string;
+  status: AufgabeStatus;
+  priority: AufgabePrioritaet;
+  dueAt?: string;
+  completedAt?: string;
+  completionNote?: string;
+  assigneeMembershipIds: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Beschluss {
   id: string;
   title: string;
@@ -267,6 +337,7 @@ export interface DashboardOverview {
   offeneWartungen: number;
   heutigeFallwildBergungen: number;
   unveroeffentlichteProtokolle: number;
+  offeneAufgaben: number;
   letzteBenachrichtigungen: NotificationItem[];
   naechsteSitzung?: Sitzung;
 }
@@ -305,6 +376,8 @@ export interface DemoData {
   ansitze: AnsitzSession[];
   reviereinrichtungen: Reviereinrichtung[];
   fallwild: FallwildVorgang[];
+  reviermeldungen: Reviermeldung[];
+  aufgaben: Aufgabe[];
   sitzungen: Sitzung[];
   notifications: NotificationItem[];
 }
@@ -337,6 +410,32 @@ export interface CreateFallwildPayload {
   roadReference?: FallwildRoadReference;
   bergungsStatus: BergungsStatus;
   note?: string;
+}
+
+export interface CreateReviermeldungPayload {
+  revierId: string;
+  createdByMembershipId: string;
+  category: ReviermeldungKategorie;
+  status?: ReviermeldungStatus;
+  occurredAt: string;
+  title: string;
+  description?: string;
+  location?: GeoPoint;
+  relatedType?: RevierResourceType;
+  relatedId?: string;
+}
+
+export interface CreateAufgabePayload {
+  revierId: string;
+  createdByMembershipId: string;
+  sourceType?: RevierResourceType;
+  sourceId?: string;
+  title: string;
+  description?: string;
+  status?: AufgabeStatus;
+  priority?: AufgabePrioritaet;
+  dueAt?: string;
+  assigneeMembershipIds?: string[];
 }
 
 export interface AddKontrollePayload {

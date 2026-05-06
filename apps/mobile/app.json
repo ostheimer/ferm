@@ -11,6 +11,12 @@
     "plugins": [
       "expo-router",
       [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "hege nutzt Face ID nur, um eine bestehende Sitzung auf diesem Gerät zu entsperren."
+        }
+      ],
+      [
         "expo-location",
         {
           "locationWhenInUsePermission": "hege nutzt den Standort nur, um Fallwild-Vorgänge im Revier zu dokumentieren."
@@ -28,6 +34,7 @@
         "CFBundleDevelopmentRegion": "de",
         "CFBundleLocalizations": ["de"],
         "ITSAppUsesNonExemptEncryption": false,
+        "NSFaceIDUsageDescription": "hege nutzt Face ID nur, um eine bestehende Sitzung auf diesem Gerät zu entsperren.",
         "NSLocationWhenInUseUsageDescription": "hege nutzt den Standort nur, um Fallwild-Vorgänge im Revier zu dokumentieren.",
         "NSPhotoLibraryUsageDescription": "hege benötigt Zugriff auf deine Fotos, um Fallwild-Fotos auszuwählen."
       }

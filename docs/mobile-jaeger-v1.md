@@ -14,6 +14,7 @@ Die App ist in v1 ein Einsatz- und Erfassungswerkzeug, kein vollstaendiges Jagdp
 ## In Scope fuer v1
 
 - Login und Revier-Auswahl
+- lokales Entsperren einer gespeicherten Sitzung per Face ID, Touch ID oder Geräteprüfung
 - Startseite `Heute im Revier`
 - Ansitz starten und beenden
 - Liste aktiver Ansitze mit manueller Aktualisierung
@@ -205,7 +206,10 @@ Kartenfunktionen in der mobilen App orientieren sich verbindlich an Google Maps.
 ## Technischer Stand
 
 - Dashboard, Ansitze und Fallwild nutzen bereits denselben Vercel-native API-Pfad unter `https://hege.app/api/v1`
+- Nach erfolgreichem PIN-Login kann eine gespeicherte Sitzung lokal per Face ID, Touch ID oder Geräteprüfung entsperrt werden; der iPhone-Flow wurde am 2026-05-06 bestätigt.
 - Fallwild-Fotos nutzen Queue v2 mit separaten Upload-Einträgen, Retry-Backoff, Konfliktstatus und manuellen Aktionen fuer problematische Eintraege
+- Reviermeldungen und Aufgaben nutzen den Mobile-Tab `Meldungen`; dort koennen Meldungen erfasst, Aufgaben gelesen und Aufgabenstatus geaendert werden
+- Der lokale iPhone-Smoke vom 2026-05-05 bestätigt für `Meldungen` Login, Listenladen, Statusänderung auf `In Arbeit` und Speichern einer Reviermeldung gegen den lokalen API-Stand.
 - Manuelle Aktualisierung und Pull-to-Refresh bleiben der verbindliche Aktualisierungspfad fuer v1
 
 ## Native Abnahme
@@ -216,12 +220,10 @@ Android bleibt fachlich Zielplattform. Ohne physisches Android-Geraet kann spaet
 
 ## Zukunftsthemen
 
-- Aufgaben, Rollen und Nachrichten sind fuer spaetere Ausbaustufen vorgesehen
+- Rollen, Nachrichten und Veranstaltungen sind fuer spaetere Ausbaustufen vorgesehen
 - mobile Hinweise aus WhatsApp oder Telegram werden spaeter als optionale Kanaele betrachtet
-- die mobile App zeigt solche Inhalte erst an, wenn die fachliche Rollen- und Aufgabenlogik in API und Datenmodell steht
-- geplant ist zuerst eine Inbox oder Aufgabenliste im Screen `Heute im Revier`, spaeter bei wachsendem Umfang ein eigener Aufgaben- oder Nachrichten-Screen
-- Reviermeldungen fuer Fuetterungen, Wasserungen oder Hochstaende sollen mobil mit Fotos, Kurztext und Status moeglich sein
-- Aufgaben sollen pro Benutzer sowohl als Liste als auch in einer Kalenderansicht sichtbar sein
+- Reviermeldungen sollen spaeter um Fotos erweitert werden
+- Aufgaben sollen spaeter auch in einer Kalenderansicht sichtbar sein
 - aus der App heraus soll eine WhatsApp-Nachricht mit vorbereitetem Inhalt an den passenden Empfaengerkreis angestossen werden koennen
 - Veranstaltungen sollen mobil angekuendigt, bestaetigt und mit Treffpunkt, Uhrzeit und zugeordneten Aufgaben angezeigt werden
 - die Sichtbarkeit solcher Inhalte muss nach Rollen und Empfaengergruppen steuerbar sein, damit nicht alle Benutzer alles sehen

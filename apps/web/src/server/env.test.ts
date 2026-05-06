@@ -13,6 +13,8 @@ const STORAGE_ENV_KEYS = [
   "GOOGLE_MAPS_LANGUAGE",
   "GOOGLE_MAPS_REGION",
   "GIP_ROAD_KILOMETER_ENDPOINT",
+  "GIP_ROAD_KILOMETER_INDEX_PATH",
+  "GIP_ROAD_KILOMETER_MAX_DISTANCE_METERS",
   "HEGE_GEO_PROVIDER",
   "AUTH_TOKEN_SECRET",
   "VERCEL_ENV"
@@ -62,6 +64,8 @@ describe("server env", () => {
     process.env.GOOGLE_MAPS_LANGUAGE = " de ";
     process.env.GOOGLE_MAPS_REGION = " AT\n";
     process.env.GIP_ROAD_KILOMETER_ENDPOINT = " https://gip.example.test/resolve ";
+    process.env.GIP_ROAD_KILOMETER_INDEX_PATH = " /var/task/data/gip-road-kilometer-index.json ";
+    process.env.GIP_ROAD_KILOMETER_MAX_DISTANCE_METERS = " 180 ";
     process.env.HEGE_GEO_PROVIDER = " mock ";
 
     const env = getServerEnv();
@@ -70,6 +74,8 @@ describe("server env", () => {
     expect(env.googleMapsLanguage).toBe("de");
     expect(env.googleMapsRegion).toBe("AT");
     expect(env.gipRoadKilometerEndpoint).toBe("https://gip.example.test/resolve");
+    expect(env.gipRoadKilometerIndexPath).toBe("/var/task/data/gip-road-kilometer-index.json");
+    expect(env.gipRoadKilometerMaxDistanceMeters).toBe(180);
     expect(env.geoProviderMode).toBe("mock");
   });
 
