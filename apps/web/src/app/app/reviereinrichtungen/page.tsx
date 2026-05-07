@@ -16,8 +16,8 @@ export default async function ReviereinrichtungenPage() {
           <p className="eyebrow">Reviereinrichtungen</p>
           <h1>Standorte, Kontrollen und Wartungen im Blick.</h1>
           <p className="hero-copy">
-            Hochstände, Fütterungen und andere Einrichtungen werden lesend aus der Server-Schicht geladen.
-            Zustandswechsel und Wartungsbedarf bleiben damit in Web und App auf derselben Datenbasis.
+            Hochstände, Fütterungen und weitere Einrichtungen mit Status, letzter Kontrolle und offenen
+            Wartungen — gleicher Datenstand in Web und App.
           </p>
         </div>
         <div className="hero-highlight">

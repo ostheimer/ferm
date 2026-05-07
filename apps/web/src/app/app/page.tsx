@@ -39,12 +39,11 @@ export default async function DashboardPage({
 
       <section className="hero-card">
         <div>
-          <p className="eyebrow">Interner Leitstand</p>
-          <h1>Revierbetrieb, Protokolle und Fallwild auf einen Blick.</h1>
+          <p className="eyebrow">Heute im Revier</p>
+          <h1>Was jetzt deine Aufmerksamkeit braucht.</h1>
           <p className="hero-copy">
-            Aktive Ansitze, Reviereinrichtungen, Protokollfreigaben und Fallwild-Ereignisse laufen in
-            einer Oberfläche zusammen. Das Backoffice ist für Revierleitung und Schriftführung
-            ausgelegt.
+            Aktive Ansitze, offene Wartungen, freigabebereite Protokolle und neue Fallwild-Vorgänge — gebündelt
+            für Revierleitung und Schriftführung.
           </p>
         </div>
         <div className="hero-highlight">

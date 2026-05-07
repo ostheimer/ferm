@@ -29,7 +29,7 @@ export async function runSmoke(baseUrl, options = {}) {
 
   await checkHtmlPage(baseUrl, "/login", {
     label: "/login",
-    expectedText: ["Anmelden", "Backoffice und App jetzt mit echter Session."]
+    expectedText: ["Anmelden", "Willkommen im Revier."]
   });
 
   await checkHtmlPage(baseUrl, "/registrieren?plan=starter", {
@@ -106,7 +106,7 @@ export async function runSmoke(baseUrl, options = {}) {
     await checkHtmlPage(baseUrl, "/app", {
       label: "/app",
       headers: browserHeaders,
-      expectedText: ["Revierbetrieb, Protokolle und Fallwild auf einen Blick.", me.revier.name]
+      expectedText: ["Was jetzt deine Aufmerksamkeit braucht.", me.revier.name]
     });
   }
 

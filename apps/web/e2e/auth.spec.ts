@@ -51,6 +51,6 @@ test.describe("Auth und geschuetzte Routen", () => {
     await page.goto("/app/sitzungen");
 
     await expect(page).toHaveURL(/\/app$/);
-    await expect(page.getByRole("heading", { name: "Revierbetrieb, Protokolle und Fallwild auf einen Blick." })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Was jetzt deine Aufmerksamkeit braucht." })).toBeVisible();
   });
 });
