@@ -80,7 +80,13 @@ export default async function DashboardPage({
       </section>
 
       <div className="content-grid">
-        <TerritoryPanel ansitze={dashboard.activeAnsitze} einrichtungen={einrichtungen} fallwild={dashboard.recentFallwild} />
+        <TerritoryPanel
+          ansitze={dashboard.activeAnsitze}
+          einrichtungen={einrichtungen}
+          fallwild={dashboard.recentFallwild}
+          revierCenter={dashboard.revier.zentrum}
+          revierName={dashboard.revier.name}
+        />
 
         <section className="activity-panel">
           <header className="section-header">
