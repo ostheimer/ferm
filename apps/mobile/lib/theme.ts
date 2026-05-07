@@ -1,4 +1,23 @@
+import {
+  darkColors as tokensDarkColors,
+  lightColors as tokensLightColors,
+  type ThemeColors as TokensThemeColors
+} from "@hege/tokens";
 import { useColorScheme } from "react-native";
+
+/**
+ * Re-Exports der Token-Werte aus `@hege/tokens` (F-21).
+ *
+ * Die UI-Schicht in `app/` und `components/` greift weiter auf `colors.x`
+ * bzw. `useThemeColors()` zu - die Indirektion ueber das geteilte Token-
+ * Paket bleibt fuer Verbraucher unsichtbar.
+ *
+ * Die mobile Variante projeziert das volle Token-Set auf das schmalere,
+ * historisch gewachsene Mobile-Interface, damit bestehende Components ohne
+ * Refactor weiterlaufen:
+ *   - `surface`/`card` -> `surfaceSoft`/`surfaceCard` (rgba, RN versteht das)
+ *   - die uebrigen Felder werden 1:1 uebernommen.
+ */
 
 export interface ThemeColors {
   background: string;
@@ -12,29 +31,22 @@ export interface ThemeColors {
   danger: string;
 }
 
-export const lightColors: ThemeColors = {
-  background: "#f3efe3",
-  surface: "#fffaf0",
-  card: "#fffcf7",
-  ink: "#173328",
-  muted: "#5f7167",
-  accent: "#29503f",
-  accentSoft: "#d6e1bf",
-  warning: "#866323",
-  danger: "#96483d"
-};
+function projectTokens(theme: TokensThemeColors): ThemeColors {
+  return {
+    background: theme.background,
+    surface: theme.surfaceSoft,
+    card: theme.surfaceCard,
+    ink: theme.ink,
+    muted: theme.muted,
+    accent: theme.accent,
+    accentSoft: theme.accentSoft,
+    warning: theme.warning,
+    danger: theme.danger
+  };
+}
 
-export const darkColors: ThemeColors = {
-  background: "#0e1c16",
-  surface: "#152921",
-  card: "#1c352b",
-  ink: "#f5f1e7",
-  muted: "#a3b5ab",
-  accent: "#9db36f",
-  accentSoft: "#3a5a47",
-  warning: "#cdb069",
-  danger: "#d68a7d"
-};
+export const lightColors: ThemeColors = projectTokens(tokensLightColors);
+export const darkColors: ThemeColors = projectTokens(tokensDarkColors);
 
 /**
  * Default token-Set, mit dem die meisten Screens heute statisch arbeiten.

@@ -1,0 +1,28 @@
+/* Auto-generated from @hege/tokens. Do not edit by hand. */
+:root {
+  --bg: #f3efe3;
+  --surface: rgba(18, 36, 28, 0.9);
+  --surface-soft: rgba(255, 252, 244, 0.8);
+  --surface-card: rgba(252, 248, 238, 0.88);
+  --border: rgba(25, 57, 44, 0.15);
+  --text: #173328;
+  --muted: #5f7167;
+  --accent: #29503f;
+  --accent-strong: #24493a;
+  --accent-soft: #d6e1bf;
+  --danger: #96483d;
+  --warning: #866323;
+  --shadow: 0 24px 60px rgba(16, 35, 28, 0.12);
+  --shadow-elevated: 0 32px 80px rgba(16, 35, 28, 0.18);
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-full: 999px;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+}

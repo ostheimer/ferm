@@ -1,0 +1,63 @@
+import { describe, expect, it } from "vitest";
+
+import {
+  buildRootCss,
+  darkColors,
+  lightColors,
+  radius,
+  rnShadow,
+  shadow,
+  spacing,
+  typography,
+  webCssVariables
+} from "./index";
+
+describe("@hege/tokens", () => {
+  it("haelt die kanonisch gewaehlten Light-Werte fest", () => {
+    expect(lightColors.background).toBe("#f3efe3");
+    expect(lightColors.ink).toBe("#173328");
+    expect(lightColors.muted).toBe("#5f7167");
+    // Mobile gewinnt: accent ist das satte Tannengruen, nicht das helle.
+    expect(lightColors.accent).toBe("#29503f");
+    expect(lightColors.accentStrong).toBe("#24493a");
+    expect(lightColors.accentSoft).toBe("#d6e1bf");
+  });
+
+  it("definiert ein vollstaendiges Dark-Token-Set fuer F-19", () => {
+    expect(darkColors.background).toBe("#0e1c16");
+    expect(darkColors.ink).toBe("#f5f1e7");
+    expect(darkColors.accent).toBe("#9db36f");
+  });
+
+  it("hat numerische Spacing- und Radius-Werte", () => {
+    expect(spacing.md).toBe(16);
+    expect(spacing["2xl"]).toBe(48);
+    expect(radius.full).toBe(999);
+  });
+
+  it("liefert Schatten in CSS- und RN-Form", () => {
+    expect(shadow.card).toMatch(/rgba\(/);
+    expect(rnShadow.card.shadowColor).toMatch(/^#/);
+    expect(rnShadow.card.shadowOffset.height).toBeGreaterThan(0);
+  });
+
+  it("setzt Web-Variablen passend zum Light-Theme", () => {
+    expect(webCssVariables["--bg"]).toBe(lightColors.background);
+    expect(webCssVariables["--accent"]).toBe(lightColors.accent);
+    expect(webCssVariables["--accent-strong"]).toBe(lightColors.accentStrong);
+    expect(webCssVariables["--shadow"]).toBe(shadow.card);
+  });
+
+  it("baut ein gueltiges :root-Stylesheet", () => {
+    const css = buildRootCss();
+    expect(css).toContain(":root {");
+    expect(css).toContain("--bg: #f3efe3");
+    expect(css).toContain("--accent: #29503f");
+    expect(css.trim().endsWith("}")).toBe(true);
+  });
+
+  it("setzt Typografie-Stacks mit CSS-Variablen-Fallbacks", () => {
+    expect(typography.heading).toContain("--font-heading");
+    expect(typography.body).toContain("--font-body");
+  });
+});
