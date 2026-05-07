@@ -64,12 +64,12 @@ export default function DashboardScreen() {
       const remaining = await syncOfflineQueue();
       setQueueMessage(
         remaining.length === 0
-          ? "Offline-Queue ist leer."
+          ? "Warteschlange ist leer."
           : `${remaining.length} Einträge warten weiter auf Synchronisierung.`
       );
       await loadDashboard({ refreshing: true });
     } catch (syncError) {
-      setQueueMessage(syncError instanceof Error ? syncError.message : "Queue konnte nicht synchronisiert werden.");
+      setQueueMessage(syncError instanceof Error ? syncError.message : "Warteschlange konnte nicht synchronisiert werden.");
     }
   }
 
@@ -79,9 +79,9 @@ export default function DashboardScreen() {
 
     try {
       await discardOfflineQueueEntry(entryId);
-      setQueueMessage("Queue-Eintrag verworfen.");
+      setQueueMessage("Eintrag verworfen.");
     } catch (discardError) {
-      setQueueMessage(discardError instanceof Error ? discardError.message : "Queue-Eintrag konnte nicht verworfen werden.");
+      setQueueMessage(discardError instanceof Error ? discardError.message : "Eintrag konnte nicht verworfen werden.");
     } finally {
       setDiscardingEntryId(null);
     }
@@ -96,12 +96,12 @@ export default function DashboardScreen() {
       const remaining = await syncOfflineQueue();
       setQueueMessage(
         remaining.length === 0
-          ? "Queue-Eintrag erfolgreich synchronisiert."
+          ? "Eintrag erfolgreich synchronisiert."
           : `${remaining.length} Queue-Einträge warten weiter auf Synchronisierung.`
       );
       await loadDashboard({ refreshing: true });
     } catch (retryError) {
-      setQueueMessage(retryError instanceof Error ? retryError.message : "Queue-Eintrag konnte nicht erneut versucht werden.");
+      setQueueMessage(retryError instanceof Error ? retryError.message : "Eintrag konnte nicht erneut versucht werden.");
     } finally {
       setRetryingEntryId(null);
     }
@@ -120,7 +120,7 @@ export default function DashboardScreen() {
       subtitle={
         snapshot
           ? `${snapshot.user.name} / ${snapshot.membership.jagdzeichen} / ${snapshot.revier.bezirk}`
-          : "Ansitze, Revierdaten und Offline-Queue bleiben auch bei schwachem Empfang sichtbar."
+          : "Ansitze, Revierdaten und Warteschlange bleiben auch bei schwachem Empfang sichtbar."
       }
       aside={
         <View style={styles.aside}>
@@ -147,7 +147,7 @@ export default function DashboardScreen() {
         </Pressable>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Offline-Queue synchronisieren"
+          accessibilityLabel="Warteschlange synchronisieren"
           style={[styles.secondaryButton, queue.isSyncing ? styles.buttonDisabled : null]}
           onPress={() => void handleQueueSync()}
           disabled={queue.isSyncing}
@@ -204,7 +204,7 @@ export default function DashboardScreen() {
             </View>
           ) : null}
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>Offline-Queue</Text>
+            <Text style={styles.cardTitle}>Warteschlange</Text>
           {queueEntries.length === 0 ? (
             <Text style={styles.cardCopy}>Keine offenen Offline-Aktionen.</Text>
           ) : (
@@ -240,7 +240,7 @@ export default function DashboardScreen() {
                     <>
                       <Pressable
                         accessibilityRole="button"
-                        accessibilityLabel={`Queue-Eintrag ${entry.title} erneut versuchen`}
+                        accessibilityLabel={`Eintrag ${entry.title} erneut versuchen`}
                         style={[styles.retryButton, retryingEntryId === entry.id ? styles.buttonDisabled : null]}
                         onPress={() => void handleRetryEntry(entry.id)}
                         disabled={retryingEntryId === entry.id}
@@ -251,7 +251,7 @@ export default function DashboardScreen() {
                       </Pressable>
                       <Pressable
                         accessibilityRole="button"
-                        accessibilityLabel={`Queue-Eintrag ${entry.title} verwerfen`}
+                        accessibilityLabel={`Eintrag ${entry.title} verwerfen`}
                         style={[styles.discardButton, discardingEntryId === entry.id ? styles.buttonDisabled : null]}
                         onPress={() => void handleDiscardEntry(entry.id)}
                         disabled={discardingEntryId === entry.id}

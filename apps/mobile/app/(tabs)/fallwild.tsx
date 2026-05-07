@@ -15,6 +15,7 @@ import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 
 import { ScreenShell } from "../../components/screen-shell";
+import { SelectField } from "../../components/select-field";
 import { formatDateTime } from "../../lib/format";
 import { buildGeoPoint, trimToUndefined } from "../../lib/form-utils";
 import {
@@ -174,7 +175,7 @@ export default function FallwildScreen() {
       if (result.mode === "queued") {
         setFeedback({
           variant: "warning",
-          title: "Fallwild in der Queue",
+          title: "Fallwild vorgemerkt",
           copy:
             attachmentSnapshot.length > 0
               ? `${formatPhotoCount(attachmentSnapshot.length)} ${formatPhotoVerb(attachmentSnapshot.length)} gemeinsam mit dem Vorgang offline vorgemerkt.`
@@ -220,7 +221,7 @@ export default function FallwildScreen() {
       const remaining = await syncOfflineQueue();
       setFeedback({
         variant: remaining.length === 0 ? "success" : "warning",
-        title: remaining.length === 0 ? "Offline-Queue synchronisiert" : "Offline-Queue teilweise synchronisiert",
+        title: remaining.length === 0 ? "Warteschlange synchronisiert" : "Warteschlange teilweise synchronisiert",
         copy:
           remaining.length === 0
             ? "Alle Einträge wurden verarbeitet."
@@ -228,7 +229,7 @@ export default function FallwildScreen() {
       });
       await loadFallwild({ refreshing: true });
     } catch (syncError) {
-      setError(syncError instanceof Error ? syncError.message : "Queue konnte nicht synchronisiert werden.");
+      setError(syncError instanceof Error ? syncError.message : "Warteschlange konnte nicht gesendet werden.");
     }
   }
 
@@ -242,7 +243,7 @@ export default function FallwildScreen() {
       const remaining = await syncOfflineQueue();
       setFeedback({
         variant: remaining.length === 0 ? "success" : "warning",
-        title: remaining.length === 0 ? "Queue-Eintrag synchronisiert" : "Queue-Eintrag erneut versucht",
+        title: remaining.length === 0 ? "Eintrag synchronisiert" : "Eintrag erneut versucht",
         copy:
           remaining.length === 0
             ? "Alle Einträge wurden verarbeitet."
@@ -250,7 +251,7 @@ export default function FallwildScreen() {
       });
       await loadFallwild({ refreshing: true });
     } catch (retryError) {
-      setError(retryError instanceof Error ? retryError.message : "Queue-Eintrag konnte nicht erneut versucht werden.");
+      setError(retryError instanceof Error ? retryError.message : "Eintrag konnte nicht erneut versucht werden.");
     } finally {
       setRetryingEntryId(null);
     }
@@ -265,13 +266,50 @@ export default function FallwildScreen() {
       await discardOfflineQueueEntry(entryId);
       setFeedback({
         variant: "warning",
-        title: "Queue-Eintrag verworfen",
-        copy: "Der Eintrag wurde aus der Offline-Queue entfernt."
+        title: "Eintrag verworfen",
+        copy: "Der Eintrag wurde aus der Warteschlange entfernt."
       });
     } catch (discardError) {
-      setError(discardError instanceof Error ? discardError.message : "Queue-Eintrag konnte nicht verworfen werden.");
+      setError(discardError instanceof Error ? discardError.message : "Eintrag konnte nicht verworfen werden.");
     } finally {
       setDiscardingEntryId(null);
+    }
+  }
+
+  async function handleCapturePhoto() {
+    const remainingSlots = getRemainingFallwildPhotoSlots(attachments.length);
+
+    if (remainingSlots === 0 || isSubmitting || isPickingPhotos) {
+      return;
+    }
+
+    setError(null);
+    setFeedback(null);
+    setIsPickingPhotos(true);
+
+    try {
+      const permission = await ImagePicker.requestCameraPermissionsAsync();
+
+      if (!permission.granted) {
+        setError("Der Zugriff auf die Kamera ist nicht erlaubt.");
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: FALLWILD_PHOTO_QUALITY,
+        allowsEditing: false
+      });
+
+      if (result.canceled || !result.assets?.length) {
+        return;
+      }
+
+      setAttachments((current) => mergePickedFallwildPhotos(current, result.assets));
+    } catch (photoError) {
+      setError(photoError instanceof Error ? photoError.message : "Foto konnte nicht aufgenommen werden.");
+    } finally {
+      setIsPickingPhotos(false);
     }
   }
 
@@ -403,7 +441,7 @@ export default function FallwildScreen() {
             {queueSummary.failedCount > 0
               ? `${queueSummary.failedCount} Einträge brauchen Aufmerksamkeit.`
               : queue.isSyncing
-                ? "Queue wird gerade synchronisiert."
+                ? "Warteschlange wird gerade gesendet."
                 : "Erfasste Vorgänge werden automatisch nachgereicht."}
           </Text>
         </View>
@@ -411,7 +449,7 @@ export default function FallwildScreen() {
     >
       <View style={styles.formCard}>
         <Text style={styles.sectionLabel}>Neuer Fallwild-Vorgang</Text>
-        <Text style={styles.sectionCopy}>Die Erfassung bleibt im Feld schnell bedienbar und nutzt die Queue bei Verbindungsproblemen.</Text>
+        <Text style={styles.sectionCopy}>Die Erfassung bleibt im Feld schnell bedienbar; bei Verbindungsproblemen werden Vorgänge vorgemerkt und automatisch nachgereicht.</Text>
 
         <View style={styles.fieldRow}>
           <View style={[styles.field, styles.grow]}>
@@ -525,32 +563,29 @@ export default function FallwildScreen() {
           <Text style={styles.helperCopy}>Wenn GIP keinen Wert liefert, bitte vor Ort manuell ergänzen.</Text>
         </View>
 
-        <ChoiceGroup
+        <SelectField
           label="Wildart"
-          options={WILDLIFE_OPTIONS}
+          options={WILDLIFE_OPTIONS.map((value) => ({ value, label: value }))}
           value={form.wildart}
           onChange={updateChoice(setForm, "wildart")}
         />
-        <ChoiceGroup
+        <SelectField
           label="Geschlecht"
-          options={GESCHLECHT_OPTIONS}
+          options={GESCHLECHT_OPTIONS.map((value) => ({ value, label: formatGeschlechtLabel(value) }))}
           value={form.geschlecht}
           onChange={updateChoice(setForm, "geschlecht")}
-          formatOption={formatGeschlechtLabel}
         />
-        <ChoiceGroup
+        <SelectField
           label="Altersklasse"
-          options={ALTERSKLASSE_OPTIONS}
+          options={ALTERSKLASSE_OPTIONS.map((value) => ({ value, label: formatAltersklasseLabel(value) }))}
           value={form.altersklasse}
           onChange={updateChoice(setForm, "altersklasse")}
-          formatOption={formatAltersklasseLabel}
         />
-        <ChoiceGroup
+        <SelectField
           label="Bergungsstatus"
-          options={BERGUNGS_STATUS_OPTIONS}
+          options={BERGUNGS_STATUS_OPTIONS.map((value) => ({ value, label: formatBergungsStatusLabel(value) }))}
           value={form.bergungsStatus}
           onChange={updateChoice(setForm, "bergungsStatus")}
-          formatOption={formatBergungsStatusLabel}
         />
 
         <View style={styles.field}>
@@ -566,16 +601,35 @@ export default function FallwildScreen() {
         </View>
 
         <View style={styles.photoSection}>
-          <View style={styles.photoHeader}>
-            <View style={styles.grow}>
-              <Text style={styles.label}>Fotos</Text>
-              <Text style={styles.helperCopy}>
-                Bibliothek auswählen, Qualität 0,7, maximal {MAX_FALLWILD_PHOTOS} Bilder.
-              </Text>
-            </View>
+          <View>
+            <Text style={styles.label}>Fotos</Text>
+            <Text style={styles.helperCopy}>
+              Vor Ort aufnehmen oder aus der Bibliothek wählen, Qualität 0,7, maximal {MAX_FALLWILD_PHOTOS} Bilder.
+            </Text>
+          </View>
+          <View style={styles.photoActionsRow}>
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Fotos aus Bibliothek wählen"
+              accessibilityLabel="Foto aufnehmen"
+              testID="fallwild-photo-camera-button"
+              style={[
+                styles.photoCameraButton,
+                attachments.length >= MAX_FALLWILD_PHOTOS || isPickingPhotos || isSubmitting ? styles.buttonDisabled : null
+              ]}
+              onPress={() => void handleCapturePhoto()}
+              disabled={attachments.length >= MAX_FALLWILD_PHOTOS || isPickingPhotos || isSubmitting}
+            >
+              {isPickingPhotos ? (
+                <ActivityIndicator color={colors.surface} />
+              ) : (
+                <Text style={styles.photoCameraButtonText}>
+                  {attachments.length >= MAX_FALLWILD_PHOTOS ? "Maximal erreicht" : "Foto aufnehmen"}
+                </Text>
+              )}
+            </Pressable>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Aus Bibliothek wählen"
               testID="fallwild-photo-picker-button"
               style={[
                 styles.photoPickerButton,
@@ -588,7 +642,7 @@ export default function FallwildScreen() {
                 <ActivityIndicator color={colors.ink} />
               ) : (
                 <Text style={styles.photoPickerButtonText}>
-                  {attachments.length >= MAX_FALLWILD_PHOTOS ? "Maximal erreicht" : "Fotos wählen"}
+                  {attachments.length >= MAX_FALLWILD_PHOTOS ? "Maximal erreicht" : "Aus Bibliothek"}
                 </Text>
               )}
             </Pressable>
@@ -651,12 +705,12 @@ export default function FallwildScreen() {
           </Pressable>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Fallwild-Queue synchronisieren"
+            accessibilityLabel="Fallwild-Warteschlange senden"
             style={[styles.secondaryButton, queue.isSyncing ? styles.buttonDisabled : null]}
             onPress={() => void handleQueueSync()}
             disabled={queue.isSyncing}
           >
-            <Text style={styles.secondaryButtonText}>{queue.isSyncing ? "Synchronisiert..." : "Queue synchronisieren"}</Text>
+            <Text style={styles.secondaryButtonText}>{queue.isSyncing ? "Wird gesendet..." : "Warteschlange senden"}</Text>
           </Pressable>
         </View>
       </View>
@@ -696,7 +750,7 @@ export default function FallwildScreen() {
                 <View style={styles.queueActionRow}>
                   <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel={`Fallwild-Queue-Eintrag ${entry.title} erneut versuchen`}
+                    accessibilityLabel={`Fallwild-Eintrag ${entry.title} erneut versuchen`}
                     style={[styles.retryButton, retryingEntryId === entry.id ? styles.buttonDisabled : null]}
                     onPress={() => void handleRetryQueueEntry(entry.id)}
                     disabled={retryingEntryId === entry.id}
@@ -707,7 +761,7 @@ export default function FallwildScreen() {
                   </Pressable>
                   <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel={`Fallwild-Queue-Eintrag ${entry.title} verwerfen`}
+                    accessibilityLabel={`Fallwild-Eintrag ${entry.title} verwerfen`}
                     style={[styles.discardButton, discardingEntryId === entry.id ? styles.buttonDisabled : null]}
                     onPress={() => void handleDiscardQueueEntry(entry.id)}
                     disabled={discardingEntryId === entry.id}
@@ -897,43 +951,6 @@ function formatBergungsStatusLabel(value: CreateFallwildRequest["bergungsStatus"
   }
 }
 
-function ChoiceGroup<T extends string>({
-  label,
-  options,
-  value,
-  onChange,
-  formatOption = (option) => option
-}: {
-  label: string;
-  options: T[];
-  value: T;
-  onChange: (value: T) => void;
-  formatOption?: (value: T) => string;
-}) {
-  return (
-    <View style={styles.field}>
-      <Text style={styles.label}>{label}</Text>
-      <View style={styles.choiceRow}>
-        {options.map((option) => {
-          const optionLabel = formatOption(option);
-
-          return (
-            <Pressable
-              key={option}
-              accessibilityRole="button"
-              accessibilityLabel={`${label}: ${optionLabel}`}
-              onPress={() => onChange(option)}
-              style={[styles.choiceChip, option === value ? styles.choiceChipActive : null]}
-            >
-              <Text style={[styles.choiceText, option === value ? styles.choiceTextActive : null]}>{optionLabel}</Text>
-            </Pressable>
-          );
-        })}
-      </View>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   listScroll: {
     maxHeight: 520
@@ -1039,19 +1056,34 @@ const styles = StyleSheet.create({
     gap: 10,
     paddingTop: 4
   },
-  photoHeader: {
+  photoActionsRow: {
     flexDirection: "row",
-    alignItems: "center",
-    gap: 12
+    flexWrap: "wrap",
+    gap: 10
   },
   helperCopy: {
     fontSize: 13,
     lineHeight: 18,
     color: colors.muted
   },
+  photoCameraButton: {
+    flex: 1,
+    minHeight: 48,
+    paddingHorizontal: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 999,
+    backgroundColor: colors.accent
+  },
+  photoCameraButtonText: {
+    color: colors.surface,
+    fontSize: 14,
+    fontWeight: "700"
+  },
   photoPickerButton: {
+    flex: 1,
     minWidth: 138,
-    minHeight: 44,
+    minHeight: 48,
     paddingHorizontal: 14,
     alignItems: "center",
     justifyContent: "center",
@@ -1106,28 +1138,6 @@ const styles = StyleSheet.create({
     color: colors.ink,
     fontSize: 12,
     fontWeight: "700"
-  },
-  choiceRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8
-  },
-  choiceChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 999,
-    backgroundColor: "#efe7d8"
-  },
-  choiceChipActive: {
-    backgroundColor: colors.accent
-  },
-  choiceText: {
-    color: colors.ink,
-    fontSize: 13,
-    fontWeight: "600"
-  },
-  choiceTextActive: {
-    color: colors.surface
   },
   actionRow: {
     flexDirection: "row",
