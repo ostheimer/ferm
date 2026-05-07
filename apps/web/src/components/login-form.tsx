@@ -114,6 +114,9 @@ export function LoginForm({ nextTarget }: LoginFormProps) {
       </form>
 
       <p className="auth-switch">
+        Mit Einladungs-Code? <Link href="/einladung">Einladung annehmen</Link>
+      </p>
+      <p className="auth-switch">
         Noch kein Konto? <Link href="/registrieren?plan=starter">Revier registrieren</Link>
       </p>
     </section>

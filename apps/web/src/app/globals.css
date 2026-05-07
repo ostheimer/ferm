@@ -603,6 +603,27 @@ p {
   color: var(--accent-strong);
 }
 
+.invitation-code-display {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  padding: 22px 26px;
+  margin: 12px 0 20px;
+  border-radius: 22px;
+  background: rgba(36, 73, 58, 0.08);
+  border: 1px solid rgba(25, 57, 44, 0.12);
+}
+
+.invitation-code-display code {
+  font-family: var(--font-heading), serif;
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  letter-spacing: 0.18em;
+  color: var(--accent-strong);
+  background: transparent;
+  padding: 0;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
