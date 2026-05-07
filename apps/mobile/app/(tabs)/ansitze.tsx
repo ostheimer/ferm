@@ -92,7 +92,7 @@ export default function AnsitzeScreen() {
       setMessage(
         result.mode === "sent"
           ? "Ansitz direkt an die API gesendet."
-          : "Keine Verbindung: Ansitz wurde in die Offline-Queue gelegt."
+          : "Keine Verbindung: Ansitz wurde vorgemerkt und wird automatisch nachgereicht."
       );
 
       setForm({
@@ -117,12 +117,12 @@ export default function AnsitzeScreen() {
       const remaining = await syncOfflineQueue();
       setMessage(
         remaining.length === 0
-          ? "Offline-Queue synchronisiert."
-          : `${remaining.length} Queue-Einträge warten weiter auf Synchronisierung.`
+          ? "Warteschlange ist leer."
+          : `${remaining.length} Einträge warten weiter auf Synchronisierung.`
       );
       await loadAnsitze({ refreshing: true });
     } catch (syncError) {
-      setError(syncError instanceof Error ? syncError.message : "Queue konnte nicht synchronisiert werden.");
+      setError(syncError instanceof Error ? syncError.message : "Warteschlange konnte nicht gesendet werden.");
     }
   }
 
@@ -135,9 +135,9 @@ export default function AnsitzeScreen() {
       subtitle="Standort, Koordinaten und Notiz werden online direkt an die API gesendet oder offline vorgemerkt."
       aside={
         <View style={styles.queueCard}>
-          <Text style={styles.queueTitle}>Ansitz-Queue</Text>
+          <Text style={styles.queueTitle}>Vorgemerkte Ansitze</Text>
           <Text style={styles.queueValue}>{queueEntries.length}</Text>
-          <Text style={styles.queueCopy}>Pending und Failed Einträge werden bei bestehender Verbindung erneut gesendet.</Text>
+          <Text style={styles.queueCopy}>Wartende und fehlgeschlagene Einträge werden bei bestehender Verbindung erneut gesendet.</Text>
         </View>
       }
     >
@@ -231,12 +231,12 @@ export default function AnsitzeScreen() {
           </Pressable>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Ansitz-Queue synchronisieren"
+            accessibilityLabel="Ansitz-Warteschlange senden"
             style={[styles.secondaryButton, queue.isSyncing ? styles.buttonDisabled : null]}
             onPress={() => void handleQueueSync()}
             disabled={queue.isSyncing}
           >
-            <Text style={styles.secondaryButtonText}>{queue.isSyncing ? "Synchronisiert..." : "Queue sync"}</Text>
+            <Text style={styles.secondaryButtonText}>{queue.isSyncing ? "Wird gesendet..." : "Warteschlange senden"}</Text>
           </Pressable>
         </View>
       </View>
