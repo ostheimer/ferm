@@ -111,10 +111,18 @@ p {
 }
 
 .nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   padding: 14px 16px;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.05);
   transition: transform 180ms ease, background 180ms ease;
+}
+
+.nav-link svg {
+  flex-shrink: 0;
+  opacity: 0.85;
 }
 
 .nav-link:hover {

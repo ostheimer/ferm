@@ -1,25 +1,43 @@
 "use client";
 
 import type { AuthContextResponse, Role } from "@hege/domain";
+import {
+  Camera,
+  FileText,
+  LayoutDashboard,
+  Map,
+  TreePine,
+  Users,
+  type LucideIcon
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 interface NavigationItem {
   href: string;
   label: string;
+  icon: LucideIcon;
   allowedRoles?: ReadonlyArray<Role>;
 }
 
 const navigation: ReadonlyArray<NavigationItem> = [
-  { href: "/app", label: "Dashboard" },
-  { href: "/app/sitzungen", label: "Sitzungen", allowedRoles: ["schriftfuehrer", "revier-admin", "platform-admin"] },
-  { href: "/app/ansitze", label: "Ansitze" },
-  { href: "/app/reviereinrichtungen", label: "Reviereinrichtungen" },
-  { href: "/app/fallwild", label: "Fallwild" },
-  { href: "/app/protokolle", label: "Protokolle" }
+  { href: "/app", label: "Dashboard", icon: LayoutDashboard },
+  {
+    href: "/app/sitzungen",
+    label: "Sitzungen",
+    icon: Users,
+    allowedRoles: ["schriftfuehrer", "revier-admin", "platform-admin"]
+  },
+  { href: "/app/ansitze", label: "Ansitze", icon: TreePine },
+  { href: "/app/reviereinrichtungen", label: "Reviereinrichtungen", icon: Map },
+  { href: "/app/fallwild", label: "Fallwild", icon: Camera },
+  { href: "/app/protokolle", label: "Protokolle", icon: FileText }
 ];
 
-export function isNavigationItemVisible(item: NavigationItem, role: Role | null | undefined): boolean {
+export function isNavigationItemVisible(
+  item: { allowedRoles?: ReadonlyArray<Role> },
+  role: Role | null | undefined
+): boolean {
   if (!item.allowedRoles) {
     return true;
   }
@@ -65,6 +83,7 @@ export function Shell({ children, viewer }: ShellProps) {
             const active =
               currentPath === item.href ||
               (item.href !== "/app" && currentPath.startsWith(`${item.href}/`));
+            const Icon = item.icon;
 
             return (
               <Link
@@ -72,7 +91,8 @@ export function Shell({ children, viewer }: ShellProps) {
                 href={item.href}
                 className={active ? "nav-link nav-link-active" : "nav-link"}
               >
-                {item.label}
+                <Icon aria-hidden="true" size={18} strokeWidth={1.8} />
+                <span>{item.label}</span>
               </Link>
             );
           })}

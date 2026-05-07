@@ -104,6 +104,9 @@ export function FallwildClient({ entries }: FallwildClientProps) {
           <div>
             <p className="eyebrow">Fallwild</p>
             <h1>Bergungen, Dokumentation und Export</h1>
+            <p className="hero-copy">
+              Erfassung läuft über die hege-App. Hier nur Lese-, Filter- und Export-Sicht für Schriftführung und Revierleitung.
+            </p>
           </div>
           <div className="section-actions">
             <a className="button-link" href="/api/v1/fallwild/export.csv">

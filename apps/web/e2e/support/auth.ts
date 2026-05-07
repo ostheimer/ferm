@@ -9,7 +9,7 @@ const DEMO_PIN = "9526";
 const credentialsByRole: Record<DemoUserRole, { identifier: string; name: string }> = {
   "revier-admin": {
     identifier: "revieradmin",
-    name: "Revierleitung Gänserndorf"
+    name: "Anna Müller"
   },
   schriftfuehrer: {
     identifier: "martin.mair@hege.app",

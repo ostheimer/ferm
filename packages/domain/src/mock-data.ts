@@ -27,9 +27,9 @@ export const demoData: DemoData = {
     },
     {
       id: "user-revierleitung",
-      name: "Revierleitung Gänserndorf",
+      name: "Anna Müller",
       phone: "+43 660 1001001",
-      email: "revierleitung@hege.app",
+      email: "anna.mueller@hege.app",
       username: "revieradmin"
     },
     {
