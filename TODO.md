@@ -11,6 +11,45 @@
 - Veranstaltungsmodul mit Ankündigung, Treffpunkt, Erinnerungen und optionaler Teilnahmebestätigung planen.
 - WhatsApp-Anstoß aus der App fachlich und technisch gegen interne Nachrichten und Aufgaben abgrenzen.
 
+### UI-Audit 2026-05-07
+
+Vollständiger Befund mit Code-Verweisen und Reproduktion: [docs/ui-audit-2026-05-07.md](docs/ui-audit-2026-05-07.md). Test-Accounts und Rollen-Übersicht: [docs/test-accounts.md](docs/test-accounts.md).
+
+#### Kritisch
+
+- [krit] E2E-Test-Datenmüll aus Production löschen (alle Sitzungen/Protokolle/Fallwild mit Prefix `E2E `) und E2E-Suite auf separaten Neon-Branch umstellen — siehe Audit F-02.
+- [krit] Sidebar rollen-aware filtern und stillen Redirect auf `/app` durch sichtbaren Hinweis ersetzen — siehe Audit F-01.
+- [krit] Backoffice-„Kartenlage" durch echte Google Maps JS API ersetzen — siehe Audit F-03.
+- [krit] Mobile MapPreview durch `react-native-maps` ersetzen — siehe Audit F-14.
+
+#### Hoch
+
+- [hoch] Sitzung-Detail bei Status `freigegeben` sperren und „Neue Version öffnen"-Pfad bauen — siehe Audit F-04.
+- [hoch] Detail-Link in Sitzungen-Liste auf `/sitzungen/[id]` (ohne `/app`-Prefix) auf Auth-Guard prüfen oder Route nach `/app/sitzungen/[id]` umziehen — siehe Audit F-05.
+- [hoch] Mobile-Tabs von 6 auf 4 + „Mehr"-Sheet reduzieren, Logout in Profil verlegen — siehe Audit F-12 und F-15.
+- [hoch] Mobile-Login-Wortmarke „hege" durch ein einzelnes Logo-Asset ersetzen — siehe Audit F-13.
+- [hoch] Member-Invite-Flow planen, damit andere Rollen ohne Seed-/SQL-Eingriff angelegt werden können — siehe Audit F-20.
+- [hoch] Geteilte Design-Tokens (`@hege/tokens`) für Web und Mobile einführen — siehe Audit F-21.
+
+#### Mittel
+
+- [mittel] Rollen-Labels überall durch `formatRoleLabel` schicken (CAPS und Umlaut-lose Identifier eliminieren) — siehe Audit F-06.
+- [mittel] Reviereinrichtungen-Status-Pill `wartung-faellig` lesbar mappen — siehe Audit F-07.
+- [mittel] Hero-Größen begrenzen und Hero-Copy auf Login/Dashboard/Reviereinrichtungen entwickler-frei umschreiben — siehe Audit F-08.
+- [mittel] Public Landing mit Backoffice- und iPhone-Mock anreichern (sobald F-03/F-14 fertig) — siehe Audit F-10.
+- [mittel] Fallwild-Foto-Auswahl auf kamera-first umbauen — siehe Audit F-16.
+- [mittel] Lokale iOS-Build-Hygiene reparieren (CocoaPods/Ruby/Encoding); EAS-Preview als primären Smoke-Pfad dokumentieren — siehe Audit F-23.
+
+#### Niedrig
+
+- [niedrig] Demo-Account `user-revierleitung` mit echtem Personennamen befüllen — siehe Audit F-09.
+- [niedrig] Fallwild-Liste im Web mit Eyebrow „Erfassung läuft über die hege-App" — siehe Audit F-11.
+- [niedrig] Mobile Choice-Chips für Wildart/Geschlecht/Altersklasse/Bergungsstatus durch Picker oder Action Sheet ersetzen — siehe Audit F-17.
+- [niedrig] Mobile Mikrocopy-Pass: „Queue" → „Warteschlange", „1 gespeicherte Stände" → „1 Version gespeichert" — siehe Audit F-18.
+- [niedrig] Mobile `userInterfaceStyle` auf `automatic` und Dark-Mode-Tokens vorbereiten — siehe Audit F-19.
+- [niedrig] Icon-Set für Web einführen (Sidebar, Buttons, Status) — siehe Audit F-22.
+- [niedrig] Visuelle Evidenz unter `docs/assets/ui-audit-2026-05-07/` nachreichen, sobald das Screenshot-Tooling stabil ist.
+
 ## Erledigt
 
 - Echte Auth-Session mit Login, Refresh, `GET /api/v1/me` und Revierkontext fuer Web und App umgesetzt.
