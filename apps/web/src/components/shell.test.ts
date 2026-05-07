@@ -25,7 +25,7 @@ vi.mock("next/link", () => ({
   }) => React.createElement("a", { className, href }, children)
 }));
 
-import { Shell } from "./shell";
+import { Shell, isNavigationItemVisible } from "./shell";
 
 const viewer: AuthContextResponse = {
   user: {
@@ -75,5 +75,59 @@ describe("Shell", () => {
     );
 
     expect(html).toContain("Abmelden");
+  });
+
+  it("hides the Sitzungen link for roles that may not access /app/sitzungen", () => {
+    const ausgeherViewer: AuthContextResponse = {
+      ...viewer,
+      membership: { ...viewer.membership, id: "member-ausgeher", role: "ausgeher", jagdzeichen: "AO-01" }
+    };
+
+    const html = renderToStaticMarkup(
+      React.createElement(Shell, {
+        viewer: ausgeherViewer,
+        children: React.createElement("div", null, "Dashboard")
+      })
+    );
+
+    expect(html).not.toContain('href="/app/sitzungen"');
+    expect(html).toContain('href="/app/ansitze"');
+    expect(html).toContain('href="/app/fallwild"');
+  });
+
+  it("shows the Sitzungen link for schriftfuehrer", () => {
+    const html = renderToStaticMarkup(
+      React.createElement(Shell, {
+        viewer,
+        children: React.createElement("div", null, "Dashboard")
+      })
+    );
+
+    expect(html).toContain('href="/app/sitzungen"');
+  });
+});
+
+describe("isNavigationItemVisible", () => {
+  it("returns true when no allowedRoles are configured", () => {
+    expect(isNavigationItemVisible({ href: "/app", label: "Dashboard" }, "ausgeher")).toBe(true);
+    expect(isNavigationItemVisible({ href: "/app", label: "Dashboard" }, null)).toBe(true);
+  });
+
+  it("returns false when the role is not in the allowed list", () => {
+    const item = { href: "/app/sitzungen", label: "Sitzungen", allowedRoles: ["schriftfuehrer", "revier-admin"] as const };
+    expect(isNavigationItemVisible(item, "ausgeher")).toBe(false);
+    expect(isNavigationItemVisible(item, "jaeger")).toBe(false);
+  });
+
+  it("returns true when the role is in the allowed list", () => {
+    const item = { href: "/app/sitzungen", label: "Sitzungen", allowedRoles: ["schriftfuehrer", "revier-admin"] as const };
+    expect(isNavigationItemVisible(item, "schriftfuehrer")).toBe(true);
+    expect(isNavigationItemVisible(item, "revier-admin")).toBe(true);
+  });
+
+  it("hides items with allowedRoles when no role is provided", () => {
+    const item = { href: "/app/sitzungen", label: "Sitzungen", allowedRoles: ["revier-admin"] as const };
+    expect(isNavigationItemVisible(item, null)).toBe(false);
+    expect(isNavigationItemVisible(item, undefined)).toBe(false);
   });
 });

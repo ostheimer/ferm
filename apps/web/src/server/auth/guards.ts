@@ -29,10 +29,20 @@ export async function requirePageRoles(
   const context = await requirePageAuth(options);
 
   if (!allowedRoles.includes(context.membership.role)) {
-    redirect("/app");
+    redirect(toForbiddenRedirect(options.next));
   }
 
   return context;
+}
+
+function toForbiddenRedirect(attemptedPath?: string) {
+  const params = new URLSearchParams({ error: "keine-berechtigung" });
+
+  if (attemptedPath) {
+    params.set("path", attemptedPath);
+  }
+
+  return `/app?${params.toString()}`;
 }
 
 export async function requireSetupPageAuth(next = "/app/setup") {
