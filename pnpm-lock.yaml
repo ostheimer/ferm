@@ -69,6 +69,9 @@ importers:
       '@hege/domain':
         specifier: workspace:*
         version: link:../../packages/domain
+      '@hege/tokens':
+        specifier: workspace:*
+        version: link:../../packages/tokens
       '@react-native-async-storage/async-storage':
         specifier: 2.1.2
         version: 2.1.2(react-native@0.79.6(@babel/core@7.29.0)(@types/react@19.0.14)(react@19.0.0))
@@ -139,6 +142,9 @@ importers:
       '@hege/domain':
         specifier: workspace:*
         version: link:../../packages/domain
+      '@hege/tokens':
+        specifier: workspace:*
+        version: link:../../packages/tokens
       '@vis.gl/react-google-maps':
         specifier: ^1.8.3
         version: 1.8.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -187,6 +193,8 @@ importers:
         version: 3.2.4(@types/node@24.12.2)(lightningcss@1.27.0)(terser@5.46.1)(tsx@4.21.0)
 
   packages/domain: {}
+
+  packages/tokens: {}
 
 packages:
 

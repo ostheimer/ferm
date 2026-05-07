@@ -23,7 +23,7 @@ describe("auth service", () => {
       pin: "9526"
     });
 
-    expect(session.user.name).toBe("Revierleitung Gänserndorf");
+    expect(session.user.name).toBe("Anna Müller");
     expect(session.membership.role).toBe("revier-admin");
     expect(session.user).not.toHaveProperty("passwordHash");
   });

@@ -1,17 +1,4 @@
-:root {
-  --bg: #f3efe3;
-  --surface: rgba(18, 36, 28, 0.9);
-  --surface-soft: rgba(255, 252, 244, 0.8);
-  --surface-card: rgba(252, 248, 238, 0.88);
-  --border: rgba(25, 57, 44, 0.15);
-  --text: #173328;
-  --muted: #5f7167;
-  --accent: #9db36f;
-  --accent-strong: #24493a;
-  --danger: #9d4a3f;
-  --warning: #856123;
-  --shadow: 0 24px 60px rgba(16, 35, 28, 0.12);
-}
+@import "./_generated-tokens.css";
 
 * {
   box-sizing: border-box;
