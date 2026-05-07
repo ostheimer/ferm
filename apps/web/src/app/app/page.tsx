@@ -8,16 +8,16 @@ export const dynamic = "force-dynamic";
 
 type DashboardSearchParams = { error?: string | string[]; path?: string | string[] };
 
-interface DashboardPageProps {
-  searchParams?: Promise<DashboardSearchParams>;
-}
-
-export default async function DashboardPage({ searchParams }: DashboardPageProps = {}) {
+export default async function DashboardPage({
+  searchParams
+}: {
+  searchParams: Promise<DashboardSearchParams>;
+}) {
   const context = await requirePageAuth({ next: "/app" });
   const [dashboard, einrichtungen, resolvedSearchParams] = await Promise.all([
     getDashboardSnapshot({ context }),
     listReviereinrichtungen(),
-    searchParams ?? Promise.resolve<DashboardSearchParams>({})
+    searchParams
   ]);
 
   const errorParam = pickFirstParam(resolvedSearchParams.error);
