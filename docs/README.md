@@ -17,6 +17,8 @@ Diese Dokumentation beschreibt den aktuellen Stand des Repositories und den gepl
 - [Passkeys und Face ID v1](./passkeys-faceid-v1.md)
 - [Rollen, Aufgaben und Nachrichten v1](./rollen-aufgaben-nachrichten-v1.md)
 - [Reviermeldungen und Aufgaben v1](./reviermeldungen-aufgaben-v1-plan.md)
+- [UI-Audit 2026-05-07](./ui-audit-2026-05-07.md)
+- [Test-Accounts und Rollen-Übersicht](./test-accounts.md)
 - [Umsetzungsbacklog](./umsetzungsbacklog.md)
 - [Sprint 0 Backlog](./sprint-0-backlog.md)
 - [Sprint 1 Backlog](./sprint-1-backlog.md)
