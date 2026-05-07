@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
-import { useRouter } from "expo-router";
 import type { DashboardResponse } from "@hege/domain";
 
 import { MapPreview } from "../../components/map-preview";
 import { MetricTile } from "../../components/metric-tile";
 import { ScreenShell } from "../../components/screen-shell";
-import { fetchDashboardSnapshot, logout } from "../../lib/api";
+import { fetchDashboardSnapshot } from "../../lib/api";
 import {
   discardOfflineQueueEntry,
   retryOfflineQueueEntry,
@@ -22,7 +21,6 @@ import {
 import { colors } from "../../lib/theme";
 
 export default function DashboardScreen() {
-  const router = useRouter();
   const queue = useOfflineQueueSnapshot();
   const [snapshot, setSnapshot] = useState<DashboardResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -154,18 +152,7 @@ export default function DashboardScreen() {
           onPress={() => void handleQueueSync()}
           disabled={queue.isSyncing}
         >
-          <Text style={styles.secondaryButtonText}>{queue.isSyncing ? "Synchronisiert..." : "Queue synchronisieren"}</Text>
-        </Pressable>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Abmelden"
-          style={styles.secondaryButton}
-          onPress={async () => {
-            await logout();
-            router.replace("/login");
-          }}
-        >
-          <Text style={styles.secondaryButtonText}>Abmelden</Text>
+          <Text style={styles.secondaryButtonText}>{queue.isSyncing ? "Synchronisiert..." : "Warteschlange senden"}</Text>
         </Pressable>
       </View>
 
@@ -190,11 +177,9 @@ export default function DashboardScreen() {
 
       <View style={styles.metricGrid}>
         <MetricTile label="Ansitze" value={snapshot?.activeAnsitze.length ?? "-"} detail="Aktuell im Revier gemeldet." />
-        <MetricTile label="Wartungen" value={snapshot?.overview.offeneWartungen ?? "-"} detail="Offene Punkte an Einrichtungen." />
-        <MetricTile label="Aufgaben" value={snapshot?.overview.offeneAufgaben ?? "-"} detail="Offene Arbeiten im Revier." />
         <MetricTile label="Fallwild" value={snapshot?.overview.heutigeFallwildBergungen ?? "-"} detail="Heute erfasste Bergungen." />
-        <MetricTile label="Protokolle" value={snapshot?.overview.unveroeffentlichteProtokolle ?? "-"} detail="Noch nicht freigegeben." />
-        <MetricTile label="Queue" value={queueCount} detail="Offene Offline-Eingaben." />
+        <MetricTile label="Aufgaben" value={snapshot?.overview.offeneAufgaben ?? "-"} detail="Offene Arbeiten im Revier." />
+        <MetricTile label="Warteschlange" value={queueCount} detail="Offene Offline-Eingaben." />
       </View>
 
       {snapshot ? (
@@ -204,11 +189,6 @@ export default function DashboardScreen() {
             ansitze={activeAnsitze}
             revierCenter={snapshot.revier.zentrum}
           />
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Eingeloggt</Text>
-            <Text style={styles.cardValue}>{snapshot.user.name}</Text>
-            <Text style={styles.cardCopy}>{`${formatRoleLabel(snapshot.membership.role)} / ${snapshot.membership.jagdzeichen}`}</Text>
-          </View>
           {snapshot.overview.naechsteSitzung ? (
             <View style={styles.card}>
               <Text style={styles.cardTitle}>Nächste Sitzung</Text>

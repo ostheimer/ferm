@@ -132,9 +132,9 @@ export default function LoginScreen() {
     <LinearGradient colors={["#fff8ec", "#dde6c3"]} style={styles.root}>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.flex}>
         <View style={styles.card}>
-          <View accessibilityLabel="hege" accessibilityRole="image" style={styles.brand}>
+          <View accessibilityLabel="hege" accessibilityRole="header" style={styles.brand}>
             <Image accessibilityIgnoresInvertColors source={logoMark} style={styles.logo} />
-            <Text style={styles.brandText}>ege</Text>
+            <Text style={styles.brandText}>hege</Text>
           </View>
           <Text style={styles.title}>Anmelden und Revierkontext laden</Text>
           <Text style={styles.copy}>
@@ -244,25 +244,24 @@ const styles = StyleSheet.create({
   },
   brand: {
     flexDirection: "row",
-    alignItems: "flex-end",
+    alignItems: "center",
     alignSelf: "center",
     justifyContent: "center",
+    gap: 12,
     marginBottom: 4
   },
   logo: {
-    width: 74,
-    height: 74,
+    width: 56,
+    height: 56,
     resizeMode: "contain"
   },
   brandText: {
-    marginLeft: -22,
-    marginBottom: -6,
     color: colors.accent,
     fontFamily: Platform.select({ ios: "Georgia", default: "serif" }),
-    fontSize: 80,
-    lineHeight: 82,
+    fontSize: 48,
+    lineHeight: 54,
     fontWeight: "700",
-    letterSpacing: -3.6
+    letterSpacing: -1.5
   },
   title: {
     fontSize: 30,
