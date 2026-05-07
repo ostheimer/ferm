@@ -65,7 +65,7 @@ export function LoginForm({ nextTarget }: LoginFormProps) {
       <div className="login-copy">
         <img alt="" aria-hidden="true" className="auth-logo" src="/brand/hege-logo-mark.png" />
         <p className="eyebrow">Anmeldung</p>
-        <h1>Backoffice und App jetzt mit echter Session.</h1>
+        <h1>Willkommen im Revier.</h1>
         <p>Melde dich mit E-Mail oder Benutzername und deiner vierstelligen PIN an.</p>
       </div>
 
