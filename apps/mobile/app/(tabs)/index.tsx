@@ -199,7 +199,11 @@ export default function DashboardScreen() {
 
       {snapshot ? (
         <>
-          <MapPreview revierName={snapshot.revier.name} ansitze={activeAnsitze} />
+          <MapPreview
+            revierName={snapshot.revier.name}
+            ansitze={activeAnsitze}
+            revierCenter={snapshot.revier.zentrum}
+          />
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Eingeloggt</Text>
             <Text style={styles.cardValue}>{snapshot.user.name}</Text>

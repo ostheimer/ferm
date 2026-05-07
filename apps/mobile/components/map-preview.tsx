@@ -1,20 +1,47 @@
 import type { AnsitzSession } from "@hege/domain";
-import { StyleSheet, Text, View } from "react-native";
+import { Platform, StyleSheet, Text, View } from "react-native";
+import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 
 import { colors } from "../lib/theme";
+import {
+  AUSTRIA_DEFAULT_CENTER,
+  buildInitialRegion,
+  type RevierCenter
+} from "./map-preview.helpers";
 
 interface MapPreviewProps {
   revierName: string;
   ansitze: AnsitzSession[];
+  revierCenter?: RevierCenter;
 }
 
-const markerOffsets = [
-  { top: 42, left: 28 },
-  { top: 126, right: 26 },
-  { bottom: 34, left: 52 }
-] as const;
+/**
+ * Auf Android braucht `react-native-maps` mit Provider Google einen API-Key
+ * im Manifest (siehe `apps/mobile/app.json` -> `android.config.googleMaps.apiKey`).
+ * Wenn keiner gesetzt ist, faellt die Karte still aus. In diesem Fall
+ * rendern wir den frueheren Fake-Look mit einem Hinweistext, damit Android
+ * nicht broken wirkt.
+ *
+ * Auf iOS nutzen wir den Apple-Maps-Fallback (Provider undefined), weil das
+ * out-of-the-box ohne Key funktioniert.
+ */
+const ANDROID_GOOGLE_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_BROWSER_API_KEY;
+const ANDROID_HAS_GOOGLE_KEY = Platform.OS === "android" && !!ANDROID_GOOGLE_KEY;
 
-export function MapPreview({ revierName, ansitze }: MapPreviewProps) {
+const MAP_PROVIDER =
+  Platform.OS === "android"
+    ? ANDROID_HAS_GOOGLE_KEY
+      ? PROVIDER_GOOGLE
+      : undefined
+    : undefined;
+
+const SHOULD_RENDER_NATIVE_MAP =
+  Platform.OS === "ios" || ANDROID_HAS_GOOGLE_KEY;
+
+export function MapPreview({ revierName, ansitze, revierCenter }: MapPreviewProps) {
+  const center: RevierCenter = revierCenter ?? AUSTRIA_DEFAULT_CENTER;
+  const initialRegion = buildInitialRegion(center, ansitze);
+
   return (
     <View style={styles.card}>
       <View style={styles.header}>
@@ -22,18 +49,47 @@ export function MapPreview({ revierName, ansitze }: MapPreviewProps) {
         <Text style={styles.caption}>{revierName}</Text>
       </View>
       <View style={styles.mapSurface}>
-        <View style={styles.mapGlow} />
-        {ansitze.slice(0, markerOffsets.length).map((entry, index) => (
-          <View key={entry.id} style={[styles.marker, markerOffsets[index]]}>
-            <Text style={styles.markerType}>Ansitz</Text>
-            <Text style={styles.markerLabel}>{entry.standortName}</Text>
-            <Text style={styles.markerCopy}>{entry.location.label ?? "Aktiver Stand"}</Text>
+        {SHOULD_RENDER_NATIVE_MAP ? (
+          <MapView
+            provider={MAP_PROVIDER}
+            style={StyleSheet.absoluteFillObject}
+            initialRegion={initialRegion}
+            pointerEvents="auto"
+            showsCompass={false}
+            showsScale={false}
+            toolbarEnabled={false}
+          >
+            {ansitze.map((entry) => (
+              <Marker
+                key={entry.id}
+                coordinate={{
+                  latitude: entry.location.lat,
+                  longitude: entry.location.lng
+                }}
+                title={entry.standortName}
+                description={entry.location.label ?? "Aktiver Ansitz"}
+              />
+            ))}
+          </MapView>
+        ) : (
+          <View style={styles.androidFallback}>
+            <Text style={styles.fallbackTitle}>Karte nicht aktiv</Text>
+            <Text style={styles.fallbackCopy}>
+              Karte wird mit Google-Key aktiviert.
+            </Text>
+            {ansitze.length > 0 ? (
+              <Text style={styles.fallbackHint}>
+                {`${ansitze.length} aktive Ansitze warten auf Anzeige.`}
+              </Text>
+            ) : null}
           </View>
-        ))}
+        )}
         {ansitze.length === 0 ? (
-          <View style={styles.emptyState}>
+          <View pointerEvents="none" style={styles.emptyState}>
             <Text style={styles.emptyTitle}>Keine aktiven Ansitze</Text>
-            <Text style={styles.emptyCopy}>Die Karte wird aktualisiert, sobald jemand im Revier ansitzt.</Text>
+            <Text style={styles.emptyCopy}>
+              Die Karte wird aktualisiert, sobald jemand im Revier ansitzt.
+            </Text>
           </View>
         ) : null}
       </View>
@@ -73,40 +129,42 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     backgroundColor: colors.accent
   },
-  mapGlow: {
+  androidFallback: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(255, 250, 240, 0.08)"
-  },
-  marker: {
-    position: "absolute",
-    padding: 10,
-    borderRadius: 14,
-    backgroundColor: "rgba(255, 250, 240, 0.94)",
-    maxWidth: 160,
-    gap: 2
-  },
-  markerType: {
-    fontSize: 11,
-    textTransform: "uppercase",
-    letterSpacing: 1.2,
-    color: colors.muted
-  },
-  markerLabel: {
-    fontSize: 13,
-    color: colors.ink,
-    fontWeight: "600"
-  },
-  markerCopy: {
-    fontSize: 12,
-    color: colors.muted
-  },
-  emptyState: {
-    position: "absolute",
-    inset: 0,
     alignItems: "center",
     justifyContent: "center",
     padding: 22,
-    gap: 4
+    gap: 6
+  },
+  fallbackTitle: {
+    fontSize: 17,
+    fontWeight: "700",
+    color: "#fff9ef",
+    textAlign: "center"
+  },
+  fallbackCopy: {
+    fontSize: 13,
+    lineHeight: 18,
+    color: "#f7f2e5",
+    textAlign: "center"
+  },
+  fallbackHint: {
+    fontSize: 12,
+    lineHeight: 16,
+    color: "#e5efd9",
+    textAlign: "center"
+  },
+  emptyState: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 22,
+    gap: 4,
+    backgroundColor: "rgba(41, 80, 63, 0.55)"
   },
   emptyTitle: {
     fontSize: 17,
