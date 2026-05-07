@@ -24,6 +24,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "3.1024.0",
     "@hege/domain": "workspace:*",
+    "@vis.gl/react-google-maps": "^1.8.3",
     "drizzle-orm": "^0.45.2",
     "next": "^15.4.6",
     "pg": "^8.20.0",
