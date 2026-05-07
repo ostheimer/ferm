@@ -17,7 +17,7 @@ test.describe("Leitstand und Protokolle", () => {
   test("renders the dashboard on desktop and mobile", async ({ page }, testInfo) => {
     await page.goto("/app");
 
-    await expect(page.getByRole("heading", { name: "Revierbetrieb, Protokolle und Fallwild auf einen Blick." })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Was jetzt deine Aufmerksamkeit braucht." })).toBeVisible();
     await expect(page.locator("main")).toHaveScreenshot("dashboard-overview.png", visualSnapshotOptions);
 
     if (testInfo.project.name === "mobile-chromium") {
