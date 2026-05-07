@@ -48,13 +48,6 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="reviereinrichtungen"
-        options={{
-          title: "Einrichtungen",
-          tabBarIcon: ({ color, size }) => <Ionicons color={color} name="map-outline" size={size} />
-        }}
-      />
-      <Tabs.Screen
         name="fallwild"
         options={{
           title: "Fallwild",
@@ -62,17 +55,28 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="mehr"
+        options={{
+          title: "Mehr",
+          tabBarIcon: ({ color, size }) => <Ionicons color={color} name="ellipsis-horizontal" size={size} />
+        }}
+      />
+      <Tabs.Screen
+        name="reviereinrichtungen"
+        options={{
+          href: null
+        }}
+      />
+      <Tabs.Screen
         name="revierarbeit"
         options={{
-          title: "Meldungen",
-          tabBarIcon: ({ color, size }) => <Ionicons color={color} name="checkbox-outline" size={size} />
+          href: null
         }}
       />
       <Tabs.Screen
         name="protokolle"
         options={{
-          title: "Protokolle",
-          tabBarIcon: ({ color, size }) => <Ionicons color={color} name="document-text-outline" size={size} />
+          href: null
         }}
       />
     </Tabs>
