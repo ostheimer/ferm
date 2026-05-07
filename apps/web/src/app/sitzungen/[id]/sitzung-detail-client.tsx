@@ -32,6 +32,7 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const latestVersion = sitzung.versions[0];
+  const isFreigegeben = sitzung.status === "freigegeben";
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [title, setTitle] = useState(sitzung.title);
@@ -210,10 +211,23 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
           </div>
         </header>
 
+        {isFreigegeben ? (
+          <p className="feedback feedback-success" role="note">
+            <strong>Sitzung freigegeben.</strong> Stammdaten sind gesperrt. Eine neue Protokollversion
+            öffnet die Sitzung wieder als Entwurf zur Nachfreigabe.
+          </p>
+        ) : null}
+
         <form className="ansitz-form" onSubmit={(event) => void handleSaveMeta(event)}>
           <label className="field" htmlFor="detail-title">
             <span>Titel</span>
-            <input id="detail-title" onChange={(event) => setTitle(event.currentTarget.value)} required value={title} />
+            <input
+              id="detail-title"
+              onChange={(event) => setTitle(event.currentTarget.value)}
+              readOnly={isFreigegeben}
+              required
+              value={title}
+            />
           </label>
 
           <label className="field" htmlFor="detail-date">
@@ -221,6 +235,7 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
             <input
               id="detail-date"
               onChange={(event) => setScheduledAt(event.currentTarget.value)}
+              readOnly={isFreigegeben}
               required
               type="datetime-local"
               value={scheduledAt}
@@ -232,6 +247,7 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
             <input
               id="detail-location"
               onChange={(event) => setLocationLabel(event.currentTarget.value)}
+              readOnly={isFreigegeben}
               required
               value={locationLabel}
             />
@@ -244,6 +260,7 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
                 <label key={entry.membershipId} className="checkbox-card">
                   <input
                     checked={participants[entry.membershipId] ?? false}
+                    disabled={isFreigegeben}
                     onChange={updateParticipant(entry.membershipId)}
                     type="checkbox"
                   />
@@ -261,9 +278,11 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
               {error ? <p className="feedback feedback-error">{error}</p> : null}
               {success ? <p className="feedback feedback-success">{success}</p> : null}
             </div>
-            <button className="button-control" disabled={isPending} type="submit">
-              Stammdaten speichern
-            </button>
+            {isFreigegeben ? null : (
+              <button className="button-control" disabled={isPending} type="submit">
+                Stammdaten speichern
+              </button>
+            )}
           </div>
         </form>
       </section>
@@ -275,6 +294,13 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
             <h2>Zusammenfassung, Agenda und Beschlüsse</h2>
           </div>
         </header>
+
+        {isFreigegeben ? (
+          <p className="feedback feedback-success" role="note">
+            Eine neue Protokollversion <strong>öffnet die Sitzung als Entwurf</strong>. Nach der Korrektur
+            kann sie erneut freigegeben werden.
+          </p>
+        ) : null}
 
         <form className="page-stack" onSubmit={(event) => void handleSaveVersion(event)}>
           <label className="field" htmlFor="version-summary">
@@ -335,7 +361,7 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
               {success ? <p className="feedback feedback-success">{success}</p> : null}
             </div>
             <button className="button-control" disabled={isPending} type="submit">
-              Neue Version speichern
+              {isFreigegeben ? "Neue Version öffnen" : "Neue Version speichern"}
             </button>
           </div>
         </form>

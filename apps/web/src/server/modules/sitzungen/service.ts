@@ -80,7 +80,7 @@ export async function createSitzung(command: CreateSitzungCommand): Promise<Sitz
 
 export async function updateSitzung(command: UpdateSitzungCommand): Promise<Sitzung> {
   assertMutationPrerequisites(command.role, ["schriftfuehrer", "revier-admin"]);
-  await assertEditableSitzung(command.revierId, command.sitzungId);
+  await assertEditableSitzung(command.revierId, command.sitzungId, { mutation: "stammdaten" });
 
   await getDb().transaction(async (tx) => {
     const [updated] = await tx
@@ -120,9 +120,12 @@ export async function updateSitzung(command: UpdateSitzungCommand): Promise<Sitz
 
 export async function createSitzungVersion(command: CreateVersionCommand): Promise<Sitzung> {
   assertMutationPrerequisites(command.role, ["schriftfuehrer", "revier-admin"]);
-  await assertEditableSitzung(command.revierId, command.sitzungId);
+  const sitzung = await assertEditableSitzung(command.revierId, command.sitzungId, {
+    mutation: "version"
+  });
 
   const versionId = `version-${randomUUID()}`;
+  const reopen = sitzung.status === "freigegeben";
 
   await getDb().transaction(async (tx) => {
     await tx.insert(protokollVersionen).values({
@@ -144,6 +147,13 @@ export async function createSitzungVersion(command: CreateVersionCommand): Promi
         dueAt: beschluss.dueAt ?? null
       });
     }
+
+    if (reopen) {
+      await tx
+        .update(sitzungen)
+        .set({ status: "entwurf" })
+        .where(and(eq(sitzungen.revierId, command.revierId), eq(sitzungen.id, command.sitzungId)));
+    }
   });
 
   const result = await getSitzungById(command.sitzungId);
@@ -157,7 +167,9 @@ export async function createSitzungVersion(command: CreateVersionCommand): Promi
 
 export async function freigebenSitzung(command: FreigabeCommand): Promise<Sitzung> {
   assertMutationPrerequisites(command.role, ["revier-admin"]);
-  const sitzung = await assertEditableSitzung(command.revierId, command.sitzungId);
+  const sitzung = await assertEditableSitzung(command.revierId, command.sitzungId, {
+    mutation: "freigabe"
+  });
 
   if (sitzung.versions.length === 0) {
     throw new RouteError("Vor der Freigabe muss mindestens eine Protokollversion existieren.", 409, "conflict");
@@ -221,11 +233,38 @@ function assertMutationPrerequisites(role: Role, allowedRoles: Role[]) {
   assertRole(role, allowedRoles);
 }
 
-async function assertEditableSitzung(revierId: string, sitzungId: string) {
+export type SitzungMutation = "stammdaten" | "version" | "freigabe";
+
+export function checkSitzungMutationStatus(
+  status: Sitzung["status"],
+  mutation: SitzungMutation
+): { ok: true } | { ok: false; reason: "stammdaten-locked" } {
+  if (status === "freigegeben" && mutation === "stammdaten") {
+    return { ok: false, reason: "stammdaten-locked" };
+  }
+
+  return { ok: true };
+}
+
+async function assertEditableSitzung(
+  revierId: string,
+  sitzungId: string,
+  options: { mutation: SitzungMutation }
+) {
   const sitzung = await getSitzungById(sitzungId);
 
   if (!sitzung || sitzung.revierId !== revierId) {
     throw new RouteError("Sitzung wurde nicht gefunden.", 404, "not-found");
+  }
+
+  const statusCheck = checkSitzungMutationStatus(sitzung.status, options.mutation);
+
+  if (!statusCheck.ok) {
+    throw new RouteError(
+      "Sitzung ist freigegeben. Stammdaten lassen sich nur durch eine neue Protokollversion öffnen.",
+      409,
+      "conflict"
+    );
   }
 
   return sitzung;
