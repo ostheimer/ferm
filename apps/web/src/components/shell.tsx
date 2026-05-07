@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   Map,
   TreePine,
+  UserPlus,
   Users,
   type LucideIcon
 } from "lucide-react";
@@ -31,7 +32,13 @@ const navigation: ReadonlyArray<NavigationItem> = [
   { href: "/app/ansitze", label: "Ansitze", icon: TreePine },
   { href: "/app/reviereinrichtungen", label: "Reviereinrichtungen", icon: Map },
   { href: "/app/fallwild", label: "Fallwild", icon: Camera },
-  { href: "/app/protokolle", label: "Protokolle", icon: FileText }
+  { href: "/app/protokolle", label: "Protokolle", icon: FileText },
+  {
+    href: "/app/mitglieder",
+    label: "Mitglieder",
+    icon: UserPlus,
+    allowedRoles: ["revier-admin", "platform-admin"]
+  }
 ];
 
 export function isNavigationItemVisible(

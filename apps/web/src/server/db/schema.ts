@@ -403,6 +403,41 @@ export const protokollBeschluesse = pgTable(
   ]
 );
 
+export const memberInvitations = pgTable(
+  "member_invitations",
+  {
+    id: text("id").primaryKey(),
+    revierId: text("revier_id")
+      .notNull()
+      .references(() => reviere.id),
+    invitedByMembershipId: text("invited_by_membership_id")
+      .notNull()
+      .references(() => memberships.id),
+    firstName: text("first_name").notNull(),
+    lastName: text("last_name").notNull(),
+    email: text("email"),
+    phone: text("phone"),
+    role: text("role").$type<Role>().notNull(),
+    jagdzeichen: text("jagdzeichen").notNull(),
+    codeHash: text("code_hash").notNull(),
+    tokenHash: text("token_hash").notNull(),
+    status: text("status").$type<"pending" | "accepted" | "expired" | "revoked">().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true, mode: "string" }).notNull(),
+    acceptedAt: timestamp("accepted_at", { withTimezone: true, mode: "string" }),
+    acceptedByUserId: text("accepted_by_user_id").references(() => users.id),
+    revokedAt: timestamp("revoked_at", { withTimezone: true, mode: "string" }),
+    mailSentAt: timestamp("mail_sent_at", { withTimezone: true, mode: "string" })
+  },
+  (table) => [
+    uniqueIndex("member_invitations_code_hash_unique").on(table.codeHash),
+    uniqueIndex("member_invitations_token_hash_unique").on(table.tokenHash),
+    index("member_invitations_revier_idx").on(table.revierId),
+    index("member_invitations_status_idx").on(table.status),
+    index("member_invitations_expires_at_idx").on(table.expiresAt)
+  ]
+);
+
 export const dokumente = pgTable(
   "dokumente",
   {
@@ -440,3 +475,4 @@ export type SitzungTeilnehmerRecord = typeof sitzungTeilnehmer.$inferSelect;
 export type ProtokollVersionRecord = typeof protokollVersionen.$inferSelect;
 export type ProtokollBeschlussRecord = typeof protokollBeschluesse.$inferSelect;
 export type DokumentRecord = typeof dokumente.$inferSelect;
+export type MemberInvitationRecord = typeof memberInvitations.$inferSelect;

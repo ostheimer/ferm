@@ -476,3 +476,54 @@ export interface CompleteRevierSetupPayload {
   bezirk: string;
   flaecheHektar: number;
 }
+
+export type MemberInvitationStatus = "pending" | "accepted" | "expired" | "revoked";
+
+export interface MemberInvitation {
+  id: string;
+  revierId: string;
+  invitedByMembershipId: string;
+  invitedByName?: string;
+  firstName: string;
+  lastName: string;
+  email?: string;
+  phone?: string;
+  role: Role;
+  jagdzeichen: string;
+  status: MemberInvitationStatus;
+  createdAt: string;
+  expiresAt: string;
+  acceptedAt?: string;
+  revokedAt?: string;
+  mailSentAt?: string;
+}
+
+export interface CreateMemberInvitationPayload {
+  firstName: string;
+  lastName: string;
+  email?: string;
+  phone?: string;
+  role: Role;
+  jagdzeichen: string;
+  sendEmail?: boolean;
+}
+
+export interface CreateMemberInvitationResponse {
+  invitation: MemberInvitation;
+  /** Klartext-Code, der dem Eingeladenen mitgeteilt werden soll. Wird nur einmalig zurueckgegeben. */
+  code: string;
+  /** Klartext-Token fuer den Magic-Link. Wird nur einmalig zurueckgegeben. */
+  token: string;
+  /** True, wenn die Mail tatsaechlich versendet wurde (nur wenn Mail-Provider aktiv und sendEmail=true). */
+  mailSent: boolean;
+}
+
+export interface AcceptInvitationPayload {
+  /** Entweder code (vom Admin uebermittelt) oder token (aus Magic-Link). Genau eins davon. */
+  code?: string;
+  token?: string;
+  pin: string;
+  /** Optional ueberschreibbar, falls der Eingeladene seine Daten korrigieren will. */
+  username?: string;
+  phone?: string;
+}
