@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { PUBLIC_PRICING_PLANS } from "../lib/public-site";
+import { PublicShowcase } from "./public-showcase";
 
 const features = [
   {
@@ -136,6 +137,8 @@ export function PublicLanding() {
             </div>
           </aside>
         </section>
+
+        <PublicShowcase />
 
         <section className="public-section" id="features">
           <div className="public-section-head">

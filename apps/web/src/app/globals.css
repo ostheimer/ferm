@@ -1286,3 +1286,541 @@ td span {
     flex-direction: column;
   }
 }
+
+/* =========================================================================
+ * Public Showcase — Live-gerenderte Mockups (P1.7 Hero-Visuals)
+ *
+ * Die Buehne zeigt zwei Geraete-Frames nebeneinander: Web-Backoffice (links,
+ * breit) und iPhone (rechts, schmal). Auf engen Viewports rutscht das Phone
+ * unter den Backoffice-Frame.
+ * =======================================================================*/
+
+.public-showcase {
+  display: grid;
+  gap: 22px;
+}
+
+.public-section-note-left {
+  justify-self: start;
+  text-align: left;
+  max-width: 60ch;
+}
+
+.public-showcase-stage {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(280px, 0.75fr);
+  gap: 22px;
+  align-items: stretch;
+}
+
+.public-mockup {
+  position: relative;
+  border-radius: 26px;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(36, 73, 58, 0.06), rgba(157, 179, 111, 0.1));
+  box-shadow:
+    0 30px 70px -28px rgba(16, 35, 28, 0.45),
+    0 0 0 1px rgba(25, 57, 44, 0.08) inset;
+}
+
+/* ---- Web Backoffice ---- */
+
+.public-mockup-web {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  background: #fdfaf1;
+  min-height: 480px;
+}
+
+.public-mockup-chrome {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(25, 57, 44, 0.05);
+  border-bottom: 1px solid rgba(25, 57, 44, 0.08);
+}
+
+.public-mockup-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(25, 57, 44, 0.18);
+}
+
+.public-mockup-dot:nth-child(1) {
+  background: #e9785a;
+}
+.public-mockup-dot:nth-child(2) {
+  background: #e9c46a;
+}
+.public-mockup-dot:nth-child(3) {
+  background: #8ca261;
+}
+
+.public-mockup-url {
+  margin-left: 12px;
+  font-size: 0.78rem;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+
+.public-mockup-body {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  gap: 0;
+  min-height: 0;
+}
+
+.public-mockup-sidebar {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 14px;
+  padding: 16px 14px;
+  background: linear-gradient(180deg, #11231b 0%, #1a3528 100%);
+  color: #f5f1e7;
+  border-right: 1px solid rgba(25, 57, 44, 0.2);
+}
+
+.public-mockup-brand {
+  padding: 4px 6px 10px;
+  border-bottom: 1px solid rgba(245, 241, 231, 0.12);
+  color: #f5f1e7;
+}
+
+.public-mockup-nav {
+  display: grid;
+  gap: 4px;
+}
+
+.public-mockup-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  font-size: 0.82rem;
+  color: rgba(245, 241, 231, 0.78);
+}
+
+.public-mockup-nav-item.is-active {
+  background: rgba(245, 241, 231, 0.12);
+  color: #f5f1e7;
+  font-weight: 600;
+}
+
+.public-mockup-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(245, 241, 231, 0.12);
+  font-size: 0.78rem;
+}
+
+.public-mockup-user strong {
+  display: block;
+  font-size: 0.82rem;
+}
+
+.public-mockup-user small {
+  color: rgba(245, 241, 231, 0.66);
+}
+
+.public-mockup-avatar {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: #cfd9a6;
+  color: #11231b;
+  font-weight: 700;
+  font-size: 0.72rem;
+}
+
+.public-mockup-main {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  background: linear-gradient(180deg, #fffbf2, #f8f3e3);
+}
+
+.public-mockup-hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #fff8ec, #dde6c3);
+  box-shadow: 0 12px 28px -18px rgba(16, 35, 28, 0.4);
+}
+
+.public-mockup-hero h3 {
+  margin: 4px 0 0;
+  font-size: 1.25rem;
+  line-height: 1.15;
+  max-width: 22ch;
+  color: #11231b;
+}
+
+.public-mockup-pill {
+  align-self: flex-start;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(36, 73, 58, 0.92);
+  color: #f5f1e7;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.public-mockup-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.public-mockup-metric {
+  display: grid;
+  gap: 4px;
+  padding: 14px;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 2px 0 rgba(25, 57, 44, 0.04);
+  border: 1px solid rgba(25, 57, 44, 0.06);
+}
+
+.public-mockup-metric small {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+.public-mockup-metric strong {
+  font-family: var(--font-heading), serif;
+  font-size: 1.65rem;
+  line-height: 1;
+  color: #11231b;
+}
+
+.public-mockup-metric span {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.public-mockup-map {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  min-height: 170px;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(157, 179, 111, 0.35), transparent 55%),
+    radial-gradient(circle at 75% 65%, rgba(36, 73, 58, 0.28), transparent 60%),
+    linear-gradient(135deg, #d8e3b6, #b9c995);
+  border: 1px solid rgba(25, 57, 44, 0.1);
+}
+
+.public-mockup-map-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(17, 35, 27, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(17, 35, 27, 0.06) 1px, transparent 1px);
+  background-size: 36px 36px;
+}
+
+.public-mockup-pin {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+}
+
+.public-mockup-pin-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: #11231b;
+  border: 3px solid #fff8ec;
+  box-shadow: 0 2px 6px rgba(17, 35, 27, 0.45);
+}
+
+.public-mockup-map-caption {
+  position: absolute;
+  left: 14px;
+  bottom: 12px;
+  display: grid;
+  gap: 2px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: rgba(255, 252, 244, 0.92);
+  backdrop-filter: blur(6px);
+}
+
+.public-mockup-map-caption strong {
+  font-size: 0.85rem;
+  color: #11231b;
+}
+
+/* ---- Mobile Phone ---- */
+
+.public-mockup-mobile {
+  display: grid;
+  place-items: center;
+  padding: 28px 16px;
+  background: linear-gradient(180deg, rgba(36, 73, 58, 0.04), rgba(157, 179, 111, 0.12));
+}
+
+.public-mockup-phone {
+  position: relative;
+  width: 100%;
+  max-width: 260px;
+  aspect-ratio: 9 / 19.5;
+  border-radius: 36px;
+  background: #11231b;
+  padding: 12px;
+  box-shadow:
+    0 30px 60px -22px rgba(16, 35, 28, 0.55),
+    0 0 0 1px rgba(245, 241, 231, 0.06) inset;
+}
+
+.public-mockup-phone-notch {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 84px;
+  height: 22px;
+  border-radius: 999px;
+  background: #11231b;
+  z-index: 2;
+}
+
+.public-mockup-phone-screen {
+  position: relative;
+  height: 100%;
+  border-radius: 26px;
+  background: linear-gradient(180deg, #fff8ec 0%, #f1e8cf 100%);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  overflow: hidden;
+}
+
+.public-mockup-phone-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px 6px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #11231b;
+}
+
+.public-mockup-phone-status-icons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.public-mockup-phone-status-bar {
+  width: 4px;
+  height: 8px;
+  background: #11231b;
+  border-radius: 1px;
+}
+
+.public-mockup-phone-status-bar:nth-child(1) {
+  height: 4px;
+}
+.public-mockup-phone-status-bar:nth-child(2) {
+  height: 6px;
+}
+
+.public-mockup-phone-status-battery {
+  width: 18px;
+  height: 8px;
+  border: 1px solid #11231b;
+  border-radius: 2px;
+  position: relative;
+  background: linear-gradient(to right, #11231b 80%, transparent 80%);
+}
+
+.public-mockup-phone-body {
+  display: grid;
+  gap: 12px;
+  padding: 12px 16px 14px;
+  align-content: start;
+  overflow: hidden;
+}
+
+.public-mockup-phone-eyebrow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.public-mockup-phone-eyebrow strong {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.public-mockup-phone-title {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.15;
+  color: #11231b;
+  max-width: 18ch;
+}
+
+.public-mockup-phone-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid rgba(25, 57, 44, 0.08);
+}
+
+.public-mockup-phone-card small {
+  display: block;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+.public-mockup-phone-card strong {
+  font-size: 0.82rem;
+  color: #11231b;
+}
+
+.public-mockup-phone-pill {
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(36, 73, 58, 0.92);
+  color: #f5f1e7;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.public-mockup-phone-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.public-mockup-phone-tile {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid rgba(25, 57, 44, 0.06);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #11231b;
+}
+
+.public-mockup-phone-tile-icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: rgba(157, 179, 111, 0.18);
+  color: var(--accent);
+}
+
+.public-mockup-phone-queue {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(36, 73, 58, 0.08);
+  border: 1px dashed rgba(36, 73, 58, 0.25);
+}
+
+.public-mockup-phone-queue strong {
+  font-size: 0.78rem;
+  color: #11231b;
+}
+
+.public-mockup-phone-queue small {
+  font-size: 0.66rem;
+  color: var(--muted);
+}
+
+.public-mockup-phone-tabbar {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 8px 10px 12px;
+  border-top: 1px solid rgba(25, 57, 44, 0.08);
+  background: rgba(255, 252, 244, 0.85);
+  font-size: 0.62rem;
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.public-mockup-phone-tab.is-active {
+  color: var(--accent-strong);
+}
+
+@media (max-width: 1100px) {
+  .public-showcase-stage {
+    grid-template-columns: 1fr;
+  }
+
+  .public-mockup-mobile {
+    padding: 22px 12px;
+  }
+
+  .public-mockup-phone {
+    max-width: 240px;
+  }
+}
+
+@media (max-width: 720px) {
+  .public-mockup-body {
+    grid-template-columns: 56px minmax(0, 1fr);
+  }
+
+  .public-mockup-sidebar {
+    padding: 12px 8px;
+  }
+
+  .public-mockup-brand {
+    overflow: hidden;
+  }
+
+  .public-mockup-nav-item span:last-child,
+  .public-mockup-user > div {
+    display: none;
+  }
+
+  .public-mockup-nav-item {
+    justify-content: center;
+    padding: 8px;
+  }
+
+  .public-mockup-user {
+    justify-content: center;
+  }
+
+  .public-mockup-metrics {
+    grid-template-columns: 1fr;
+  }
+}
