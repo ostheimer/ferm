@@ -2,22 +2,37 @@
 
 import type { AuthContextResponse, Role } from "@hege/domain";
 import {
-  Camera,
-  FileText,
-  LayoutDashboard,
-  Map,
-  TreePine,
-  UserPlus,
-  Users,
-  type LucideIcon
-} from "lucide-react";
+  Ansitz,
+  Fallwild,
+  Mitglied,
+  Protokoll,
+  Reviereinrichtung,
+  Sitzung
+} from "@hege/icons";
+import { LayoutDashboard } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+
+/**
+ * Sidebar-Icons stammen entweder aus `@hege/icons` (Domain-Icons) oder aus
+ * `lucide-react` (Dashboard etc.). Beide akzeptieren `size`/`strokeWidth`
+ * und rendern ein SVG. Wir verzichten auf `FunctionComponent`/`ComponentType`
+ * an dieser Stelle — die generischen React-Component-Typen vergleichen
+ * `ReactNode` ueber Workspace-Grenzen hinweg, was bei pnpm-Hoisting in
+ * diesem Repo zu False-Positives fuehrt. Ein simpler Funktionstyp ist
+ * praezise genug fuer die wenigen Props, die wir uebergeben.
+ */
+interface NavigationIconProps {
+  size?: number | string;
+  strokeWidth?: number;
+  "aria-hidden"?: boolean | "true" | "false";
+}
+type NavigationIcon = (props: NavigationIconProps) => React.ReactNode;
 
 interface NavigationItem {
   href: string;
   label: string;
-  icon: LucideIcon;
+  icon: NavigationIcon;
   allowedRoles?: ReadonlyArray<Role>;
 }
 
@@ -26,17 +41,17 @@ const navigation: ReadonlyArray<NavigationItem> = [
   {
     href: "/app/sitzungen",
     label: "Sitzungen",
-    icon: Users,
+    icon: Sitzung,
     allowedRoles: ["schriftfuehrer", "revier-admin", "platform-admin"]
   },
-  { href: "/app/ansitze", label: "Ansitze", icon: TreePine },
-  { href: "/app/reviereinrichtungen", label: "Reviereinrichtungen", icon: Map },
-  { href: "/app/fallwild", label: "Fallwild", icon: Camera },
-  { href: "/app/protokolle", label: "Protokolle", icon: FileText },
+  { href: "/app/ansitze", label: "Ansitze", icon: Ansitz },
+  { href: "/app/reviereinrichtungen", label: "Reviereinrichtungen", icon: Reviereinrichtung },
+  { href: "/app/fallwild", label: "Fallwild", icon: Fallwild },
+  { href: "/app/protokolle", label: "Protokolle", icon: Protokoll },
   {
     href: "/app/mitglieder",
     label: "Mitglieder",
-    icon: UserPlus,
+    icon: Mitglied,
     allowedRoles: ["revier-admin", "platform-admin"]
   }
 ];

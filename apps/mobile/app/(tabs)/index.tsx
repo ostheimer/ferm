@@ -1,5 +1,6 @@
+import * as Haptics from "expo-haptics";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import type { DashboardResponse } from "@hege/domain";
 
 import { MapPreview } from "../../components/map-preview";
@@ -125,6 +126,13 @@ export default function DashboardScreen() {
           ? `${snapshot.user.name} · ${formatRoleLabel(snapshot.membership.role)} · ${snapshot.membership.jagdzeichen}`
           : "Ansitze, Revierdaten und Warteschlange bleiben auch bei schwachem Empfang sichtbar."
       }
+      refresh={{
+        refreshing: isRefreshing,
+        onRefresh: () => {
+          void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          void loadDashboard({ refreshing: true });
+        }
+      }}
       aside={
         queueIsEmpty ? (
           <View style={[styles.aside, styles.asideCompact]}>
@@ -147,30 +155,24 @@ export default function DashboardScreen() {
         )
       }
     >
-      <View style={styles.toolbar}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Dashboard aktualisieren"
-          style={[styles.refreshButton, isRefreshing ? styles.buttonDisabled : null]}
-          onPress={() => void loadDashboard({ refreshing: true })}
-          disabled={isRefreshing}
-        >
-          {isRefreshing ? <ActivityIndicator color={colors.ink} /> : <Text style={styles.refreshButtonText}>Aktualisieren</Text>}
-        </Pressable>
-        {!queueIsEmpty ? (
+      {!queueIsEmpty ? (
+        <View style={styles.toolbar}>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Warteschlange senden"
             style={[styles.secondaryButton, queue.isSyncing ? styles.buttonDisabled : null]}
-            onPress={() => void handleQueueSync()}
+            onPress={() => {
+              void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              void handleQueueSync();
+            }}
             disabled={queue.isSyncing}
           >
             <Text style={styles.secondaryButtonText}>
               {queue.isSyncing ? "Wird gesendet..." : "Warteschlange senden"}
             </Text>
           </Pressable>
-        ) : null}
-      </View>
+        </View>
+      ) : null}
 
       {isLoading ? (
         <StateView
