@@ -1,7 +1,35 @@
 @import "./_generated-tokens.css";
 
+/**
+ * View Transitions API (UX-Roadmap P1.6).
+ *
+ * Browser, die das unterstuetzen (Chrome >= 111, Safari >= 18, Edge >= 111),
+ * fahren bei Navigationen innerhalb derselben Origin eine sanfte Crossfade-
+ * Transition zwischen alter und neuer Seite. Firefox ignoriert das, dort
+ * gibt es kein Verhalten zusaetzlich. Kein JS noetig.
+ */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 220ms;
+  animation-timing-function: cubic-bezier(0.2, 0, 0.2, 1);
+}
+
 * {
   box-sizing: border-box;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }
 
 html {
@@ -352,6 +380,19 @@ p {
 .button-link {
   background: var(--accent-strong);
   color: #f5f1e7;
+  transition:
+    transform 140ms cubic-bezier(0.2, 0, 0.2, 1),
+    box-shadow 140ms cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+.button-link:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(36, 73, 58, 0.18);
+}
+
+.button-link:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(36, 73, 58, 0.12);
 }
 
 .button-control {
@@ -367,6 +408,20 @@ p {
   min-height: 44px;
   padding: 10px 16px;
   font: inherit;
+  transition:
+    transform 140ms cubic-bezier(0.2, 0, 0.2, 1),
+    box-shadow 140ms cubic-bezier(0.2, 0, 0.2, 1),
+    background-color 140ms cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+.button-control:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(36, 73, 58, 0.18);
+}
+
+.button-control:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(36, 73, 58, 0.12);
 }
 
 .button-control:disabled {
@@ -480,6 +535,17 @@ p {
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.55);
   border: 1px solid rgba(25, 57, 44, 0.08);
+  transition:
+    transform 180ms cubic-bezier(0.2, 0, 0.2, 1),
+    box-shadow 180ms cubic-bezier(0.2, 0, 0.2, 1),
+    border-color 180ms cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+.detail-card:has(a):hover,
+.detail-card:has(button):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 44px rgba(16, 35, 28, 0.12);
+  border-color: rgba(25, 57, 44, 0.18);
 }
 
 .timeline-item span {
@@ -1031,6 +1097,18 @@ td span {
 .public-pricing-card,
 .public-faq-card {
   min-height: 100%;
+  transition:
+    transform 200ms cubic-bezier(0.2, 0, 0.2, 1),
+    box-shadow 200ms cubic-bezier(0.2, 0, 0.2, 1),
+    border-color 200ms cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+.public-feature-card:hover,
+.public-usecase-card:hover,
+.public-pricing-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 30px 64px rgba(16, 35, 28, 0.15);
+  border-color: rgba(25, 57, 44, 0.18);
 }
 
 .public-feature-card p,
