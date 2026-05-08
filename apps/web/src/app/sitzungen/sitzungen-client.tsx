@@ -7,6 +7,7 @@ import type { ChangeEvent, FormEvent } from "react";
 import { useState, useTransition } from "react";
 
 import { readApiErrorMessage } from "../../lib/api-error";
+import { StateView } from "../../components/state-view";
 
 interface MembershipOption {
   membershipId: string;
@@ -104,14 +105,18 @@ export function SitzungenClient({ entries, memberships }: SitzungenClientProps) 
           </div>
         </header>
 
+        {entries.length === 0 ? (
+          <StateView
+            mode="empty"
+            title="Noch keine Sitzungen"
+            description="Lege den ersten Entwurf direkt hier an. Stammdaten kommen zuerst, Versionen und Beschlüsse folgen."
+          />
+        ) : null}
+
         <div className="card-grid">
-          {entries.length === 0 ? (
-            <article className="detail-card">
-              <p className="eyebrow">Noch keine Sitzungen</p>
-              <h2>Lege den ersten Entwurf direkt hier an.</h2>
-            </article>
-          ) : (
-            entries.map((entry) => (
+          {entries.length === 0
+            ? null
+            : entries.map((entry) => (
               <article key={entry.id} className="detail-card">
                 <div className="detail-card-header">
                   <div>
@@ -134,8 +139,7 @@ export function SitzungenClient({ entries, memberships }: SitzungenClientProps) 
                   Detail öffnen
                 </Link>
               </article>
-            ))
-          )}
+              ))}
         </div>
       </section>
 

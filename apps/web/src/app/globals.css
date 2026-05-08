@@ -603,6 +603,83 @@ p {
   color: var(--accent-strong);
 }
 
+.state-view {
+  display: grid;
+  gap: 14px;
+  justify-items: start;
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: 26px;
+  background: var(--surface-card);
+  box-shadow: var(--shadow);
+}
+
+.state-view-bare {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+
+.state-view-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background: rgba(36, 73, 58, 0.08);
+  color: var(--accent-strong);
+}
+
+.state-view-icon-loading {
+  background: rgba(157, 179, 111, 0.18);
+  color: var(--accent-strong);
+}
+
+.state-view-icon-error {
+  background: rgba(157, 74, 63, 0.12);
+  color: var(--danger);
+}
+
+.state-view-icon-spin {
+  animation: state-view-spin 1.1s linear infinite;
+}
+
+@keyframes state-view-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.state-view-body {
+  display: grid;
+  gap: 6px;
+  max-width: 60ch;
+}
+
+.state-view-title {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.state-view-description {
+  margin: 0;
+  color: var(--muted);
+}
+
+.state-view-action {
+  margin-top: 4px;
+}
+
+.state-view-footer {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
 .invitation-code-display {
   display: flex;
   flex-wrap: wrap;

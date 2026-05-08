@@ -11,6 +11,7 @@ import type { ChangeEvent, FormEvent } from "react";
 import { useState, useTransition } from "react";
 
 import { readApiErrorMessage } from "../../../lib/api-error";
+import { StateView } from "../../../components/state-view";
 
 interface MitgliederClientProps {
   invitations: MemberInvitation[];
@@ -295,7 +296,12 @@ export function MitgliederClient({ invitations, mailEnabled }: MitgliederClientP
         </header>
 
         {invitations.length === 0 ? (
-          <p className="hero-copy">Noch keine Einladungen versendet.</p>
+          <StateView
+            mode="empty"
+            title="Noch keine Einladungen versendet"
+            description="Sobald du oben jemanden einträgst, taucht der Eintrag mit Code, Status und Ablaufdatum hier auf."
+            bare
+          />
         ) : (
           <div className="card-grid">
             {invitations.map((entry) => (
