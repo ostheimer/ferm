@@ -1,6 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 import type { PropsWithChildren, ReactNode } from "react";
 
 import { colors } from "../lib/theme";
@@ -18,9 +18,17 @@ interface ScreenShellProps extends PropsWithChildren {
   title: string;
   subtitle: string;
   aside?: ReactNode;
+  /**
+   * Pull-to-Refresh aktivieren. Wenn gesetzt, rendert ScreenShell automatisch
+   * einen nativen RefreshControl mit Brand-Farbe.
+   */
+  refresh?: {
+    refreshing: boolean;
+    onRefresh: () => void;
+  };
 }
 
-export function ScreenShell({ eyebrow, title, subtitle, aside, children }: ScreenShellProps) {
+export function ScreenShell({ eyebrow, title, subtitle, aside, children, refresh }: ScreenShellProps) {
   const insets = useSafeAreaInsets();
   const bottomPadding = TAB_BAR_VISUAL_HEIGHT + insets.bottom;
 
@@ -29,6 +37,16 @@ export function ScreenShell({ eyebrow, title, subtitle, aside, children }: Scree
       <ScrollView
         contentContainerStyle={[styles.scrollContent, { paddingBottom: bottomPadding }]}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          refresh ? (
+            <RefreshControl
+              refreshing={refresh.refreshing}
+              onRefresh={refresh.onRefresh}
+              tintColor={colors.accent}
+              colors={[colors.accent]}
+            />
+          ) : undefined
+        }
       >
         <LinearGradient colors={["#fff8ec", "#dde6c3"]} style={styles.hero}>
           <View style={styles.heroContent}>
