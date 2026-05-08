@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { PUBLIC_PRICING_PLANS } from "../lib/public-site";
@@ -71,7 +72,14 @@ export function PublicLanding() {
         <header className="public-topbar">
           <div className="public-brand">
             <div className="public-brand-mark" aria-hidden="true">
-              <img className="brand-logo-image" src="/brand/hege-logo-mark.png" alt="" />
+              <Image
+                className="brand-logo-image"
+                src="/brand/hege-logo-mark.png"
+                alt=""
+                width={48}
+                height={48}
+                priority
+              />
             </div>
             <div>
               <p className="eyebrow">Reviermanagement</p>
