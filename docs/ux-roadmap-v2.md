@@ -2,7 +2,22 @@
 
 Drei aufeinander aufbauende Pfade nach dem [UI-Audit 2026-05-07](./ui-audit-2026-05-07.md). Der Audit hat 22 von 23 Hygiene-Findings geschlossen — diese Roadmap geht über Hygiene hinaus zu **markantem, premiumtauglichem Erscheinungsbild**.
 
-Pfad 1 läuft als nächste Iteration. Pfad 2 startet nach Abschluss von Pfad 1, basierend auf User-Feedback. Pfad 3 ist nicht jetzt vorgesehen — kommt nur, wenn das Produkt fachlich abgesichert ist (Steuermodell, Bilanzierung, Mehr-Revier-Skalierung).
+**Stand 2026-05-08:** Pfad 1 (Visual Polish) abgeschlossen — PR #45 bis #51. Pfad 2 startet als Nächstes, basierend auf User-Feedback. Pfad 3 bleibt zurueckgestellt, bis das Produkt fachlich abgesichert ist (Steuermodell, Bilanzierung, Mehr-Revier-Skalierung).
+
+## Pfad-1-Status
+
+| Item | Titel | Status | PR |
+|------|-------|--------|-----|
+| P1.0 | EAS-Preview-Build | offen (User-seitig) | – |
+| P1.1 | Demo-Daten-Volumina | ✅ | #46 |
+| P1.2 | Wortmarken-Logo (`@hege/icons`) | ✅ | #47 |
+| P1.3 | Quick-Win-Layout (4 Tabs + Mehr) | ✅ | (vor #45) |
+| P1.4 | StateView (Empty/Loading/Error) | ✅ | #45 |
+| P1.5 | Domain-Icon-Set | ✅ | #47 |
+| P1.6 | Mikrointeraktionen (Web View Transitions, Mobile Haptics + Pull-to-Refresh) | ✅ | #47, #48 |
+| P1.7 | Hero-Visuals (Live-CSS-Mockups) | ✅ | #50 |
+| P1.8 | Dark Mode Mobile (Token-Migration) | ✅ | #49 |
+| P1.9 | Lighthouse-Baseline (SEO + Performance) | ✅ | #51 |
 
 Verwandte Dokumente:
 - [Design-System v1](./design-system-v1.md) — Brand, Tokens, Component-Patterns
