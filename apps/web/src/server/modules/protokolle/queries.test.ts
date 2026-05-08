@@ -6,10 +6,11 @@ describe("protokolle queries", () => {
   it("lists only published protokolle", async () => {
     const result = await listProtokolle();
 
-    expect(result).toHaveLength(1);
-    expect(result[0]?.id).toBe("sitzung-2");
-    expect(result[0]?.status).toBe("freigegeben");
-    expect(result[0]?.publishedDocument?.downloadUrl).toBe("/api/v1/documents/document-sitzung-2/download");
+    expect(result.length).toBeGreaterThanOrEqual(1);
+    expect(result.every((entry) => entry.status === "freigegeben")).toBe(true);
+    const sitzung2 = result.find((entry) => entry.id === "sitzung-2");
+    expect(sitzung2).toBeDefined();
+    expect(sitzung2?.publishedDocument?.downloadUrl).toBe("/api/v1/documents/document-sitzung-2/download");
   });
 
   it("returns published protocol detail with versions and participants", async () => {

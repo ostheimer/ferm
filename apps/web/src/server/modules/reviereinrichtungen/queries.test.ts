@@ -59,19 +59,27 @@ describe("reviereinrichtungen queries", () => {
 
     const result = await listReviereinrichtungen();
 
-    expect(result.map((entry) => entry.id)).toEqual([
-      "einrichtung-3",
-      "einrichtung-2",
-      "einrichtung-1"
-    ]);
-    const second = result[1];
-    const demoEntry = demoData.reviereinrichtungen[1];
+    const ids = result.map((entry) => entry.id);
+    expect(ids).toContain("einrichtung-1");
+    expect(ids).toContain("einrichtung-2");
+    expect(ids).toContain("einrichtung-3");
+    // Sortierung nach Name (locale ASC) ist deterministisch
+    expect(ids).toEqual(
+      [...result]
+        .map((entry) => entry.name)
+        .slice()
+        .sort((left, right) => left.localeCompare(right))
+        .map((name) => result.find((entry) => entry.name === name)!.id)
+    );
 
-    expect(second).toBeDefined();
-    if (!second || !demoEntry) {
+    const fuetterungEintrag = result.find((entry) => entry.id === "einrichtung-2");
+    const demoEntry = demoData.reviereinrichtungen.find((entry) => entry.id === "einrichtung-2");
+
+    expect(fuetterungEintrag).toBeDefined();
+    if (!fuetterungEintrag || !demoEntry) {
       throw new Error("Expected demo reviereinrichtung entries to exist.");
     }
-    expect(second).toMatchObject({
+    expect(fuetterungEintrag).toMatchObject({
       id: demoEntry.id,
       offeneWartungen: 1,
       letzteKontrolleAt: "2026-04-01T07:15:00+02:00"

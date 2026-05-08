@@ -138,24 +138,70 @@ function createSelectBuilder() {
 
 function createSeedSyncThenLegacyUserExecuteMock() {
   let callCount = 0;
+  let hasUsernameAnswered = false;
 
-  return async () => {
+  return async (query: unknown) => {
     callCount += 1;
 
     if (callCount === 1) {
       return { rows: [{ hasSetupCompletedAt: false }] };
     }
 
-    if (callCount === 3) {
+    // hasUsersUsernameColumn-Aufruf nach den Revier-Inserts erkennen.
+    // Die genaue Position ist abhaengig von der Anzahl Reviere in den Demo-Daten.
+    if (!hasUsernameAnswered && isHasUsernameQuery(query)) {
+      hasUsernameAnswered = true;
       return { rows: [{ hasUsername: false }] };
     }
 
-    if (callCount === 12) {
+    // Der User-Lookup nach dem Seed-Sync erkennen wir an der SQL-Form.
+    if (hasUsernameAnswered && isLegacyUserLookupQuery(query)) {
       return { rows: [createLegacyUserRow()] };
     }
 
     return { rows: [] };
   };
+}
+
+function isHasUsernameQuery(query: unknown): boolean {
+  const text = stringifyQuery(query);
+  return text.includes("information_schema.columns") && text.includes("'username'");
+}
+
+function isLegacyUserLookupQuery(query: unknown): boolean {
+  const text = stringifyQuery(query);
+  return (
+    text.includes("from users") &&
+    text.includes("split_part(email") &&
+    !text.includes("insert into users")
+  );
+}
+
+function stringifyQuery(query: unknown): string {
+  if (!query) {
+    return "";
+  }
+  if (typeof query === "string") {
+    return query;
+  }
+  if (typeof query === "object") {
+    const candidate = query as { queryChunks?: unknown; sql?: string };
+    if (typeof candidate.sql === "string") {
+      return candidate.sql;
+    }
+    if (Array.isArray(candidate.queryChunks)) {
+      return candidate.queryChunks
+        .map((chunk) => {
+          if (chunk && typeof chunk === "object" && "value" in chunk) {
+            const value = (chunk as { value?: unknown }).value;
+            return Array.isArray(value) ? value.join(" ") : String(value ?? "");
+          }
+          return String(chunk ?? "");
+        })
+        .join(" ");
+    }
+  }
+  return String(query);
 }
 
 function createLegacyUserRow() {
