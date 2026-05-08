@@ -5,6 +5,7 @@ import type { DashboardResponse } from "@hege/domain";
 import { MapPreview } from "../../components/map-preview";
 import { MetricTile } from "../../components/metric-tile";
 import { ScreenShell } from "../../components/screen-shell";
+import { StateView } from "../../components/state-view";
 import { fetchDashboardSnapshot } from "../../lib/api";
 import {
   discardOfflineQueueEntry,
@@ -172,15 +173,18 @@ export default function DashboardScreen() {
       </View>
 
       {isLoading ? (
-        <View style={styles.stateCard}>
-          <Text style={styles.stateTitle}>Dashboard wird geladen</Text>
-          <Text style={styles.stateCopy}>Revierdaten und aktive Ansitze werden von der API abgefragt.</Text>
-        </View>
+        <StateView
+          mode="loading"
+          title="Dashboard wird geladen"
+          description="Revierdaten und aktive Ansitze werden von der API abgefragt."
+        />
       ) : error ? (
-        <View style={styles.stateCard}>
-          <Text style={styles.stateTitle}>API nicht erreichbar</Text>
-          <Text style={styles.stateCopy}>{`${error}. Tippe auf "Aktualisieren", sobald die Verbindung wieder steht.`}</Text>
-        </View>
+        <StateView
+          mode="error"
+          title="API nicht erreichbar"
+          description={`${error} Tippe auf "Aktualisieren", sobald die Verbindung wieder steht.`}
+          action={{ label: "Aktualisieren", onPress: () => void loadDashboard({ refreshing: true }) }}
+        />
       ) : null}
 
       {queueMessage ? (
@@ -286,10 +290,12 @@ export default function DashboardScreen() {
       ) : null}
 
       {!isLoading && !error && snapshot && activeAnsitze.length === 0 ? (
-        <View style={styles.stateCard}>
-          <Text style={styles.stateTitle}>Keine aktiven Ansitze</Text>
-          <Text style={styles.stateCopy}>Sobald jemand im Revier ansitzt, erscheint der Eintrag hier und auf der Karte.</Text>
-        </View>
+        <StateView
+          mode="empty"
+          title="Keine aktiven Ansitze"
+          description="Sobald jemand im Revier ansitzt, erscheint der Eintrag hier und auf der Karte."
+          icon="trail-sign-outline"
+        />
       ) : null}
     </ScreenShell>
   );
