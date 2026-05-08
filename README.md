@@ -164,4 +164,6 @@ Wichtige Testwege:
 - [Rollen, Aufgaben und Nachrichten v1](./docs/rollen-aufgaben-nachrichten-v1.md)
 - [Reviermeldungen und Aufgaben v1](./docs/reviermeldungen-aufgaben-v1-plan.md)
 - [UI-Audit 2026-05-07](./docs/ui-audit-2026-05-07.md)
+- [Design-System v1](./docs/design-system-v1.md)
+- [UX-Roadmap v2](./docs/ux-roadmap-v2.md)
 - [Test-Accounts und Rollen-Übersicht](./docs/test-accounts.md)

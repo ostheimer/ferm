@@ -18,6 +18,8 @@ Diese Dokumentation beschreibt den aktuellen Stand des Repositories und den gepl
 - [Rollen, Aufgaben und Nachrichten v1](./rollen-aufgaben-nachrichten-v1.md)
 - [Reviermeldungen und Aufgaben v1](./reviermeldungen-aufgaben-v1-plan.md)
 - [UI-Audit 2026-05-07](./ui-audit-2026-05-07.md)
+- [Design-System v1](./design-system-v1.md)
+- [UX-Roadmap v2](./ux-roadmap-v2.md)
 - [Test-Accounts und Rollen-Übersicht](./test-accounts.md)
 - [Umsetzungsbacklog](./umsetzungsbacklog.md)
 - [Sprint 0 Backlog](./sprint-0-backlog.md)
