@@ -30,6 +30,7 @@ describe("domain rules", () => {
 
   it("creates fallwild entries and keeps them exportable", () => {
     const data = cloneDemoData();
+    const initialCount = data.fallwild.length;
     const entry = createFallwild(data, {
       revierId: "revier-attersee",
       reportedByMembershipId: "member-jaeger",
@@ -43,7 +44,8 @@ describe("domain rules", () => {
     });
 
     expect(entry.wildart).toBe("Fuchs");
-    expect(data.fallwild).toHaveLength(2);
+    expect(data.fallwild).toHaveLength(initialCount + 1);
+    expect(data.fallwild[0]?.id).toBe(entry.id);
   });
 
   it("publishes minutes as a generated document", () => {

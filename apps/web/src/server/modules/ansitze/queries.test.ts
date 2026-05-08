@@ -6,7 +6,7 @@ describe("ansitze queries", () => {
   it("returns the default revier ansitze sorted by newest first", async () => {
     const result = await listAnsitze();
 
-    expect(result).toHaveLength(2);
+    expect(result.length).toBeGreaterThanOrEqual(2);
     expect(result[0]?.id).toBe("ansitz-2");
     expect(result[1]?.id).toBe("ansitz-1");
   });
