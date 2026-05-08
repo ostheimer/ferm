@@ -1,6 +1,6 @@
 import * as Haptics from "expo-haptics";
 import { useEffect, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import type { DashboardResponse } from "@hege/domain";
 
 import { MapPreview } from "../../components/map-preview";
@@ -20,10 +20,12 @@ import {
   getOfflineQueueEntryStatusLine,
   getOfflineQueueStatusLabel
 } from "../../lib/offline-queue-status";
-import { colors } from "../../lib/theme";
+import type { ThemeColors } from "../../lib/theme";
+import { useThemedStyles } from "../../lib/use-themed-styles";
 
 export default function DashboardScreen() {
   const queue = useOfflineQueueSnapshot();
+  const styles = useThemedStyles(createStyles);
   const [snapshot, setSnapshot] = useState<DashboardResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -303,206 +305,210 @@ export default function DashboardScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  toolbar: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "flex-end",
-    gap: 10
-  },
-  refreshButton: {
-    minWidth: 132,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 999,
-    backgroundColor: colors.card
-  },
-  buttonDisabled: {
-    opacity: 0.7
-  },
-  refreshButtonText: {
-    color: colors.ink,
-    fontWeight: "600"
-  },
-  secondaryButton: {
-    minWidth: 110,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 999,
-    backgroundColor: "#e3dccd"
-  },
-  secondaryButtonText: {
-    color: colors.ink,
-    fontWeight: "600"
-  },
-  aside: {
-    gap: 6
-  },
-  asideCompact: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 14
-  },
-  asideCompactCheck: {
-    fontSize: 28,
-    lineHeight: 30,
-    color: "#fff9ef",
-    fontWeight: "700"
-  },
-  asideCompactCopy: {
-    flex: 1,
-    gap: 2
-  },
-  asideLabel: {
-    color: "#dfe9c7",
-    fontSize: 12,
-    textTransform: "uppercase",
-    letterSpacing: 1.3
-  },
-  asideValue: {
-    color: "#fff9ef",
-    fontSize: 34,
-    fontWeight: "700"
-  },
-  asideCopy: {
-    color: "#f7f2e5",
-    fontSize: 14,
-    lineHeight: 20
-  },
-  asideMeta: {
-    color: "#e5efd9",
-    fontSize: 12,
-    textTransform: "uppercase",
-    letterSpacing: 1.1
-  },
-  metricGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 12
-  },
-  stateCard: {
-    gap: 6,
-    padding: 18,
-    borderRadius: 22,
-    backgroundColor: colors.card
-  },
-  queueStateCard: {
-    gap: 6,
-    padding: 18,
-    borderRadius: 22,
-    backgroundColor: "#efe3d1"
-  },
-  stateTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: colors.ink
-  },
-  queueStateTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: colors.warning
-  },
-  stateCopy: {
-    fontSize: 14,
-    lineHeight: 20,
-    color: colors.muted
-  },
-  queueStateCopy: {
-    fontSize: 14,
-    lineHeight: 20,
-    color: colors.warning
-  },
-  card: {
-    padding: 18,
-    borderRadius: 22,
-    backgroundColor: colors.card,
-    gap: 10
-  },
-  cardTitle: {
-    fontSize: 12,
-    textTransform: "uppercase",
-    letterSpacing: 1.2,
-    color: colors.muted
-  },
-  cardValue: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: colors.ink
-  },
-  cardCopy: {
-    fontSize: 15,
-    lineHeight: 22,
-    color: colors.muted
-  },
-  queueRow: {
-    flexDirection: "row",
-    gap: 12,
-    alignItems: "flex-start"
-  },
-  queueRowCopy: {
-    flex: 1,
-    gap: 4
-  },
-  queueRowTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: colors.ink
-  },
-  queueRowMeta: {
-    fontSize: 13,
-    lineHeight: 18,
-    color: colors.muted
-  },
-  queueRowActions: {
-    gap: 8,
-    alignItems: "flex-end"
-  },
-  queueBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 999
-  },
-  queueBadgePending: {
-    backgroundColor: "#dde7cf"
-  },
-  queueBadgeFailed: {
-    backgroundColor: "#f0d9d4"
-  },
-  queueBadgeConflict: {
-    backgroundColor: "#f4d9bf"
-  },
-  queueBadgeUploading: {
-    backgroundColor: "#d8e4ee"
-  },
-  queueBadgeText: {
-    fontWeight: "600",
-    color: colors.ink
-  },
-  discardButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 999,
-    backgroundColor: colors.card
-  },
-  discardButtonText: {
-    fontWeight: "600",
-    color: colors.muted
-  },
-  retryButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 999,
-    backgroundColor: colors.accent
-  },
-  retryButtonText: {
-    fontWeight: "700",
-    color: colors.surface
-  }
-});
+const createStyles = (theme: ThemeColors) =>
+  ({
+    toolbar: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      justifyContent: "flex-end",
+      gap: 10
+    },
+    refreshButton: {
+      minWidth: 132,
+      alignItems: "center",
+      justifyContent: "center",
+      paddingHorizontal: 14,
+      paddingVertical: 10,
+      borderRadius: 999,
+      backgroundColor: theme.card
+    },
+    buttonDisabled: {
+      opacity: 0.7
+    },
+    refreshButtonText: {
+      color: theme.ink,
+      fontWeight: "600"
+    },
+    secondaryButton: {
+      minWidth: 110,
+      alignItems: "center",
+      justifyContent: "center",
+      paddingHorizontal: 14,
+      paddingVertical: 10,
+      borderRadius: 999,
+      backgroundColor: "#e3dccd"
+    },
+    secondaryButtonText: {
+      color: theme.ink,
+      fontWeight: "600"
+    },
+    aside: {
+      gap: 6
+    },
+    asideCompact: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 14
+    },
+    // Heller Schrift-/Akzent-Hintergrund: Werte sind Lesbarkeit auf accent-
+    // Surface (Hero-Aside). Bleiben hartcodiert, weil sie semantisch
+    // "Schrift auf accentStrong" sind, was im Token-Set keinen Pendant hat.
+    asideCompactCheck: {
+      fontSize: 28,
+      lineHeight: 30,
+      color: "#fff9ef",
+      fontWeight: "700"
+    },
+    asideCompactCopy: {
+      flex: 1,
+      gap: 2
+    },
+    asideLabel: {
+      color: "#dfe9c7",
+      fontSize: 12,
+      textTransform: "uppercase",
+      letterSpacing: 1.3
+    },
+    asideValue: {
+      color: "#fff9ef",
+      fontSize: 34,
+      fontWeight: "700"
+    },
+    asideCopy: {
+      color: "#f7f2e5",
+      fontSize: 14,
+      lineHeight: 20
+    },
+    asideMeta: {
+      color: "#e5efd9",
+      fontSize: 12,
+      textTransform: "uppercase",
+      letterSpacing: 1.1
+    },
+    metricGrid: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 12
+    },
+    stateCard: {
+      gap: 6,
+      padding: 18,
+      borderRadius: 22,
+      backgroundColor: theme.card
+    },
+    queueStateCard: {
+      gap: 6,
+      padding: 18,
+      borderRadius: 22,
+      backgroundColor: "#efe3d1"
+    },
+    stateTitle: {
+      fontSize: 18,
+      fontWeight: "700",
+      color: theme.ink
+    },
+    queueStateTitle: {
+      fontSize: 18,
+      fontWeight: "700",
+      color: theme.warning
+    },
+    stateCopy: {
+      fontSize: 14,
+      lineHeight: 20,
+      color: theme.muted
+    },
+    queueStateCopy: {
+      fontSize: 14,
+      lineHeight: 20,
+      color: theme.warning
+    },
+    card: {
+      padding: 18,
+      borderRadius: 22,
+      backgroundColor: theme.card,
+      gap: 10
+    },
+    cardTitle: {
+      fontSize: 12,
+      textTransform: "uppercase",
+      letterSpacing: 1.2,
+      color: theme.muted
+    },
+    cardValue: {
+      fontSize: 22,
+      fontWeight: "700",
+      color: theme.ink
+    },
+    cardCopy: {
+      fontSize: 15,
+      lineHeight: 22,
+      color: theme.muted
+    },
+    queueRow: {
+      flexDirection: "row",
+      gap: 12,
+      alignItems: "flex-start"
+    },
+    queueRowCopy: {
+      flex: 1,
+      gap: 4
+    },
+    queueRowTitle: {
+      fontSize: 16,
+      fontWeight: "700",
+      color: theme.ink
+    },
+    queueRowMeta: {
+      fontSize: 13,
+      lineHeight: 18,
+      color: theme.muted
+    },
+    queueRowActions: {
+      gap: 8,
+      alignItems: "flex-end"
+    },
+    queueBadge: {
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 999
+    },
+    queueBadgePending: {
+      backgroundColor: "#dde7cf"
+    },
+    queueBadgeFailed: {
+      backgroundColor: "#f0d9d4"
+    },
+    queueBadgeConflict: {
+      backgroundColor: "#f4d9bf"
+    },
+    queueBadgeUploading: {
+      backgroundColor: "#d8e4ee"
+    },
+    queueBadgeText: {
+      fontWeight: "600",
+      color: theme.ink
+    },
+    discardButton: {
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 999,
+      backgroundColor: theme.card
+    },
+    discardButtonText: {
+      fontWeight: "600",
+      color: theme.muted
+    },
+    retryButton: {
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 999,
+      backgroundColor: theme.accent
+    },
+    retryButtonText: {
+      fontWeight: "700",
+      color: theme.surface
+    }
+  }) as const;
 
 function formatRoleLabel(role: DashboardResponse["membership"]["role"]) {
   switch (role) {

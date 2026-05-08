@@ -5,7 +5,6 @@ import {
   Pressable,
   RefreshControl,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   View
@@ -53,7 +52,8 @@ import {
   syncOfflineQueue,
   useOfflineQueueSnapshot
 } from "../../lib/offline-queue";
-import { colors } from "../../lib/theme";
+import { useThemeColors, type ThemeColors } from "../../lib/theme";
+import { useThemedStyles } from "../../lib/use-themed-styles";
 
 interface FallwildFormState {
   locationLabel: string;
@@ -113,6 +113,8 @@ type FeedbackState = {
 
 export default function FallwildScreen() {
   const queue = useOfflineQueueSnapshot();
+  const styles = useThemedStyles(createStyles);
+  const theme = useThemeColors();
   const [fallwild, setFallwild] = useState<FallwildListItem[]>([]);
   const [form, setForm] = useState<FallwildFormState>(DEFAULT_FORM);
   const [attachments, setAttachments] = useState<LocalPendingPhoto[]>([]);
@@ -457,7 +459,7 @@ export default function FallwildScreen() {
             <TextInput
               keyboardType="decimal-pad"
               placeholder="47.9184"
-              placeholderTextColor={colors.muted}
+              placeholderTextColor={theme.muted}
               style={styles.input}
               value={form.lat}
               onChangeText={updateField(setForm, "lat")}
@@ -468,7 +470,7 @@ export default function FallwildScreen() {
             <TextInput
               keyboardType="decimal-pad"
               placeholder="13.5219"
-              placeholderTextColor={colors.muted}
+              placeholderTextColor={theme.muted}
               style={styles.input}
               value={form.lng}
               onChangeText={updateField(setForm, "lng")}
@@ -485,7 +487,7 @@ export default function FallwildScreen() {
             disabled={isResolvingLocation || isSubmitting}
           >
             {isResolvingLocation ? (
-              <ActivityIndicator color={colors.surface} />
+              <ActivityIndicator color={theme.surface} />
             ) : (
               <Text style={styles.locationButtonText}>Standort automatisch erfassen</Text>
             )}
@@ -504,7 +506,7 @@ export default function FallwildScreen() {
           <Text style={styles.label}>Standortbezeichnung</Text>
           <TextInput
             placeholder="Straßenrand L9"
-            placeholderTextColor={colors.muted}
+            placeholderTextColor={theme.muted}
             style={styles.input}
             value={form.locationLabel}
             onChangeText={updateField(setForm, "locationLabel")}
@@ -516,7 +518,7 @@ export default function FallwildScreen() {
           <TextInput
             autoCapitalize="words"
             placeholder="Wird über Google ermittelt"
-            placeholderTextColor={colors.muted}
+            placeholderTextColor={theme.muted}
             style={styles.input}
             value={form.addressLabel}
             onChangeText={updateField(setForm, "addressLabel")}
@@ -528,7 +530,7 @@ export default function FallwildScreen() {
           <TextInput
             autoCapitalize="words"
             placeholder="Gänserndorf"
-            placeholderTextColor={colors.muted}
+            placeholderTextColor={theme.muted}
             style={styles.input}
             value={form.gemeinde}
             onChangeText={updateField(setForm, "gemeinde")}
@@ -540,7 +542,7 @@ export default function FallwildScreen() {
           <TextInput
             autoCapitalize="words"
             placeholder="L9"
-            placeholderTextColor={colors.muted}
+            placeholderTextColor={theme.muted}
             style={styles.input}
             value={form.strasse}
             onChangeText={updateField(setForm, "strasse")}
@@ -552,7 +554,7 @@ export default function FallwildScreen() {
           <TextInput
             autoCapitalize="none"
             placeholder="z. B. km 12,4"
-            placeholderTextColor={colors.muted}
+            placeholderTextColor={theme.muted}
             style={styles.input}
             value={form.roadKilometer}
             onChangeText={updateRoadKilometer(setForm)}
@@ -593,7 +595,7 @@ export default function FallwildScreen() {
           <TextInput
             multiline
             placeholder="Kurze Dokumentation für die Revierleitung"
-            placeholderTextColor={colors.muted}
+            placeholderTextColor={theme.muted}
             style={[styles.input, styles.textArea]}
             value={form.note}
             onChangeText={updateField(setForm, "note")}
@@ -620,7 +622,7 @@ export default function FallwildScreen() {
               disabled={attachments.length >= MAX_FALLWILD_PHOTOS || isPickingPhotos || isSubmitting}
             >
               {isPickingPhotos ? (
-                <ActivityIndicator color={colors.surface} />
+                <ActivityIndicator color={theme.surface} />
               ) : (
                 <Text style={styles.photoCameraButtonText}>
                   {attachments.length >= MAX_FALLWILD_PHOTOS ? "Maximal erreicht" : "Foto aufnehmen"}
@@ -639,7 +641,7 @@ export default function FallwildScreen() {
               disabled={attachments.length >= MAX_FALLWILD_PHOTOS || isPickingPhotos || isSubmitting}
             >
               {isPickingPhotos ? (
-                <ActivityIndicator color={colors.ink} />
+                <ActivityIndicator color={theme.ink} />
               ) : (
                 <Text style={styles.photoPickerButtonText}>
                   {attachments.length >= MAX_FALLWILD_PHOTOS ? "Maximal erreicht" : "Aus Bibliothek"}
@@ -698,7 +700,7 @@ export default function FallwildScreen() {
             disabled={isSubmitting}
           >
             {isSubmitting ? (
-              <ActivityIndicator color={colors.surface} />
+              <ActivityIndicator color={theme.surface} />
             ) : (
               <Text style={styles.primaryButtonText}>Fallwild speichern</Text>
             )}
@@ -723,7 +725,7 @@ export default function FallwildScreen() {
           onPress={() => void loadFallwild({ refreshing: true })}
           disabled={isRefreshing}
         >
-          {isRefreshing ? <ActivityIndicator color={colors.ink} /> : <Text style={styles.refreshButtonText}>Aktualisieren</Text>}
+          {isRefreshing ? <ActivityIndicator color={theme.ink} /> : <Text style={styles.refreshButtonText}>Aktualisieren</Text>}
         </Pressable>
       </View>
 
@@ -951,7 +953,8 @@ function formatBergungsStatusLabel(value: CreateFallwildRequest["bergungsStatus"
   }
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) =>
+  ({
   listScroll: {
     maxHeight: 520
   },
@@ -968,13 +971,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 999,
-    backgroundColor: colors.card
+    backgroundColor: theme.card
   },
   buttonDisabled: {
     opacity: 0.7
   },
   refreshButtonText: {
-    color: colors.ink,
+    color: theme.ink,
     fontWeight: "600"
   },
   listContent: {
@@ -985,7 +988,7 @@ const styles = StyleSheet.create({
     gap: 14,
     padding: 18,
     borderRadius: 22,
-    backgroundColor: colors.card
+    backgroundColor: theme.card
   },
   locationActionCard: {
     gap: 8,
@@ -999,28 +1002,28 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 14,
     borderRadius: 16,
-    backgroundColor: colors.accent
+    backgroundColor: theme.accent
   },
   locationButtonText: {
-    color: colors.surface,
+    color: theme.surface,
     fontSize: 14,
     fontWeight: "700"
   },
   locationHint: {
     fontSize: 13,
     lineHeight: 18,
-    color: colors.ink
+    color: theme.ink
   },
   sectionLabel: {
     fontSize: 12,
     textTransform: "uppercase",
     letterSpacing: 1.1,
-    color: colors.muted
+    color: theme.muted
   },
   sectionCopy: {
     fontSize: 14,
     lineHeight: 20,
-    color: colors.muted
+    color: theme.muted
   },
   fieldRow: {
     flexDirection: "row",
@@ -1036,7 +1039,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textTransform: "uppercase",
     letterSpacing: 1.1,
-    color: colors.muted
+    color: theme.muted
   },
   input: {
     minHeight: 52,
@@ -1044,8 +1047,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#d9d2c4",
     paddingHorizontal: 14,
-    color: colors.ink,
-    backgroundColor: colors.surface
+    color: theme.ink,
+    backgroundColor: theme.surface
   },
   textArea: {
     minHeight: 90,
@@ -1064,7 +1067,7 @@ const styles = StyleSheet.create({
   helperCopy: {
     fontSize: 13,
     lineHeight: 18,
-    color: colors.muted
+    color: theme.muted
   },
   photoCameraButton: {
     flex: 1,
@@ -1073,10 +1076,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 999,
-    backgroundColor: colors.accent
+    backgroundColor: theme.accent
   },
   photoCameraButtonText: {
-    color: colors.surface,
+    color: theme.surface,
     fontSize: 14,
     fontWeight: "700"
   },
@@ -1091,7 +1094,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#e8dfcc"
   },
   photoPickerButtonText: {
-    color: colors.ink,
+    color: theme.ink,
     fontSize: 13,
     fontWeight: "700"
   },
@@ -1119,12 +1122,12 @@ const styles = StyleSheet.create({
   photoPreviewTitle: {
     fontSize: 14,
     fontWeight: "700",
-    color: colors.ink
+    color: theme.ink
   },
   photoPreviewCopy: {
     fontSize: 12,
     lineHeight: 16,
-    color: colors.muted
+    color: theme.muted
   },
   photoRemoveButton: {
     minHeight: 36,
@@ -1135,7 +1138,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ddcfb7"
   },
   photoRemoveButtonText: {
-    color: colors.ink,
+    color: theme.ink,
     fontSize: 12,
     fontWeight: "700"
   },
@@ -1150,10 +1153,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 16,
-    backgroundColor: colors.accent
+    backgroundColor: theme.accent
   },
   primaryButtonText: {
-    color: colors.surface,
+    color: theme.surface,
     fontSize: 16,
     fontWeight: "700"
   },
@@ -1166,7 +1169,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#e3dccd"
   },
   secondaryButtonText: {
-    color: colors.ink,
+    color: theme.ink,
     fontSize: 15,
     fontWeight: "600"
   },
@@ -1185,7 +1188,7 @@ const styles = StyleSheet.create({
     gap: 6,
     padding: 18,
     borderRadius: 22,
-    backgroundColor: colors.card
+    backgroundColor: theme.card
   },
   errorCard: {
     gap: 6,
@@ -1196,12 +1199,12 @@ const styles = StyleSheet.create({
   stateTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: colors.ink
+    color: theme.ink
   },
   stateCopy: {
     fontSize: 14,
     lineHeight: 20,
-    color: colors.muted
+    color: theme.muted
   },
   queueCard: {
     gap: 8
@@ -1226,7 +1229,7 @@ const styles = StyleSheet.create({
     gap: 6,
     padding: 18,
     borderRadius: 22,
-    backgroundColor: colors.card
+    backgroundColor: theme.card
   },
   row: {
     flexDirection: "row",
@@ -1236,12 +1239,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "700",
-    color: colors.ink
+    color: theme.ink
   },
   copy: {
     fontSize: 14,
     lineHeight: 20,
-    color: colors.muted
+    color: theme.muted
   },
   badge: {
     paddingHorizontal: 12,
@@ -1250,7 +1253,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#efe3d1"
   },
   badgeText: {
-    color: colors.warning,
+    color: theme.warning,
     fontWeight: "600"
   },
   queueRow: {
@@ -1259,12 +1262,12 @@ const styles = StyleSheet.create({
   queueRowTitle: {
     fontSize: 15,
     fontWeight: "600",
-    color: colors.ink
+    color: theme.ink
   },
   queueRowCopy: {
     fontSize: 13,
     lineHeight: 18,
-    color: colors.muted
+    color: theme.muted
   },
   queueActionRow: {
     flexDirection: "row",
@@ -1276,10 +1279,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 999,
-    backgroundColor: colors.accent
+    backgroundColor: theme.accent
   },
   retryButtonText: {
-    color: colors.surface,
+    color: theme.surface,
     fontSize: 12,
     fontWeight: "700"
   },
@@ -1290,8 +1293,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#ddcfb7"
   },
   discardButtonText: {
-    color: colors.ink,
+    color: theme.ink,
     fontSize: 12,
     fontWeight: "700"
   }
-});
+}) as const;

@@ -2,11 +2,12 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { Redirect, Tabs } from "expo-router";
 
 import { AppLoader } from "../../components/app-loader";
-import { colors } from "../../lib/theme";
+import { useThemeColors } from "../../lib/theme";
 import { useSessionSnapshot } from "../../lib/session";
 
 export default function TabsLayout() {
   const session = useSessionSnapshot();
+  const theme = useThemeColors();
 
   if (session.status === "loading" || !session.hydrated) {
     return <AppLoader />;
@@ -20,13 +21,16 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.accent,
-        tabBarInactiveTintColor: colors.muted,
+        tabBarActiveTintColor: theme.accent,
+        tabBarInactiveTintColor: theme.muted,
         tabBarStyle: {
           height: 72,
           paddingBottom: 12,
           paddingTop: 8,
-          backgroundColor: "#fff9ef"
+          // Im Light-Mode bleibt die Bar in der Brand-Cremefarbe; im Dark-Mode
+          // gleitet sie auf die dunkle Card-Surface, damit sie sich vom
+          // ScrollView-Hintergrund abhebt (P1.8).
+          backgroundColor: theme.card
         },
         tabBarLabelStyle: {
           fontSize: 11

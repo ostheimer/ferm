@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Image, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Image, KeyboardAvoidingView, Platform, Pressable, Text, TextInput, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Redirect, useRouter } from "expo-router";
 
@@ -12,13 +12,16 @@ import {
   type DeviceUnlockState
 } from "../lib/device-unlock";
 import { unlockStoredSession, useSessionSnapshot } from "../lib/session";
-import { colors } from "../lib/theme";
+import { useThemeColors, type ThemeColors } from "../lib/theme";
+import { useThemedStyles } from "../lib/use-themed-styles";
 
 const logoMark = require("../assets/logo-mark.png");
 
 export default function LoginScreen() {
   const router = useRouter();
   const session = useSessionSnapshot();
+  const styles = useThemedStyles(createStyles);
+  const theme = useThemeColors();
   const [identifier, setIdentifier] = useState("");
   const [pin, setPin] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -155,7 +158,7 @@ export default function LoginScreen() {
                   disabled={isUnlocking}
                 >
                   {isUnlocking ? (
-                    <ActivityIndicator color={colors.accent} />
+                    <ActivityIndicator color={theme.accent} />
                   ) : (
                     <Text style={styles.secondaryButtonText}>Mit {unlockLabel} entsperren</Text>
                   )}
@@ -175,7 +178,7 @@ export default function LoginScreen() {
                 autoCapitalize="none"
                 autoCorrect={false}
                 placeholder="E-Mail oder Benutzername eingeben"
-                placeholderTextColor={colors.muted}
+                placeholderTextColor={theme.muted}
                 style={styles.input}
                 value={identifier}
                 onChangeText={setIdentifier}
@@ -190,7 +193,7 @@ export default function LoginScreen() {
                 keyboardType={Platform.OS === "ios" ? "number-pad" : "numeric"}
                 maxLength={4}
                 placeholder="4-stellige PIN"
-                placeholderTextColor={colors.muted}
+                placeholderTextColor={theme.muted}
                 secureTextEntry
                 style={styles.input}
                 value={pin}
@@ -208,7 +211,7 @@ export default function LoginScreen() {
               disabled={isSubmitting}
             >
               {isSubmitting ? (
-                <ActivityIndicator color={colors.surface} />
+                <ActivityIndicator color={theme.surface} />
               ) : (
                 <Text style={styles.primaryButtonText}>Anmelden</Text>
               )}
@@ -222,7 +225,8 @@ export default function LoginScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) =>
+  ({
   root: {
     flex: 1,
     padding: 20
@@ -235,7 +239,7 @@ const styles = StyleSheet.create({
     gap: 18,
     padding: 24,
     borderRadius: 28,
-    backgroundColor: colors.card,
+    backgroundColor: theme.card,
     shadowColor: "#10231d",
     shadowOpacity: 0.12,
     shadowRadius: 24,
@@ -256,7 +260,7 @@ const styles = StyleSheet.create({
     resizeMode: "contain"
   },
   brandText: {
-    color: colors.accent,
+    color: theme.accent,
     fontFamily: Platform.select({ ios: "Georgia", default: "serif" }),
     fontSize: 48,
     lineHeight: 54,
@@ -266,13 +270,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 30,
     lineHeight: 34,
-    color: colors.ink,
+    color: theme.ink,
     fontWeight: "700"
   },
   copy: {
     fontSize: 15,
     lineHeight: 22,
-    color: colors.muted
+    color: theme.muted
   },
   unlockPanel: {
     gap: 10,
@@ -281,12 +285,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#f0eadc"
   },
   unlockTitle: {
-    color: colors.ink,
+    color: theme.ink,
     fontSize: 14,
     fontWeight: "700"
   },
   unlockHint: {
-    color: colors.muted,
+    color: theme.muted,
     fontSize: 13,
     lineHeight: 19
   },
@@ -300,7 +304,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textTransform: "uppercase",
     letterSpacing: 1.1,
-    color: colors.muted
+    color: theme.muted
   },
   input: {
     minHeight: 52,
@@ -308,26 +312,26 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#d9d2c4",
     paddingHorizontal: 14,
-    color: colors.ink,
-    backgroundColor: colors.surface
+    color: theme.ink,
+    backgroundColor: theme.surface
   },
   error: {
     fontSize: 14,
     lineHeight: 20,
-    color: colors.danger
+    color: theme.danger
   },
   primaryButton: {
     minHeight: 52,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 16,
-    backgroundColor: colors.accent
+    backgroundColor: theme.accent
   },
   primaryButtonDisabled: {
     opacity: 0.7
   },
   primaryButtonText: {
-    color: colors.surface,
+    color: theme.surface,
     fontSize: 16,
     fontWeight: "700"
   },
@@ -338,16 +342,16 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     borderColor: "#cfc7b7",
-    backgroundColor: colors.surface
+    backgroundColor: theme.surface
   },
   secondaryButtonText: {
-    color: colors.accent,
+    color: theme.accent,
     fontSize: 15,
     fontWeight: "700"
   },
   footer: {
     fontSize: 13,
     lineHeight: 19,
-    color: colors.muted
+    color: theme.muted
   }
-});
+}) as const;

@@ -4,7 +4,6 @@ import {
   Pressable,
   RefreshControl,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   View
@@ -22,7 +21,8 @@ import {
   submitAnsitzWithOfflineFallback,
   useOfflineQueueSnapshot
 } from "../../lib/offline-queue";
-import { colors } from "../../lib/theme";
+import { useThemeColors, type ThemeColors } from "../../lib/theme";
+import { useThemedStyles } from "../../lib/use-themed-styles";
 
 interface AnsitzFormState {
   standortName: string;
@@ -42,6 +42,8 @@ const DEFAULT_FORM: AnsitzFormState = {
 
 export default function AnsitzeScreen() {
   const queue = useOfflineQueueSnapshot();
+  const styles = useThemedStyles(createStyles);
+  const theme = useThemeColors();
   const [ansitze, setAnsitze] = useState<AnsitzSession[]>([]);
   const [form, setForm] = useState<AnsitzFormState>(DEFAULT_FORM);
   const [isLoading, setIsLoading] = useState(true);
@@ -150,7 +152,7 @@ export default function AnsitzeScreen() {
           <TextInput
             autoCapitalize="words"
             placeholder="Ansitz Wiesenrand"
-            placeholderTextColor={colors.muted}
+            placeholderTextColor={theme.muted}
             style={styles.input}
             value={form.standortName}
             onChangeText={updateField(setForm, "standortName")}
@@ -163,7 +165,7 @@ export default function AnsitzeScreen() {
             <TextInput
               keyboardType="decimal-pad"
               placeholder="47.9161"
-              placeholderTextColor={colors.muted}
+              placeholderTextColor={theme.muted}
               style={styles.input}
               value={form.lat}
               onChangeText={updateField(setForm, "lat")}
@@ -174,7 +176,7 @@ export default function AnsitzeScreen() {
             <TextInput
               keyboardType="decimal-pad"
               placeholder="13.5182"
-              placeholderTextColor={colors.muted}
+              placeholderTextColor={theme.muted}
               style={styles.input}
               value={form.lng}
               onChangeText={updateField(setForm, "lng")}
@@ -186,7 +188,7 @@ export default function AnsitzeScreen() {
           <Text style={styles.label}>Standortbezeichnung</Text>
           <TextInput
             placeholder="Mobil gemeldet"
-            placeholderTextColor={colors.muted}
+            placeholderTextColor={theme.muted}
             style={styles.input}
             value={form.locationLabel}
             onChangeText={updateField(setForm, "locationLabel")}
@@ -198,7 +200,7 @@ export default function AnsitzeScreen() {
           <TextInput
             multiline
             placeholder="Kurze Notiz für die Revierführung"
-            placeholderTextColor={colors.muted}
+            placeholderTextColor={theme.muted}
             style={[styles.input, styles.textArea]}
             value={form.note}
             onChangeText={updateField(setForm, "note")}
@@ -227,7 +229,7 @@ export default function AnsitzeScreen() {
             onPress={() => void handleSubmit()}
             disabled={isSubmitting}
           >
-            {isSubmitting ? <ActivityIndicator color={colors.surface} /> : <Text style={styles.primaryButtonText}>Ansitz speichern</Text>}
+            {isSubmitting ? <ActivityIndicator color={theme.surface} /> : <Text style={styles.primaryButtonText}>Ansitz speichern</Text>}
           </Pressable>
           <Pressable
             accessibilityRole="button"
@@ -249,7 +251,7 @@ export default function AnsitzeScreen() {
           onPress={() => void loadAnsitze({ refreshing: true })}
           disabled={isRefreshing}
         >
-          {isRefreshing ? <ActivityIndicator color={colors.ink} /> : <Text style={styles.refreshButtonText}>Aktualisieren</Text>}
+          {isRefreshing ? <ActivityIndicator color={theme.ink} /> : <Text style={styles.refreshButtonText}>Aktualisieren</Text>}
         </Pressable>
       </View>
 
@@ -336,7 +338,8 @@ function buildAnsitzPayload(form: AnsitzFormState): CreateAnsitzRequest {
   };
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) =>
+  ({
   listScroll: {
     maxHeight: 520
   },
@@ -350,10 +353,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 999,
-    backgroundColor: colors.card
+    backgroundColor: theme.card
   },
   refreshButtonText: {
-    color: colors.ink,
+    color: theme.ink,
     fontWeight: "600"
   },
   buttonDisabled: {
@@ -367,18 +370,18 @@ const styles = StyleSheet.create({
     gap: 14,
     padding: 18,
     borderRadius: 22,
-    backgroundColor: colors.card
+    backgroundColor: theme.card
   },
   sectionLabel: {
     fontSize: 12,
     textTransform: "uppercase",
     letterSpacing: 1.1,
-    color: colors.muted
+    color: theme.muted
   },
   sectionCopy: {
     fontSize: 14,
     lineHeight: 20,
-    color: colors.muted
+    color: theme.muted
   },
   fieldRow: {
     flexDirection: "row",
@@ -394,7 +397,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textTransform: "uppercase",
     letterSpacing: 1.1,
-    color: colors.muted
+    color: theme.muted
   },
   input: {
     minHeight: 52,
@@ -402,8 +405,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#d9d2c4",
     paddingHorizontal: 14,
-    color: colors.ink,
-    backgroundColor: colors.surface
+    color: theme.ink,
+    backgroundColor: theme.surface
   },
   textArea: {
     minHeight: 90,
@@ -421,10 +424,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 16,
-    backgroundColor: colors.accent
+    backgroundColor: theme.accent
   },
   primaryButtonText: {
-    color: colors.surface,
+    color: theme.surface,
     fontSize: 16,
     fontWeight: "700"
   },
@@ -437,7 +440,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#e3dccd"
   },
   secondaryButtonText: {
-    color: colors.ink,
+    color: theme.ink,
     fontSize: 15,
     fontWeight: "600"
   },
@@ -445,7 +448,7 @@ const styles = StyleSheet.create({
     gap: 6,
     padding: 18,
     borderRadius: 22,
-    backgroundColor: colors.card
+    backgroundColor: theme.card
   },
   infoCard: {
     gap: 6,
@@ -462,12 +465,12 @@ const styles = StyleSheet.create({
   stateTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: colors.ink
+    color: theme.ink
   },
   stateCopy: {
     fontSize: 14,
     lineHeight: 20,
-    color: colors.muted
+    color: theme.muted
   },
   queueCard: {
     gap: 8
@@ -492,7 +495,7 @@ const styles = StyleSheet.create({
     gap: 10,
     padding: 18,
     borderRadius: 22,
-    backgroundColor: colors.card
+    backgroundColor: theme.card
   },
   row: {
     flexDirection: "row",
@@ -502,12 +505,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "700",
-    color: colors.ink
+    color: theme.ink
   },
   copy: {
     fontSize: 14,
     lineHeight: 20,
-    color: colors.muted
+    color: theme.muted
   },
   okBadge: {
     paddingHorizontal: 12,
@@ -522,11 +525,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#f0d9d4"
   },
   okText: {
-    color: colors.accent,
+    color: theme.accent,
     fontWeight: "600"
   },
   dangerText: {
-    color: colors.danger,
+    color: theme.danger,
     fontWeight: "600"
   },
   queueRow: {
@@ -535,11 +538,11 @@ const styles = StyleSheet.create({
   queueRowTitle: {
     fontSize: 15,
     fontWeight: "600",
-    color: colors.ink
+    color: theme.ink
   },
   queueRowCopy: {
     fontSize: 13,
     lineHeight: 18,
-    color: colors.muted
+    color: theme.muted
   }
-});
+}) as const;
