@@ -113,26 +113,37 @@ export default function DashboardScreen() {
   const activeAnsitze = snapshot?.activeAnsitze ?? [];
   const latestNotification = snapshot?.overview.letzteBenachrichtigungen[0];
 
+  const queueIsEmpty = queueCount === 0;
+
   return (
     <ScreenShell
       eyebrow="Revier heute"
       title={snapshot?.revier.name ?? "Alles Wichtige für den Einsatz draußen."}
       subtitle={
         snapshot
-          ? `${snapshot.user.name} / ${snapshot.membership.jagdzeichen} / ${snapshot.revier.bezirk}`
+          ? `${snapshot.user.name} · ${formatRoleLabel(snapshot.membership.role)} · ${snapshot.membership.jagdzeichen}`
           : "Ansitze, Revierdaten und Warteschlange bleiben auch bei schwachem Empfang sichtbar."
       }
       aside={
-        <View style={styles.aside}>
-          <Text style={styles.asideLabel}>Offline-Warteschlange</Text>
-          <Text style={styles.asideValue}>{queueCount}</Text>
-          <Text style={styles.asideCopy}>
-            {failedQueueCount > 0
-              ? `${failedQueueCount} Einträge brauchen einen erneuten Sync.`
-              : "Erfassungen warten auf Synchronisierung."}
-          </Text>
-          {snapshot ? <Text style={styles.asideMeta}>{`${snapshot.user.name} / ${formatRoleLabel(snapshot.membership.role)}`}</Text> : null}
-        </View>
+        queueIsEmpty ? (
+          <View style={[styles.aside, styles.asideCompact]}>
+            <Text style={styles.asideCompactCheck}>✓</Text>
+            <View style={styles.asideCompactCopy}>
+              <Text style={styles.asideLabel}>Warteschlange</Text>
+              <Text style={styles.asideCopy}>Alles synchronisiert.</Text>
+            </View>
+          </View>
+        ) : (
+          <View style={styles.aside}>
+            <Text style={styles.asideLabel}>Offline-Warteschlange</Text>
+            <Text style={styles.asideValue}>{queueCount}</Text>
+            <Text style={styles.asideCopy}>
+              {failedQueueCount > 0
+                ? `${failedQueueCount} Einträge brauchen einen erneuten Sync.`
+                : "Erfassungen warten auf Synchronisierung."}
+            </Text>
+          </View>
+        )
       }
     >
       <View style={styles.toolbar}>
@@ -145,15 +156,19 @@ export default function DashboardScreen() {
         >
           {isRefreshing ? <ActivityIndicator color={colors.ink} /> : <Text style={styles.refreshButtonText}>Aktualisieren</Text>}
         </Pressable>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Warteschlange synchronisieren"
-          style={[styles.secondaryButton, queue.isSyncing ? styles.buttonDisabled : null]}
-          onPress={() => void handleQueueSync()}
-          disabled={queue.isSyncing}
-        >
-          <Text style={styles.secondaryButtonText}>{queue.isSyncing ? "Synchronisiert..." : "Warteschlange senden"}</Text>
-        </Pressable>
+        {!queueIsEmpty ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Warteschlange senden"
+            style={[styles.secondaryButton, queue.isSyncing ? styles.buttonDisabled : null]}
+            onPress={() => void handleQueueSync()}
+            disabled={queue.isSyncing}
+          >
+            <Text style={styles.secondaryButtonText}>
+              {queue.isSyncing ? "Wird gesendet..." : "Warteschlange senden"}
+            </Text>
+          </Pressable>
+        ) : null}
       </View>
 
       {isLoading ? (
@@ -318,6 +333,21 @@ const styles = StyleSheet.create({
   },
   aside: {
     gap: 6
+  },
+  asideCompact: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14
+  },
+  asideCompactCheck: {
+    fontSize: 28,
+    lineHeight: 30,
+    color: "#fff9ef",
+    fontWeight: "700"
+  },
+  asideCompactCopy: {
+    flex: 1,
+    gap: 2
   },
   asideLabel: {
     color: "#dfe9c7",
