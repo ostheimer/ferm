@@ -1,6 +1,7 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Text, View } from "react-native";
 
-import { colors } from "../lib/theme";
+import type { ThemeColors } from "../lib/theme";
+import { useThemedStyles } from "../lib/use-themed-styles";
 
 interface MetricTileProps {
   label: string;
@@ -9,6 +10,8 @@ interface MetricTileProps {
 }
 
 export function MetricTile({ label, value, detail }: MetricTileProps) {
+  const styles = useThemedStyles(createStyles);
+
   return (
     <View style={styles.card}>
       <Text style={styles.label}>{label}</Text>
@@ -18,29 +21,30 @@ export function MetricTile({ label, value, detail }: MetricTileProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    flex: 1,
-    minWidth: 150,
-    gap: 8,
-    padding: 18,
-    borderRadius: 22,
-    backgroundColor: colors.card
-  },
-  label: {
-    fontSize: 12,
-    letterSpacing: 1.2,
-    textTransform: "uppercase",
-    color: colors.muted
-  },
-  value: {
-    fontSize: 28,
-    color: colors.ink,
-    fontWeight: "700"
-  },
-  detail: {
-    fontSize: 14,
-    color: colors.muted,
-    lineHeight: 20
-  }
-});
+const createStyles = (theme: ThemeColors) =>
+  ({
+    card: {
+      flex: 1,
+      minWidth: 150,
+      gap: 8,
+      padding: 18,
+      borderRadius: 22,
+      backgroundColor: theme.card
+    },
+    label: {
+      fontSize: 12,
+      letterSpacing: 1.2,
+      textTransform: "uppercase",
+      color: theme.muted
+    },
+    value: {
+      fontSize: 28,
+      color: theme.ink,
+      fontWeight: "700"
+    },
+    detail: {
+      fontSize: 14,
+      color: theme.muted,
+      lineHeight: 20
+    }
+  }) as const;

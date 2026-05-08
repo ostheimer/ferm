@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import type { ReviereinrichtungListItem } from "@hege/domain";
 
 import { ScreenShell } from "../../components/screen-shell";
 import { fetchReviereinrichtungenList } from "../../lib/api";
 import { formatDateTime } from "../../lib/format";
-import { colors } from "../../lib/theme";
+import type { ThemeColors } from "../../lib/theme";
+import { useThemedStyles } from "../../lib/use-themed-styles";
 
 export default function ReviereinrichtungenScreen() {
+  const styles = useThemedStyles(createStyles);
   const [reviereinrichtungen, setReviereinrichtungen] = useState<ReviereinrichtungListItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -77,7 +79,8 @@ export default function ReviereinrichtungenScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) =>
+  ({
   toolbar: {
     flexDirection: "row",
     justifyContent: "flex-end"
@@ -86,10 +89,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 999,
-    backgroundColor: colors.card
+    backgroundColor: theme.card
   },
   refreshButtonText: {
-    color: colors.ink,
+    color: theme.ink,
     fontWeight: "600"
   },
   list: {
@@ -99,23 +102,23 @@ const styles = StyleSheet.create({
     gap: 6,
     padding: 18,
     borderRadius: 22,
-    backgroundColor: colors.card
+    backgroundColor: theme.card
   },
   stateTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: colors.ink
+    color: theme.ink
   },
   stateCopy: {
     fontSize: 14,
     lineHeight: 20,
-    color: colors.muted
+    color: theme.muted
   },
   card: {
     gap: 8,
     padding: 18,
     borderRadius: 22,
-    backgroundColor: colors.card
+    backgroundColor: theme.card
   },
   row: {
     flexDirection: "row",
@@ -130,24 +133,24 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textTransform: "uppercase",
     letterSpacing: 1.1,
-    color: colors.muted
+    color: theme.muted
   },
   title: {
     fontSize: 19,
     fontWeight: "700",
-    color: colors.ink
+    color: theme.ink
   },
   copy: {
     fontSize: 14,
     lineHeight: 20,
-    color: colors.muted
+    color: theme.muted
   },
   okText: {
-    color: colors.accent,
+    color: theme.accent,
     fontWeight: "700"
   },
   warningText: {
-    color: colors.warning,
+    color: theme.warning,
     fontWeight: "700"
   }
-});
+}) as const;

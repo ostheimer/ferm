@@ -1,9 +1,10 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { RefreshControl, ScrollView, Text, View } from "react-native";
 import type { PropsWithChildren, ReactNode } from "react";
 
-import { colors } from "../lib/theme";
+import { useThemeColors, type ThemeColors } from "../lib/theme";
+import { useThemedStyles } from "../lib/use-themed-styles";
 
 /**
  * Tab-Bar-Hoehe wie in `apps/mobile/app/(tabs)/_layout.tsx` konfiguriert.
@@ -31,6 +32,8 @@ interface ScreenShellProps extends PropsWithChildren {
 export function ScreenShell({ eyebrow, title, subtitle, aside, children, refresh }: ScreenShellProps) {
   const insets = useSafeAreaInsets();
   const bottomPadding = TAB_BAR_VISUAL_HEIGHT + insets.bottom;
+  const styles = useThemedStyles(createStyles);
+  const theme = useThemeColors();
 
   return (
     <SafeAreaView edges={["top", "left", "right"]} style={styles.safeArea}>
@@ -42,8 +45,8 @@ export function ScreenShell({ eyebrow, title, subtitle, aside, children, refresh
             <RefreshControl
               refreshing={refresh.refreshing}
               onRefresh={refresh.onRefresh}
-              tintColor={colors.accent}
-              colors={[colors.accent]}
+              tintColor={theme.accent}
+              colors={[theme.accent]}
             />
           ) : undefined
         }
@@ -64,46 +67,47 @@ export function ScreenShell({ eyebrow, title, subtitle, aside, children, refresh
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: colors.background
-  },
-  scrollContent: {
-    padding: 16,
-    gap: 16
-  },
-  hero: {
-    borderRadius: 28,
-    padding: 22,
-    gap: 18
-  },
-  heroContent: {
-    gap: 10
-  },
-  eyebrow: {
-    fontSize: 12,
-    letterSpacing: 1.5,
-    textTransform: "uppercase",
-    color: colors.muted
-  },
-  title: {
-    fontSize: 30,
-    lineHeight: 34,
-    color: colors.ink,
-    fontWeight: "700"
-  },
-  subtitle: {
-    fontSize: 15,
-    lineHeight: 23,
-    color: colors.muted
-  },
-  aside: {
-    padding: 16,
-    borderRadius: 20,
-    backgroundColor: colors.accent
-  },
-  children: {
-    gap: 16
-  }
-});
+const createStyles = (theme: ThemeColors) =>
+  ({
+    safeArea: {
+      flex: 1,
+      backgroundColor: theme.background
+    },
+    scrollContent: {
+      padding: 16,
+      gap: 16
+    },
+    hero: {
+      borderRadius: 28,
+      padding: 22,
+      gap: 18
+    },
+    heroContent: {
+      gap: 10
+    },
+    eyebrow: {
+      fontSize: 12,
+      letterSpacing: 1.5,
+      textTransform: "uppercase",
+      color: theme.muted
+    },
+    title: {
+      fontSize: 30,
+      lineHeight: 34,
+      color: theme.ink,
+      fontWeight: "700"
+    },
+    subtitle: {
+      fontSize: 15,
+      lineHeight: 23,
+      color: theme.muted
+    },
+    aside: {
+      padding: 16,
+      borderRadius: 20,
+      backgroundColor: theme.accent
+    },
+    children: {
+      gap: 16
+    }
+  }) as const;

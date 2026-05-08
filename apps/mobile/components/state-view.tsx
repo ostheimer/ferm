@@ -1,8 +1,9 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import type { ReactNode } from "react";
 
-import { colors } from "../lib/theme";
+import { useThemeColors, type ThemeColors } from "../lib/theme";
+import { useThemedStyles } from "../lib/use-themed-styles";
 
 export type StateViewMode = "loading" | "empty" | "error";
 
@@ -50,15 +51,17 @@ interface StateViewProps {
  * - Action ist verb-getrieben.
  */
 export function StateView({ mode, title, description, icon, action, bare, footer }: StateViewProps) {
+  const styles = useThemedStyles(createStyles);
+  const theme = useThemeColors();
   const containerStyle = [styles.card, bare ? styles.cardBare : null];
 
   return (
     <View accessibilityLiveRegion={mode === "error" ? "assertive" : "polite"} style={containerStyle}>
       <View style={[styles.iconWrap, iconWrapStyle(mode)]}>
         {mode === "loading" ? (
-          <ActivityIndicator color={colors.accent} />
+          <ActivityIndicator color={theme.accent} />
         ) : (
-          <Ionicons color={iconColor(mode)} name={icon ?? defaultIconName(mode)} size={24} />
+          <Ionicons color={iconColor(mode, theme)} name={icon ?? defaultIconName(mode)} size={24} />
         )}
       </View>
       <View style={styles.body}>
@@ -91,11 +94,11 @@ function defaultIconName(mode: StateViewMode): keyof typeof Ionicons.glyphMap {
   }
 }
 
-function iconColor(mode: StateViewMode): string {
+function iconColor(mode: StateViewMode, theme: ThemeColors): string {
   if (mode === "error") {
-    return colors.danger;
+    return theme.danger;
   }
-  return colors.accent;
+  return theme.accent;
 }
 
 function iconWrapStyle(mode: StateViewMode) {
@@ -108,53 +111,54 @@ function iconWrapStyle(mode: StateViewMode) {
   return { backgroundColor: "rgba(36, 73, 58, 0.08)" };
 }
 
-const styles = StyleSheet.create({
-  card: {
-    gap: 12,
-    padding: 22,
-    borderRadius: 22,
-    backgroundColor: colors.card
-  },
-  cardBare: {
-    backgroundColor: "transparent",
-    padding: 0
-  },
-  iconWrap: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
-    alignItems: "center",
-    justifyContent: "center"
-  },
-  body: {
-    gap: 4
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: colors.ink
-  },
-  description: {
-    fontSize: 14,
-    lineHeight: 20,
-    color: colors.muted
-  },
-  action: {
-    alignSelf: "flex-start",
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 999,
-    backgroundColor: "#e3dccd"
-  },
-  actionPressed: {
-    opacity: 0.8
-  },
-  actionText: {
-    color: colors.ink,
-    fontWeight: "700",
-    fontSize: 14
-  },
-  footer: {
-    paddingTop: 4
-  }
-});
+const createStyles = (theme: ThemeColors) =>
+  ({
+    card: {
+      gap: 12,
+      padding: 22,
+      borderRadius: 22,
+      backgroundColor: theme.card
+    },
+    cardBare: {
+      backgroundColor: "transparent",
+      padding: 0
+    },
+    iconWrap: {
+      width: 48,
+      height: 48,
+      borderRadius: 16,
+      alignItems: "center",
+      justifyContent: "center"
+    },
+    body: {
+      gap: 4
+    },
+    title: {
+      fontSize: 18,
+      fontWeight: "700",
+      color: theme.ink
+    },
+    description: {
+      fontSize: 14,
+      lineHeight: 20,
+      color: theme.muted
+    },
+    action: {
+      alignSelf: "flex-start",
+      paddingVertical: 10,
+      paddingHorizontal: 14,
+      borderRadius: 999,
+      backgroundColor: "#e3dccd"
+    },
+    actionPressed: {
+      opacity: 0.8
+    },
+    actionText: {
+      color: theme.ink,
+      fontWeight: "700",
+      fontSize: 14
+    },
+    footer: {
+      paddingTop: 4
+    }
+  }) as const;

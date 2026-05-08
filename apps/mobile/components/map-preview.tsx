@@ -2,7 +2,8 @@ import type { AnsitzSession } from "@hege/domain";
 import { Platform, StyleSheet, Text, View } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 
-import { colors } from "../lib/theme";
+import type { ThemeColors } from "../lib/theme";
+import { useThemedStyles } from "../lib/use-themed-styles";
 import {
   AUSTRIA_DEFAULT_CENTER,
   buildInitialRegion,
@@ -41,6 +42,7 @@ const SHOULD_RENDER_NATIVE_MAP =
 export function MapPreview({ revierName, ansitze, revierCenter }: MapPreviewProps) {
   const center: RevierCenter = revierCenter ?? AUSTRIA_DEFAULT_CENTER;
   const initialRegion = buildInitialRegion(center, ansitze);
+  const styles = useThemedStyles(createStyles);
 
   return (
     <View style={styles.card}>
@@ -102,85 +104,89 @@ export function MapPreview({ revierName, ansitze, revierCenter }: MapPreviewProp
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    padding: 18,
-    borderRadius: 24,
-    backgroundColor: colors.card,
-    gap: 12
-  },
-  header: {
-    gap: 4
-  },
-  heading: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: colors.ink
-  },
-  caption: {
-    fontSize: 14,
-    lineHeight: 20,
-    color: colors.muted
-  },
-  mapSurface: {
-    position: "relative",
-    height: 250,
-    borderRadius: 20,
-    overflow: "hidden",
-    backgroundColor: colors.accent
-  },
-  androidFallback: {
-    ...StyleSheet.absoluteFillObject,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 22,
-    gap: 6
-  },
-  fallbackTitle: {
-    fontSize: 17,
-    fontWeight: "700",
-    color: "#fff9ef",
-    textAlign: "center"
-  },
-  fallbackCopy: {
-    fontSize: 13,
-    lineHeight: 18,
-    color: "#f7f2e5",
-    textAlign: "center"
-  },
-  fallbackHint: {
-    fontSize: 12,
-    lineHeight: 16,
-    color: "#e5efd9",
-    textAlign: "center"
-  },
-  emptyState: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 22,
-    gap: 4,
-    backgroundColor: "rgba(41, 80, 63, 0.55)"
-  },
-  emptyTitle: {
-    fontSize: 17,
-    fontWeight: "700",
-    color: "#fff9ef",
-    textAlign: "center"
-  },
-  emptyCopy: {
-    fontSize: 13,
-    lineHeight: 18,
-    color: "#f7f2e5",
-    textAlign: "center"
-  },
-  footer: {
-    fontSize: 13,
-    lineHeight: 18,
-    color: colors.muted
-  }
-});
+const createStyles = (theme: ThemeColors) =>
+  ({
+    card: {
+      padding: 18,
+      borderRadius: 24,
+      backgroundColor: theme.card,
+      gap: 12
+    },
+    header: {
+      gap: 4
+    },
+    heading: {
+      fontSize: 20,
+      fontWeight: "700",
+      color: theme.ink
+    },
+    caption: {
+      fontSize: 14,
+      lineHeight: 20,
+      color: theme.muted
+    },
+    mapSurface: {
+      position: "relative",
+      height: 250,
+      borderRadius: 20,
+      overflow: "hidden",
+      backgroundColor: theme.accent
+    },
+    androidFallback: {
+      ...StyleSheet.absoluteFillObject,
+      alignItems: "center",
+      justifyContent: "center",
+      padding: 22,
+      gap: 6
+    },
+    // Heller Schrift-Token-Wert auf accent/Overlay-Hintergrund. Auf Light hellgelb,
+    // auf Dark bewusst fast identisch, damit Lesbarkeit unter dem gruenen
+    // Marker-Overlay garantiert ist (siehe README zu mobilen Dark-Tokens).
+    fallbackTitle: {
+      fontSize: 17,
+      fontWeight: "700",
+      color: "#fff9ef",
+      textAlign: "center"
+    },
+    fallbackCopy: {
+      fontSize: 13,
+      lineHeight: 18,
+      color: "#f7f2e5",
+      textAlign: "center"
+    },
+    fallbackHint: {
+      fontSize: 12,
+      lineHeight: 16,
+      color: "#e5efd9",
+      textAlign: "center"
+    },
+    emptyState: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      alignItems: "center",
+      justifyContent: "center",
+      padding: 22,
+      gap: 4,
+      backgroundColor: "rgba(41, 80, 63, 0.55)"
+    },
+    emptyTitle: {
+      fontSize: 17,
+      fontWeight: "700",
+      color: "#fff9ef",
+      textAlign: "center"
+    },
+    emptyCopy: {
+      fontSize: 13,
+      lineHeight: 18,
+      color: "#f7f2e5",
+      textAlign: "center"
+    },
+    footer: {
+      fontSize: 13,
+      lineHeight: 18,
+      color: theme.muted
+    }
+  }) as const;

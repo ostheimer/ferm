@@ -7,7 +7,8 @@ import type { DashboardResponse } from "@hege/domain";
 import { ScreenShell } from "../../components/screen-shell";
 import { fetchDashboardSnapshot, logout } from "../../lib/api";
 import { useSessionSnapshot } from "../../lib/session";
-import { colors } from "../../lib/theme";
+import { useThemeColors, type ThemeColors } from "../../lib/theme";
+import { useThemedStyles } from "../../lib/use-themed-styles";
 
 interface MehrLink {
   href: string;
@@ -40,6 +41,8 @@ const MEHR_LINKS: ReadonlyArray<MehrLink> = [
 export default function MehrScreen() {
   const router = useRouter();
   const session = useSessionSnapshot();
+  const styles = useThemedStyles(createStyles);
+  const theme = useThemeColors();
   const [snapshot, setSnapshot] = useState<DashboardResponse | null>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -109,13 +112,13 @@ export default function MehrScreen() {
             style={({ pressed }) => [styles.linkRow, pressed ? styles.linkRowPressed : null]}
           >
             <View style={styles.linkIcon}>
-              <Ionicons color={colors.ink} name={entry.icon} size={22} />
+              <Ionicons color={theme.ink} name={entry.icon} size={22} />
             </View>
             <View style={styles.linkCopy}>
               <Text style={styles.linkLabel}>{entry.label}</Text>
               <Text style={styles.linkDescription}>{entry.description}</Text>
             </View>
-            <Ionicons color={colors.muted} name="chevron-forward" size={20} />
+            <Ionicons color={theme.muted} name="chevron-forward" size={20} />
           </Pressable>
         ))}
       </View>
@@ -128,7 +131,7 @@ export default function MehrScreen() {
         style={[styles.logoutButton, isLoggingOut ? styles.logoutDisabled : null]}
       >
         {isLoggingOut ? (
-          <ActivityIndicator color={colors.ink} />
+          <ActivityIndicator color={theme.ink} />
         ) : (
           <Text style={styles.logoutText}>Abmelden</Text>
         )}
@@ -137,32 +140,33 @@ export default function MehrScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) =>
+  ({
   profileCard: {
     padding: 18,
     borderRadius: 22,
-    backgroundColor: colors.card,
+    backgroundColor: theme.card,
     gap: 6
   },
   profileLabel: {
     fontSize: 12,
     textTransform: "uppercase",
     letterSpacing: 1.2,
-    color: colors.muted
+    color: theme.muted
   },
   profileName: {
     fontSize: 22,
     fontWeight: "700",
-    color: colors.ink
+    color: theme.ink
   },
   profileMeta: {
     fontSize: 14,
     lineHeight: 20,
-    color: colors.muted
+    color: theme.muted
   },
   linkList: {
     borderRadius: 22,
-    backgroundColor: colors.card,
+    backgroundColor: theme.card,
     overflow: "hidden"
   },
   linkRow: {
@@ -192,12 +196,12 @@ const styles = StyleSheet.create({
   linkLabel: {
     fontSize: 16,
     fontWeight: "600",
-    color: colors.ink
+    color: theme.ink
   },
   linkDescription: {
     fontSize: 13,
     lineHeight: 18,
-    color: colors.muted
+    color: theme.muted
   },
   logoutButton: {
     minHeight: 52,
@@ -212,9 +216,9 @@ const styles = StyleSheet.create({
   logoutText: {
     fontSize: 15,
     fontWeight: "700",
-    color: colors.ink
+    color: theme.ink
   }
-});
+}) as const;
 
 function formatRoleLabel(role: DashboardResponse["membership"]["role"]) {
   switch (role) {

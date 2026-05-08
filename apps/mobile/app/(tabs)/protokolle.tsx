@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import type { ProtokollDetail, ProtokollListItem } from "@hege/domain";
 
 import { ScreenShell } from "../../components/screen-shell";
 import { formatDateTime } from "../../lib/format";
 import { fetchProtokollDetail, fetchProtokolleList } from "../../lib/api";
-import { colors } from "../../lib/theme";
+import type { ThemeColors } from "../../lib/theme";
+import { useThemedStyles } from "../../lib/use-themed-styles";
 
 export default function ProtokolleScreen() {
+  const styles = useThemedStyles(createStyles);
   const [protokolle, setProtokolle] = useState<ProtokollListItem[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [detail, setDetail] = useState<ProtokollDetail | null>(null);
@@ -128,7 +130,8 @@ export default function ProtokolleScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) =>
+  ({
   list: {
     gap: 12
   },
@@ -136,11 +139,11 @@ const styles = StyleSheet.create({
     gap: 8,
     padding: 18,
     borderRadius: 22,
-    backgroundColor: colors.card
+    backgroundColor: theme.card
   },
   cardActive: {
     borderWidth: 1,
-    borderColor: colors.accent
+    borderColor: theme.accent
   },
   row: {
     flexDirection: "row",
@@ -154,12 +157,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "700",
-    color: colors.ink
+    color: theme.ink
   },
   copy: {
     fontSize: 14,
     lineHeight: 20,
-    color: colors.muted
+    color: theme.muted
   },
   separator: {
     height: 1,
@@ -170,17 +173,17 @@ const styles = StyleSheet.create({
     gap: 6,
     padding: 18,
     borderRadius: 22,
-    backgroundColor: colors.card
+    backgroundColor: theme.card
   },
   stateTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: colors.ink
+    color: theme.ink
   },
   stateCopy: {
     fontSize: 14,
     lineHeight: 20,
-    color: colors.muted
+    color: theme.muted
   },
   okBadge: {
     paddingHorizontal: 10,
@@ -195,23 +198,23 @@ const styles = StyleSheet.create({
     backgroundColor: "#efe3d1"
   },
   okText: {
-    color: colors.accent,
+    color: theme.accent,
     fontWeight: "700"
   },
   warnText: {
-    color: colors.warning,
+    color: theme.warning,
     fontWeight: "700"
   },
   detailCard: {
     gap: 10,
     padding: 18,
     borderRadius: 22,
-    backgroundColor: colors.card
+    backgroundColor: theme.card
   },
   detailTitle: {
     fontSize: 22,
     fontWeight: "700",
-    color: colors.ink
+    color: theme.ink
   },
   detailList: {
     gap: 12,
@@ -224,7 +227,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     textTransform: "uppercase",
     letterSpacing: 1.1,
-    color: colors.muted
+    color: theme.muted
   },
   decision: {
     gap: 4
@@ -232,6 +235,6 @@ const styles = StyleSheet.create({
   decisionTitle: {
     fontSize: 16,
     fontWeight: "700",
-    color: colors.ink
+    color: theme.ink
   }
-});
+}) as const;

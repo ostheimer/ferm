@@ -4,7 +4,6 @@ import {
   Pressable,
   RefreshControl,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   View
@@ -22,7 +21,8 @@ import {
 } from "../../lib/api";
 import { formatDateTime } from "../../lib/format";
 import { buildGeoPoint, trimToUndefined } from "../../lib/form-utils";
-import { colors } from "../../lib/theme";
+import { useThemeColors, type ThemeColors } from "../../lib/theme";
+import { useThemedStyles } from "../../lib/use-themed-styles";
 
 interface ReviermeldungFormState {
   category: ReviermeldungKategorie;
@@ -56,6 +56,8 @@ const CATEGORIES: Array<{
 ];
 
 export default function RevierarbeitScreen() {
+  const styles = useThemedStyles(createStyles);
+  const theme = useThemeColors();
   const [form, setForm] = useState<ReviermeldungFormState>(DEFAULT_FORM);
   const [aufgaben, setAufgaben] = useState<AufgabeListItem[]>([]);
   const [meldungen, setMeldungen] = useState<ReviermeldungListItem[]>([]);
@@ -175,7 +177,7 @@ export default function RevierarbeitScreen() {
           <TextInput
             autoCapitalize="sentences"
             placeholder="Zaun beschädigt, Wildsichtung, Gefahr am Weg..."
-            placeholderTextColor={colors.muted}
+            placeholderTextColor={theme.muted}
             style={styles.input}
             value={form.title}
             onChangeText={updateField(setForm, "title")}
@@ -187,7 +189,7 @@ export default function RevierarbeitScreen() {
           <TextInput
             multiline
             placeholder="Was ist passiert? Was sollen andere wissen?"
-            placeholderTextColor={colors.muted}
+            placeholderTextColor={theme.muted}
             style={[styles.input, styles.textArea]}
             value={form.description}
             onChangeText={updateField(setForm, "description")}
@@ -200,7 +202,7 @@ export default function RevierarbeitScreen() {
             <TextInput
               keyboardType="decimal-pad"
               placeholder="optional"
-              placeholderTextColor={colors.muted}
+              placeholderTextColor={theme.muted}
               style={styles.input}
               value={form.lat}
               onChangeText={updateField(setForm, "lat")}
@@ -211,7 +213,7 @@ export default function RevierarbeitScreen() {
             <TextInput
               keyboardType="decimal-pad"
               placeholder="optional"
-              placeholderTextColor={colors.muted}
+              placeholderTextColor={theme.muted}
               style={styles.input}
               value={form.lng}
               onChangeText={updateField(setForm, "lng")}
@@ -223,7 +225,7 @@ export default function RevierarbeitScreen() {
           <Text style={styles.label}>Standortbezeichnung</Text>
           <TextInput
             placeholder="z. B. Feldweg Süd"
-            placeholderTextColor={colors.muted}
+            placeholderTextColor={theme.muted}
             style={styles.input}
             value={form.locationLabel}
             onChangeText={updateField(setForm, "locationLabel")}
@@ -237,7 +239,7 @@ export default function RevierarbeitScreen() {
           onPress={() => void handleSubmit()}
           disabled={isSubmitting}
         >
-          {isSubmitting ? <ActivityIndicator color={colors.surface} /> : <Text style={styles.primaryButtonText}>Meldung speichern</Text>}
+          {isSubmitting ? <ActivityIndicator color={theme.surface} /> : <Text style={styles.primaryButtonText}>Meldung speichern</Text>}
         </Pressable>
       </View>
 
@@ -249,7 +251,7 @@ export default function RevierarbeitScreen() {
           onPress={() => void loadRevierarbeit({ refreshing: true })}
           disabled={isRefreshing}
         >
-          {isRefreshing ? <ActivityIndicator color={colors.ink} /> : <Text style={styles.refreshButtonText}>Aktualisieren</Text>}
+          {isRefreshing ? <ActivityIndicator color={theme.ink} /> : <Text style={styles.refreshButtonText}>Aktualisieren</Text>}
         </Pressable>
       </View>
 
@@ -297,8 +299,8 @@ export default function RevierarbeitScreen() {
                 <Text style={styles.badgeText}>{`${formatPriorityLabel(entry.priority)} / ${formatTaskStatusLabel(entry.status)}`}</Text>
                 <Text style={styles.title}>{entry.title}</Text>
               </View>
-              <View style={getTaskBadgeStyle(entry.status)}>
-                <Text style={getTaskBadgeTextStyle(entry.status)}>
+              <View style={getTaskBadgeStyle(styles, entry.status)}>
+                <Text style={getTaskBadgeTextStyle(styles, entry.status)}>
                   {formatTaskStatusLabel(entry.status)}
                 </Text>
               </View>
@@ -441,7 +443,7 @@ function formatTaskStatusLabel(value: AufgabeStatus) {
   }
 }
 
-function getTaskBadgeStyle(status: AufgabeStatus) {
+function getTaskBadgeStyle(styles: ReturnType<typeof createStyles>, status: AufgabeStatus) {
   if (status === "erledigt") {
     return styles.okBadge;
   }
@@ -457,7 +459,7 @@ function getTaskBadgeStyle(status: AufgabeStatus) {
   return styles.warningBadge;
 }
 
-function getTaskBadgeTextStyle(status: AufgabeStatus) {
+function getTaskBadgeTextStyle(styles: ReturnType<typeof createStyles>, status: AufgabeStatus) {
   if (status === "erledigt") {
     return styles.okText;
   }
@@ -505,7 +507,8 @@ function formatSourceLabel(value: NonNullable<AufgabeListItem["sourceType"]>) {
   }
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) =>
+  ({
   listScroll: {
     maxHeight: 720
   },
@@ -542,28 +545,28 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 999,
-    backgroundColor: colors.card
+    backgroundColor: theme.card
   },
   refreshButtonText: {
-    color: colors.ink,
+    color: theme.ink,
     fontWeight: "600"
   },
   formCard: {
     gap: 14,
     padding: 18,
     borderRadius: 22,
-    backgroundColor: colors.card
+    backgroundColor: theme.card
   },
   sectionLabel: {
     fontSize: 12,
     textTransform: "uppercase",
     letterSpacing: 1.1,
-    color: colors.muted
+    color: theme.muted
   },
   sectionCopy: {
     fontSize: 14,
     lineHeight: 20,
-    color: colors.muted
+    color: theme.muted
   },
   chipGrid: {
     flexDirection: "row",
@@ -577,14 +580,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#e3dccd"
   },
   chipActive: {
-    backgroundColor: colors.accent
+    backgroundColor: theme.accent
   },
   chipText: {
-    color: colors.ink,
+    color: theme.ink,
     fontWeight: "600"
   },
   chipTextActive: {
-    color: colors.surface
+    color: theme.surface
   },
   fieldRow: {
     flexDirection: "row",
@@ -600,7 +603,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textTransform: "uppercase",
     letterSpacing: 1.1,
-    color: colors.muted
+    color: theme.muted
   },
   input: {
     minHeight: 52,
@@ -608,8 +611,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#d9d2c4",
     paddingHorizontal: 14,
-    color: colors.ink,
-    backgroundColor: colors.surface
+    color: theme.ink,
+    backgroundColor: theme.surface
   },
   textArea: {
     minHeight: 90,
@@ -622,10 +625,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 16,
-    backgroundColor: colors.accent
+    backgroundColor: theme.accent
   },
   primaryButtonText: {
-    color: colors.surface,
+    color: theme.surface,
     fontSize: 16,
     fontWeight: "700"
   },
@@ -638,7 +641,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#e3dccd"
   },
   secondaryButtonText: {
-    color: colors.ink,
+    color: theme.ink,
     fontSize: 14,
     fontWeight: "600"
   },
@@ -649,7 +652,7 @@ const styles = StyleSheet.create({
     gap: 6,
     padding: 18,
     borderRadius: 22,
-    backgroundColor: colors.card
+    backgroundColor: theme.card
   },
   infoCard: {
     gap: 6,
@@ -666,25 +669,25 @@ const styles = StyleSheet.create({
   stateTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: colors.ink
+    color: theme.ink
   },
   stateCopy: {
     fontSize: 14,
     lineHeight: 20,
-    color: colors.muted
+    color: theme.muted
   },
   listHeadline: {
     marginTop: 6,
     fontSize: 12,
     textTransform: "uppercase",
     letterSpacing: 1.2,
-    color: colors.muted
+    color: theme.muted
   },
   card: {
     gap: 10,
     padding: 18,
     borderRadius: 22,
-    backgroundColor: colors.card
+    backgroundColor: theme.card
   },
   row: {
     flexDirection: "row",
@@ -694,18 +697,18 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "700",
-    color: colors.ink
+    color: theme.ink
   },
   copy: {
     fontSize: 14,
     lineHeight: 20,
-    color: colors.muted
+    color: theme.muted
   },
   badgeText: {
     fontSize: 12,
     textTransform: "uppercase",
     letterSpacing: 1.1,
-    color: colors.muted
+    color: theme.muted
   },
   actionRow: {
     flexDirection: "row",
@@ -737,19 +740,19 @@ const styles = StyleSheet.create({
     backgroundColor: "#f0d9d4"
   },
   okText: {
-    color: colors.accent,
+    color: theme.accent,
     fontWeight: "700"
   },
   infoText: {
-    color: colors.ink,
+    color: theme.ink,
     fontWeight: "700"
   },
   warningText: {
-    color: colors.warning,
+    color: theme.warning,
     fontWeight: "700"
   },
   errorText: {
-    color: colors.danger,
+    color: theme.danger,
     fontWeight: "700"
   }
-});
+}) as const;
