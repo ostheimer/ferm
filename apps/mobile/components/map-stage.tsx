@@ -133,7 +133,7 @@ export function MapStage({
         <View style={styles.androidFallback}>
           <Text style={styles.fallbackTitle}>Karte nicht aktiv</Text>
           <Text style={styles.fallbackCopy}>
-            Karte wird mit Google-Key aktiviert. Liste bleibt unter „Tagesuebersicht" erreichbar.
+            Karte wird mit Google-Key aktiviert. Liste bleibt unter „Tagesübersicht" erreichbar.
           </Text>
         </View>
       )}
@@ -179,7 +179,7 @@ export function MapStage({
       <SafeAreaView edges={["bottom"]} pointerEvents="box-none" style={styles.bottomBar}>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Tagesuebersicht oeffnen"
+          accessibilityLabel="Tagesübersicht öffnen"
           onPress={() => {
             void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             onOpenTagesuebersicht?.();
@@ -199,7 +199,7 @@ export function MapStage({
             />
           </View>
           <View style={styles.summaryAffordance}>
-            <Text style={styles.summaryAffordanceLabel}>Tagesuebersicht</Text>
+            <Text style={styles.summaryAffordanceLabel}>Tagesübersicht</Text>
             <Ionicons color={theme.muted} name="chevron-forward" size={18} />
           </View>
         </Pressable>

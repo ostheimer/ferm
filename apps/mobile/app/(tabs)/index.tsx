@@ -85,10 +85,10 @@ export default function HeuteScreen() {
   if (error) {
     return (
       <View style={styles.fullscreenCenter}>
-        <Text style={styles.errorTitle}>Karte nicht verfuegbar</Text>
+        <Text style={styles.errorTitle}>Karte nicht verfügbar</Text>
         <Text style={styles.errorCopy}>{error}</Text>
         <Text style={styles.errorHint}>
-          Tagesuebersicht oeffnet trotzdem — sie hat eigene Refresh-Logik.
+          Tagesübersicht öffnet trotzdem — sie hat eigene Refresh-Logik.
         </Text>
       </View>
     );
