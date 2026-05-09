@@ -9,6 +9,7 @@ import type { AnsitzSession, FallwildVorgang, Reviereinrichtung } from "@hege/do
 import type { ThemeColors } from "../lib/theme";
 import { useThemeColors } from "../lib/theme";
 import { useThemedStyles } from "../lib/use-themed-styles";
+import { ErfassenFab, type ErfassenAction } from "./erfassen-fab";
 import {
   buildMapStageRegion,
   computeMapStageCounts,
@@ -16,6 +17,8 @@ import {
   type MapLayers,
   type RevierCenter
 } from "./map-stage.helpers";
+import { PinDetailSheet, type SelectedPin } from "./pin-detail-sheet";
+import { QueueBadge } from "./queue-badge";
 
 /**
  * Auf Android braucht `react-native-maps` mit Provider Google einen API-Key
@@ -37,7 +40,14 @@ interface MapStageProps {
   fallwild: ReadonlyArray<FallwildVorgang>;
   einrichtungen: ReadonlyArray<Reviereinrichtung>;
   queueCount: number;
+  /**
+   * Failed-Subset von `queueCount` — wird im roten Queue-Badge separat
+   * dargestellt, weil Fehler dringender als nur "warten auf Sync" sind.
+   */
+  failedQueueCount?: number;
   onOpenTagesuebersicht?: () => void;
+  onErfassen?: (action: ErfassenAction) => void;
+  onOpenPinDetails?: (pin: SelectedPin) => void;
 }
 
 /**
@@ -61,11 +71,15 @@ export function MapStage({
   fallwild,
   einrichtungen,
   queueCount,
-  onOpenTagesuebersicht
+  failedQueueCount = 0,
+  onOpenTagesuebersicht,
+  onErfassen,
+  onOpenPinDetails
 }: MapStageProps) {
   const styles = useThemedStyles(createStyles);
   const theme = useThemeColors();
   const [layers, setLayers] = useState<MapLayers>(DEFAULT_MAP_LAYERS);
+  const [selectedPin, setSelectedPin] = useState<SelectedPin | null>(null);
 
   const initialRegion = useMemo(
     () => buildMapStageRegion(revierCenter, layers, ansitze, fallwild, einrichtungen),
@@ -100,9 +114,11 @@ export function MapStage({
                 <Marker
                   key={`ansitz-${entry.id}`}
                   coordinate={{ latitude: entry.location.lat, longitude: entry.location.lng }}
-                  title={entry.standortName}
-                  description={entry.location.label ?? "Aktiver Ansitz"}
                   pinColor={theme.accent}
+                  onPress={() => {
+                    void Haptics.selectionAsync();
+                    setSelectedPin({ type: "ansitz", data: entry });
+                  }}
                 />
               ))
             : null}
@@ -111,9 +127,11 @@ export function MapStage({
                 <Marker
                   key={`fallwild-${entry.id}`}
                   coordinate={{ latitude: entry.location.lat, longitude: entry.location.lng }}
-                  title={entry.gemeinde ?? "Fallwild"}
-                  description={`${entry.wildart} · ${entry.bergungsStatus}`}
                   pinColor={theme.warning}
+                  onPress={() => {
+                    void Haptics.selectionAsync();
+                    setSelectedPin({ type: "fallwild", data: entry });
+                  }}
                 />
               ))
             : null}
@@ -122,9 +140,11 @@ export function MapStage({
                 <Marker
                   key={`einrichtung-${entry.id}`}
                   coordinate={{ latitude: entry.location.lat, longitude: entry.location.lng }}
-                  title={entry.name}
-                  description={`${entry.type} · ${entry.status}`}
                   pinColor={theme.ink}
+                  onPress={() => {
+                    void Haptics.selectionAsync();
+                    setSelectedPin({ type: "einrichtung", data: entry });
+                  }}
                 />
               ))
             : null}
@@ -204,6 +224,26 @@ export function MapStage({
           </View>
         </Pressable>
       </SafeAreaView>
+
+      <QueueBadge
+        count={counts.queue}
+        failedCount={failedQueueCount}
+        onPress={() => {
+          void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          onOpenTagesuebersicht?.();
+        }}
+      />
+
+      {onErfassen ? <ErfassenFab onSelectAction={onErfassen} /> : null}
+
+      <PinDetailSheet
+        pin={selectedPin}
+        onClose={() => setSelectedPin(null)}
+        onOpenDetails={(pin) => {
+          setSelectedPin(null);
+          onOpenPinDetails?.(pin);
+        }}
+      />
     </View>
   );
 }

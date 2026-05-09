@@ -98,6 +98,8 @@ export default function HeuteScreen() {
     return null;
   }
 
+  const failedQueueCount = queue.entries.filter((entry) => entry.status === "failed").length;
+
   return (
     <MapStage
       revierName={snapshot.revier.name}
@@ -106,7 +108,42 @@ export default function HeuteScreen() {
       fallwild={snapshot.recentFallwild}
       einrichtungen={einrichtungen}
       queueCount={queue.entries.length}
+      failedQueueCount={failedQueueCount}
       onOpenTagesuebersicht={() => router.push("/tagesuebersicht")}
+      onErfassen={(action) => {
+        // Erfassungs-Aktionen routen erstmal zu den passenden Tabs.
+        // Eigene Capture-Flows (z.B. ein dedizierter Wartungs-Form-Screen)
+        // sind nicht Teil dieser PR — wir nutzen die existierenden
+        // Tab-Listen als Einstieg, von dort erfassen User aktuell.
+        if (action === "ansitz") {
+          router.push("/(tabs)/ansitze");
+          return;
+        }
+
+        if (action === "fallwild") {
+          router.push("/(tabs)/fallwild");
+          return;
+        }
+
+        // wartung
+        router.push("/(tabs)/reviereinrichtungen");
+      }}
+      onOpenPinDetails={(pin) => {
+        // Detail-Tap aus dem Pin-Sheet: routet auf die Listen-Tabs.
+        // Pro Pin direkt auf den Eintrag zu deeplinken ist Folge-Arbeit
+        // (braucht Detail-Routes pro Entitaet, aktuell nur Listen).
+        if (pin.type === "ansitz") {
+          router.push("/(tabs)/ansitze");
+          return;
+        }
+
+        if (pin.type === "fallwild") {
+          router.push("/(tabs)/fallwild");
+          return;
+        }
+
+        router.push("/(tabs)/reviereinrichtungen");
+      }}
     />
   );
 }
