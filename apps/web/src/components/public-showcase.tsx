@@ -45,12 +45,12 @@ const SIDEBAR_ITEMS: ReadonlyArray<SidebarItem> = [
 const METRICS = [
   { label: "Offene Wartungen", value: "3", trend: "−2 vs. Vorwoche" },
   { label: "Aktive Ansitze", value: "12", trend: "Jetzt im Revier" },
-  { label: "Protokolle in Freigabe", value: "2", trend: "Versionen gepruefte" }
+  { label: "Protokolle in Freigabe", value: "2", trend: "Versionen geprüft" }
 ] as const;
 
 const MAP_PINS = [
   { x: 22, y: 32, label: "Hochstand" },
-  { x: 58, y: 24, label: "Fuetterung" },
+  { x: 58, y: 24, label: "Fütterung" },
   { x: 71, y: 58, label: "Hochstand" },
   { x: 38, y: 70, label: "Salzleck" }
 ] as const;
@@ -64,7 +64,7 @@ const MOBILE_TILES: ReadonlyArray<MobileTile> = [
   { label: "Ansitz starten", Icon: Ansitz },
   { label: "Fallwild melden", Icon: Fallwild },
   { label: "Hochstand", Icon: Hochstand },
-  { label: "Fuetterung", Icon: Fuetterung }
+  { label: "Fütterung", Icon: Fuetterung }
 ];
 
 export function PublicShowcase() {
@@ -72,9 +72,9 @@ export function PublicShowcase() {
     <section className="public-showcase" aria-label="Produkt-Vorschau">
       <div className="public-section-head">
         <p className="eyebrow">Backoffice und App</p>
-        <h2>Eine Datenbasis, zwei Oberflaechen.</h2>
+        <h2>Eine Datenbasis, zwei Oberflächen.</h2>
         <p className="public-section-note public-section-note-left">
-          Web fuer Revierleitung und Schriftfuehrung, App fuers Jagdteam im Feld. Die Werte unten sind
+          Web für Revierleitung und Schriftführung, App fürs Jagdteam im Feld. Die Werte unten sind
           eine Illustration, keine Screenshots.
         </p>
       </div>
@@ -195,7 +195,7 @@ function MobileMockup() {
 
             <div className="public-mockup-phone-card" aria-hidden="true">
               <div>
-                <small>Naechster Ansitz</small>
+                <small>Nächster Ansitz</small>
                 <strong>Hochstand 4 · 17:30</strong>
               </div>
               <span className="public-mockup-phone-pill">Vorgemerkt</span>
@@ -214,8 +214,8 @@ function MobileMockup() {
 
             <div className="public-mockup-phone-queue" aria-hidden="true">
               <span className="eyebrow">Queue</span>
-              <strong>2 Eintraege warten auf Sync</strong>
-              <small>Wird beim naechsten Online-Status uebertragen.</small>
+              <strong>2 Einträge warten auf Sync</strong>
+              <small>Wird beim nächsten Online-Status übertragen.</small>
             </div>
           </div>
 

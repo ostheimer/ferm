@@ -129,11 +129,15 @@ export default function TagesuebersichtScreen() {
   const latestNotification = snapshot?.overview.letzteBenachrichtigungen[0];
 
   const queueIsEmpty = queueCount === 0;
+  // Detail-Page-Touch: Eyebrow ist das aktuelle Datum statt "Revier heute".
+  // Das gibt der Tagesübersicht ihren eigenen Charakter — sie ist nicht mehr
+  // der primäre Tab, sondern eine vom Map-Tab aus geöffnete Detail-Seite.
+  const todayLabel = formatTodayLabel();
 
   return (
     <ScreenShell
-      eyebrow="Revier heute"
-      title={snapshot?.revier.name ?? "Alles Wichtige für den Einsatz draußen."}
+      eyebrow={todayLabel}
+      title={snapshot?.revier.name ?? "Tagesübersicht"}
       subtitle={
         snapshot
           ? `${snapshot.user.name} · ${formatRoleLabel(snapshot.membership.role)} · ${snapshot.membership.jagdzeichen}`
@@ -535,5 +539,24 @@ function formatRoleLabel(role: DashboardResponse["membership"]["role"]) {
       return "Plattform";
     default:
       return role;
+  }
+}
+
+/**
+ * Formatiert das heutige Datum als deutsches Eyebrow-Label, z.B.
+ * "Donnerstag, 8. Mai 2026". Fällt auf eine ASCII-Variante zurück, wenn
+ * `Intl.DateTimeFormat("de-AT")` auf der Plattform fehlt — auf iOS und
+ * neueren Android-Versionen ist das aber Standard.
+ */
+function formatTodayLabel(now: Date = new Date()): string {
+  try {
+    return new Intl.DateTimeFormat("de-AT", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    }).format(now);
+  } catch {
+    return "Heute";
   }
 }

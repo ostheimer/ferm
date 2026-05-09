@@ -20,8 +20,8 @@ interface MehrLink {
 const MEHR_LINKS: ReadonlyArray<MehrLink> = [
   {
     href: "/tagesuebersicht",
-    label: "Tagesuebersicht",
-    description: "Kennzahlen, Warteschlange und naechste Sitzung im Detail.",
+    label: "Tagesübersicht",
+    description: "Kennzahlen, Warteschlange und nächste Sitzung im Detail.",
     icon: "today-outline"
   },
   {
