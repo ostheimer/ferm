@@ -30,16 +30,6 @@ export default function RootLayout() {
       <Stack initialRouteName="(tabs)" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="login" />
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen
-          name="tagesuebersicht"
-          options={{
-            headerShown: true,
-            title: "Tagesübersicht",
-            // headerBackTitle leer = nur Pfeil, ohne den Routenamen "(tabs)"
-            // als Label. Das war auf iOS bisher die Default-Anzeige.
-            headerBackTitle: ""
-          }}
-        />
       </Stack>
     </>
   );
