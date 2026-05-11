@@ -2,6 +2,7 @@ import type { AnsitzSession } from "@hege/domain";
 import { desc, eq } from "drizzle-orm";
 
 import { getRequestContext } from "../../auth/context";
+import { buildCsv } from "../../csv/escape";
 import { getDb } from "../../db/client";
 import { type AnsitzSessionRecord, ansitzSessions } from "../../db/schema";
 import { createDemoStore } from "../../demo-store";
@@ -26,6 +27,48 @@ export async function listAnsitze(): Promise<AnsitzSession[]> {
 
 export async function listLiveAnsitze(): Promise<AnsitzSession[]> {
   return (await listAnsitze()).filter((entry) => entry.status === "active");
+}
+
+/**
+ * Exportiert alle Ansitze des aktiven Reviers als CSV-String. Format
+ * spiegelt das Fallwild-CSV-Pattern: pro Spalte ein Domain-Feld,
+ * UTF-8, RFC 4180-konformes Escaping via `buildCsv`.
+ */
+export async function exportAnsitzeCsv(): Promise<string> {
+  const entries = await listAnsitze();
+
+  return buildCsv(
+    [
+      "id",
+      "started_at",
+      "planned_end_at",
+      "ended_at",
+      "status",
+      "conflict",
+      "standort_id",
+      "standort_name",
+      "location_label",
+      "lat",
+      "lng",
+      "membership_id",
+      "note"
+    ],
+    entries.map((entry) => [
+      entry.id,
+      entry.startedAt,
+      entry.plannedEndAt ?? "",
+      entry.endedAt ?? "",
+      entry.status,
+      entry.conflict ? "ja" : "nein",
+      entry.standortId ?? "",
+      entry.standortName,
+      entry.location.label ?? "",
+      entry.location.lat,
+      entry.location.lng,
+      entry.membershipId,
+      entry.note ?? ""
+    ])
+  );
 }
 
 export function mapAnsitzRowToDomain(record: AnsitzSessionRecord): AnsitzSession {

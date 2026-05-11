@@ -2,6 +2,7 @@ import type { FallwildVorgang, LocationSource, PhotoAsset, RoadKilometerSource }
 import { and, desc, eq, inArray } from "drizzle-orm";
 
 import { getRequestContext } from "../../auth/context";
+import { buildCsv } from "../../csv/escape";
 import { getDb } from "../../db/client";
 import { isMissingTableError } from "../../db/compat";
 import { type FallwildVorgangRecord, fallwildVorgaenge, mediaAssets } from "../../db/schema";
@@ -85,7 +86,8 @@ export function mapMediaAssetRowToPhotoAsset(record: MediaAssetRecord): PhotoAss
 
 export async function exportFallwildCsv(): Promise<string> {
   const entries = await listFallwild();
-  const rows = [
+
+  return buildCsv(
     [
       "id",
       "recorded_at",
@@ -104,7 +106,7 @@ export async function exportFallwildCsv(): Promise<string> {
       "lng",
       "note"
     ],
-    ...entries.map((entry) => [
+    entries.map((entry) => [
       entry.id,
       entry.recordedAt,
       entry.wildart,
@@ -118,13 +120,11 @@ export async function exportFallwildCsv(): Promise<string> {
       entry.roadReference?.source ?? "",
       entry.location.addressLabel ?? "",
       entry.location.label ?? "",
-      String(entry.location.lat),
-      String(entry.location.lng),
+      entry.location.lat,
+      entry.location.lng,
       entry.note ?? ""
     ])
-  ];
-
-  return rows.map((row) => row.map(escapeCsvCell).join(",")).join("\n");
+  );
 }
 
 function buildRoadReference(record: FallwildVorgangRecord): FallwildVorgang["roadReference"] {
@@ -205,14 +205,6 @@ async function attachPhotosToFallwildEntries(rows: FallwildVorgangRecord[]): Pro
       photos: photosByEntryId.get(row.id) ?? []
     };
   });
-}
-
-function escapeCsvCell(value: string): string {
-  if (value.includes(",") || value.includes("\"") || value.includes("\n")) {
-    return `"${value.replaceAll("\"", "\"\"")}"`;
-  }
-
-  return value;
 }
 
 type MediaAssetRecord = typeof mediaAssets.$inferSelect;

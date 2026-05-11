@@ -159,6 +159,9 @@ export function AnsitzeClient({ activeAnsitze }: AnsitzeClientProps) {
           </div>
           <div className="section-actions">
             <span className="badge">{activeAnsitze.length} aktiv</span>
+            <a className="button-link" href="/api/v1/ansitze/export.csv">
+              CSV-Export
+            </a>
             <button
               className="button-control button-control-secondary"
               disabled={isPending}
