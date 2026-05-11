@@ -1,3 +1,4 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
 import * as Haptics from "expo-haptics";
 import { useEffect, useState } from "react";
 import { Pressable, Text, View } from "react-native";
@@ -170,7 +171,9 @@ export default function HeuteScreen() {
       aside={
         queueIsEmpty ? (
           <View style={[styles.aside, styles.asideCompact]}>
-            <Text style={styles.asideCompactCheck}>✓</Text>
+            <View style={styles.asideCompactCheck}>
+              <Ionicons color="#fff9ef" name="checkmark" size={22} />
+            </View>
             <View style={styles.asideCompactCopy}>
               <Text style={styles.asideLabel}>Warteschlange</Text>
               <Text style={styles.asideCopy}>Alles synchronisiert.</Text>
@@ -402,10 +405,15 @@ const createStyles = (theme: ThemeColors) =>
       gap: 14
     },
     asideCompactCheck: {
-      fontSize: 28,
-      lineHeight: 30,
-      color: "#fff9ef",
-      fontWeight: "700"
+      width: 36,
+      height: 36,
+      borderRadius: 999,
+      alignItems: "center",
+      justifyContent: "center",
+      // Leichte Aufhellung auf accentStrong-Hintergrund, damit das Icon eine
+      // erkennbare Status-Bubble bekommt (ohne mit der Container-Farbe zu
+      // konkurrieren).
+      backgroundColor: "rgba(255, 249, 239, 0.18)"
     },
     asideCompactCopy: {
       flex: 1,
