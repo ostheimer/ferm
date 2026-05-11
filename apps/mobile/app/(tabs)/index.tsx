@@ -6,6 +6,7 @@ import type { DashboardResponse } from "@hege/domain";
 
 import { ActivityFeed } from "../../components/activity-feed";
 import { MetricTile } from "../../components/metric-tile";
+import { RoleHeadline } from "../../components/role-headline";
 import { ScreenShell } from "../../components/screen-shell";
 import { StateView } from "../../components/state-view";
 import {
@@ -13,6 +14,7 @@ import {
   formatTodayLabel
 } from "../../lib/activity-feed.helpers";
 import { fetchDashboardSnapshot } from "../../lib/api";
+import { computeRoleDashboard } from "../../lib/dashboard-role.helpers";
 import {
   discardOfflineQueueEntry,
   retryOfflineQueueEntry,
@@ -151,6 +153,14 @@ export default function HeuteScreen() {
   const activeAnsitze = snapshot?.activeAnsitze ?? [];
   const todayLabel = formatTodayLabel();
   const activityItems = snapshot ? buildActivityFeed(snapshot) : [];
+  // Rollenspezifischer Headline + Tile-Satz fuer den Heute-Tab (P2.2).
+  // computeRoleDashboard liest aus snapshot.membership.role und liefert
+  // pro Rolle eine eigene Headline-Konfiguration und drei priorisierte
+  // Tiles. Bei fehlendem Snapshot bleibt das null — gerendert wird die
+  // Section nur, wenn Daten da sind.
+  const roleDashboard = snapshot
+    ? computeRoleDashboard(snapshot.membership.role, snapshot)
+    : null;
 
   return (
     <ScreenShell
@@ -235,8 +245,10 @@ export default function HeuteScreen() {
         </View>
       ) : null}
 
-      {snapshot ? (
+      {snapshot && roleDashboard ? (
         <>
+          <RoleHeadline data={roleDashboard.headline} />
+
           <ActivityFeed items={activityItems} />
 
           {activeAnsitze.length > 0 ? (
@@ -272,23 +284,16 @@ export default function HeuteScreen() {
           ) : null}
 
           <View style={styles.card}>
-            <Text style={styles.cardEyebrow}>Anstehend</Text>
+            <Text style={styles.cardEyebrow}>Im Blick</Text>
             <View style={styles.metricGrid}>
-              <MetricTile
-                label="Wartungen"
-                value={snapshot.overview.offeneWartungen}
-                detail="Offene Reviereinrichtungen."
-              />
-              <MetricTile
-                label="Aufgaben"
-                value={snapshot.overview.offeneAufgaben}
-                detail="Aktive Revierarbeiten."
-              />
-              <MetricTile
-                label="Freigabe"
-                value={snapshot.overview.unveroeffentlichteProtokolle}
-                detail="Protokolle in Freigabe."
-              />
+              {roleDashboard.tiles.map((tile) => (
+                <MetricTile
+                  key={tile.label}
+                  label={tile.label}
+                  value={tile.value}
+                  detail={tile.detail}
+                />
+              ))}
             </View>
           </View>
 
