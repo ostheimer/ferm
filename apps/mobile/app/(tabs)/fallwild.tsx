@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -13,8 +13,11 @@ import type { Dispatch, SetStateAction } from "react";
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 
+import { EntityMap, type EntityPin } from "../../components/entity-map";
+import { PinDetailSheet, type SelectedPin } from "../../components/pin-detail-sheet";
 import { ScreenShell } from "../../components/screen-shell";
 import { SelectField } from "../../components/select-field";
+import { ViewToggle } from "../../components/view-toggle";
 import { formatDateTime } from "../../lib/format";
 import { buildGeoPoint, trimToUndefined } from "../../lib/form-utils";
 import {
@@ -111,6 +114,9 @@ type FeedbackState = {
   copy: string;
 } | null;
 
+type ViewMode = "liste" | "karte";
+const MAP_HEIGHT = 380;
+
 export default function FallwildScreen() {
   const queue = useOfflineQueueSnapshot();
   const styles = useThemedStyles(createStyles);
@@ -128,6 +134,20 @@ export default function FallwildScreen() {
   const [feedback, setFeedback] = useState<FeedbackState>(null);
   const [locationHint, setLocationHint] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [mode, setMode] = useState<ViewMode>("liste");
+  const [selectedPin, setSelectedPin] = useState<SelectedPin | null>(null);
+
+  // EntityPin-Mapping fuer die Karten-Ansicht.
+  const pins: ReadonlyArray<EntityPin> = useMemo(
+    () =>
+      fallwild.map((entry) => ({
+        id: entry.id,
+        location: entry.location,
+        title: entry.gemeinde ?? entry.location.label ?? "Fallwild",
+        subtitle: `${entry.wildart} · ${entry.bergungsStatus}`
+      })),
+    [fallwild]
+  );
 
   useEffect(() => {
     void loadFallwild();
@@ -718,6 +738,15 @@ export default function FallwildScreen() {
       </View>
 
       <View style={styles.toolbar}>
+        <ViewToggle<ViewMode>
+          value={mode}
+          onChange={setMode}
+          accessibilityLabel="Anzeige umschalten"
+          options={[
+            { key: "liste", label: "Liste", icon: "list" },
+            { key: "karte", label: "Karte", icon: "map" }
+          ]}
+        />
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Fallwild aktualisieren"
@@ -782,49 +811,81 @@ export default function FallwildScreen() {
         </View>
       ) : null}
 
-      <ScrollView
-        nestedScrollEnabled
-        refreshControl={
-          <RefreshControl refreshing={isRefreshing} onRefresh={() => void loadFallwild({ refreshing: true })} />
-        }
-        contentContainerStyle={styles.listContent}
-        style={styles.listScroll}
-      >
-        {!isLoading && !error && fallwild.length === 0 ? (
-          <View style={styles.stateCard}>
-            <Text style={styles.stateTitle}>Kein Fallwild gemeldet</Text>
-            <Text style={styles.stateCopy}>Sobald ein Vorgang erfasst ist, erscheint er hier.</Text>
-          </View>
-        ) : null}
+      {mode === "karte" && fallwild.length > 0 ? (
+        <EntityMap
+          pins={pins}
+          pinColor={theme.warning}
+          height={MAP_HEIGHT}
+          onPinPress={(pin) => {
+            const target = fallwild.find((entry) => entry.id === pin.id);
+            if (target) {
+              setSelectedPin({ type: "fallwild", data: target });
+            }
+          }}
+        />
+      ) : null}
 
-        {fallwild.map((entry) => (
-          <View key={entry.id} style={styles.card}>
-            <View style={styles.row}>
-              <View style={styles.grow}>
-                <Text style={styles.title}>
-                  {entry.wildart} / {entry.gemeinde}
-                </Text>
-                <Text style={styles.copy}>
-                  {formatGeschlechtLabel(entry.geschlecht)}, {formatAltersklasseLabel(entry.altersklasse)}
-                </Text>
-              </View>
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>{formatBergungsStatusLabel(entry.bergungsStatus)}</Text>
-              </View>
+      {mode === "liste" ? (
+        <ScrollView
+          nestedScrollEnabled
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={() => void loadFallwild({ refreshing: true })}
+            />
+          }
+          contentContainerStyle={styles.listContent}
+          style={styles.listScroll}
+        >
+          {!isLoading && !error && fallwild.length === 0 ? (
+            <View style={styles.stateCard}>
+              <Text style={styles.stateTitle}>Kein Fallwild gemeldet</Text>
+              <Text style={styles.stateCopy}>Sobald ein Vorgang erfasst ist, erscheint er hier.</Text>
             </View>
+          ) : null}
 
-            <Text style={styles.copy}>{entry.location.label ?? "Ohne Standort"}</Text>
-            {entry.location.addressLabel ? <Text style={styles.copy}>{entry.location.addressLabel}</Text> : null}
-            <Text style={styles.copy}>{formatDateTime(entry.recordedAt)}</Text>
-            {entry.strasse ? <Text style={styles.copy}>{entry.strasse}</Text> : null}
-            {entry.roadReference?.roadKilometer ? (
-              <Text style={styles.copy}>Straßenkilometer {entry.roadReference.roadKilometer}</Text>
-            ) : null}
-            {entry.note ? <Text style={styles.copy}>{entry.note}</Text> : null}
-            {entry.photos.length > 0 ? <Text style={styles.copy}>{formatPhotoCount(entry.photos.length)}</Text> : null}
-          </View>
-        ))}
-      </ScrollView>
+          {fallwild.map((entry) => (
+            <View key={entry.id} style={styles.card}>
+              <View style={styles.row}>
+                <View style={styles.grow}>
+                  <Text style={styles.title}>
+                    {entry.wildart} / {entry.gemeinde}
+                  </Text>
+                  <Text style={styles.copy}>
+                    {formatGeschlechtLabel(entry.geschlecht)}, {formatAltersklasseLabel(entry.altersklasse)}
+                  </Text>
+                </View>
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>{formatBergungsStatusLabel(entry.bergungsStatus)}</Text>
+                </View>
+              </View>
+
+              <Text style={styles.copy}>{entry.location.label ?? "Ohne Standort"}</Text>
+              {entry.location.addressLabel ? (
+                <Text style={styles.copy}>{entry.location.addressLabel}</Text>
+              ) : null}
+              <Text style={styles.copy}>{formatDateTime(entry.recordedAt)}</Text>
+              {entry.strasse ? <Text style={styles.copy}>{entry.strasse}</Text> : null}
+              {entry.roadReference?.roadKilometer ? (
+                <Text style={styles.copy}>Straßenkilometer {entry.roadReference.roadKilometer}</Text>
+              ) : null}
+              {entry.note ? <Text style={styles.copy}>{entry.note}</Text> : null}
+              {entry.photos.length > 0 ? (
+                <Text style={styles.copy}>{formatPhotoCount(entry.photos.length)}</Text>
+              ) : null}
+            </View>
+          ))}
+        </ScrollView>
+      ) : null}
+
+      <PinDetailSheet
+        pin={selectedPin}
+        onClose={() => setSelectedPin(null)}
+        onOpenDetails={() => {
+          setSelectedPin(null);
+          setMode("liste");
+        }}
+      />
     </ScreenShell>
   );
 }
@@ -961,7 +1022,8 @@ const createStyles = (theme: ThemeColors) =>
   toolbar: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "flex-end",
+    justifyContent: "space-between",
+    alignItems: "center",
     gap: 10
   },
   refreshButton: {
