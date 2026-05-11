@@ -517,6 +517,52 @@ p {
   font-weight: 500;
 }
 
+/* =========================================================================
+ * Sortable Table Header (W2) — klickbare th-Variante mit Sort-Pfeil.
+ * =======================================================================*/
+
+.sortable-th {
+  padding: 0 !important;
+}
+
+.sortable-th button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  background: transparent;
+  border: 0;
+  padding: 12px;
+  text-align: left;
+  font: inherit;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 140ms cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+.sortable-th button:hover {
+  color: var(--ink);
+}
+
+.sortable-th button:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: -2px;
+  border-radius: 4px;
+}
+
+.sortable-th-active button {
+  color: var(--accent-strong);
+}
+
+.sortable-th button svg {
+  opacity: 0.5;
+}
+
+.sortable-th-active button svg {
+  opacity: 1;
+}
+
 .status-ok {
   color: var(--accent-strong);
 }

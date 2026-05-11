@@ -6,8 +6,18 @@ import type { ChangeEvent, FormEvent } from "react";
 import { useMemo, useState, useTransition } from "react";
 
 import { ListSearchBar } from "../../components/list-search-bar";
+import { SortableTh } from "../../components/sortable-th";
 import { readApiErrorMessage } from "../../lib/api-error";
 import { filterBySearch, hasActiveSearch } from "../../lib/list-search";
+import { nextSortState, sortByColumn, type SortState } from "../../lib/list-sort";
+
+type AnsitzColumn = "standort" | "startedAt" | "plannedEndAt" | "status";
+const SORT_ACCESSORS: Record<AnsitzColumn, (entry: AnsitzeClientEntry) => string | number | null> = {
+  standort: (entry) => entry.standortName,
+  startedAt: (entry) => entry.startedAt,
+  plannedEndAt: (entry) => entry.plannedEndAt ?? null,
+  status: (entry) => (entry.conflict ? 0 : 1) // Konflikt-Ansitze nach oben bei ASC
+};
 
 interface AnsitzeClientProps {
   activeAnsitze: AnsitzeClientEntry[];
@@ -41,17 +51,27 @@ export function AnsitzeClient({ activeAnsitze }: AnsitzeClientProps) {
   const [formValues, setFormValues] = useState(DEFAULT_FORM_VALUES);
   const [search, setSearch] = useState("");
 
-  const visibleAnsitze = useMemo(
+  const [sort, setSort] = useState<SortState<AnsitzColumn>>({
+    column: "startedAt",
+    direction: "desc"
+  });
+
+  const filteredAnsitze = useMemo(
     () =>
       filterBySearch(activeAnsitze, search, (entry) =>
         [entry.standortName, entry.location.label ?? "", entry.note ?? ""].join(" ")
       ),
     [activeAnsitze, search]
   );
+  const visibleAnsitze = useMemo(
+    () => sortByColumn(filteredAnsitze, sort, SORT_ACCESSORS),
+    [filteredAnsitze, sort]
+  );
   const searchActive = hasActiveSearch(search);
   const resultLabel = searchActive
     ? `${visibleAnsitze.length} von ${activeAnsitze.length}`
     : `${activeAnsitze.length} aktiv`;
+  const onSort = (column: AnsitzColumn) => setSort((current) => nextSortState(current, column));
 
   function updateInput<Key extends keyof Omit<typeof DEFAULT_FORM_VALUES, "note">>(key: Key) {
     return (event: ChangeEvent<HTMLInputElement>) => {
@@ -165,10 +185,30 @@ export function AnsitzeClient({ activeAnsitze }: AnsitzeClientProps) {
           <table>
             <thead>
               <tr>
-                <th>Standort</th>
-                <th>Beginn</th>
-                <th>Geplantes Ende</th>
-                <th>Status</th>
+                <SortableTh<AnsitzColumn>
+                  column="standort"
+                  label="Standort"
+                  sort={sort}
+                  onSort={onSort}
+                />
+                <SortableTh<AnsitzColumn>
+                  column="startedAt"
+                  label="Beginn"
+                  sort={sort}
+                  onSort={onSort}
+                />
+                <SortableTh<AnsitzColumn>
+                  column="plannedEndAt"
+                  label="Geplantes Ende"
+                  sort={sort}
+                  onSort={onSort}
+                />
+                <SortableTh<AnsitzColumn>
+                  column="status"
+                  label="Status"
+                  sort={sort}
+                  onSort={onSort}
+                />
                 <th>Notiz</th>
                 <th>Aktion</th>
               </tr>
