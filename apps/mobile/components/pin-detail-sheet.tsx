@@ -1,6 +1,5 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { Modal, Pressable, ScrollView, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Modal, Pressable, SafeAreaView, ScrollView, Text, View } from "react-native";
 import type {
   AnsitzSession,
   EinrichtungTyp,
@@ -43,18 +42,32 @@ export function PinDetailSheet({ pin, onClose, onOpenDetails }: PinDetailSheetPr
   const styles = useThemedStyles(createStyles);
   const theme = useThemeColors();
 
+  // Wenn kein Pin ausgewaehlt ist, rendern wir das Modal gar nicht erst.
+  // Frueher haben wir es immer in den Tree gehaengt und nur `visible={false}`
+  // gesetzt — das hat in Kombination mit dem Eltern-ScrollView aus
+  // ScreenShell zu einem Start-Crash gefuehrt (vermutet: Modal-Mount-Cycle
+  // in einem nicht-presentierten Container). Lazy-Mount loest das.
+  if (pin === null) {
+    return null;
+  }
+
   return (
     <Modal
       animationType="slide"
       presentationStyle="formSheet"
       transparent={false}
-      visible={pin !== null}
+      visible
       onRequestClose={onClose}
     >
-      <SafeAreaView edges={["top", "bottom"]} style={styles.root}>
+      {/* SafeAreaView aus react-native (nicht safe-area-context), weil
+        Modals auf iOS einen eigenen UIWindow-Kontext bekommen und der
+        SafeAreaProvider von react-native-safe-area-context nicht durch
+        das Window-Boundary durchschlaegt. RN's eingebauter
+        SafeAreaView greift dagegen direkt auf UIView's `safeAreaInsets`. */}
+      <SafeAreaView style={styles.root}>
         <View style={styles.handle} />
         <View style={styles.headerRow}>
-          {pin ? <PinHeader pin={pin} styles={styles} theme={theme} /> : null}
+          <PinHeader pin={pin} styles={styles} theme={theme} />
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Schließen"
@@ -67,18 +80,14 @@ export function PinDetailSheet({ pin, onClose, onOpenDetails }: PinDetailSheetPr
         </View>
 
         <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
-          {pin?.type === "ansitz" ? (
-            <AnsitzDetails ansitz={pin.data} styles={styles} />
-          ) : null}
-          {pin?.type === "fallwild" ? (
-            <FallwildDetails fallwild={pin.data} styles={styles} />
-          ) : null}
-          {pin?.type === "einrichtung" ? (
+          {pin.type === "ansitz" ? <AnsitzDetails ansitz={pin.data} styles={styles} /> : null}
+          {pin.type === "fallwild" ? <FallwildDetails fallwild={pin.data} styles={styles} /> : null}
+          {pin.type === "einrichtung" ? (
             <EinrichtungDetails einrichtung={pin.data} styles={styles} />
           ) : null}
         </ScrollView>
 
-        {pin && onOpenDetails ? (
+        {onOpenDetails ? (
           <View style={styles.footer}>
             <Pressable
               accessibilityRole="button"
