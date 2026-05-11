@@ -30,6 +30,10 @@ export default function RootLayout() {
       <Stack initialRouteName="(tabs)" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="login" />
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen
+          name="ueber-hege"
+          options={{ headerShown: true, title: "Über hege", headerBackTitle: "" }}
+        />
       </Stack>
     </>
   );
