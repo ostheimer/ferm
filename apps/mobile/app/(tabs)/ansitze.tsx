@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -12,7 +12,10 @@ import type { Dispatch, SetStateAction } from "react";
 
 import type { AnsitzSession } from "@hege/domain";
 
+import { EntityMap, type EntityPin } from "../../components/entity-map";
+import { PinDetailSheet, type SelectedPin } from "../../components/pin-detail-sheet";
 import { ScreenShell } from "../../components/screen-shell";
+import { ViewToggle } from "../../components/view-toggle";
 import { formatDateTime } from "../../lib/format";
 import { buildGeoPoint, trimToUndefined } from "../../lib/form-utils";
 import { fetchLiveAnsitze, type CreateAnsitzRequest } from "../../lib/api";
@@ -23,6 +26,9 @@ import {
 } from "../../lib/offline-queue";
 import { useThemeColors, type ThemeColors } from "../../lib/theme";
 import { useThemedStyles } from "../../lib/use-themed-styles";
+
+type ViewMode = "liste" | "karte";
+const MAP_HEIGHT = 380;
 
 interface AnsitzFormState {
   standortName: string;
@@ -51,10 +57,27 @@ export default function AnsitzeScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [mode, setMode] = useState<ViewMode>("liste");
+  const [selectedPin, setSelectedPin] = useState<SelectedPin | null>(null);
 
   useEffect(() => {
     void loadAnsitze();
   }, []);
+
+  // EntityPin-Mapping fuer die Karten-Ansicht — selektiert nur Felder,
+  // die EntityMap braucht. `subtitle` ist nur fuer die native Callout
+  // relevant (in unserer Variante deaktiviert, weil wir das eigene
+  // PinDetailSheet beim Pin-Tap oeffnen).
+  const pins: ReadonlyArray<EntityPin> = useMemo(
+    () =>
+      ansitze.map((entry) => ({
+        id: entry.id,
+        location: entry.location,
+        title: entry.standortName,
+        subtitle: entry.location.label ?? "Aktiver Ansitz"
+      })),
+    [ansitze]
+  );
 
   async function loadAnsitze(options?: { refreshing?: boolean }) {
     const refreshing = options?.refreshing ?? false;
@@ -244,6 +267,15 @@ export default function AnsitzeScreen() {
       </View>
 
       <View style={styles.toolbar}>
+        <ViewToggle<ViewMode>
+          value={mode}
+          onChange={setMode}
+          accessibilityLabel="Anzeige umschalten"
+          options={[
+            { key: "liste", label: "Liste", icon: "list" },
+            { key: "karte", label: "Karte", icon: "map" }
+          ]}
+        />
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Ansitze aktualisieren"
@@ -277,39 +309,74 @@ export default function AnsitzeScreen() {
         </View>
       ) : null}
 
-      <ScrollView
-        nestedScrollEnabled
-        refreshControl={
-          <RefreshControl refreshing={isRefreshing} onRefresh={() => void loadAnsitze({ refreshing: true })} />
-        }
-        contentContainerStyle={styles.listContent}
-        style={styles.listScroll}
-      >
-        {!isLoading && !error && ansitze.length === 0 ? (
-          <View style={styles.stateCard}>
-            <Text style={styles.stateTitle}>Keine aktiven Ansitze</Text>
-            <Text style={styles.stateCopy}>Sobald ein Jäger einen Ansitz meldet, erscheint er hier.</Text>
-          </View>
-        ) : null}
+      {mode === "karte" && ansitze.length > 0 ? (
+        <EntityMap
+          pins={pins}
+          pinColor={theme.accent}
+          height={MAP_HEIGHT}
+          onPinPress={(pin) => {
+            const target = ansitze.find((entry) => entry.id === pin.id);
+            if (target) {
+              setSelectedPin({ type: "ansitz", data: target });
+            }
+          }}
+        />
+      ) : null}
 
-        {ansitze.map((entry) => (
-          <View key={entry.id} style={styles.card}>
-            <View style={styles.row}>
-              <View style={styles.grow}>
-                <Text style={styles.title}>{entry.standortName}</Text>
-                <Text style={styles.copy}>{entry.location.label ?? "Ohne Standort"}</Text>
-              </View>
-              <View style={entry.conflict ? styles.dangerBadge : styles.okBadge}>
-                <Text style={entry.conflict ? styles.dangerText : styles.okText}>{entry.conflict ? "Warnung" : "Aktiv"}</Text>
-              </View>
+      {mode === "liste" ? (
+        <ScrollView
+          nestedScrollEnabled
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={() => void loadAnsitze({ refreshing: true })}
+            />
+          }
+          contentContainerStyle={styles.listContent}
+          style={styles.listScroll}
+        >
+          {!isLoading && !error && ansitze.length === 0 ? (
+            <View style={styles.stateCard}>
+              <Text style={styles.stateTitle}>Keine aktiven Ansitze</Text>
+              <Text style={styles.stateCopy}>
+                Sobald ein Jäger einen Ansitz meldet, erscheint er hier.
+              </Text>
             </View>
+          ) : null}
 
-            <Text style={styles.copy}>Beginn: {formatDateTime(entry.startedAt)}</Text>
-            {entry.plannedEndAt ? <Text style={styles.copy}>Geplant bis: {formatDateTime(entry.plannedEndAt)}</Text> : null}
-            <Text style={styles.copy}>{entry.note ?? "Keine Notiz"}</Text>
-          </View>
-        ))}
-      </ScrollView>
+          {ansitze.map((entry) => (
+            <View key={entry.id} style={styles.card}>
+              <View style={styles.row}>
+                <View style={styles.grow}>
+                  <Text style={styles.title}>{entry.standortName}</Text>
+                  <Text style={styles.copy}>{entry.location.label ?? "Ohne Standort"}</Text>
+                </View>
+                <View style={entry.conflict ? styles.dangerBadge : styles.okBadge}>
+                  <Text style={entry.conflict ? styles.dangerText : styles.okText}>
+                    {entry.conflict ? "Warnung" : "Aktiv"}
+                  </Text>
+                </View>
+              </View>
+
+              <Text style={styles.copy}>Beginn: {formatDateTime(entry.startedAt)}</Text>
+              {entry.plannedEndAt ? (
+                <Text style={styles.copy}>Geplant bis: {formatDateTime(entry.plannedEndAt)}</Text>
+              ) : null}
+              <Text style={styles.copy}>{entry.note ?? "Keine Notiz"}</Text>
+            </View>
+          ))}
+        </ScrollView>
+      ) : null}
+
+      <PinDetailSheet
+        pin={selectedPin}
+        onClose={() => setSelectedPin(null)}
+        // Detail-Tap aus dem Pin-Sheet: zurueck zur Liste, das Sheet zu.
+        onOpenDetails={() => {
+          setSelectedPin(null);
+          setMode("liste");
+        }}
+      />
     </ScreenShell>
   );
 }
@@ -346,7 +413,8 @@ const createStyles = (theme: ThemeColors) =>
   toolbar: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "flex-end",
+    justifyContent: "space-between",
+    alignItems: "center",
     gap: 10
   },
   refreshButton: {
