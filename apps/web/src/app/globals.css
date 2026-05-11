@@ -2032,3 +2032,174 @@ td span {
     grid-template-columns: 1fr;
   }
 }
+
+/* =========================================================================
+ * Print-Stylesheet (W5) — fuer Sitzungs-Protokolle und andere Detail-Seiten.
+ *
+ * Ziel: Wenn ein User per Cmd/Ctrl+P druckt, soll ein sauberes Dokument
+ * rauskommen — kein Sidebar, keine Action-Buttons, kein Toolbar-Chrome.
+ * Dunkle Brand-Hintergruende werden zu Weiss, Akzent-Farben bleiben
+ * dezent erhalten, Schriftgroessen sind druck-optimiert.
+ * =======================================================================*/
+
+@media print {
+  /* HTML-Wrapper auf weiss reduzieren — Brand-Gradients drucken schlecht. */
+  html {
+    background: #ffffff !important;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #11231b !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* App-Shell: Sidebar weg, Content nimmt volle Breite. */
+  .app-shell {
+    display: block !important;
+    padding: 0 !important;
+  }
+
+  .sidebar,
+  .nav-list,
+  .sidebar-card,
+  .sidebar-actions {
+    display: none !important;
+  }
+
+  .main-content {
+    padding: 0 !important;
+  }
+
+  /* Page-Stack-Container: kein Hintergrund/Border auf einzelnen Cards,
+   * damit Sektionen flach zwischenruecken. */
+  .page-stack {
+    gap: 18px;
+  }
+
+  .section-card,
+  .hero-card,
+  .panel-card,
+  .activity-panel,
+  .map-panel,
+  .metric-card {
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+    padding: 0 0 12px !important;
+    page-break-inside: avoid;
+  }
+
+  /* Card-Grids und Split-Panels in eine Spalte umbrechen. */
+  .card-grid,
+  .split-panel,
+  .metric-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* Heading-Groessen druckfreundlich. */
+  h1 {
+    font-size: 1.6rem !important;
+    margin: 0 0 8px !important;
+  }
+
+  h2 {
+    font-size: 1.25rem !important;
+    margin: 0 0 6px !important;
+  }
+
+  h3 {
+    font-size: 1.1rem !important;
+    margin: 0 0 4px !important;
+  }
+
+  p,
+  span,
+  li {
+    font-size: 0.95rem !important;
+    line-height: 1.45 !important;
+  }
+
+  /* Interaktive Elemente raus: Buttons, Search, Toggles, Aktionen,
+   * "Aktualisieren" etc. brauchen wir auf Papier nicht. */
+  .button-control,
+  .button-link,
+  .button-control-secondary,
+  .button-control-danger,
+  .section-actions,
+  .list-search-bar,
+  .filter-section,
+  .sortable-th button {
+    display: none !important;
+  }
+
+  /* Sortable-Header faellt auf normales th-Layout zurueck. */
+  .sortable-th {
+    padding: 8px !important;
+  }
+
+  /* Tabellen druckfreundlich — saubere Rahmen, kein Card-Look. */
+  .table-shell,
+  table {
+    border: 1px solid #d4d7c5 !important;
+    border-radius: 0 !important;
+    background: #ffffff !important;
+  }
+
+  table th,
+  table td {
+    border: 1px solid #d4d7c5 !important;
+    padding: 8px !important;
+    background: #ffffff !important;
+  }
+
+  /* Status-Pills bleiben sichtbar, aber neutral schwarz/weiss-tauglich. */
+  .status-pill {
+    border: 1px solid #11231b !important;
+    background: #ffffff !important;
+    color: #11231b !important;
+    padding: 2px 8px !important;
+  }
+
+  /* Timeline-Verbindungen in Schwarz fuer Druck. */
+  .version-timeline-marker {
+    background: #11231b !important;
+    box-shadow: none !important;
+    border-color: #ffffff !important;
+  }
+
+  .version-timeline-item:not(:last-child)::before {
+    background: #11231b !important;
+  }
+
+  /* Eyebrow-Labels dezenter im Print. */
+  .eyebrow {
+    color: #5b6b62 !important;
+    opacity: 1 !important;
+  }
+
+  /* Page-Breaks: nicht in der Mitte einer Sektion. */
+  section {
+    break-inside: avoid;
+  }
+
+  /* Form-Inputs read-only-Look (sichtbar, aber nicht editiert wirkend). */
+  input,
+  textarea,
+  select {
+    border: 1px solid #d4d7c5 !important;
+    background: #ffffff !important;
+    color: #11231b !important;
+  }
+
+  /* Public-Landing-Mockups, Hero-Backdrops und Map-Panels rausnehmen — die
+   * sind interaktive Showcase, kein druckbares Material. */
+  .public-mockup,
+  .public-landing-backdrop,
+  .map-panel {
+    display: none !important;
+  }
+}
