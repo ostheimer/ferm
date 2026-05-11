@@ -8,9 +8,11 @@ import type {
 } from "@hege/domain";
 import { useRouter } from "next/navigation";
 import type { ChangeEvent, FormEvent } from "react";
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 
+import { ListSearchBar } from "../../../components/list-search-bar";
 import { readApiErrorMessage } from "../../../lib/api-error";
+import { filterBySearch, hasActiveSearch } from "../../../lib/list-search";
 import { StateView } from "../../../components/state-view";
 
 interface MitgliederClientProps {
@@ -52,6 +54,26 @@ export function MitgliederClient({ invitations, mailEnabled }: MitgliederClientP
   const [error, setError] = useState<string | null>(null);
   const [latest, setLatest] = useState<CreateMemberInvitationResponse | null>(null);
   const [revokingId, setRevokingId] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+
+  const visibleInvitations = useMemo(
+    () =>
+      filterBySearch(invitations, search, (entry) =>
+        [
+          entry.firstName,
+          entry.lastName,
+          entry.email ?? "",
+          entry.jagdzeichen,
+          entry.role,
+          entry.status
+        ].join(" ")
+      ),
+    [invitations, search]
+  );
+  const searchActive = hasActiveSearch(search);
+  const resultLabel = searchActive
+    ? `${visibleInvitations.length} von ${invitations.length}`
+    : `${invitations.length} Eintraege`;
 
   function update<Key extends keyof FormState>(key: Key) {
     return (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -295,6 +317,13 @@ export function MitgliederClient({ invitations, mailEnabled }: MitgliederClientP
           </div>
         </header>
 
+        <ListSearchBar
+          value={search}
+          onChange={setSearch}
+          placeholder="Suche Name, E-Mail, Rolle oder Jagdzeichen"
+          resultLabel={resultLabel}
+        />
+
         {invitations.length === 0 ? (
           <StateView
             mode="empty"
@@ -302,9 +331,16 @@ export function MitgliederClient({ invitations, mailEnabled }: MitgliederClientP
             description="Sobald du oben jemanden einträgst, taucht der Eintrag mit Code, Status und Ablaufdatum hier auf."
             bare
           />
+        ) : visibleInvitations.length === 0 ? (
+          <StateView
+            mode="empty"
+            title="Keine Treffer"
+            description={`Mit der aktuellen Suche („${search}") findet sich kein Mitglied. Andere Begriffe versuchen oder Suche leeren.`}
+            bare
+          />
         ) : (
           <div className="card-grid">
-            {invitations.map((entry) => (
+            {visibleInvitations.map((entry) => (
               <article key={entry.id} className="detail-card">
                 <div className="detail-card-header">
                   <div>

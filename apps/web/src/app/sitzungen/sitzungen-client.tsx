@@ -4,9 +4,11 @@ import type { Sitzung } from "@hege/domain";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ChangeEvent, FormEvent } from "react";
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 
+import { ListSearchBar } from "../../components/list-search-bar";
 import { readApiErrorMessage } from "../../lib/api-error";
+import { filterBySearch, hasActiveSearch } from "../../lib/list-search";
 import { StateView } from "../../components/state-view";
 
 interface MembershipOption {
@@ -34,6 +36,19 @@ export function SitzungenClient({ entries, memberships }: SitzungenClientProps) 
   const [participants, setParticipants] = useState<Record<string, boolean>>(
     Object.fromEntries(memberships.map((entry) => [entry.membershipId, true]))
   );
+  const [search, setSearch] = useState("");
+
+  const visibleEntries = useMemo(
+    () =>
+      filterBySearch(entries, search, (entry) =>
+        [entry.title, entry.locationLabel, entry.status].join(" ")
+      ),
+    [entries, search]
+  );
+  const searchActive = hasActiveSearch(search);
+  const resultLabel = searchActive
+    ? `${visibleEntries.length} von ${entries.length}`
+    : `${entries.length} Eintraege`;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -105,6 +120,13 @@ export function SitzungenClient({ entries, memberships }: SitzungenClientProps) 
           </div>
         </header>
 
+        <ListSearchBar
+          value={search}
+          onChange={setSearch}
+          placeholder="Suche Titel, Ort oder Status"
+          resultLabel={resultLabel}
+        />
+
         {entries.length === 0 ? (
           <StateView
             mode="empty"
@@ -113,10 +135,18 @@ export function SitzungenClient({ entries, memberships }: SitzungenClientProps) 
           />
         ) : null}
 
+        {entries.length > 0 && visibleEntries.length === 0 ? (
+          <StateView
+            mode="empty"
+            title="Keine Treffer"
+            description={`Mit der aktuellen Suche („${search}") findet sich keine Sitzung. Andere Begriffe versuchen oder Suche leeren.`}
+          />
+        ) : null}
+
         <div className="card-grid">
-          {entries.length === 0
+          {visibleEntries.length === 0
             ? null
-            : entries.map((entry) => (
+            : visibleEntries.map((entry) => (
               <article key={entry.id} className="detail-card">
                 <div className="detail-card-header">
                   <div>
