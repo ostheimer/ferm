@@ -1,0 +1,256 @@
+import { Linking, Platform, Pressable, ScrollView, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+import type { ThemeColors } from "../lib/theme";
+import { useThemedStyles } from "../lib/use-themed-styles";
+
+/**
+ * Build-Konstanten — werden bewusst hier hartcodiert statt aus
+ * `expo-constants` zu lesen. Grund: das Package ist aktuell nicht
+ * installiert, und fuer die User-sichtbaren Info-Werte reicht ein
+ * statisches Set. Beim Version-Bump in `app.json` bitte hier
+ * mitziehen.
+ */
+const APP_VERSION = "0.1.0";
+const EXPO_SDK = "53.0.0";
+const RELEASE_CHANNEL = "preview";
+
+interface LicenseEntry {
+  name: string;
+  version?: string;
+  license: string;
+  url: string;
+}
+
+const LICENSES: ReadonlyArray<LicenseEntry> = [
+  { name: "react", license: "MIT", url: "https://github.com/facebook/react" },
+  { name: "react-native", license: "MIT", url: "https://github.com/facebook/react-native" },
+  { name: "expo", license: "MIT", url: "https://github.com/expo/expo" },
+  { name: "expo-router", license: "MIT", url: "https://docs.expo.dev/router/introduction/" },
+  { name: "expo-haptics", license: "MIT", url: "https://docs.expo.dev/versions/latest/sdk/haptics/" },
+  { name: "expo-location", license: "MIT", url: "https://docs.expo.dev/versions/latest/sdk/location/" },
+  { name: "expo-image-picker", license: "MIT", url: "https://docs.expo.dev/versions/latest/sdk/imagepicker/" },
+  { name: "expo-local-authentication", license: "MIT", url: "https://docs.expo.dev/versions/latest/sdk/local-authentication/" },
+  { name: "react-native-maps", license: "MIT", url: "https://github.com/react-native-maps/react-native-maps" },
+  { name: "react-native-safe-area-context", license: "MIT", url: "https://github.com/AppAndFlow/react-native-safe-area-context" },
+  { name: "@expo/vector-icons", license: "MIT", url: "https://docs.expo.dev/guides/icons/" },
+  { name: "Ionicons", license: "MIT", url: "https://ionic.io/ionicons" }
+];
+
+/**
+ * Ueber-hege-Seite (M5) — die letzte Liefereinheit aus dem Pfad-2-Plan.
+ *
+ * Zeigt Versions-/Build-Metadaten und eine Liste der Open-Source-
+ * Lizenzen. Wird vom Mehr-Tab aus angesteuert. Pure-Render-Page,
+ * keine Mutationen, kein API-Call.
+ */
+export default function UeberHegeScreen() {
+  const styles = useThemedStyles(createStyles);
+  const platform = `${Platform.OS} ${Platform.Version}`;
+
+  function openUrl(url: string) {
+    void Linking.openURL(url);
+  }
+
+  return (
+    <SafeAreaView edges={["top", "left", "right"]} style={styles.root}>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <View style={styles.heroCard}>
+          <Text style={styles.eyebrow}>Über</Text>
+          <Text style={styles.title}>hege</Text>
+          <Text style={styles.subtitle}>
+            Reviermanagement für Jagdgesellschaften in Österreich — Backoffice im Web, Erfassung in der App.
+          </Text>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.sectionEyebrow}>Build-Information</Text>
+          <DetailRow label="App-Version" value={APP_VERSION} styles={styles} />
+          <DetailRow label="Expo-SDK" value={EXPO_SDK} styles={styles} />
+          <DetailRow label="Channel" value={RELEASE_CHANNEL} styles={styles} />
+          <DetailRow label="Plattform" value={platform} styles={styles} />
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.sectionEyebrow}>Kontakt</Text>
+          <Pressable
+            accessibilityRole="link"
+            accessibilityLabel="E-Mail an Support"
+            onPress={() => openUrl("mailto:info@hege.app")}
+            style={({ pressed }) => [styles.linkRow, pressed ? styles.linkRowPressed : null]}
+          >
+            <Text style={styles.linkLabel}>info@hege.app</Text>
+            <Text style={styles.linkHint}>E-Mail-Programm öffnen</Text>
+          </Pressable>
+          <Pressable
+            accessibilityRole="link"
+            accessibilityLabel="Web-Backoffice öffnen"
+            onPress={() => openUrl("https://hege.app")}
+            style={({ pressed }) => [styles.linkRow, pressed ? styles.linkRowPressed : null]}
+          >
+            <Text style={styles.linkLabel}>hege.app</Text>
+            <Text style={styles.linkHint}>Web-Backoffice öffnen</Text>
+          </Pressable>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.sectionEyebrow}>Open-Source-Lizenzen</Text>
+          <Text style={styles.licenseIntro}>
+            hege baut auf freier Software. Eine Auswahl der wichtigsten Abhängigkeiten:
+          </Text>
+          {LICENSES.map((license) => (
+            <Pressable
+              key={license.name}
+              accessibilityRole="link"
+              accessibilityLabel={`${license.name} — ${license.license}`}
+              onPress={() => openUrl(license.url)}
+              style={({ pressed }) => [styles.licenseRow, pressed ? styles.linkRowPressed : null]}
+            >
+              <View style={styles.licenseBody}>
+                <Text style={styles.licenseName}>{license.name}</Text>
+                <Text style={styles.licenseLicense}>{license.license}</Text>
+              </View>
+              <Text style={styles.licenseLink}>›</Text>
+            </Pressable>
+          ))}
+        </View>
+
+        <Text style={styles.footer}>
+          © {new Date().getFullYear()} hege · Aufgebaut mit React Native, Expo und nachhaltiger
+          Liebe zum Revier.
+        </Text>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+interface DetailRowProps {
+  label: string;
+  value: string;
+  styles: ReturnType<typeof createStyles>;
+}
+
+function DetailRow({ label, value, styles }: DetailRowProps) {
+  return (
+    <View style={styles.detailRow}>
+      <Text style={styles.detailLabel}>{label}</Text>
+      <Text style={styles.detailValue}>{value}</Text>
+    </View>
+  );
+}
+
+const createStyles = (theme: ThemeColors) =>
+  ({
+    root: {
+      flex: 1,
+      backgroundColor: theme.background
+    },
+    content: {
+      padding: 16,
+      gap: 14,
+      paddingBottom: 48
+    },
+    heroCard: {
+      padding: 20,
+      borderRadius: 22,
+      backgroundColor: theme.card,
+      gap: 8
+    },
+    eyebrow: {
+      fontSize: 11,
+      textTransform: "uppercase",
+      letterSpacing: 1.2,
+      color: theme.muted,
+      fontWeight: "700"
+    },
+    title: {
+      fontSize: 36,
+      fontWeight: "700",
+      color: theme.ink,
+      letterSpacing: -0.5
+    },
+    subtitle: {
+      fontSize: 14,
+      lineHeight: 20,
+      color: theme.muted
+    },
+    card: {
+      padding: 16,
+      borderRadius: 18,
+      backgroundColor: theme.card,
+      gap: 10
+    },
+    sectionEyebrow: {
+      fontSize: 11,
+      textTransform: "uppercase",
+      letterSpacing: 1.1,
+      color: theme.muted,
+      fontWeight: "700",
+      marginBottom: 4
+    },
+    detailRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingVertical: 4
+    },
+    detailLabel: {
+      fontSize: 13,
+      color: theme.muted
+    },
+    detailValue: {
+      fontSize: 13,
+      color: theme.ink,
+      fontWeight: "600"
+    },
+    linkRow: {
+      paddingVertical: 8,
+      gap: 2
+    },
+    linkRowPressed: {
+      opacity: 0.6
+    },
+    linkLabel: {
+      fontSize: 15,
+      color: theme.accent,
+      fontWeight: "600"
+    },
+    linkHint: {
+      fontSize: 12,
+      color: theme.muted
+    },
+    licenseIntro: {
+      fontSize: 13,
+      lineHeight: 18,
+      color: theme.muted,
+      marginBottom: 4
+    },
+    licenseRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingVertical: 8
+    },
+    licenseBody: {
+      flex: 1
+    },
+    licenseName: {
+      fontSize: 14,
+      fontWeight: "600",
+      color: theme.ink
+    },
+    licenseLicense: {
+      fontSize: 12,
+      color: theme.muted
+    },
+    licenseLink: {
+      fontSize: 18,
+      color: theme.muted
+    },
+    footer: {
+      fontSize: 11,
+      color: theme.muted,
+      textAlign: "center",
+      marginTop: 8
+    }
+  }) as const;

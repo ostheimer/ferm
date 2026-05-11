@@ -35,6 +35,12 @@ const MEHR_LINKS: ReadonlyArray<MehrLink> = [
     label: "Protokolle",
     description: "Sitzungs- und Beschlussprotokolle nachlesen.",
     icon: "document-text-outline"
+  },
+  {
+    href: "/ueber-hege",
+    label: "Über hege",
+    description: "Version, Build, Open-Source-Lizenzen.",
+    icon: "information-circle-outline"
   }
 ];
 
