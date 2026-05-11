@@ -14,10 +14,21 @@ import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 
 import { EntityMap, type EntityPin } from "../../components/entity-map";
+import { FilterChipRow } from "../../components/filter-chip-row";
 import { PinDetailSheet, type SelectedPin } from "../../components/pin-detail-sheet";
 import { ScreenShell } from "../../components/screen-shell";
+import { SearchInput } from "../../components/search-input";
 import { SelectField } from "../../components/select-field";
 import { ViewToggle } from "../../components/view-toggle";
+import {
+  applyFallwildFilter,
+  DEFAULT_FALLWILD_FILTER,
+  isFallwildFilterActive,
+  type BergungsStatusFilter,
+  type FallwildFilterState,
+  type FallwildSortKey,
+  type ZeitraumFilter
+} from "../../lib/fallwild-filter.helpers";
 import { formatDateTime } from "../../lib/format";
 import { buildGeoPoint, trimToUndefined } from "../../lib/form-utils";
 import {
@@ -136,17 +147,24 @@ export default function FallwildScreen() {
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<ViewMode>("liste");
   const [selectedPin, setSelectedPin] = useState<SelectedPin | null>(null);
+  const [filter, setFilter] = useState<FallwildFilterState>(DEFAULT_FALLWILD_FILTER);
+
+  // Gefilterte + sortierte Liste, sowohl fuer Liste als auch Karte
+  // verwendet. So bleibt die Filter-Wirkung in beiden Ansichten gleich
+  // — wer in der Liste filtert, sieht die Karte mit den gleichen Pins.
+  const visibleFallwild = useMemo(() => applyFallwildFilter(fallwild, filter), [fallwild, filter]);
+  const filterActive = useMemo(() => isFallwildFilterActive(filter), [filter]);
 
   // EntityPin-Mapping fuer die Karten-Ansicht.
   const pins: ReadonlyArray<EntityPin> = useMemo(
     () =>
-      fallwild.map((entry) => ({
+      visibleFallwild.map((entry) => ({
         id: entry.id,
         location: entry.location,
         title: entry.gemeinde ?? entry.location.label ?? "Fallwild",
         subtitle: `${entry.wildart} · ${entry.bergungsStatus}`
       })),
-    [fallwild]
+    [visibleFallwild]
   );
 
   useEffect(() => {
@@ -758,6 +776,70 @@ export default function FallwildScreen() {
         </Pressable>
       </View>
 
+      <View style={styles.filterSection}>
+        <SearchInput
+          value={filter.search}
+          onChangeText={(text) => setFilter((current) => ({ ...current, search: text }))}
+          placeholder="Suche Wildart, Gemeinde, Notiz ..."
+          accessibilityLabel="Fallwild durchsuchen"
+        />
+        <View style={styles.filterGroup}>
+          <Text style={styles.filterEyebrow}>Bergung</Text>
+          <FilterChipRow<BergungsStatusFilter>
+            value={filter.bergungsStatus}
+            onChange={(key) => setFilter((current) => ({ ...current, bergungsStatus: key }))}
+            accessibilityLabel="Bergungsstatus filtern"
+            options={[
+              { key: "alle", label: "Alle" },
+              { key: "erfasst", label: "Erfasst" },
+              { key: "geborgen", label: "Geborgen" },
+              { key: "entsorgt", label: "Entsorgt" },
+              { key: "an-behoerde-gemeldet", label: "Behörde" }
+            ]}
+          />
+        </View>
+        <View style={styles.filterGroup}>
+          <Text style={styles.filterEyebrow}>Zeitraum</Text>
+          <FilterChipRow<ZeitraumFilter>
+            value={filter.zeitraum}
+            onChange={(key) => setFilter((current) => ({ ...current, zeitraum: key }))}
+            accessibilityLabel="Zeitraum filtern"
+            options={[
+              { key: "alle", label: "Alle" },
+              { key: "heute", label: "Heute" },
+              { key: "woche", label: "7 Tage" },
+              { key: "monat", label: "30 Tage" }
+            ]}
+          />
+        </View>
+        <View style={styles.filterGroup}>
+          <Text style={styles.filterEyebrow}>Sortierung</Text>
+          <FilterChipRow<FallwildSortKey>
+            value={filter.sort}
+            onChange={(key) => setFilter((current) => ({ ...current, sort: key }))}
+            accessibilityLabel="Sortierung waehlen"
+            options={[
+              { key: "neueste-zuerst", label: "Neueste zuerst" },
+              { key: "aelteste-zuerst", label: "Älteste zuerst" },
+              { key: "nach-wildart", label: "Nach Wildart" },
+              { key: "nach-gemeinde", label: "Nach Gemeinde" }
+            ]}
+          />
+        </View>
+        {filterActive ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Filter zurücksetzen"
+            onPress={() => setFilter(DEFAULT_FALLWILD_FILTER)}
+            style={({ pressed }) => [styles.filterReset, pressed ? styles.buttonDisabled : null]}
+          >
+            <Text style={styles.filterResetText}>
+              Filter zurücksetzen ({visibleFallwild.length}/{fallwild.length})
+            </Text>
+          </Pressable>
+        ) : null}
+      </View>
+
       {isLoading ? (
         <View style={styles.stateCard}>
           <Text style={styles.stateTitle}>Fallwild wird geladen</Text>
@@ -811,13 +893,13 @@ export default function FallwildScreen() {
         </View>
       ) : null}
 
-      {mode === "karte" && fallwild.length > 0 ? (
+      {mode === "karte" && visibleFallwild.length > 0 ? (
         <EntityMap
           pins={pins}
           pinColor={theme.warning}
           height={MAP_HEIGHT}
           onPinPress={(pin) => {
-            const target = fallwild.find((entry) => entry.id === pin.id);
+            const target = visibleFallwild.find((entry) => entry.id === pin.id);
             if (target) {
               setSelectedPin({ type: "fallwild", data: target });
             }
@@ -837,14 +919,20 @@ export default function FallwildScreen() {
           contentContainerStyle={styles.listContent}
           style={styles.listScroll}
         >
-          {!isLoading && !error && fallwild.length === 0 ? (
+          {!isLoading && !error && visibleFallwild.length === 0 ? (
             <View style={styles.stateCard}>
-              <Text style={styles.stateTitle}>Kein Fallwild gemeldet</Text>
-              <Text style={styles.stateCopy}>Sobald ein Vorgang erfasst ist, erscheint er hier.</Text>
+              <Text style={styles.stateTitle}>
+                {fallwild.length === 0 ? "Kein Fallwild gemeldet" : "Keine Treffer"}
+              </Text>
+              <Text style={styles.stateCopy}>
+                {fallwild.length === 0
+                  ? "Sobald ein Vorgang erfasst ist, erscheint er hier."
+                  : "Mit den aktuellen Filtern findet sich kein Eintrag. Filter zurücksetzen oder Suchbegriff anpassen."}
+              </Text>
             </View>
           ) : null}
 
-          {fallwild.map((entry) => (
+          {visibleFallwild.map((entry) => (
             <View key={entry.id} style={styles.card}>
               <View style={styles.row}>
                 <View style={styles.grow}>
@@ -1025,6 +1113,34 @@ const createStyles = (theme: ThemeColors) =>
     justifyContent: "space-between",
     alignItems: "center",
     gap: 10
+  },
+  filterSection: {
+    gap: 10,
+    padding: 14,
+    borderRadius: 18,
+    backgroundColor: theme.card
+  },
+  filterGroup: {
+    gap: 6
+  },
+  filterEyebrow: {
+    fontSize: 11,
+    textTransform: "uppercase",
+    letterSpacing: 1.1,
+    color: theme.muted,
+    fontWeight: "700"
+  },
+  filterReset: {
+    alignSelf: "flex-start",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 999,
+    backgroundColor: theme.accent
+  },
+  filterResetText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#fff9ef"
   },
   refreshButton: {
     minWidth: 132,
