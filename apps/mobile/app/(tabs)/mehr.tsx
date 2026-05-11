@@ -19,6 +19,12 @@ interface MehrLink {
 
 const MEHR_LINKS: ReadonlyArray<MehrLink> = [
   {
+    href: "/benachrichtigungen",
+    label: "Benachrichtigungen",
+    description: "Push- und In-App-Meldungen mit Gelesen-Status.",
+    icon: "notifications-outline"
+  },
+  {
     href: "/(tabs)/reviereinrichtungen",
     label: "Reviereinrichtungen",
     description: "Hochstände, Fütterungen und Wartungen.",

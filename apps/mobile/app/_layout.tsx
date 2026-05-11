@@ -34,6 +34,10 @@ export default function RootLayout() {
           name="ueber-hege"
           options={{ headerShown: true, title: "Über hege", headerBackTitle: "" }}
         />
+        <Stack.Screen
+          name="benachrichtigungen"
+          options={{ headerShown: true, title: "Benachrichtigungen", headerBackTitle: "" }}
+        />
       </Stack>
     </>
   );
