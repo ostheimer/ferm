@@ -4,9 +4,10 @@ import type { Sitzung } from "@hege/domain";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ChangeEvent, FormEvent } from "react";
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 
 import { readApiErrorMessage } from "../../../lib/api-error";
+import { buildVersionTimeline } from "../../../lib/version-timeline";
 
 interface MembershipOption {
   membershipId: string;
@@ -33,6 +34,11 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
   const [isPending, startTransition] = useTransition();
   const latestVersion = sitzung.versions[0];
   const isFreigegeben = sitzung.status === "freigegeben";
+
+  const timeline = useMemo(
+    () => buildVersionTimeline(sitzung.versions, memberships),
+    [sitzung.versions, memberships]
+  );
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [title, setTitle] = useState(sitzung.title);
@@ -202,6 +208,46 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
           </article>
         </div>
       </section>
+
+      {timeline.length > 0 ? (
+        <section className="section-card">
+          <header className="section-header">
+            <div>
+              <p className="eyebrow">Protokoll-Historie</p>
+              <h2>Versions-Timeline</h2>
+            </div>
+            <div className="section-actions">
+              <span className="badge">{timeline.length} Version(en)</span>
+            </div>
+          </header>
+
+          <ol className="version-timeline">
+            {timeline.map((entry) => (
+              <li key={entry.id} className={`version-timeline-item${entry.index === 0 ? " version-timeline-item-current" : ""}`}>
+                <div className="version-timeline-marker" aria-hidden="true" />
+                <div className="version-timeline-body">
+                  <div className="version-timeline-header">
+                    <strong>
+                      v{entry.versionNumber}
+                      {entry.index === 0 ? " · aktuell" : ""}
+                    </strong>
+                    <time>{formatDateTime(entry.createdAt)}</time>
+                  </div>
+                  <p className="version-timeline-author">
+                    publiziert von <strong>{entry.authorName}</strong>
+                  </p>
+                  {entry.summary ? (
+                    <p className="version-timeline-summary">{entry.summary}</p>
+                  ) : null}
+                  <p className="version-timeline-meta">
+                    {entry.agendaCount} Agenda-Punkt(e) · {entry.beschluesseCount} Beschluss/Beschluesse · {entry.attachmentsCount} Anhang/Anhaenge
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+      ) : null}
 
       <section className="section-card">
         <header className="section-header">
