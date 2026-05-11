@@ -13,9 +13,20 @@ import type { Dispatch, SetStateAction } from "react";
 import type { AnsitzSession } from "@hege/domain";
 
 import { EntityMap, type EntityPin } from "../../components/entity-map";
+import { FilterChipRow } from "../../components/filter-chip-row";
 import { PinDetailSheet, type SelectedPin } from "../../components/pin-detail-sheet";
 import { ScreenShell } from "../../components/screen-shell";
+import { SearchInput } from "../../components/search-input";
 import { ViewToggle } from "../../components/view-toggle";
+import {
+  applyAnsitzFilter,
+  DEFAULT_ANSITZ_FILTER,
+  isAnsitzFilterActive,
+  type AnsitzFilterState,
+  type AnsitzKonfliktFilter,
+  type AnsitzSortKey,
+  type AnsitzZeitraumFilter
+} from "../../lib/ansitz-filter.helpers";
 import { formatDateTime } from "../../lib/format";
 import { buildGeoPoint, trimToUndefined } from "../../lib/form-utils";
 import { fetchLiveAnsitze, type CreateAnsitzRequest } from "../../lib/api";
@@ -59,24 +70,26 @@ export default function AnsitzeScreen() {
   const [message, setMessage] = useState<string | null>(null);
   const [mode, setMode] = useState<ViewMode>("liste");
   const [selectedPin, setSelectedPin] = useState<SelectedPin | null>(null);
+  const [filter, setFilter] = useState<AnsitzFilterState>(DEFAULT_ANSITZ_FILTER);
+
+  const visibleAnsitze = useMemo(() => applyAnsitzFilter(ansitze, filter), [ansitze, filter]);
+  const filterActive = useMemo(() => isAnsitzFilterActive(filter), [filter]);
 
   useEffect(() => {
     void loadAnsitze();
   }, []);
 
-  // EntityPin-Mapping fuer die Karten-Ansicht — selektiert nur Felder,
-  // die EntityMap braucht. `subtitle` ist nur fuer die native Callout
-  // relevant (in unserer Variante deaktiviert, weil wir das eigene
-  // PinDetailSheet beim Pin-Tap oeffnen).
+  // EntityPin-Mapping fuer die Karten-Ansicht. Karte nutzt die
+  // gefilterte Liste, damit Filter-Wirkung in beiden Modi gleich ist.
   const pins: ReadonlyArray<EntityPin> = useMemo(
     () =>
-      ansitze.map((entry) => ({
+      visibleAnsitze.map((entry) => ({
         id: entry.id,
         location: entry.location,
         title: entry.standortName,
         subtitle: entry.location.label ?? "Aktiver Ansitz"
       })),
-    [ansitze]
+    [visibleAnsitze]
   );
 
   async function loadAnsitze(options?: { refreshing?: boolean }) {
@@ -287,6 +300,66 @@ export default function AnsitzeScreen() {
         </Pressable>
       </View>
 
+      <View style={styles.filterSection}>
+        <SearchInput
+          value={filter.search}
+          onChangeText={(text) => setFilter((current) => ({ ...current, search: text }))}
+          placeholder="Suche Standort, Lagebezeichnung oder Notiz ..."
+          accessibilityLabel="Ansitze durchsuchen"
+        />
+        <View style={styles.filterGroup}>
+          <Text style={styles.filterEyebrow}>Konflikt</Text>
+          <FilterChipRow<AnsitzKonfliktFilter>
+            value={filter.konflikt}
+            onChange={(key) => setFilter((current) => ({ ...current, konflikt: key }))}
+            accessibilityLabel="Konflikt-Status filtern"
+            options={[
+              { key: "alle", label: "Alle" },
+              { key: "mit-konflikt", label: "Mit Konflikt" },
+              { key: "ohne-konflikt", label: "Ohne Konflikt" }
+            ]}
+          />
+        </View>
+        <View style={styles.filterGroup}>
+          <Text style={styles.filterEyebrow}>Zeitraum</Text>
+          <FilterChipRow<AnsitzZeitraumFilter>
+            value={filter.zeitraum}
+            onChange={(key) => setFilter((current) => ({ ...current, zeitraum: key }))}
+            accessibilityLabel="Zeitraum filtern"
+            options={[
+              { key: "alle", label: "Alle" },
+              { key: "heute", label: "Heute" },
+              { key: "woche", label: "7 Tage" }
+            ]}
+          />
+        </View>
+        <View style={styles.filterGroup}>
+          <Text style={styles.filterEyebrow}>Sortierung</Text>
+          <FilterChipRow<AnsitzSortKey>
+            value={filter.sort}
+            onChange={(key) => setFilter((current) => ({ ...current, sort: key }))}
+            accessibilityLabel="Sortierung waehlen"
+            options={[
+              { key: "neueste-zuerst", label: "Neueste zuerst" },
+              { key: "aelteste-zuerst", label: "Älteste zuerst" },
+              { key: "nach-standort", label: "Nach Standort" }
+            ]}
+          />
+        </View>
+        {filterActive ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Filter zurücksetzen"
+            onPress={() => setFilter(DEFAULT_ANSITZ_FILTER)}
+            style={styles.filterReset}
+          >
+            <Text style={styles.filterResetText}>
+              Filter zurücksetzen ({visibleAnsitze.length}/{ansitze.length})
+            </Text>
+          </Pressable>
+        ) : null}
+      </View>
+
       {isLoading ? (
         <View style={styles.stateCard}>
           <Text style={styles.stateTitle}>Ansitze werden geladen</Text>
@@ -309,13 +382,13 @@ export default function AnsitzeScreen() {
         </View>
       ) : null}
 
-      {mode === "karte" && ansitze.length > 0 ? (
+      {mode === "karte" && visibleAnsitze.length > 0 ? (
         <EntityMap
           pins={pins}
           pinColor={theme.accent}
           height={MAP_HEIGHT}
           onPinPress={(pin) => {
-            const target = ansitze.find((entry) => entry.id === pin.id);
+            const target = visibleAnsitze.find((entry) => entry.id === pin.id);
             if (target) {
               setSelectedPin({ type: "ansitz", data: target });
             }
@@ -335,16 +408,20 @@ export default function AnsitzeScreen() {
           contentContainerStyle={styles.listContent}
           style={styles.listScroll}
         >
-          {!isLoading && !error && ansitze.length === 0 ? (
+          {!isLoading && !error && visibleAnsitze.length === 0 ? (
             <View style={styles.stateCard}>
-              <Text style={styles.stateTitle}>Keine aktiven Ansitze</Text>
+              <Text style={styles.stateTitle}>
+                {ansitze.length === 0 ? "Keine aktiven Ansitze" : "Keine Treffer"}
+              </Text>
               <Text style={styles.stateCopy}>
-                Sobald ein Jäger einen Ansitz meldet, erscheint er hier.
+                {ansitze.length === 0
+                  ? "Sobald ein Jäger einen Ansitz meldet, erscheint er hier."
+                  : "Mit den aktuellen Filtern findet sich kein Ansitz. Filter zurücksetzen oder Suchbegriff anpassen."}
               </Text>
             </View>
           ) : null}
 
-          {ansitze.map((entry) => (
+          {visibleAnsitze.map((entry) => (
             <View key={entry.id} style={styles.card}>
               <View style={styles.row}>
                 <View style={styles.grow}>
@@ -416,6 +493,34 @@ const createStyles = (theme: ThemeColors) =>
     justifyContent: "space-between",
     alignItems: "center",
     gap: 10
+  },
+  filterSection: {
+    gap: 10,
+    padding: 14,
+    borderRadius: 18,
+    backgroundColor: theme.card
+  },
+  filterGroup: {
+    gap: 6
+  },
+  filterEyebrow: {
+    fontSize: 11,
+    textTransform: "uppercase",
+    letterSpacing: 1.1,
+    color: theme.muted,
+    fontWeight: "700"
+  },
+  filterReset: {
+    alignSelf: "flex-start",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 999,
+    backgroundColor: theme.accent
+  },
+  filterResetText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#fff9ef"
   },
   refreshButton: {
     paddingHorizontal: 14,
