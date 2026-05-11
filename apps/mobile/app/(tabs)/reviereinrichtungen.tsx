@@ -3,11 +3,22 @@ import { Pressable, ScrollView, Text, View } from "react-native";
 import type { ReviereinrichtungListItem } from "@hege/domain";
 
 import { EntityMap, type EntityPin } from "../../components/entity-map";
+import { FilterChipRow } from "../../components/filter-chip-row";
 import { PinDetailSheet, type SelectedPin } from "../../components/pin-detail-sheet";
 import { ScreenShell } from "../../components/screen-shell";
+import { SearchInput } from "../../components/search-input";
 import { ViewToggle } from "../../components/view-toggle";
 import { fetchReviereinrichtungenList } from "../../lib/api";
 import { formatDateTime } from "../../lib/format";
+import {
+  applyReviereinrichtungFilter,
+  DEFAULT_REVIEREINRICHTUNG_FILTER,
+  isReviereinrichtungFilterActive,
+  type EinrichtungTypFilter,
+  type EinrichtungZustandFilter,
+  type ReviereinrichtungFilterState,
+  type ReviereinrichtungSortKey
+} from "../../lib/reviereinrichtung-filter.helpers";
 import type { ThemeColors } from "../../lib/theme";
 import { useThemeColors } from "../../lib/theme";
 import { useThemedStyles } from "../../lib/use-themed-styles";
@@ -24,6 +35,15 @@ export default function ReviereinrichtungenScreen() {
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<ViewMode>("liste");
   const [selectedPin, setSelectedPin] = useState<SelectedPin | null>(null);
+  const [filter, setFilter] = useState<ReviereinrichtungFilterState>(
+    DEFAULT_REVIEREINRICHTUNG_FILTER
+  );
+
+  const visibleEntries = useMemo(
+    () => applyReviereinrichtungFilter(reviereinrichtungen, filter),
+    [reviereinrichtungen, filter]
+  );
+  const filterActive = useMemo(() => isReviereinrichtungFilterActive(filter), [filter]);
 
   useEffect(() => {
     void loadReviereinrichtungen();
@@ -47,15 +67,17 @@ export default function ReviereinrichtungenScreen() {
   // generische `<EntityMap>` versteht. `id`/`location` reichen — title
   // + subtitle nur fuer die optionale native Callout (haben wir hier
   // deaktiviert, weil wir das eigene PinDetailSheet nutzen).
+  // Karte verwendet die gefilterte Liste, damit Filter-Wirkung in
+  // beiden Modi gleich ist.
   const pins: ReadonlyArray<EntityPin> = useMemo(
     () =>
-      reviereinrichtungen.map((entry) => ({
+      visibleEntries.map((entry) => ({
         id: entry.id,
         location: entry.location,
         title: entry.name,
         subtitle: `${entry.type} · ${entry.status}`
       })),
-    [reviereinrichtungen]
+    [visibleEntries]
   );
 
   return (
@@ -91,22 +113,92 @@ export default function ReviereinrichtungenScreen() {
         </View>
       ) : null}
 
-      {!isLoading && !error && reviereinrichtungen.length === 0 ? (
+      <View style={styles.filterSection}>
+        <SearchInput
+          value={filter.search}
+          onChangeText={(text) => setFilter((current) => ({ ...current, search: text }))}
+          placeholder="Suche Name, Typ oder Beschreibung ..."
+          accessibilityLabel="Einrichtungen durchsuchen"
+        />
+        <View style={styles.filterGroup}>
+          <Text style={styles.filterEyebrow}>Typ</Text>
+          <FilterChipRow<EinrichtungTypFilter>
+            value={filter.typ}
+            onChange={(key) => setFilter((current) => ({ ...current, typ: key }))}
+            accessibilityLabel="Einrichtungs-Typ filtern"
+            options={[
+              { key: "alle", label: "Alle" },
+              { key: "hochstand", label: "Hochstand" },
+              { key: "fuetterung", label: "Fütterung" },
+              { key: "salzlecke", label: "Salzlecke" },
+              { key: "kirrung", label: "Kirrung" },
+              { key: "kamera", label: "Kamera" },
+              { key: "wildacker", label: "Wildacker" }
+            ]}
+          />
+        </View>
+        <View style={styles.filterGroup}>
+          <Text style={styles.filterEyebrow}>Zustand</Text>
+          <FilterChipRow<EinrichtungZustandFilter>
+            value={filter.zustand}
+            onChange={(key) => setFilter((current) => ({ ...current, zustand: key }))}
+            accessibilityLabel="Zustand filtern"
+            options={[
+              { key: "alle", label: "Alle" },
+              { key: "gut", label: "Gut" },
+              { key: "wartung-faellig", label: "Wartung fällig" },
+              { key: "gesperrt", label: "Gesperrt" }
+            ]}
+          />
+        </View>
+        <View style={styles.filterGroup}>
+          <Text style={styles.filterEyebrow}>Sortierung</Text>
+          <FilterChipRow<ReviereinrichtungSortKey>
+            value={filter.sort}
+            onChange={(key) => setFilter((current) => ({ ...current, sort: key }))}
+            accessibilityLabel="Sortierung waehlen"
+            options={[
+              { key: "alphabetisch", label: "Alphabetisch" },
+              { key: "nach-zustand", label: "Nach Zustand" },
+              { key: "nach-wartungen-desc", label: "Wartungen zuerst" },
+              { key: "nach-typ", label: "Nach Typ" }
+            ]}
+          />
+        </View>
+        {filterActive ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Filter zurücksetzen"
+            onPress={() => setFilter(DEFAULT_REVIEREINRICHTUNG_FILTER)}
+            style={styles.filterReset}
+          >
+            <Text style={styles.filterResetText}>
+              Filter zurücksetzen ({visibleEntries.length}/{reviereinrichtungen.length})
+            </Text>
+          </Pressable>
+        ) : null}
+      </View>
+
+      {!isLoading && !error && visibleEntries.length === 0 ? (
         <View style={styles.stateCard}>
-          <Text style={styles.stateTitle}>Noch keine Einrichtungen</Text>
+          <Text style={styles.stateTitle}>
+            {reviereinrichtungen.length === 0 ? "Noch keine Einrichtungen" : "Keine Treffer"}
+          </Text>
           <Text style={styles.stateCopy}>
-            Sobald die ersten Hochstände, Fütterungen oder Salzlecken erfasst sind, tauchen sie hier auf.
+            {reviereinrichtungen.length === 0
+              ? "Sobald die ersten Hochstände, Fütterungen oder Salzlecken erfasst sind, tauchen sie hier auf."
+              : "Mit den aktuellen Filtern findet sich keine Einrichtung. Filter zurücksetzen oder Suchbegriff anpassen."}
           </Text>
         </View>
       ) : null}
 
-      {mode === "karte" && reviereinrichtungen.length > 0 ? (
+      {mode === "karte" && visibleEntries.length > 0 ? (
         <EntityMap
           pins={pins}
           pinColor={theme.ink}
           height={MAP_HEIGHT}
           onPinPress={(pin) => {
-            const target = reviereinrichtungen.find((entry) => entry.id === pin.id);
+            const target = visibleEntries.find((entry) => entry.id === pin.id);
             if (target) {
               setSelectedPin({ type: "einrichtung", data: target });
             }
@@ -116,7 +208,7 @@ export default function ReviereinrichtungenScreen() {
 
       {mode === "liste" ? (
         <ScrollView contentContainerStyle={styles.list} nestedScrollEnabled>
-          {reviereinrichtungen.map((entry) => (
+          {visibleEntries.map((entry) => (
             <View key={entry.id} style={styles.card}>
               <View style={styles.row}>
                 <View style={styles.grow}>
@@ -166,6 +258,34 @@ const createStyles = (theme: ThemeColors) =>
       justifyContent: "space-between",
       alignItems: "center",
       gap: 10
+    },
+    filterSection: {
+      gap: 10,
+      padding: 14,
+      borderRadius: 18,
+      backgroundColor: theme.card
+    },
+    filterGroup: {
+      gap: 6
+    },
+    filterEyebrow: {
+      fontSize: 11,
+      textTransform: "uppercase",
+      letterSpacing: 1.1,
+      color: theme.muted,
+      fontWeight: "700"
+    },
+    filterReset: {
+      alignSelf: "flex-start",
+      paddingVertical: 6,
+      paddingHorizontal: 12,
+      borderRadius: 999,
+      backgroundColor: theme.accent
+    },
+    filterResetText: {
+      fontSize: 12,
+      fontWeight: "700",
+      color: "#fff9ef"
     },
     refreshButton: {
       paddingHorizontal: 14,
