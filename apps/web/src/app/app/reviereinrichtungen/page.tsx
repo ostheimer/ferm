@@ -1,5 +1,6 @@
 import { requirePageAuth } from "../../../server/auth/guards";
 import { listReviereinrichtungen } from "../../../server/modules/reviereinrichtungen/queries";
+import { ReviereinrichtungenListClient } from "./reviereinrichtungen-list-client";
 
 export const dynamic = "force-dynamic";
 
@@ -60,46 +61,7 @@ export default async function ReviereinrichtungenPage() {
           </div>
         </header>
 
-        <div className="card-grid">
-          {entries.map((entry) => (
-            <article key={entry.id} className="detail-card">
-              <div className="detail-card-header">
-                <div>
-                  <p className="eyebrow">{entry.type}</p>
-                  <h2>{entry.name}</h2>
-                </div>
-                <span className={entry.status === "gut" ? "status-pill status-ok" : "status-pill status-warning"}>
-                  {entry.status}
-                </span>
-              </div>
-
-              <p>{entry.beschreibung ?? "Keine Beschreibung hinterlegt."}</p>
-              <strong>{entry.location.label ?? "Ohne Lagebezeichnung"}</strong>
-              <p>
-                {entry.location.lat.toFixed(4)}, {entry.location.lng.toFixed(4)}
-              </p>
-
-              <div className="simple-list">
-                <div>
-                  <strong>Letzte Kontrolle</strong>
-                  <span>
-                    {entry.letzteKontrolleAt
-                      ? new Date(entry.letzteKontrolleAt).toLocaleString("de-AT")
-                      : "Noch keine Kontrolle"}
-                  </span>
-                </div>
-                <div>
-                  <strong>Offene Wartungen</strong>
-                  <span>{entry.offeneWartungen}</span>
-                </div>
-                <div>
-                  <strong>Kontrollen gesamt</strong>
-                  <span>{entry.kontrollen.length}</span>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
+        <ReviereinrichtungenListClient entries={entries} />
       </section>
     </div>
   );

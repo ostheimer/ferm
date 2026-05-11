@@ -3,9 +3,11 @@
 import type { AnsitzSession } from "@hege/domain";
 import { useRouter } from "next/navigation";
 import type { ChangeEvent, FormEvent } from "react";
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 
+import { ListSearchBar } from "../../components/list-search-bar";
 import { readApiErrorMessage } from "../../lib/api-error";
+import { filterBySearch, hasActiveSearch } from "../../lib/list-search";
 
 interface AnsitzeClientProps {
   activeAnsitze: AnsitzeClientEntry[];
@@ -37,6 +39,19 @@ export function AnsitzeClient({ activeAnsitze }: AnsitzeClientProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [formValues, setFormValues] = useState(DEFAULT_FORM_VALUES);
+  const [search, setSearch] = useState("");
+
+  const visibleAnsitze = useMemo(
+    () =>
+      filterBySearch(activeAnsitze, search, (entry) =>
+        [entry.standortName, entry.location.label ?? "", entry.note ?? ""].join(" ")
+      ),
+    [activeAnsitze, search]
+  );
+  const searchActive = hasActiveSearch(search);
+  const resultLabel = searchActive
+    ? `${visibleAnsitze.length} von ${activeAnsitze.length}`
+    : `${activeAnsitze.length} aktiv`;
 
   function updateInput<Key extends keyof Omit<typeof DEFAULT_FORM_VALUES, "note">>(key: Key) {
     return (event: ChangeEvent<HTMLInputElement>) => {
@@ -139,6 +154,13 @@ export function AnsitzeClient({ activeAnsitze }: AnsitzeClientProps) {
           </div>
         </header>
 
+        <ListSearchBar
+          value={search}
+          onChange={setSearch}
+          placeholder="Suche Standort, Lagebezeichnung oder Notiz"
+          resultLabel={resultLabel}
+        />
+
         <div className="table-shell">
           <table>
             <thead>
@@ -156,8 +178,15 @@ export function AnsitzeClient({ activeAnsitze }: AnsitzeClientProps) {
                 <tr>
                   <td colSpan={6}>Keine aktiven Ansitze vorhanden.</td>
                 </tr>
+              ) : visibleAnsitze.length === 0 ? (
+                <tr>
+                  <td colSpan={6}>
+                    Keine Treffer mit der aktuellen Suche („{search}"). Suche leeren oder andere
+                    Begriffe versuchen.
+                  </td>
+                </tr>
               ) : (
-                activeAnsitze.map((entry) => (
+                visibleAnsitze.map((entry) => (
                   <tr key={entry.id}>
                     <td>
                       <strong>{entry.standortName}</strong>

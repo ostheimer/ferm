@@ -3,9 +3,11 @@
 import type { FallwildVorgang } from "@hege/domain";
 import { useRouter } from "next/navigation";
 import type { ChangeEvent, FormEvent } from "react";
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 
+import { ListSearchBar } from "../../components/list-search-bar";
 import { readApiErrorMessage } from "../../lib/api-error";
+import { filterBySearch, hasActiveSearch } from "../../lib/list-search";
 
 export type FallwildClientEntry = FallwildVorgang & {
   addressLabel: string;
@@ -40,6 +42,30 @@ export function FallwildClient({ entries }: FallwildClientProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [formValues, setFormValues] = useState(DEFAULT_FORM_VALUES);
+  const [search, setSearch] = useState("");
+
+  // Gefilterte Eintraege: Volltextsuche ueber Wildart, Gemeinde, Strasse,
+  // Notiz und Adressen-Label. Token-basiert mit AND-Semantik (siehe
+  // lib/list-search.ts).
+  const visibleEntries = useMemo(
+    () =>
+      filterBySearch(entries, search, (entry) =>
+        [
+          entry.wildart,
+          entry.gemeinde,
+          entry.streetLabel,
+          entry.note ?? "",
+          entry.locationLabel,
+          entry.addressLabel,
+          entry.bergungsStatus
+        ].join(" ")
+      ),
+    [entries, search]
+  );
+  const searchActive = hasActiveSearch(search);
+  const resultLabel = searchActive
+    ? `${visibleEntries.length} von ${entries.length}`
+    : `${entries.length} Eintraege`;
 
   function updateInput<Key extends keyof typeof DEFAULT_FORM_VALUES>(key: Key) {
     return (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -127,6 +153,13 @@ export function FallwildClient({ entries }: FallwildClientProps) {
           </div>
         </header>
 
+        <ListSearchBar
+          value={search}
+          onChange={setSearch}
+          placeholder="Suche Wildart, Gemeinde, Notiz oder Adresse"
+          resultLabel={resultLabel}
+        />
+
         <div className="timeline">
           {entries.length === 0 ? (
             <article className="timeline-item">
@@ -134,8 +167,17 @@ export function FallwildClient({ entries }: FallwildClientProps) {
               <strong>Keine dokumentierten Vorgänge</strong>
               <p>Sobald der erste Fallwild-Vorgang erfasst wird, erscheint er hier und im CSV-Export.</p>
             </article>
+          ) : visibleEntries.length === 0 ? (
+            <article className="timeline-item">
+              <span>Filter</span>
+              <strong>Keine Treffer</strong>
+              <p>
+                Mit der aktuellen Suche („{search}") findet sich kein Eintrag. Andere Begriffe
+                versuchen oder Suche leeren.
+              </p>
+            </article>
           ) : (
-            entries.map((entry) => (
+            visibleEntries.map((entry) => (
               <article key={entry.id} className="timeline-item">
                 <span>{entry.wildart}</span>
                 <strong>
