@@ -59,6 +59,11 @@ export default async function ReviereinrichtungenPage() {
             <p className="eyebrow">Liste</p>
             <h2>Reviereinrichtungen und Status</h2>
           </div>
+          <div className="section-actions">
+            <a className="button-link" href="/api/v1/reviereinrichtungen/export.csv">
+              CSV-Export
+            </a>
+          </div>
         </header>
 
         <ReviereinrichtungenListClient entries={entries} />
