@@ -20,6 +20,7 @@ import { ScreenShell } from "../../components/screen-shell";
 import { SearchInput } from "../../components/search-input";
 import { SelectField } from "../../components/select-field";
 import { ViewToggle } from "../../components/view-toggle";
+import { computeFallwildSmartDefaults } from "../../lib/fallwild-smart-defaults.helpers";
 import {
   applyFallwildFilter,
   DEFAULT_FALLWILD_FILTER,
@@ -154,6 +155,37 @@ export default function FallwildScreen() {
   // — wer in der Liste filtert, sieht die Karte mit den gleichen Pins.
   const visibleFallwild = useMemo(() => applyFallwildFilter(fallwild, filter), [fallwild, filter]);
   const filterActive = useMemo(() => isFallwildFilterActive(filter), [filter]);
+
+  // Smart Defaults aus den letzten 30 Tagen (M4). Wir reagieren auf die
+  // im Form bereits eingetippte Gemeinde, damit ein Jaeger in Gänserndorf
+  // andere Vorschlaege bekommt als einer in Strasshof.
+  const smartDefaults = useMemo(
+    () =>
+      computeFallwildSmartDefaults(fallwild, {
+        gemeinde: form.gemeinde.trim() || undefined
+      }),
+    [fallwild, form.gemeinde]
+  );
+
+  // Form ist in seinem Default-Zustand, wenn weder Wildart noch Gemeinde
+  // angefasst wurden. Dann lohnt der Vorschlag.
+  const isFormUnchanged = form.gemeinde.trim() === "" && form.lat.trim() === "" && form.lng.trim() === "";
+  const showSmartDefaults =
+    isFormUnchanged &&
+    (smartDefaults.wildart !== undefined || smartDefaults.location !== undefined);
+
+  function applySmartDefaults() {
+    setForm((current) => ({
+      ...current,
+      wildart: smartDefaults.wildart ?? current.wildart,
+      gemeinde: smartDefaults.gemeinde ?? current.gemeinde,
+      lat: smartDefaults.location ? String(smartDefaults.location.lat) : current.lat,
+      lng: smartDefaults.location ? String(smartDefaults.location.lng) : current.lng,
+      locationLabel:
+        smartDefaults.location?.label ??
+        (smartDefaults.location ? "Aus letzter Erfassung uebernommen" : current.locationLabel)
+    }));
+  }
 
   // EntityPin-Mapping fuer die Karten-Ansicht.
   const pins: ReadonlyArray<EntityPin> = useMemo(
@@ -490,6 +522,27 @@ export default function FallwildScreen() {
       <View style={styles.formCard}>
         <Text style={styles.sectionLabel}>Neuer Fallwild-Vorgang</Text>
         <Text style={styles.sectionCopy}>Die Erfassung bleibt im Feld schnell bedienbar; bei Verbindungsproblemen werden Vorgänge vorgemerkt und automatisch nachgereicht.</Text>
+
+        {showSmartDefaults ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Vorschlag aus den letzten 30 Tagen uebernehmen"
+            onPress={applySmartDefaults}
+            style={({ pressed }) => [
+              styles.smartDefaultsBanner,
+              pressed ? styles.buttonDisabled : null
+            ]}
+          >
+            <Text style={styles.smartDefaultsEyebrow}>Vorschlag aus deinen letzten Erfassungen</Text>
+            <Text style={styles.smartDefaultsTitle}>
+              {smartDefaults.wildart ? `${smartDefaults.wildart}` : "Position"}
+              {smartDefaults.gemeinde ? ` · ${smartDefaults.gemeinde}` : ""}
+            </Text>
+            <Text style={styles.smartDefaultsCopy}>
+              Tippe, um Wildart, Gemeinde und letzte Position zu übernehmen — du kannst danach alles anpassen.
+            </Text>
+          </Pressable>
+        ) : null}
 
         <View style={styles.fieldRow}>
           <View style={[styles.field, styles.grow]}>
@@ -1141,6 +1194,32 @@ const createStyles = (theme: ThemeColors) =>
     fontSize: 12,
     fontWeight: "700",
     color: "#fff9ef"
+  },
+  smartDefaultsBanner: {
+    gap: 4,
+    padding: 14,
+    borderRadius: 16,
+    backgroundColor: "rgba(157, 179, 111, 0.18)",
+    borderWidth: 1,
+    borderColor: "rgba(36, 73, 58, 0.18)",
+    marginTop: 4
+  },
+  smartDefaultsEyebrow: {
+    fontSize: 11,
+    textTransform: "uppercase",
+    letterSpacing: 1.1,
+    color: theme.accent,
+    fontWeight: "700"
+  },
+  smartDefaultsTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: theme.ink
+  },
+  smartDefaultsCopy: {
+    fontSize: 13,
+    lineHeight: 18,
+    color: theme.muted
   },
   refreshButton: {
     minWidth: 132,
