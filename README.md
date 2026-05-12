@@ -43,6 +43,20 @@ Die bestehende NestJS-API bleibt als Referenzpfad im Repository. Die produktive 
 - Playwright-E2E- und Visual-Regression-Tests für Public Web, Auth, Ansitze, Fallwild, Sitzungen, Dashboard, Reviereinrichtungen und Protokolle auf Desktop und Mobile
 - Preview-Smoke für Public Web, Session-Grundvertrag und die wichtigsten App-Read-Pfade
 - Release-Check für produktive Deployments mit demselben Read-Contract gegen Production
+- UX-Roadmap Pfad 1 (Visual Polish) vollständig abgeschlossen (PR #44–#51): StateView, @hege/icons-Package mit Domain-Iconographie und Wortmarke, @hege/tokens für geteilte Design-Tokens Web+Mobile, Dark Mode in Mobile durchgezogen, Pull-to-Refresh, Mikrointeraktionen, Live-CSS Hero-Visuals auf Public-Landing und Lighthouse-Baseline (SEO + Performance)
+- echte Google Maps JS API im Web-Backoffice und `react-native-maps` in Mobile (PR #35)
+- rollen-aware Sidebar im Web (PR #33), Sitzung-Sperre bei Status `freigegeben` (PR #34), Member-Invite-Flow (PR #41)
+- Mobile: 4 Tabs + Mehr-Sheet, kamera-first Fallwild-Foto, Mikrocopy-Pass (PR #36–#37)
+- erweiterte Demo-Daten: ~20 Sitzungen, ~30 Fallwild, ~12 Reviereinrichtungen, ~8 Mitglieder plus Reviermeldungen/Aufgaben (PR #46)
+- Mobile Heute-Tab als Map-First Dashboard mit Activity-Feed, Pin-Detail-Sheet, Erfassen-FAB und Queue-Badge (PR #53–#56)
+- Volltext-Suche, Filter- und Sortierleisten in allen Web-Listen und Mobile-Tabs (PR #60–#64)
+- CSV-Export für Ansitze und Reviereinrichtungen im Web (PR #65)
+- Print-Stylesheet für Web-Sitzungsprotokolle (PR #68)
+- Versions-Timeline auf der Sitzungs-Detailseite (PR #67)
+- Smart Defaults im mobilen Fallwild-Formular (PR #66)
+- Notification-Center mit Read/Unread-Status in Mobile (PR #71)
+- rollen-spezifischer Heute-Tab in Mobile (PR #70)
+- „Über hege"-Seite in Mobile (PR #69)
 
 Rollen, Aufgaben und Nachrichten werden als nächste fachliche Erweiterung geplant, mit späterer Anbindung an Messenger-Kanäle wie WhatsApp und Telegram.
 
@@ -138,14 +152,14 @@ Wichtige Testwege:
 
 ## Nächste Ausbauschritte
 
-- iPhone-/iOS-Geräte-Smoke für erfolgreichen Foto-Upload, automatische Standortauflösung und leere Queue nachziehen
-- Production-Fallwild-Standortauflösung mit gesetztem Google-Server-Key und gebündeltem GIP-Index im nativen iPhone-Smoke prüfen
+- EAS-Preview-iOS-Build (P1.0) auf TestFlight pushen, damit der Visual-Polish-Stand auf dem physischen iPhone sichtbar ist
+- iPhone-/iOS-Geräte-Smoke für erfolgreichen Foto-Upload, automatische Standortauflösung und leere Queue auf Production erneut ausführen
 - GIP-Bounding-Box mit dem tatsächlichen Revier abgleichen und bei Bedarf größeren Index in Preview/Production aktivieren
 - Mobile-E2E-Strategie über den dokumentierten Geräte-Smoke hinaus festziehen
-- produktive Abnahme mit blockierendem Release-Check weiter beobachten
 - PDF-Erzeugung weiter härten
 - Android-Emulator-Smoke optional als Zweitpfad vorbereiten
-- Rollen-, Aufgaben- und Nachrichtenmodell fachlich weiter ausarbeiten
+- Rollen-, Aufgaben- und Nachrichtenmodell fachlich weiter ausarbeiten (Pfad 2 aus UX-Roadmap v2)
+- Veranstaltungsmodul (Ankündigung, Treffpunkt, Erinnerungen, Teilnahmebestätigung) planen
 
 ## Dokumentation
 
