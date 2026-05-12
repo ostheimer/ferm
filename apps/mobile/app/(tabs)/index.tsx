@@ -1,4 +1,3 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
 import * as Haptics from "expo-haptics";
 import { useEffect, useState } from "react";
 import { Pressable, Text, View } from "react-native";
@@ -6,6 +5,7 @@ import type { DashboardResponse } from "@hege/domain";
 
 import { ActivityFeed } from "../../components/activity-feed";
 import { MetricTile } from "../../components/metric-tile";
+import { QueueStatusPill } from "../../components/queue-status-pill";
 import { RoleHeadline } from "../../components/role-headline";
 import { ScreenShell } from "../../components/screen-shell";
 import { StateView } from "../../components/state-view";
@@ -178,29 +178,7 @@ export default function HeuteScreen() {
           void loadDashboard({ refreshing: true });
         }
       }}
-      aside={
-        queueIsEmpty ? (
-          <View style={[styles.aside, styles.asideCompact]}>
-            <View style={styles.asideCompactCheck}>
-              <Ionicons color="#fff9ef" name="checkmark" size={22} />
-            </View>
-            <View style={styles.asideCompactCopy}>
-              <Text style={styles.asideLabel}>Warteschlange</Text>
-              <Text style={styles.asideCopy}>Alles synchronisiert.</Text>
-            </View>
-          </View>
-        ) : (
-          <View style={styles.aside}>
-            <Text style={styles.asideLabel}>Offline-Warteschlange</Text>
-            <Text style={styles.asideValue}>{queueCount}</Text>
-            <Text style={styles.asideCopy}>
-              {failedQueueCount > 0
-                ? `${failedQueueCount} Einträge brauchen einen erneuten Sync.`
-                : "Erfassungen warten auf Synchronisierung."}
-            </Text>
-          </View>
-        )
-      }
+      aside={<QueueStatusPill count={queueCount} failedCount={failedQueueCount} />}
     >
       {!queueIsEmpty ? (
         <View style={styles.toolbar}>
@@ -400,45 +378,6 @@ const createStyles = (theme: ThemeColors) =>
     secondaryButtonText: {
       color: theme.ink,
       fontWeight: "600"
-    },
-    aside: {
-      gap: 6
-    },
-    asideCompact: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 14
-    },
-    asideCompactCheck: {
-      width: 36,
-      height: 36,
-      borderRadius: 999,
-      alignItems: "center",
-      justifyContent: "center",
-      // Leichte Aufhellung auf accentStrong-Hintergrund, damit das Icon eine
-      // erkennbare Status-Bubble bekommt (ohne mit der Container-Farbe zu
-      // konkurrieren).
-      backgroundColor: "rgba(255, 249, 239, 0.18)"
-    },
-    asideCompactCopy: {
-      flex: 1,
-      gap: 2
-    },
-    asideLabel: {
-      color: "#dfe9c7",
-      fontSize: 12,
-      textTransform: "uppercase",
-      letterSpacing: 1.3
-    },
-    asideValue: {
-      color: "#fff9ef",
-      fontSize: 34,
-      fontWeight: "700"
-    },
-    asideCopy: {
-      color: "#f7f2e5",
-      fontSize: 14,
-      lineHeight: 20
     },
     metricGrid: {
       flexDirection: "row",
