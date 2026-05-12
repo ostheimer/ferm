@@ -6,10 +6,13 @@ import { useRouter } from "next/navigation";
 import type { ChangeEvent, FormEvent } from "react";
 import { useMemo, useState, useTransition } from "react";
 
+import { ListFilterChips } from "../../components/list-filter-chips";
 import { ListSearchBar } from "../../components/list-search-bar";
 import { readApiErrorMessage } from "../../lib/api-error";
 import { filterBySearch, hasActiveSearch } from "../../lib/list-search";
 import { StateView } from "../../components/state-view";
+
+type SitzungStatusFilter = "alle" | "entwurf" | "freigegeben";
 
 interface MembershipOption {
   membershipId: string;
@@ -37,18 +40,29 @@ export function SitzungenClient({ entries, memberships }: SitzungenClientProps) 
     Object.fromEntries(memberships.map((entry) => [entry.membershipId, true]))
   );
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<SitzungStatusFilter>("alle");
+
+  const filteredByChips = useMemo(() => {
+    if (statusFilter === "alle") return entries;
+    return entries.filter((entry) => entry.status === statusFilter);
+  }, [entries, statusFilter]);
 
   const visibleEntries = useMemo(
     () =>
-      filterBySearch(entries, search, (entry) =>
+      filterBySearch(filteredByChips, search, (entry) =>
         [entry.title, entry.locationLabel, entry.status].join(" ")
       ),
-    [entries, search]
+    [filteredByChips, search]
   );
   const searchActive = hasActiveSearch(search);
-  const resultLabel = searchActive
-    ? `${visibleEntries.length} von ${entries.length}`
-    : `${entries.length} Eintraege`;
+  const filterActive = statusFilter !== "alle";
+  const resultLabel =
+    searchActive || filterActive
+      ? `${visibleEntries.length} von ${entries.length}`
+      : `${entries.length} Eintraege`;
+
+  const entwurfCount = entries.filter((entry) => entry.status === "entwurf").length;
+  const freigegebenCount = entries.filter((entry) => entry.status === "freigegeben").length;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -125,6 +139,18 @@ export function SitzungenClient({ entries, memberships }: SitzungenClientProps) 
           onChange={setSearch}
           placeholder="Suche Titel, Ort oder Status"
           resultLabel={resultLabel}
+        />
+
+        <ListFilterChips<SitzungStatusFilter>
+          eyebrow="Status"
+          ariaLabel="Sitzungs-Status filtern"
+          value={statusFilter}
+          onChange={setStatusFilter}
+          options={[
+            { key: "alle", label: "Alle", count: entries.length },
+            { key: "entwurf", label: "Entwürfe", count: entwurfCount },
+            { key: "freigegeben", label: "Freigegeben", count: freigegebenCount }
+          ]}
         />
 
         {entries.length === 0 ? (
