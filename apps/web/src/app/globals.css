@@ -518,6 +518,173 @@ p {
 }
 
 /* =========================================================================
+ * Notification-Center (P2.3 Web) — Filter-Chips, Karten-Liste, Read-State.
+ * =======================================================================*/
+
+.notification-filter-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.notification-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(25, 57, 44, 0.18);
+  background: var(--surface);
+  color: var(--muted);
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    background-color 140ms cubic-bezier(0.2, 0, 0.2, 1),
+    color 140ms cubic-bezier(0.2, 0, 0.2, 1),
+    border-color 140ms cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+.notification-filter-chip:hover {
+  border-color: var(--accent-strong);
+  color: var(--ink);
+}
+
+.notification-filter-chip-active {
+  background: var(--accent-strong);
+  color: #f5f1e7;
+  border-color: var(--accent-strong);
+}
+
+.notification-filter-count {
+  font-size: 0.75rem;
+  background: rgba(36, 73, 58, 0.1);
+  padding: 1px 7px;
+  border-radius: 999px;
+  color: inherit;
+  min-width: 22px;
+  text-align: center;
+}
+
+.notification-filter-chip-active .notification-filter-count {
+  background: rgba(245, 241, 231, 0.22);
+}
+
+.notification-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.notification-card {
+  width: 100%;
+  text-align: left;
+  border: 1px solid rgba(25, 57, 44, 0.1);
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+  font: inherit;
+  transition:
+    background-color 140ms cubic-bezier(0.2, 0, 0.2, 1),
+    border-color 140ms cubic-bezier(0.2, 0, 0.2, 1),
+    opacity 140ms cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+.notification-card:hover {
+  border-color: rgba(36, 73, 58, 0.32);
+}
+
+.notification-card-unread {
+  border-left: 3px solid var(--accent-strong);
+}
+
+.notification-card-read {
+  opacity: 0.7;
+}
+
+.notification-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.notification-channel {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(36, 73, 58, 0.08);
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.notification-unread-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--accent-strong);
+}
+
+.notification-read-mark {
+  color: var(--muted);
+}
+
+.notification-card strong {
+  font-size: 1rem;
+  color: var(--ink);
+  line-height: 1.3;
+}
+
+.notification-card p {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.notification-card time {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.empty-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 36px 24px;
+  border: 1px dashed rgba(25, 57, 44, 0.18);
+  border-radius: 18px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.empty-card strong {
+  font-size: 1.05rem;
+  color: var(--ink);
+}
+
+.empty-card p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  max-width: 36ch;
+}
+
+/* =========================================================================
  * Sortable Table Header (W2) — klickbare th-Variante mit Sort-Pfeil.
  * =======================================================================*/
 
