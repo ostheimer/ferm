@@ -1,10 +1,14 @@
 "use client";
 
-import type { ReviereinrichtungListItem } from "@hege/domain";
+import type { EinrichtungTyp, EinrichtungZustand, ReviereinrichtungListItem } from "@hege/domain";
 import { useMemo, useState } from "react";
 
+import { ListFilterChips } from "../../../components/list-filter-chips";
 import { ListSearchBar } from "../../../components/list-search-bar";
 import { filterBySearch, hasActiveSearch } from "../../../lib/list-search";
+
+type TypFilter = "alle" | EinrichtungTyp;
+type ZustandFilter = "alle" | EinrichtungZustand;
 
 interface ReviereinrichtungenListClientProps {
   entries: ReviereinrichtungListItem[];
@@ -17,10 +21,20 @@ interface ReviereinrichtungenListClientProps {
  */
 export function ReviereinrichtungenListClient({ entries }: ReviereinrichtungenListClientProps) {
   const [search, setSearch] = useState("");
+  const [typFilter, setTypFilter] = useState<TypFilter>("alle");
+  const [zustandFilter, setZustandFilter] = useState<ZustandFilter>("alle");
+
+  const filteredByChips = useMemo(() => {
+    return entries.filter((entry) => {
+      if (typFilter !== "alle" && entry.type !== typFilter) return false;
+      if (zustandFilter !== "alle" && entry.status !== zustandFilter) return false;
+      return true;
+    });
+  }, [entries, typFilter, zustandFilter]);
 
   const visibleEntries = useMemo(
     () =>
-      filterBySearch(entries, search, (entry) =>
+      filterBySearch(filteredByChips, search, (entry) =>
         [
           entry.name,
           entry.type,
@@ -29,12 +43,14 @@ export function ReviereinrichtungenListClient({ entries }: ReviereinrichtungenLi
           entry.location.label ?? ""
         ].join(" ")
       ),
-    [entries, search]
+    [filteredByChips, search]
   );
   const searchActive = hasActiveSearch(search);
-  const resultLabel = searchActive
-    ? `${visibleEntries.length} von ${entries.length}`
-    : `${entries.length} Eintraege`;
+  const filterActive = typFilter !== "alle" || zustandFilter !== "alle";
+  const resultLabel =
+    searchActive || filterActive
+      ? `${visibleEntries.length} von ${entries.length}`
+      : `${entries.length} Eintraege`;
 
   return (
     <>
@@ -43,6 +59,35 @@ export function ReviereinrichtungenListClient({ entries }: ReviereinrichtungenLi
         onChange={setSearch}
         placeholder="Suche Name, Typ, Zustand oder Lagebezeichnung"
         resultLabel={resultLabel}
+      />
+
+      <ListFilterChips<TypFilter>
+        eyebrow="Typ"
+        ariaLabel="Einrichtungs-Typ filtern"
+        value={typFilter}
+        onChange={setTypFilter}
+        options={[
+          { key: "alle", label: "Alle" },
+          { key: "hochstand", label: "Hochstand" },
+          { key: "fuetterung", label: "Fütterung" },
+          { key: "salzlecke", label: "Salzlecke" },
+          { key: "kirrung", label: "Kirrung" },
+          { key: "kamera", label: "Kamera" },
+          { key: "wildacker", label: "Wildacker" }
+        ]}
+      />
+
+      <ListFilterChips<ZustandFilter>
+        eyebrow="Zustand"
+        ariaLabel="Zustand filtern"
+        value={zustandFilter}
+        onChange={setZustandFilter}
+        options={[
+          { key: "alle", label: "Alle" },
+          { key: "gut", label: "Gut" },
+          { key: "wartung-faellig", label: "Wartung fällig" },
+          { key: "gesperrt", label: "Gesperrt" }
+        ]}
       />
 
       {entries.length > 0 && visibleEntries.length === 0 ? (

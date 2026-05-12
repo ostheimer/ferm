@@ -5,7 +5,10 @@ import { useRouter } from "next/navigation";
 import type { ChangeEvent, FormEvent } from "react";
 import { useMemo, useState, useTransition } from "react";
 
+import { ListFilterChips } from "../../components/list-filter-chips";
 import { ListSearchBar } from "../../components/list-search-bar";
+
+type KonfliktFilter = "alle" | "mit-konflikt" | "ohne-konflikt";
 import { SortableTh } from "../../components/sortable-th";
 import { readApiErrorMessage } from "../../lib/api-error";
 import { filterBySearch, hasActiveSearch } from "../../lib/list-search";
@@ -50,27 +53,39 @@ export function AnsitzeClient({ activeAnsitze }: AnsitzeClientProps) {
   const [success, setSuccess] = useState<string | null>(null);
   const [formValues, setFormValues] = useState(DEFAULT_FORM_VALUES);
   const [search, setSearch] = useState("");
+  const [konfliktFilter, setKonfliktFilter] = useState<KonfliktFilter>("alle");
 
   const [sort, setSort] = useState<SortState<AnsitzColumn>>({
     column: "startedAt",
     direction: "desc"
   });
 
+  const filteredByChips = useMemo(() => {
+    if (konfliktFilter === "alle") return activeAnsitze;
+    if (konfliktFilter === "mit-konflikt") {
+      return activeAnsitze.filter((entry) => entry.conflict);
+    }
+    return activeAnsitze.filter((entry) => !entry.conflict);
+  }, [activeAnsitze, konfliktFilter]);
+
   const filteredAnsitze = useMemo(
     () =>
-      filterBySearch(activeAnsitze, search, (entry) =>
+      filterBySearch(filteredByChips, search, (entry) =>
         [entry.standortName, entry.location.label ?? "", entry.note ?? ""].join(" ")
       ),
-    [activeAnsitze, search]
+    [filteredByChips, search]
   );
   const visibleAnsitze = useMemo(
     () => sortByColumn(filteredAnsitze, sort, SORT_ACCESSORS),
     [filteredAnsitze, sort]
   );
   const searchActive = hasActiveSearch(search);
-  const resultLabel = searchActive
-    ? `${visibleAnsitze.length} von ${activeAnsitze.length}`
-    : `${activeAnsitze.length} aktiv`;
+  const filterActive = konfliktFilter !== "alle";
+  const resultLabel =
+    searchActive || filterActive
+      ? `${visibleAnsitze.length} von ${activeAnsitze.length}`
+      : `${activeAnsitze.length} aktiv`;
+  const konfliktCount = activeAnsitze.filter((entry) => entry.conflict).length;
   const onSort = (column: AnsitzColumn) => setSort((current) => nextSortState(current, column));
 
   function updateInput<Key extends keyof Omit<typeof DEFAULT_FORM_VALUES, "note">>(key: Key) {
@@ -182,6 +197,18 @@ export function AnsitzeClient({ activeAnsitze }: AnsitzeClientProps) {
           onChange={setSearch}
           placeholder="Suche Standort, Lagebezeichnung oder Notiz"
           resultLabel={resultLabel}
+        />
+
+        <ListFilterChips<KonfliktFilter>
+          eyebrow="Konflikt"
+          ariaLabel="Konflikt-Status filtern"
+          value={konfliktFilter}
+          onChange={setKonfliktFilter}
+          options={[
+            { key: "alle", label: "Alle" },
+            { key: "mit-konflikt", label: "Mit Konflikt", count: konfliktCount },
+            { key: "ohne-konflikt", label: "Ohne Konflikt" }
+          ]}
         />
 
         <div className="table-shell">

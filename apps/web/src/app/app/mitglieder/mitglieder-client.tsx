@@ -10,10 +10,14 @@ import { useRouter } from "next/navigation";
 import type { ChangeEvent, FormEvent } from "react";
 import { useMemo, useState, useTransition } from "react";
 
+import { ListFilterChips } from "../../../components/list-filter-chips";
 import { ListSearchBar } from "../../../components/list-search-bar";
 import { readApiErrorMessage } from "../../../lib/api-error";
 import { filterBySearch, hasActiveSearch } from "../../../lib/list-search";
 import { StateView } from "../../../components/state-view";
+
+type RoleFilter = "alle" | Role;
+type StatusFilter = "alle" | "pending" | "accepted" | "expired" | "revoked";
 
 interface MitgliederClientProps {
   invitations: MemberInvitation[];
@@ -55,10 +59,20 @@ export function MitgliederClient({ invitations, mailEnabled }: MitgliederClientP
   const [latest, setLatest] = useState<CreateMemberInvitationResponse | null>(null);
   const [revokingId, setRevokingId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState<RoleFilter>("alle");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("alle");
+
+  const filteredByChips = useMemo(() => {
+    return invitations.filter((entry) => {
+      if (roleFilter !== "alle" && entry.role !== roleFilter) return false;
+      if (statusFilter !== "alle" && entry.status !== statusFilter) return false;
+      return true;
+    });
+  }, [invitations, roleFilter, statusFilter]);
 
   const visibleInvitations = useMemo(
     () =>
-      filterBySearch(invitations, search, (entry) =>
+      filterBySearch(filteredByChips, search, (entry) =>
         [
           entry.firstName,
           entry.lastName,
@@ -68,12 +82,17 @@ export function MitgliederClient({ invitations, mailEnabled }: MitgliederClientP
           entry.status
         ].join(" ")
       ),
-    [invitations, search]
+    [filteredByChips, search]
   );
   const searchActive = hasActiveSearch(search);
-  const resultLabel = searchActive
-    ? `${visibleInvitations.length} von ${invitations.length}`
-    : `${invitations.length} Eintraege`;
+  const filterActive = roleFilter !== "alle" || statusFilter !== "alle";
+  const resultLabel =
+    searchActive || filterActive
+      ? `${visibleInvitations.length} von ${invitations.length}`
+      : `${invitations.length} Eintraege`;
+
+  const pendingCount = invitations.filter((entry) => entry.status === "pending").length;
+  const acceptedCount = invitations.filter((entry) => entry.status === "accepted").length;
 
   function update<Key extends keyof FormState>(key: Key) {
     return (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -322,6 +341,34 @@ export function MitgliederClient({ invitations, mailEnabled }: MitgliederClientP
           onChange={setSearch}
           placeholder="Suche Name, E-Mail, Rolle oder Jagdzeichen"
           resultLabel={resultLabel}
+        />
+
+        <ListFilterChips<StatusFilter>
+          eyebrow="Status"
+          ariaLabel="Einladungs-Status filtern"
+          value={statusFilter}
+          onChange={setStatusFilter}
+          options={[
+            { key: "alle", label: "Alle" },
+            { key: "pending", label: "Offen", count: pendingCount },
+            { key: "accepted", label: "Angenommen", count: acceptedCount },
+            { key: "expired", label: "Abgelaufen" },
+            { key: "revoked", label: "Widerrufen" }
+          ]}
+        />
+
+        <ListFilterChips<RoleFilter>
+          eyebrow="Rolle"
+          ariaLabel="Rolle filtern"
+          value={roleFilter}
+          onChange={setRoleFilter}
+          options={[
+            { key: "alle", label: "Alle" },
+            { key: "jaeger", label: "Jäger" },
+            { key: "schriftfuehrer", label: "Schriftführung" },
+            { key: "ausgeher", label: "Ausgeher" },
+            { key: "revier-admin", label: "Admin" }
+          ]}
         />
 
         {invitations.length === 0 ? (

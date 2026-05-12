@@ -5,9 +5,27 @@ import { useRouter } from "next/navigation";
 import type { ChangeEvent, FormEvent } from "react";
 import { useMemo, useState, useTransition } from "react";
 
+import { ListFilterChips } from "../../components/list-filter-chips";
 import { ListSearchBar } from "../../components/list-search-bar";
 import { readApiErrorMessage } from "../../lib/api-error";
 import { filterBySearch, hasActiveSearch } from "../../lib/list-search";
+
+type BergungsFilter = "alle" | "erfasst" | "geborgen" | "entsorgt" | "an-behoerde-gemeldet";
+type ZeitraumFilter = "alle" | "heute" | "woche" | "monat";
+
+function isWithinZeitraum(recordedAt: string, filter: ZeitraumFilter, now: Date): boolean {
+  if (filter === "alle") return true;
+  const date = new Date(recordedAt);
+  const start = new Date(now);
+  if (filter === "heute") {
+    start.setHours(0, 0, 0, 0);
+  } else if (filter === "woche") {
+    start.setDate(start.getDate() - 7);
+  } else {
+    start.setDate(start.getDate() - 30);
+  }
+  return date.getTime() >= start.getTime();
+}
 
 export type FallwildClientEntry = FallwildVorgang & {
   addressLabel: string;
@@ -43,13 +61,23 @@ export function FallwildClient({ entries }: FallwildClientProps) {
   const [success, setSuccess] = useState<string | null>(null);
   const [formValues, setFormValues] = useState(DEFAULT_FORM_VALUES);
   const [search, setSearch] = useState("");
+  const [bergungsFilter, setBergungsFilter] = useState<BergungsFilter>("alle");
+  const [zeitraumFilter, setZeitraumFilter] = useState<ZeitraumFilter>("alle");
 
-  // Gefilterte Eintraege: Volltextsuche ueber Wildart, Gemeinde, Strasse,
-  // Notiz und Adressen-Label. Token-basiert mit AND-Semantik (siehe
-  // lib/list-search.ts).
+  // Pipeline: Zeitraum -> Bergungsstatus -> Volltextsuche.
+  // Reduktionen kommen zuerst, Volltext-Match zuletzt.
+  const filteredByChips = useMemo(() => {
+    const now = new Date();
+    return entries.filter((entry) => {
+      if (!isWithinZeitraum(entry.recordedAt, zeitraumFilter, now)) return false;
+      if (bergungsFilter !== "alle" && entry.bergungsStatus !== bergungsFilter) return false;
+      return true;
+    });
+  }, [entries, bergungsFilter, zeitraumFilter]);
+
   const visibleEntries = useMemo(
     () =>
-      filterBySearch(entries, search, (entry) =>
+      filterBySearch(filteredByChips, search, (entry) =>
         [
           entry.wildart,
           entry.gemeinde,
@@ -60,12 +88,14 @@ export function FallwildClient({ entries }: FallwildClientProps) {
           entry.bergungsStatus
         ].join(" ")
       ),
-    [entries, search]
+    [filteredByChips, search]
   );
   const searchActive = hasActiveSearch(search);
-  const resultLabel = searchActive
-    ? `${visibleEntries.length} von ${entries.length}`
-    : `${entries.length} Eintraege`;
+  const filterActive = bergungsFilter !== "alle" || zeitraumFilter !== "alle";
+  const resultLabel =
+    searchActive || filterActive
+      ? `${visibleEntries.length} von ${entries.length}`
+      : `${entries.length} Eintraege`;
 
   function updateInput<Key extends keyof typeof DEFAULT_FORM_VALUES>(key: Key) {
     return (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -158,6 +188,33 @@ export function FallwildClient({ entries }: FallwildClientProps) {
           onChange={setSearch}
           placeholder="Suche Wildart, Gemeinde, Notiz oder Adresse"
           resultLabel={resultLabel}
+        />
+
+        <ListFilterChips<BergungsFilter>
+          eyebrow="Bergung"
+          ariaLabel="Bergungsstatus filtern"
+          value={bergungsFilter}
+          onChange={setBergungsFilter}
+          options={[
+            { key: "alle", label: "Alle" },
+            { key: "erfasst", label: "Erfasst" },
+            { key: "geborgen", label: "Geborgen" },
+            { key: "entsorgt", label: "Entsorgt" },
+            { key: "an-behoerde-gemeldet", label: "Behörde" }
+          ]}
+        />
+
+        <ListFilterChips<ZeitraumFilter>
+          eyebrow="Zeitraum"
+          ariaLabel="Zeitraum filtern"
+          value={zeitraumFilter}
+          onChange={setZeitraumFilter}
+          options={[
+            { key: "alle", label: "Alle" },
+            { key: "heute", label: "Heute" },
+            { key: "woche", label: "7 Tage" },
+            { key: "monat", label: "30 Tage" }
+          ]}
         />
 
         <div className="timeline">
