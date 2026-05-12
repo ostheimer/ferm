@@ -10,14 +10,17 @@ Diese Datei ist der schlanke Einstiegspunkt im Repo-Root. Die vollstaendige Road
 - `Sprint 2` und `Sprint 3` sind weit fortgeschritten: Mobile Login, lokales Face-ID-/Touch-ID-Entsperren gespeicherter Sitzungen, Dashboard, Ansitz- und Fallwild-Formulare, Read-Slices, Offline-Queue v2, R2-Foto-Upload und Fallwild-Standort v1 stehen. Der iPhone-/iOS-Smoke vom 2026-04-26 bestätigt den Queue-v2-Fehlerpfad; ein direkter Production-Foto-Upload gegen `hege.app` ist verifiziert. Der Face-ID-Flow wurde am 2026-05-06 auf dem angeschlossenen iPhone bestätigt.
 - Karten/Standort sind begonnen: Fallwild nutzt serverseitige Standortauflösung, speichert Standort-/Straßenkilometer-Metadaten, ergänzt Adresse/Straße über Google Reverse Geocoding und kann ohne externe Keys über lokale Gänserndorf-Testdaten im Mock-Provider geprüft werden. GIP bleibt die fachliche Zielquelle für österreichische Straßenkilometer; dafür stehen jetzt HTTP-Resolver, lokaler OGD-BEPU-JSON-Indexpfad und ein gebündelter regionaler Gänserndorf-Index bereit.
 - `Sprint 4` ist begonnen und nativ lokal abgenommen: Reviermeldungen und Aufgaben haben einen ersten Backend-/Mobile-Slice mit Tabellen, Seeds, Rollenprüfung, Aufgaben-Sichtbarkeit, Dashboard-Zähler und Mobile-Tab `Meldungen`; der iPhone-Smoke vom 2026-05-05 bestätigt Laden, Statusänderung und Meldungserfassung gegen den lokalen API-Stand.
+- UX-Roadmap Pfad 1 (Visual Polish) ist vollständig abgeschlossen (PR #33–#51): UI-Audit-Findings bereinigt, echte Karten Web+Mobile, rollen-aware Sidebar, Design-System (@hege/tokens + @hege/icons), Dark Mode, StateView, Demo-Daten-Volumina, Map-First Heute-Tab, Activity Feed, Lighthouse-Baseline.
+- UX-Roadmap Pfad 2 (Interaction Density) begonnen: Volltext-Suche + Filter + Sortierleisten in allen Listen (PR #60–#64), CSV-Exporte (PR #65), Smart Defaults im Fallwild-Formular (PR #66), Versions-Timeline im Web (PR #67), Print-Stylesheet (PR #68), „Über hege" (PR #69), rollen-spezifischer Heute-Tab (PR #70), Notification-Center (PR #71).
 
 ## Aktueller Fokus
 
-1. iPhone-/iOS-Geräte-Smoke auf Production mit Foto-Upload, automatischer Standortauflösung und leerer Queue erneut ausführen
-2. Production-Fallwild-Standortauflösung mit gesetztem Google-Server-Key und gebündeltem GIP-Index im nativen iPhone-Smoke prüfen
+1. EAS-Preview-iOS-Build auf TestFlight pushen (P1.0 aus UX-Roadmap), damit der aktuelle Visual-Polish-Stand auf dem physischen iPhone sichtbar ist
+2. iPhone-/iOS-Geräte-Smoke auf Production mit Foto-Upload, automatischer Standortauflösung und leerer Queue erneut ausführen
 3. GIP-Bounding-Box mit dem tatsächlichen Revier abgleichen und bei Bedarf größeren Index in Preview/Production aktivieren
 4. Mobile-E2E-Strategie über den dokumentierten Geräte-Smoke hinaus festziehen
-5. Android-Emulator-Smoke als optionalen Zweitpfad bei Bedarf praktisch durchlaufen
+5. Rollen-, Aufgaben- und Nachrichtenmodell fachlich weiter ausarbeiten (Pfad 2 — Interaction Density)
+6. Android-Emulator-Smoke als optionalen Zweitpfad bei Bedarf praktisch durchlaufen
 
 ## Detaildokumente
 
