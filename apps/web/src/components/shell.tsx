@@ -9,7 +9,7 @@ import {
   Reviereinrichtung,
   Sitzung
 } from "@hege/icons";
-import { LayoutDashboard } from "lucide-react";
+import { Bell, LayoutDashboard } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -53,7 +53,8 @@ const navigation: ReadonlyArray<NavigationItem> = [
     label: "Mitglieder",
     icon: Mitglied,
     allowedRoles: ["revier-admin", "platform-admin"]
-  }
+  },
+  { href: "/app/benachrichtigungen", label: "Benachrichtigungen", icon: Bell }
 ];
 
 export function isNavigationItemVisible(
