@@ -9,6 +9,56 @@ import { filterBySearch, hasActiveSearch } from "../../../lib/list-search";
 
 type TypFilter = "alle" | EinrichtungTyp;
 type ZustandFilter = "alle" | EinrichtungZustand;
+type ReviereinrichtungSortKey =
+  | "nach-name"
+  | "kontrolle-aelteste"
+  | "kontrolle-neueste"
+  | "offene-wartungen";
+
+function compareReviereinrichtung(
+  left: ReviereinrichtungListItem,
+  right: ReviereinrichtungListItem,
+  key: ReviereinrichtungSortKey
+): number {
+  switch (key) {
+    case "nach-name":
+      return left.name.localeCompare(right.name, "de-AT");
+    case "kontrolle-aelteste":
+      // Wartungs-Priorisierung: noch nie kontrolliert -> ganz oben,
+      // dann aelteste Kontrolle zuerst.
+      return (
+        compareLastControl(left.letzteKontrolleAt, right.letzteKontrolleAt) ||
+        left.name.localeCompare(right.name, "de-AT")
+      );
+    case "kontrolle-neueste":
+      return (
+        compareLastControl(right.letzteKontrolleAt, left.letzteKontrolleAt) ||
+        left.name.localeCompare(right.name, "de-AT")
+      );
+    case "offene-wartungen":
+      // Absteigend: meiste Wartungen zuerst.
+      return (
+        right.offeneWartungen - left.offeneWartungen ||
+        left.name.localeCompare(right.name, "de-AT")
+      );
+    default:
+      return 0;
+  }
+}
+
+/**
+ * `null`/`undefined` (= nie kontrolliert) wird wie ein sehr alter Zeitpunkt
+ * behandelt: bei "aelteste Kontrolle zuerst" landet er oben, was die
+ * fachliche Erwartung der Revierleitung trifft (offene Wartung priorisieren).
+ */
+function compareLastControl(
+  left: string | null | undefined,
+  right: string | null | undefined
+): number {
+  const leftKey = left ?? "";
+  const rightKey = right ?? "";
+  return leftKey.localeCompare(rightKey);
+}
 
 interface ReviereinrichtungenListClientProps {
   entries: ReviereinrichtungListItem[];
@@ -23,6 +73,7 @@ export function ReviereinrichtungenListClient({ entries }: ReviereinrichtungenLi
   const [search, setSearch] = useState("");
   const [typFilter, setTypFilter] = useState<TypFilter>("alle");
   const [zustandFilter, setZustandFilter] = useState<ZustandFilter>("alle");
+  const [sortKey, setSortKey] = useState<ReviereinrichtungSortKey>("nach-name");
 
   const filteredByChips = useMemo(() => {
     return entries.filter((entry) => {
@@ -34,19 +85,22 @@ export function ReviereinrichtungenListClient({ entries }: ReviereinrichtungenLi
 
   const visibleEntries = useMemo(
     () =>
-      filterBySearch(filteredByChips, search, (entry) =>
-        [
-          entry.name,
-          entry.type,
-          entry.status,
-          entry.beschreibung ?? "",
-          entry.location.label ?? ""
-        ].join(" ")
-      ),
-    [filteredByChips, search]
+      [
+        ...filterBySearch(filteredByChips, search, (entry) =>
+          [
+            entry.name,
+            entry.type,
+            entry.status,
+            entry.beschreibung ?? "",
+            entry.location.label ?? ""
+          ].join(" ")
+        )
+      ].sort((left, right) => compareReviereinrichtung(left, right, sortKey)),
+    [filteredByChips, search, sortKey]
   );
   const searchActive = hasActiveSearch(search);
-  const filterActive = typFilter !== "alle" || zustandFilter !== "alle";
+  const filterActive =
+    typFilter !== "alle" || zustandFilter !== "alle" || sortKey !== "nach-name";
   const resultLabel =
     searchActive || filterActive
       ? `${visibleEntries.length} von ${entries.length}`
@@ -87,6 +141,19 @@ export function ReviereinrichtungenListClient({ entries }: ReviereinrichtungenLi
           { key: "gut", label: "Gut" },
           { key: "wartung-faellig", label: "Wartung fällig" },
           { key: "gesperrt", label: "Gesperrt" }
+        ]}
+      />
+
+      <ListFilterChips<ReviereinrichtungSortKey>
+        eyebrow="Sortierung"
+        ariaLabel="Reviereinrichtungen sortieren"
+        value={sortKey}
+        onChange={setSortKey}
+        options={[
+          { key: "nach-name", label: "Nach Name" },
+          { key: "kontrolle-aelteste", label: "Älteste Kontrolle zuerst" },
+          { key: "kontrolle-neueste", label: "Neueste Kontrolle zuerst" },
+          { key: "offene-wartungen", label: "Offene Wartungen" }
         ]}
       />
 
