@@ -20,7 +20,9 @@ apps/
   mobile/
   api/
 packages/
-  domain/
+  domain/   ← gemeinsames Domänenmodell, Typen, Mock-Daten
+  tokens/   ← @hege/tokens — Design-Token-System (Farben, Abstände, Typografie)
+  icons/    ← @hege/icons — Icon-Set und Wortmarke (SVG-Komponenten)
 docs/
 ```
 
@@ -225,13 +227,13 @@ Lokales Docker-Postgres bleibt ein rein lokaler Arbeitsmodus. Es ersetzt die Neo
 - erster Vercel-native Datenpfad fuer `me`, `ansitze` und `fallwild` in `apps/web` vorhanden
 - Web- und Mobile-UIs als sichtbares Grundgeruest vorhanden
 - Domain- und Env-Grundlage fuer `hege.app` vorhanden
-- produktive Persistenz, Authentifizierung und Rechtepruefung noch offen
+- produktive Persistenz, Authentifizierung und Rechteprüfung: ✅ abgeschlossen (Sprint 0)
 
 ## Naechste technische Ausbaustufe
 
-1. Dashboard-Slice auf echte API und Persistenz erweitern
+1. ✅ Dashboard-Slice auf echte API und Persistenz erweitern (abgeschlossen Sprint 0)
 2. Datenbank-Slice auf weitere Module erweitern
-3. Authentifizierung und Rollenmodell serverseitig aktivieren
-4. Demo-Store durch persistente Services ersetzen
+3. ✅ Authentifizierung und Rollenmodell serverseitig aktivieren (abgeschlossen Sprint 0)
+4. ✅ Demo-Store durch persistente Services ersetzen (abgeschlossen Sprint 0)
 5. Uploads, PDFs und Benachrichtigungen produktionsreif machen
 6. Google-Maps-Integration in Web und Mobile konkretisieren
