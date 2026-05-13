@@ -1,11 +1,12 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import type { DashboardResponse } from "@hege/domain";
 
 import { ScreenShell } from "../../components/screen-shell";
 import { fetchDashboardSnapshot, logout } from "../../lib/api";
+import { countUnread, useReadNotificationIds } from "../../lib/notifications-read-state";
 import { useSessionSnapshot } from "../../lib/session";
 import { useThemeColors, type ThemeColors } from "../../lib/theme";
 import { useThemedStyles } from "../../lib/use-themed-styles";
@@ -57,6 +58,11 @@ export default function MehrScreen() {
   const theme = useThemeColors();
   const [snapshot, setSnapshot] = useState<DashboardResponse | null>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const readIds = useReadNotificationIds();
+  const unreadCount = useMemo(() => {
+    const notificationIds = snapshot?.overview.letzteBenachrichtigungen.map((entry) => entry.id) ?? [];
+    return countUnread(notificationIds, readIds);
+  }, [snapshot, readIds]);
 
   useEffect(() => {
     if (session.status !== "authenticated") {
@@ -115,24 +121,41 @@ export default function MehrScreen() {
       </View>
 
       <View style={styles.linkList}>
-        {MEHR_LINKS.map((entry) => (
-          <Pressable
-            key={entry.href}
-            accessibilityRole="link"
-            accessibilityLabel={entry.label}
-            onPress={() => router.push(entry.href)}
-            style={({ pressed }) => [styles.linkRow, pressed ? styles.linkRowPressed : null]}
-          >
-            <View style={styles.linkIcon}>
-              <Ionicons color={theme.ink} name={entry.icon} size={22} />
-            </View>
-            <View style={styles.linkCopy}>
-              <Text style={styles.linkLabel}>{entry.label}</Text>
-              <Text style={styles.linkDescription}>{entry.description}</Text>
-            </View>
-            <Ionicons color={theme.muted} name="chevron-forward" size={20} />
-          </Pressable>
-        ))}
+        {MEHR_LINKS.map((entry) => {
+          // Nur der Benachrichtigungen-Link bekommt einen Unread-Badge.
+          // Wir koennten das ueber ein generisches `badge`-Feld in
+          // MehrLink loesen, aber bislang ist es nur eine Stelle —
+          // direkter Check ist kuerzer + leichter zu lesen.
+          const showUnreadBadge = entry.href === "/benachrichtigungen" && unreadCount > 0;
+          const badgeLabel = unreadCount > 9 ? "9+" : `${unreadCount}`;
+          const a11yLabel = showUnreadBadge
+            ? `${entry.label}, ${unreadCount} ungelesen`
+            : entry.label;
+
+          return (
+            <Pressable
+              key={entry.href}
+              accessibilityRole="link"
+              accessibilityLabel={a11yLabel}
+              onPress={() => router.push(entry.href)}
+              style={({ pressed }) => [styles.linkRow, pressed ? styles.linkRowPressed : null]}
+            >
+              <View style={styles.linkIcon}>
+                <Ionicons color={theme.ink} name={entry.icon} size={22} />
+              </View>
+              <View style={styles.linkCopy}>
+                <Text style={styles.linkLabel}>{entry.label}</Text>
+                <Text style={styles.linkDescription}>{entry.description}</Text>
+              </View>
+              {showUnreadBadge ? (
+                <View style={styles.unreadBadge}>
+                  <Text style={styles.unreadBadgeText}>{badgeLabel}</Text>
+                </View>
+              ) : null}
+              <Ionicons color={theme.muted} name="chevron-forward" size={20} />
+            </Pressable>
+          );
+        })}
       </View>
 
       <Pressable
@@ -214,6 +237,20 @@ const createStyles = (theme: ThemeColors) =>
     fontSize: 13,
     lineHeight: 18,
     color: theme.muted
+  },
+  unreadBadge: {
+    minWidth: 22,
+    height: 22,
+    paddingHorizontal: 7,
+    borderRadius: 999,
+    backgroundColor: theme.accent,
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  unreadBadgeText: {
+    color: "#fff9ef",
+    fontSize: 12,
+    fontWeight: "700"
   },
   logoutButton: {
     minHeight: 52,

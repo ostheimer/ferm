@@ -149,6 +149,23 @@ p {
   background: linear-gradient(135deg, rgba(216, 223, 178, 0.22), rgba(157, 179, 111, 0.32));
 }
 
+/* Unread-Badge im Sidebar-Link (z.B. Benachrichtigungen). Sitzt rechts
+ * im Flex-Container und ist visuell kompakt. Far-out-Layout-Tweak:
+ * margin-left:auto schubst die Pille an den rechten Rand, unabhaengig
+ * von der Lable-Laenge. */
+.nav-link-badge {
+  margin-left: auto;
+  min-width: 22px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--accent-strong);
+  color: #f5f1e7;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+
 .sidebar-card,
 .section-card,
 .panel-card,

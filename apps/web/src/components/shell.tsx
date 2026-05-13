@@ -12,6 +12,13 @@ import {
 import { Bell, LayoutDashboard } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+
+import {
+  countUnread,
+  getReadNotificationIds,
+  subscribeReadIds
+} from "../lib/notifications-read-state";
 
 /**
  * Sidebar-Icons stammen entweder aus `@hege/icons` (Domain-Icons) oder aus
@@ -75,12 +82,28 @@ export function isNavigationItemVisible(
 interface ShellProps {
   children?: React.ReactNode;
   viewer?: AuthContextResponse | null;
+  /**
+   * IDs der letzten Benachrichtigungen aus dem Dashboard-Snapshot.
+   * Wird vom Layout server-seitig befuellt; das Sidebar-Badge berechnet
+   * daraus + localStorage-Read-State den Unread-Count.
+   */
+  notificationIds?: ReadonlyArray<string>;
 }
 
-export function Shell({ children, viewer }: ShellProps) {
+export function Shell({ children, viewer, notificationIds }: ShellProps) {
   const pathname = usePathname();
   const currentPath = pathname ?? "";
   const isAuthPage = currentPath === "/login";
+  const [readIds, setReadIds] = useState<ReadonlyArray<string>>([]);
+
+  useEffect(() => {
+    // Erst nach Mount, weil getReadNotificationIds auf localStorage
+    // zugreift und SSR sonst Hydration-Diffs erzeugt.
+    setReadIds(getReadNotificationIds());
+    return subscribeReadIds((next) => setReadIds(next));
+  }, []);
+
+  const unreadNotificationCount = notificationIds ? countUnread(notificationIds, readIds) : 0;
 
   if (isAuthPage) {
     return <main className="auth-layout">{children}</main>;
@@ -107,15 +130,26 @@ export function Shell({ children, viewer }: ShellProps) {
               currentPath === item.href ||
               (item.href !== "/app" && currentPath.startsWith(`${item.href}/`));
             const Icon = item.icon;
+            const showBadge =
+              item.href === "/app/benachrichtigungen" && unreadNotificationCount > 0;
+            const badgeLabel = unreadNotificationCount > 9 ? "9+" : `${unreadNotificationCount}`;
 
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 className={active ? "nav-link nav-link-active" : "nav-link"}
+                aria-label={
+                  showBadge ? `${item.label}, ${unreadNotificationCount} ungelesen` : undefined
+                }
               >
                 <Icon aria-hidden="true" size={18} strokeWidth={1.8} />
                 <span>{item.label}</span>
+                {showBadge ? (
+                  <span aria-hidden="true" className="nav-link-badge">
+                    {badgeLabel}
+                  </span>
+                ) : null}
               </Link>
             );
           })}
