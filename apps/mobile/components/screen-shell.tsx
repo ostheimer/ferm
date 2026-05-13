@@ -52,14 +52,16 @@ export function ScreenShell({ eyebrow, title, subtitle, aside, children, refresh
         }
       >
         <LinearGradient colors={["#fff8ec", "#dde6c3"]} style={styles.hero}>
-          <View style={styles.heroContent}>
-            <Text style={styles.eyebrow}>{eyebrow}</Text>
-            <Text adjustsFontSizeToFit minimumFontScale={0.8} numberOfLines={2} style={styles.title}>
-              {title}
+          <View style={styles.heroHeaderRow}>
+            <Text style={styles.eyebrow} numberOfLines={1}>
+              {eyebrow}
             </Text>
-            <Text style={styles.subtitle}>{subtitle}</Text>
+            {aside ? <View style={styles.asideSlot}>{aside}</View> : null}
           </View>
-          {aside ? <View style={styles.aside}>{aside}</View> : null}
+          <Text adjustsFontSizeToFit minimumFontScale={0.8} numberOfLines={2} style={styles.title}>
+            {title}
+          </Text>
+          <Text style={styles.subtitle}>{subtitle}</Text>
         </LinearGradient>
         <View style={styles.children}>{children}</View>
       </ScrollView>
@@ -78,34 +80,37 @@ const createStyles = (theme: ThemeColors) =>
       gap: 16
     },
     hero: {
-      borderRadius: 28,
-      padding: 22,
-      gap: 18
+      borderRadius: 24,
+      padding: 18,
+      gap: 6
     },
-    heroContent: {
-      gap: 10
+    heroHeaderRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: 12
     },
     eyebrow: {
+      flex: 1,
       fontSize: 12,
       letterSpacing: 1.5,
       textTransform: "uppercase",
       color: theme.muted
     },
+    asideSlot: {
+      flexShrink: 0
+    },
     title: {
-      fontSize: 30,
-      lineHeight: 34,
+      fontSize: 26,
+      lineHeight: 30,
       color: theme.ink,
-      fontWeight: "700"
+      fontWeight: "700",
+      marginTop: 4
     },
     subtitle: {
-      fontSize: 15,
-      lineHeight: 23,
+      fontSize: 14,
+      lineHeight: 20,
       color: theme.muted
-    },
-    aside: {
-      padding: 16,
-      borderRadius: 20,
-      backgroundColor: theme.accent
     },
     children: {
       gap: 16
