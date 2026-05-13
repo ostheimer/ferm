@@ -3,6 +3,7 @@ import { demoData } from "@hege/domain";
 import { and, asc, desc, eq, inArray } from "drizzle-orm";
 
 import { getRequestContext } from "../../auth/context";
+import { buildCsv } from "../../csv/escape";
 import { getDb } from "../../db/client";
 import {
   dokumente,
@@ -100,6 +101,65 @@ export async function listRevierMemberships(): Promise<RevierMembershipOption[]>
     role: entry.role,
     jagdzeichen: entry.jagdzeichen
   }));
+}
+
+/**
+ * Exportiert alle Sitzungen des aktiven Reviers als CSV. Mehrwert fuer
+ * Schriftfuehrung: kompakter Jahresueberblick ueber alle Termine plus
+ * Status, Teilnehmer-Praesenz und Beschluss-Anzahl. Detail-Inhalte
+ * (Agenda, Beschluss-Texte) sind ueber die Detail-Seite + PDF-Export
+ * abrufbar — der CSV ist die Index-Sicht.
+ *
+ * Pattern wie `exportFallwildCsv` / `exportReviereinrichtungenCsv`:
+ * Spaltennamen snake_case, leere Optionalwerte als Leer-Zelle, Counts
+ * als nummerische Zellen (buildCsv stringifyiert sauber).
+ */
+export async function exportSitzungenCsv(): Promise<string> {
+  const entries = await listSitzungen();
+
+  return buildCsv(SITZUNGEN_CSV_HEADER, entries.map(toSitzungCsvRow));
+}
+
+export const SITZUNGEN_CSV_HEADER = [
+  "id",
+  "titel",
+  "termin",
+  "ort",
+  "status",
+  "teilnehmer_anwesend",
+  "teilnehmer_gesamt",
+  "anzahl_versionen",
+  "anzahl_beschluesse",
+  "letztes_update_am",
+  "freigegebenes_dokument_am"
+] as const;
+
+/**
+ * Spaltenfueller fuer eine Sitzung. Als eigene Funktion ausgelagert,
+ * damit der Vertrags-Test (`csv.test.ts`) die Zellen-Logik ohne
+ * DB-Roundtrip pruefen kann.
+ */
+export function toSitzungCsvRow(entry: Sitzung): ReadonlyArray<string | number> {
+  const latestVersion = entry.versions[0];
+  const totalBeschluesse = entry.versions.reduce(
+    (sum, version) => sum + version.beschluesse.length,
+    0
+  );
+  const anwesend = entry.participants.filter((participant) => participant.anwesend).length;
+
+  return [
+    entry.id,
+    entry.title,
+    entry.scheduledAt,
+    entry.locationLabel,
+    entry.status,
+    anwesend,
+    entry.participants.length,
+    entry.versions.length,
+    totalBeschluesse,
+    latestVersion?.createdAt ?? "",
+    entry.publishedDocument?.createdAt ?? ""
+  ];
 }
 
 export async function getDocumentDownloadRef(documentId: string) {

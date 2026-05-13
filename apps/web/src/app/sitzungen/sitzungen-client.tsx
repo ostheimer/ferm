@@ -151,6 +151,9 @@ export function SitzungenClient({ entries, memberships }: SitzungenClientProps) 
           </div>
           <div className="section-actions">
             <span className="badge">{entries.length} Einträge</span>
+            <a className="button-link" href="/api/v1/sitzungen/export.csv">
+              CSV-Export
+            </a>
             <button
               className="button-control button-control-secondary"
               disabled={isPending}
