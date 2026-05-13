@@ -331,13 +331,13 @@ export default function RevierarbeitScreen() {
               />
             </View>
             <View style={styles.filterGroup}>
-              <Text style={styles.filterEyebrow}>Prioritaet</Text>
+              <Text style={styles.filterEyebrow}>Priorität</Text>
               <FilterChipRow<AufgabePrioritaetFilter>
                 value={aufgabeFilter.prioritaet}
                 onChange={(key) =>
                   setAufgabeFilter((current) => ({ ...current, prioritaet: key }))
                 }
-                accessibilityLabel="Prioritaet filtern"
+                accessibilityLabel="Priorität filtern"
                 options={[
                   { key: "alle", label: "Alle" },
                   { key: "dringend", label: "Dringend" },
@@ -352,9 +352,9 @@ export default function RevierarbeitScreen() {
               <FilterChipRow<AufgabeSortKey>
                 value={aufgabeFilter.sort}
                 onChange={(key) => setAufgabeFilter((current) => ({ ...current, sort: key }))}
-                accessibilityLabel="Sortierung waehlen"
+                accessibilityLabel="Sortierung wählen"
                 options={[
-                  { key: "faellig-zuerst", label: "Faellig zuerst" },
+                  { key: "faellig-zuerst", label: "Fällig zuerst" },
                   { key: "prioritaet-hoch", label: "Wichtig zuerst" },
                   { key: "neueste-zuerst", label: "Neueste zuerst" },
                   { key: "alphabetisch", label: "A-Z" }
@@ -364,12 +364,12 @@ export default function RevierarbeitScreen() {
             {aufgabeFilterActive ? (
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel="Filter zuruecksetzen"
+                accessibilityLabel="Filter zurücksetzen"
                 onPress={() => setAufgabeFilter(DEFAULT_AUFGABE_FILTER)}
                 style={styles.filterReset}
               >
                 <Text style={styles.filterResetText}>
-                  Filter zuruecksetzen ({visibleAufgaben.length}/{aufgaben.length})
+                  Filter zurücksetzen ({visibleAufgaben.length}/{aufgaben.length})
                 </Text>
               </Pressable>
             ) : null}
@@ -387,7 +387,7 @@ export default function RevierarbeitScreen() {
           <View style={styles.stateCard}>
             <Text style={styles.stateTitle}>Keine Treffer</Text>
             <Text style={styles.stateCopy}>
-              Mit den aktuellen Filtern findet sich keine Aufgabe. Filter zuruecksetzen oder
+              Mit den aktuellen Filtern findet sich keine Aufgabe. Filter zurücksetzen oder
               Suchbegriff anpassen.
             </Text>
           </View>
