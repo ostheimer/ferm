@@ -90,21 +90,34 @@ export function AufgabeDetailClient({
   );
   const [isSaving, setIsSaving] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
+  // Tracking, ob der User die Assignee-Auswahl beruehrt hat. Wichtig
+  // bei Multi-Assignee-Aufgaben: der Form-State haelt nur den ersten
+  // Assignee, also wuerde Speichern ohne diese Pruefung die anderen
+  // Zuweisungen loeschen. Wenn der User das Feld nicht angefasst hat,
+  // schicken wir `assigneeMembershipIds` einfach nicht mit — die
+  // PATCH-Schema behandelt fehlende Felder als "unveraendert lassen".
+  const [assigneeTouched, setAssigneeTouched] = useState(false);
+  const hasMultipleAssignees = aufgabe.assigneeMembershipIds.length > 1;
 
   function startEdit() {
     setEditForm(buildEditForm(aufgabe));
     setEditError(null);
+    setAssigneeTouched(false);
     setIsEditing(true);
   }
 
   function cancelEdit() {
     setIsEditing(false);
     setEditError(null);
+    setAssigneeTouched(false);
   }
 
   function updateEditField<Key extends keyof EditFormState>(key: Key) {
     return (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
       const value = event.currentTarget.value;
+      if (key === "assigneeMembershipId") {
+        setAssigneeTouched(true);
+      }
       setEditForm((current) => ({ ...current, [key]: value }));
     };
   }
@@ -125,21 +138,30 @@ export function AufgabeDetailClient({
     const trimmedDescription = editForm.description.trim();
     const dueAt = editForm.dueAt ? new Date(editForm.dueAt).toISOString() : null;
 
+    // Body bauen wir feldweise, damit assigneeMembershipIds NUR mit-
+    // geschickt wird, wenn der User die Auswahl tatsaechlich beruehrt
+    // hat. Sonst wuerde eine Aufgabe mit mehreren Assignees beim
+    // Speichern silently auf einen reduziert (Form haelt nur den
+    // ersten — siehe assigneeTouched-Hintergrund weiter oben).
+    const body: Record<string, unknown> = {
+      title: trimmedTitle,
+      // nullable: leer-String -> null, damit der Server die Beschreibung
+      // tatsaechlich loescht. Sonst koennte man die Beschreibung nie
+      // wieder los werden, sobald sie einmal gesetzt ist.
+      description: trimmedDescription.length > 0 ? trimmedDescription : null,
+      priority: editForm.priority,
+      dueAt
+    };
+    if (assigneeTouched) {
+      body.assigneeMembershipIds = editForm.assigneeMembershipId
+        ? [editForm.assigneeMembershipId]
+        : [];
+    }
+
     const response = await fetch(`/api/v1/aufgaben/${aufgabe.id}`, {
       method: "PATCH",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        title: trimmedTitle,
-        // nullable: leer-String -> null, damit der Server die Beschreibung
-        // tatsaechlich loescht. Sonst koennte man die Beschreibung nie
-        // wieder los werden, sobald sie einmal gesetzt ist.
-        description: trimmedDescription.length > 0 ? trimmedDescription : null,
-        priority: editForm.priority,
-        dueAt,
-        assigneeMembershipIds: editForm.assigneeMembershipId
-          ? [editForm.assigneeMembershipId]
-          : []
-      })
+      body: JSON.stringify(body)
     });
 
     setIsSaving(false);
@@ -286,6 +308,14 @@ export function AufgabeDetailClient({
                   </option>
                 ))}
               </select>
+              {hasMultipleAssignees ? (
+                <span className="feedback feedback-warning">
+                  Diese Aufgabe hat aktuell mehrere Zugewiesene. Wenn du diese
+                  Auswahl änderst, ersetzt die neue Zuweisung alle anderen.
+                  Lass das Feld unberührt, um die bestehende Mehrfach-Zuweisung
+                  beizubehalten.
+                </span>
+              ) : null}
             </label>
 
             <div className="form-footer field-full">

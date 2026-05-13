@@ -376,11 +376,10 @@ export function ReviermeldungenClient({ meldungen }: ReviermeldungenClientProps)
                       disabled={statusUpdatingId === entry.id}
                       onChange={(event) => {
                         const next = event.currentTarget.value as ReviermeldungStatus;
-                        // Reset des Select auf den aktuellen Wert,
-                        // weil das Element den State der Meldung
-                        // nicht direkt haelt — wir reden mit der API
-                        // und warten auf den Refresh.
-                        event.currentTarget.value = entry.status;
+                        // Controlled-Value `value={entry.status}` sorgt
+                        // beim Re-Render dafuer, dass das Select auf den
+                        // aktuellen Status zurueckspringt — wir muessen
+                        // hier kein `event.currentTarget.value` setzen.
                         if (next !== entry.status) {
                           void updateMeldungStatus(entry.id, next);
                         }
