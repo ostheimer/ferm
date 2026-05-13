@@ -1,6 +1,7 @@
 "use client";
 
 import type {
+  AufgabePrioritaet,
   Reviermeldung,
   ReviermeldungKategorie,
   ReviermeldungStatus
@@ -11,7 +12,26 @@ import { useMemo, useState, useTransition } from "react";
 import { ListFilterChips } from "../../../components/list-filter-chips";
 import { ListSearchBar } from "../../../components/list-search-bar";
 import { StateView } from "../../../components/state-view";
+import { readApiErrorMessage } from "../../../lib/api-error";
 import { filterBySearch, hasActiveSearch } from "../../../lib/list-search";
+
+/**
+ * Default-Prioritaet je Reviermeldung-Kategorie. Gefahr -> dringend,
+ * Schaden -> hoch (akut handelnswert), Sichtung -> niedrig (dokumen-
+ * tarisch). Wer's praeziser will, kann die erzeugte Aufgabe danach
+ * direkt in /app/aufgaben anpassen — der Status-Wechsel-Button
+ * existiert dort schon, eine vollwertige Detail-Edit-UI ist eine
+ * spaetere Iteration.
+ */
+const KATEGORIE_TO_PRIORITAET: Record<ReviermeldungKategorie, AufgabePrioritaet> = {
+  gefahr: "dringend",
+  schaden: "hoch",
+  reviereinrichtung: "normal",
+  fuetterung: "normal",
+  wasserung: "normal",
+  sonstiges: "normal",
+  sichtung: "niedrig"
+};
 
 /**
  * Reviermeldungen-Index fuer das Backoffice. Mobile zeigt nur die
@@ -78,6 +98,9 @@ export function ReviermeldungenClient({ meldungen }: ReviermeldungenClientProps)
   const [kategorieFilter, setKategorieFilter] = useState<KategorieFilter>("alle");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("alle");
   const [sortKey, setSortKey] = useState<SortKey>("neueste-zuerst");
+  const [convertingId, setConvertingId] = useState<string | null>(null);
+  const [conversionError, setConversionError] = useState<string | null>(null);
+  const [conversionSuccess, setConversionSuccess] = useState<string | null>(null);
 
   const filteredByChips = useMemo(
     () =>
@@ -114,6 +137,51 @@ export function ReviermeldungenClient({ meldungen }: ReviermeldungenClientProps)
     setKategorieFilter("alle");
     setStatusFilter("alle");
     setSortKey("neueste-zuerst");
+  }
+
+  /**
+   * Konvertiert eine Reviermeldung in eine Aufgabe. One-Click-MVP:
+   * Title/Description werden uebernommen, sourceType + sourceId zeigen
+   * auf die Original-Meldung, Prioritaet wird aus der Kategorie
+   * abgeleitet. Der User kann die Aufgabe danach in /app/aufgaben
+   * feiner adjustieren.
+   */
+  async function handleCreateAufgabe(meldung: Reviermeldung) {
+    if (convertingId) return;
+
+    setConvertingId(meldung.id);
+    setConversionError(null);
+    setConversionSuccess(null);
+
+    const response = await fetch("/api/v1/aufgaben", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        title: meldung.title,
+        description: meldung.description || undefined,
+        priority: KATEGORIE_TO_PRIORITAET[meldung.category] ?? "normal",
+        sourceType: "reviermeldung",
+        sourceId: meldung.id
+      })
+    });
+
+    setConvertingId(null);
+
+    if (!response.ok) {
+      const body = await response.json().catch(() => null);
+      setConversionError(
+        readApiErrorMessage(body, "Aufgabe konnte nicht aus der Meldung angelegt werden.")
+      );
+      return;
+    }
+
+    setConversionSuccess(
+      `Aufgabe wurde aus „${meldung.title}" angelegt. Detail in /app/aufgaben sichtbar.`
+    );
+    // Wir refresh-en hier nicht — die Aufgabe taucht NICHT in dieser
+    // Liste auf (das ist die Meldungen-Liste), also waere ein Refresh
+    // ohne sichtbaren Effekt. Wer die neue Aufgabe sehen will,
+    // wechselt in /app/aufgaben.
   }
 
   return (
@@ -199,6 +267,15 @@ export function ReviermeldungenClient({ meldungen }: ReviermeldungenClientProps)
           ]}
         />
 
+        <div aria-live="polite" className="form-messages">
+          {conversionError ? (
+            <p className="feedback feedback-error">{conversionError}</p>
+          ) : null}
+          {conversionSuccess ? (
+            <p className="feedback feedback-success">{conversionSuccess}</p>
+          ) : null}
+        </div>
+
         {meldungen.length === 0 ? (
           <StateView
             mode="empty"
@@ -234,6 +311,14 @@ export function ReviermeldungenClient({ meldungen }: ReviermeldungenClientProps)
                   </p>
                 ) : null}
                 <time>{formatDateTime(entry.occurredAt)}</time>
+                <button
+                  className="button-control button-control-secondary"
+                  disabled={convertingId === entry.id}
+                  onClick={() => void handleCreateAufgabe(entry)}
+                  type="button"
+                >
+                  {convertingId === entry.id ? "Wird angelegt …" : "Aufgabe daraus anlegen"}
+                </button>
               </article>
             ))}
           </div>
