@@ -1,4 +1,5 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
+import * as Haptics from "expo-haptics";
 import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
@@ -58,6 +59,7 @@ export default function MehrScreen() {
   const theme = useThemeColors();
   const [snapshot, setSnapshot] = useState<DashboardResponse | null>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const readIds = useReadNotificationIds();
   const unreadCount = useMemo(() => {
     const notificationIds = snapshot?.overview.letzteBenachrichtigungen.map((entry) => entry.id) ?? [];
@@ -88,6 +90,24 @@ export default function MehrScreen() {
     };
   }, [session.status, session.session?.user.id]);
 
+  async function handleRefresh() {
+    if (isRefreshing) {
+      return;
+    }
+    setIsRefreshing(true);
+    try {
+      const data = await fetchDashboardSnapshot();
+      setSnapshot(data);
+    } catch {
+      // Refresh-Fehler werden hier still verschluckt — der Profil-
+      // Bereich zeigt im Fehlerfall die alten Werte weiter, was
+      // weniger irritierend ist als ein Toast in einer reinen
+      // Navigations-Liste.
+    } finally {
+      setIsRefreshing(false);
+    }
+  }
+
   async function handleLogout() {
     if (isLoggingOut) {
       return;
@@ -108,6 +128,13 @@ export default function MehrScreen() {
       eyebrow="Mehr"
       title="Profil und weitere Bereiche"
       subtitle="Selten genutzte Aufgaben sind hier gebündelt, damit der Heute-Bildschirm fokussiert bleibt."
+      refresh={{
+        refreshing: isRefreshing,
+        onRefresh: () => {
+          void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          void handleRefresh();
+        }
+      }}
     >
       <View style={styles.profileCard}>
         <Text style={styles.profileLabel}>Angemeldet als</Text>
