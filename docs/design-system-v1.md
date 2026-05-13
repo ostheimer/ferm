@@ -26,9 +26,7 @@ Das heißt:
 Aktueller Stand:
 
 - **Logo-Mark** (das „h" mit Reh-Silhouette): vorhanden in `apps/web/public/brand/hege-logo-mark.png`, `apps/web/public/brand/hege-logo-clean.png` (höhere Auflösung), `apps/web/public/brand/hege-logo-source.png` (Original) und `apps/mobile/assets/logo-mark.png`.
-- **Wortmarke „hege"**: aktuell **nicht** als Asset vorhanden. Wird im Login-Screen als Text neben dem Mark gerendert (in Mobile mit Georgia 48pt, Web als CSS-Heading). Das ist Workaround, kein dediziertes Asset.
-
-Offene Aufgabe: ein gerendertes Wortmarken-Asset (SVG mit dem Mark links und „hege" als Schriftzug rechts in der Brand-Schrift, plus monochrome Varianten für dunkle/helle Hintergründe). Wird in Pfad 1 der UX-Roadmap behandelt.
+- **Wortmarke „hege"**: ✅ Implementiert in `packages/icons/src/wordmark/` (via `@hege/icons`)
 
 ### Voice / Mikrocopy
 
@@ -107,13 +105,11 @@ Drei Varianten, alle als CSS-Klassen / RN-Styles definiert:
 
 ### Empty / Loading / Error-States
 
-Aktuell uneinheitlich. Soll-Pattern:
+`state-view.tsx` (`apps/web/src/components/state-view.tsx`) ist implementiert und der Standard für Empty-, Loading- und Error-States. Alle drei Zustände folgen demselben Layout:
 
 - **Empty**: Icon (Lucide für Web, Ionicons für Mobile) + 1 Headline + 1 Beschreibung + ggf. CTA.
 - **Loading**: dasselbe Layout, Icon ist ein Spinner mit `accent`-Farbe, Headline „Wird geladen…", Beschreibung was geladen wird.
 - **Error**: dasselbe Layout, Icon ist ein Achtung-Symbol in `danger`, Headline beschreibt den Bereich, Beschreibung enthält die nächste Aktion.
-
-Vereinheitlichung kommt in Pfad 1 (Iteration 4).
 
 ### Navigation
 
