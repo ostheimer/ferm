@@ -2,6 +2,7 @@
 
 import type { Aufgabe, AufgabePrioritaet, AufgabeStatus } from "@hege/domain";
 import { useRouter } from "next/navigation";
+import type { ChangeEvent, FormEvent } from "react";
 import { useMemo, useState, useTransition } from "react";
 
 import { ListFilterChips } from "../../../components/list-filter-chips";
@@ -9,6 +10,29 @@ import { ListSearchBar } from "../../../components/list-search-bar";
 import { StateView } from "../../../components/state-view";
 import { readApiErrorMessage } from "../../../lib/api-error";
 import { filterBySearch, hasActiveSearch } from "../../../lib/list-search";
+
+interface MembershipOption {
+  membershipId: string;
+  userName: string;
+  role: string;
+  jagdzeichen: string;
+}
+
+interface CreateFormState {
+  title: string;
+  description: string;
+  priority: AufgabePrioritaet;
+  dueAt: string;
+  assigneeMembershipId: string;
+}
+
+const DEFAULT_CREATE_FORM: CreateFormState = {
+  title: "",
+  description: "",
+  priority: "normal",
+  dueAt: "",
+  assigneeMembershipId: ""
+};
 
 /**
  * Web-Pendant zur Mobile-Aufgaben-Sicht in `revierarbeit.tsx`. Spiegelt
@@ -73,18 +97,23 @@ function compareAufgaben(left: Aufgabe, right: Aufgabe, key: SortKey): number {
 
 interface AufgabenClientProps {
   aufgaben: Aufgabe[];
+  memberships: MembershipOption[];
 }
 
-export function AufgabenClient({ aufgaben }: AufgabenClientProps) {
+export function AufgabenClient({ aufgaben, memberships }: AufgabenClientProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("offen");
   const [prioritaetFilter, setPrioritaetFilter] = useState<PrioritaetFilter>("alle");
   const [sortKey, setSortKey] = useState<SortKey>("faellig-zuerst");
+
+  const [createForm, setCreateForm] = useState<CreateFormState>(DEFAULT_CREATE_FORM);
+  const [isCreating, setIsCreating] = useState(false);
 
   const filteredByChips = useMemo(
     () =>
@@ -126,6 +155,7 @@ export function AufgabenClient({ aufgaben }: AufgabenClientProps) {
   async function updateStatus(aufgabeId: string, status: AufgabeStatus) {
     setUpdatingId(aufgabeId);
     setError(null);
+    setSuccess(null);
 
     const response = await fetch(`/api/v1/aufgaben/${aufgabeId}`, {
       method: "PATCH",
@@ -141,6 +171,64 @@ export function AufgabenClient({ aufgaben }: AufgabenClientProps) {
       return;
     }
 
+    startTransition(() => {
+      router.refresh();
+    });
+  }
+
+  function updateCreateField<Key extends keyof CreateFormState>(key: Key) {
+    return (event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+      const value = event.currentTarget.value;
+      setCreateForm((current) => ({ ...current, [key]: value }));
+    };
+  }
+
+  async function handleCreate(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (isCreating) return;
+
+    setIsCreating(true);
+    setError(null);
+    setSuccess(null);
+
+    const trimmedTitle = createForm.title.trim();
+    if (!trimmedTitle) {
+      setError("Bitte einen Titel angeben.");
+      setIsCreating(false);
+      return;
+    }
+
+    // dueAt ist im Form als datetime-local-Inputs (ohne Zeitzone). Wir
+    // konvertieren es zu ISO mit lokaler Zeitzone, damit der Server die
+    // gleiche Zeit wieder anzeigt wie der Nutzer eingegeben hat.
+    const dueAt = createForm.dueAt
+      ? new Date(createForm.dueAt).toISOString()
+      : undefined;
+
+    const response = await fetch("/api/v1/aufgaben", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        title: trimmedTitle,
+        description: createForm.description.trim() || undefined,
+        priority: createForm.priority,
+        dueAt,
+        assigneeMembershipIds: createForm.assigneeMembershipId
+          ? [createForm.assigneeMembershipId]
+          : undefined
+      })
+    });
+
+    setIsCreating(false);
+
+    if (!response.ok) {
+      const body = await response.json().catch(() => null);
+      setError(readApiErrorMessage(body, "Aufgabe konnte nicht angelegt werden."));
+      return;
+    }
+
+    setCreateForm(DEFAULT_CREATE_FORM);
+    setSuccess("Aufgabe wurde angelegt.");
     startTransition(() => {
       router.refresh();
     });
@@ -300,6 +388,95 @@ export function AufgabenClient({ aufgaben }: AufgabenClientProps) {
             ))}
           </div>
         )}
+      </section>
+
+      <section className="section-card">
+        <header className="section-header">
+          <div>
+            <p className="eyebrow">Neue Aufgabe</p>
+            <h2>Aufgabe für das Revier anlegen</h2>
+            <p className="hero-copy">
+              Direkter Weg zur API. Erstellt eine Aufgabe ohne Bezug zu einer Reviermeldung —
+              für Routinearbeiten, Begehungen oder Aufträge an einzelne Mitglieder.
+            </p>
+          </div>
+          {isCreating ? <span className="badge">Wird angelegt …</span> : null}
+        </header>
+
+        <form className="ansitz-form" onSubmit={(event) => void handleCreate(event)}>
+          <label className="field field-full" htmlFor="aufgabe-title">
+            <span>Titel</span>
+            <input
+              id="aufgabe-title"
+              maxLength={120}
+              onChange={updateCreateField("title")}
+              placeholder="z. B. Zaun nachspannen am Westhang"
+              required
+              value={createForm.title}
+            />
+          </label>
+
+          <label className="field field-full" htmlFor="aufgabe-description">
+            <span>Details</span>
+            <textarea
+              id="aufgabe-description"
+              onChange={updateCreateField("description")}
+              placeholder="Was muss gemacht werden? Wer hat es gemeldet?"
+              rows={3}
+              value={createForm.description}
+            />
+          </label>
+
+          <label className="field" htmlFor="aufgabe-priority">
+            <span>Priorität</span>
+            <select
+              id="aufgabe-priority"
+              onChange={updateCreateField("priority")}
+              value={createForm.priority}
+            >
+              <option value="niedrig">Niedrig</option>
+              <option value="normal">Normal</option>
+              <option value="hoch">Hoch</option>
+              <option value="dringend">Dringend</option>
+            </select>
+          </label>
+
+          <label className="field" htmlFor="aufgabe-due-at">
+            <span>Fällig (optional)</span>
+            <input
+              id="aufgabe-due-at"
+              onChange={updateCreateField("dueAt")}
+              type="datetime-local"
+              value={createForm.dueAt}
+            />
+          </label>
+
+          <label className="field field-full" htmlFor="aufgabe-assignee">
+            <span>Zuweisen an (optional)</span>
+            <select
+              id="aufgabe-assignee"
+              onChange={updateCreateField("assigneeMembershipId")}
+              value={createForm.assigneeMembershipId}
+            >
+              <option value="">— Nicht zuweisen —</option>
+              {memberships.map((entry) => (
+                <option key={entry.membershipId} value={entry.membershipId}>
+                  {entry.userName} ({entry.role} · {entry.jagdzeichen})
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <div className="form-footer field-full">
+            <div aria-live="polite" className="form-messages">
+              {error ? <p className="feedback feedback-error">{error}</p> : null}
+              {success ? <p className="feedback feedback-success">{success}</p> : null}
+            </div>
+            <button className="button-control" disabled={isCreating} type="submit">
+              Aufgabe anlegen
+            </button>
+          </div>
+        </form>
       </section>
     </div>
   );
