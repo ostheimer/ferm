@@ -1,14 +1,25 @@
 /**
- * CSV-Cell-Escape nach RFC 4180. Felder mit Komma, Doppelter Anfuehrungs-
- * zeichen oder Zeilenumbruch werden in `"..."` eingeschlossen, dabei
- * werden alle `"` zu `""` verdoppelt.
+ * CSV-Cell-Escape nach RFC 4180. Felder mit Komma, doppeltem Anfuehrungs-
+ * zeichen, LF (`\n`) oder CR (`\r`) werden in `"..."` eingeschlossen,
+ * dabei werden alle `"` zu `""` verdoppelt.
  *
- * Wird von allen CSV-Exporten verwendet — Fallwild, Ansitze und
- * Reviereinrichtungen (W3). Vorher dupliziert in jedem Modul; jetzt
- * zentral, damit eine Verhaltensaenderung an einer Stelle reicht.
+ * Wird von allen CSV-Exporten verwendet — Fallwild, Ansitze, Reviermeld-
+ * ungen, Sitzungen, Mitglieder und Reviereinrichtungen. Vorher dupliziert
+ * in jedem Modul; jetzt zentral, damit eine Verhaltensaenderung an einer
+ * Stelle reicht.
+ *
+ * `\r` ist ein eigener Check (nicht nur `\n`), weil Windows-Clipboard-
+ * Pastes oder ASCII-Imports auch reine Carriage-Returns enthalten
+ * koennen. Ohne Escape wuerde Excel an einem bare `\r` die Zelle
+ * umbrechen und die Zeile zerreissen.
  */
 export function escapeCsvCell(value: string): string {
-  if (value.includes(",") || value.includes("\"") || value.includes("\n")) {
+  if (
+    value.includes(",") ||
+    value.includes("\"") ||
+    value.includes("\n") ||
+    value.includes("\r")
+  ) {
     return `"${value.replaceAll("\"", "\"\"")}"`;
   }
 

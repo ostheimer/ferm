@@ -21,6 +21,13 @@ describe("escapeCsvCell", () => {
   it("Werte mit Newline werden quotiert", () => {
     expect(escapeCsvCell("Zeile 1\nZeile 2")).toBe('"Zeile 1\nZeile 2"');
   });
+
+  it("Werte mit Carriage-Return werden quotiert (Windows-Clipboard-Paste)", () => {
+    // RFC 4180 erfordert Quoting auch fuer reine CR, nicht nur fuer LF.
+    // Sonst zerreisst Excel an einem bare \r die Zeile.
+    expect(escapeCsvCell("Schaden\rZaun")).toBe('"Schaden\rZaun"');
+    expect(escapeCsvCell("Win\r\nNewline")).toBe('"Win\r\nNewline"');
+  });
 });
 
 describe("buildCsv", () => {
