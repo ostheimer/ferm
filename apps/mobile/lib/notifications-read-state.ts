@@ -51,14 +51,22 @@ async function loadReadIds(): Promise<ReadonlyArray<string>> {
 }
 
 async function persistReadIds(ids: ReadonlyArray<string>): Promise<void> {
-  cachedReadIds = ids;
+  // Wir schreiben erst auf Disk und aktualisieren In-Memory-State +
+  // notifizieren Listener nur bei Erfolg. Frueher war die Reihenfolge
+  // umgekehrt (Cache zuerst, Storage danach, Listener immer) — das
+  // erzeugte eine "der Read-Status verschwindet nach App-Neustart"-
+  // Inkonsistenz, wenn `setItem` mal scheiterte. Cold-Start liest
+  // dann Disk und hat den alten Stand, waehrend der Listener-Stream
+  // im aktuellen Lauf den neuen Stand kannte.
   try {
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
-  } catch {
-    // Bei Storage-Fehlern bleibt der Cache aktuell — die UI ist
-    // konsistent, beim naechsten App-Start ist der Stand verloren.
-    // Das ist akzeptable Degradation.
+  } catch (error) {
+    if (typeof console !== "undefined" && typeof console.warn === "function") {
+      console.warn("[notifications-read-state] persist failed, keeping previous state", error);
+    }
+    return;
   }
+  cachedReadIds = ids;
   listeners.forEach((listener) => listener(ids));
 }
 
