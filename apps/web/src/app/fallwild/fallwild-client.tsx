@@ -7,6 +7,7 @@ import { useMemo, useState, useTransition } from "react";
 
 import { ListFilterChips } from "../../components/list-filter-chips";
 import { ListSearchBar } from "../../components/list-search-bar";
+import { StateView } from "../../components/state-view";
 import { readApiErrorMessage } from "../../lib/api-error";
 import { filterBySearch, hasActiveSearch } from "../../lib/list-search";
 
@@ -126,6 +127,13 @@ export function FallwildClient({ entries }: FallwildClientProps) {
     searchActive || filterActive
       ? `${visibleEntries.length} von ${entries.length}`
       : `${entries.length} Eintraege`;
+
+  function resetAllFilters() {
+    setSearch("");
+    setBergungsFilter("alle");
+    setZeitraumFilter("alle");
+    setSortKey("neueste-zuerst");
+  }
 
   function updateInput<Key extends keyof typeof DEFAULT_FORM_VALUES>(key: Key) {
     return (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -262,20 +270,24 @@ export function FallwildClient({ entries }: FallwildClientProps) {
 
         <div className="timeline">
           {entries.length === 0 ? (
-            <article className="timeline-item">
-              <span>Fallwild</span>
-              <strong>Keine dokumentierten Vorgänge</strong>
-              <p>Sobald der erste Fallwild-Vorgang erfasst wird, erscheint er hier und im CSV-Export.</p>
-            </article>
+            <StateView
+              mode="empty"
+              title="Keine dokumentierten Vorgänge"
+              description="Sobald der erste Fallwild-Vorgang erfasst wird, erscheint er hier und im CSV-Export."
+              bare
+            />
           ) : visibleEntries.length === 0 ? (
-            <article className="timeline-item">
-              <span>Filter</span>
-              <strong>Keine Treffer</strong>
-              <p>
-                Mit der aktuellen Suche („{search}") findet sich kein Eintrag. Andere Begriffe
-                versuchen oder Suche leeren.
-              </p>
-            </article>
+            <StateView
+              mode="empty"
+              title="Keine Treffer"
+              description={
+                searchActive
+                  ? `Mit der aktuellen Suche („${search}") und den gesetzten Filtern findet sich kein Vorgang.`
+                  : "Mit den aktuellen Filtern findet sich kein Vorgang."
+              }
+              action={{ label: "Filter zurücksetzen", onClick: resetAllFilters }}
+              bare
+            />
           ) : (
             visibleEntries.map((entry) => (
               <article key={entry.id} className="timeline-item">

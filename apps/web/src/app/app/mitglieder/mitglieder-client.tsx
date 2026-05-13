@@ -122,6 +122,15 @@ export function MitgliederClient({ invitations, mailEnabled }: MitgliederClientP
   const pendingCount = invitations.filter((entry) => entry.status === "pending").length;
   const acceptedCount = invitations.filter((entry) => entry.status === "accepted").length;
 
+  // Reset-Aktion: einziger Klick, statt manuell drei Chip-Reihen
+  // zurueckzudrehen. Greift nur, wenn ueberhaupt etwas aktiv ist.
+  function resetAllFilters() {
+    setSearch("");
+    setRoleFilter("alle");
+    setStatusFilter("alle");
+    setSortKey("neueste-zuerst");
+  }
+
   function update<Key extends keyof FormState>(key: Key) {
     return (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       const target = event.currentTarget;
@@ -428,7 +437,12 @@ export function MitgliederClient({ invitations, mailEnabled }: MitgliederClientP
           <StateView
             mode="empty"
             title="Keine Treffer"
-            description={`Mit der aktuellen Suche („${search}") findet sich kein Mitglied. Andere Begriffe versuchen oder Suche leeren.`}
+            description={
+              searchActive
+                ? `Mit der aktuellen Suche („${search}") und den gesetzten Filtern findet sich kein Mitglied.`
+                : "Mit den aktuellen Filtern findet sich kein Mitglied."
+            }
+            action={{ label: "Filter zurücksetzen", onClick: resetAllFilters }}
             bare
           />
         ) : (

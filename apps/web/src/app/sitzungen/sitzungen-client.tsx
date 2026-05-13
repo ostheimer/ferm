@@ -90,6 +90,12 @@ export function SitzungenClient({ entries, memberships }: SitzungenClientProps) 
   const entwurfCount = entries.filter((entry) => entry.status === "entwurf").length;
   const freigegebenCount = entries.filter((entry) => entry.status === "freigegeben").length;
 
+  function resetAllFilters() {
+    setSearch("");
+    setStatusFilter("alle");
+    setSortKey("termin-naechste");
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
@@ -204,7 +210,12 @@ export function SitzungenClient({ entries, memberships }: SitzungenClientProps) 
           <StateView
             mode="empty"
             title="Keine Treffer"
-            description={`Mit der aktuellen Suche („${search}") findet sich keine Sitzung. Andere Begriffe versuchen oder Suche leeren.`}
+            description={
+              searchActive
+                ? `Mit der aktuellen Suche („${search}") und den gesetzten Filtern findet sich keine Sitzung.`
+                : "Mit den aktuellen Filtern findet sich keine Sitzung."
+            }
+            action={{ label: "Filter zurücksetzen", onClick: resetAllFilters }}
           />
         ) : null}
 
