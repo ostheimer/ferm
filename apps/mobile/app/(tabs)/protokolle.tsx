@@ -1,10 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import type { ProtokollDetail, ProtokollListItem } from "@hege/domain";
 
+import { FilterChipRow } from "../../components/filter-chip-row";
 import { ScreenShell } from "../../components/screen-shell";
+import { SearchInput } from "../../components/search-input";
 import { formatDateTime } from "../../lib/format";
 import { fetchProtokollDetail, fetchProtokolleList } from "../../lib/api";
+import {
+  applyProtokollFilter,
+  DEFAULT_PROTOKOLL_FILTER,
+  isProtokollFilterActive,
+  type ProtokollFilterState,
+  type ProtokollSortKey,
+  type ProtokollStatusFilter
+} from "../../lib/protokoll-filter.helpers";
 import type { ThemeColors } from "../../lib/theme";
 import { useThemedStyles } from "../../lib/use-themed-styles";
 
@@ -16,6 +26,13 @@ export default function ProtokolleScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [filter, setFilter] = useState<ProtokollFilterState>(DEFAULT_PROTOKOLL_FILTER);
+
+  const visibleProtokolle = useMemo(
+    () => applyProtokollFilter(protokolle, filter),
+    [protokolle, filter]
+  );
+  const filterActive = useMemo(() => isProtokollFilterActive(filter), [filter]);
 
   useEffect(() => {
     void loadProtokolle();
@@ -75,8 +92,71 @@ export default function ProtokolleScreen() {
         </View>
       ) : null}
 
+      {!isLoading && !error && protokolle.length > 0 ? (
+        <View style={styles.filterSection}>
+          <SearchInput
+            value={filter.search}
+            onChangeText={(text) => setFilter((current) => ({ ...current, search: text }))}
+            placeholder="Suche Titel, Ort oder Zusammenfassung ..."
+            accessibilityLabel="Protokolle durchsuchen"
+          />
+          <View style={styles.filterGroup}>
+            <Text style={styles.filterEyebrow}>Status</Text>
+            <FilterChipRow<ProtokollStatusFilter>
+              value={filter.status}
+              onChange={(key) => setFilter((current) => ({ ...current, status: key }))}
+              accessibilityLabel="Protokoll-Status filtern"
+              options={[
+                { key: "alle", label: "Alle" },
+                { key: "entwurf", label: "Entwürfe" },
+                { key: "freigegeben", label: "Freigegeben" }
+              ]}
+            />
+          </View>
+          <View style={styles.filterGroup}>
+            <Text style={styles.filterEyebrow}>Sortierung</Text>
+            <FilterChipRow<ProtokollSortKey>
+              value={filter.sort}
+              onChange={(key) => setFilter((current) => ({ ...current, sort: key }))}
+              accessibilityLabel="Sortierung wählen"
+              options={[
+                { key: "termin-neueste", label: "Neueste zuerst" },
+                { key: "termin-aelteste", label: "Älteste zuerst" },
+                { key: "nach-titel", label: "Nach Titel" },
+                { key: "nach-beschluesse", label: "Meiste Beschlüsse" }
+              ]}
+            />
+          </View>
+          {filterActive ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Filter zurücksetzen"
+              onPress={() => setFilter(DEFAULT_PROTOKOLL_FILTER)}
+              style={styles.filterReset}
+            >
+              <Text style={styles.filterResetText}>
+                Filter zurücksetzen ({visibleProtokolle.length}/{protokolle.length})
+              </Text>
+            </Pressable>
+          ) : null}
+        </View>
+      ) : null}
+
+      {!isLoading && !error && visibleProtokolle.length === 0 ? (
+        <View style={styles.stateCard}>
+          <Text style={styles.stateTitle}>
+            {protokolle.length === 0 ? "Noch keine Protokolle" : "Keine Treffer"}
+          </Text>
+          <Text style={styles.stateCopy}>
+            {protokolle.length === 0
+              ? "Sobald die Schriftführung Sitzungen anlegt und freigibt, erscheinen sie hier."
+              : "Mit den aktuellen Filtern findet sich kein Eintrag. Filter zurücksetzen oder Suchbegriff anpassen."}
+          </Text>
+        </View>
+      ) : null}
+
       <View style={styles.list}>
-        {protokolle.map((entry) => (
+        {visibleProtokolle.map((entry) => (
           <Pressable
             key={entry.id}
             style={[styles.card, selectedId === entry.id ? styles.cardActive : null]}
@@ -184,6 +264,34 @@ const createStyles = (theme: ThemeColors) =>
     fontSize: 14,
     lineHeight: 20,
     color: theme.muted
+  },
+  filterSection: {
+    gap: 10,
+    padding: 14,
+    borderRadius: 18,
+    backgroundColor: theme.card
+  },
+  filterGroup: {
+    gap: 6
+  },
+  filterEyebrow: {
+    fontSize: 11,
+    textTransform: "uppercase",
+    letterSpacing: 1.1,
+    color: theme.muted,
+    fontWeight: "700"
+  },
+  filterReset: {
+    alignSelf: "flex-start",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 999,
+    backgroundColor: theme.accent
+  },
+  filterResetText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#fff9ef"
   },
   okBadge: {
     paddingHorizontal: 10,
