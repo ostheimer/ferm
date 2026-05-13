@@ -2,6 +2,7 @@ import { getRequestContext } from "../../../server/auth/context";
 import { requirePageRoles } from "../../../server/auth/guards";
 import { listAufgabenForRequest } from "../../../server/modules/revierarbeit/queries";
 import { REVIERARBEIT_ALLOWED_ROLES } from "../../../server/modules/revierarbeit/service";
+import { listRevierMemberships } from "../../../server/modules/sitzungen/queries";
 
 import { AufgabenClient } from "./aufgaben-client";
 
@@ -15,11 +16,18 @@ export const dynamic = "force-dynamic";
  * (alle vier — jaeger, ausgeher, schriftfuehrer, revier-admin). Daten
  * werden von `listAufgabenForRequest` geliefert, das die revier-
  * spezifische Sicht kapselt (Demo-Store-Fallback inklusive).
+ *
+ * Memberships werden mitgeladen, damit der Create-Form einen Assignee-
+ * Picker zeigen kann. Bewusst keine eigene Query — wir nutzen die
+ * existierende `listRevierMemberships`, die Sitzungen schon verwendet.
  */
 export default async function AufgabenPage() {
   await requirePageRoles([...REVIERARBEIT_ALLOWED_ROLES], { next: "/app/aufgaben" });
   const context = await getRequestContext();
-  const aufgaben = await listAufgabenForRequest(context);
+  const [aufgaben, memberships] = await Promise.all([
+    listAufgabenForRequest(context),
+    listRevierMemberships()
+  ]);
 
-  return <AufgabenClient aufgaben={aufgaben} />;
+  return <AufgabenClient aufgaben={aufgaben} memberships={memberships} />;
 }
