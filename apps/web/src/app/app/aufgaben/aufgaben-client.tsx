@@ -121,6 +121,23 @@ export function AufgabenClient({ aufgaben, memberships }: AufgabenClientProps) {
   const [createForm, setCreateForm] = useState<CreateFormState>(DEFAULT_CREATE_FORM);
   const [isCreating, setIsCreating] = useState(false);
 
+  // Counts pro Status-Bucket. Wir zeigen sie als Chip-Counts, damit der
+  // User sieht, dass z.B. unter "Alle" mehr Eintraege liegen als unter
+  // "Offen" + "Erledigt" zusammen — das sind die abgelehnten/
+  // archivierten, die sonst unsichtbar bleiben.
+  const statusCounts = useMemo(() => {
+    let offen = 0;
+    let erledigt = 0;
+    for (const entry of aufgaben) {
+      if (entry.status === "erledigt") {
+        erledigt += 1;
+      } else if (OFFEN_STATUSES.includes(entry.status)) {
+        offen += 1;
+      }
+    }
+    return { offen, erledigt, alle: aufgaben.length };
+  }, [aufgaben]);
+
   const filteredByChips = useMemo(
     () =>
       aufgaben.filter((entry) => {
@@ -280,9 +297,9 @@ export function AufgabenClient({ aufgaben, memberships }: AufgabenClientProps) {
           value={statusFilter}
           onChange={setStatusFilter}
           options={[
-            { key: "offen", label: "Offen" },
-            { key: "erledigt", label: "Erledigt" },
-            { key: "alle", label: "Alle" }
+            { key: "offen", label: "Offen", count: statusCounts.offen },
+            { key: "erledigt", label: "Erledigt", count: statusCounts.erledigt },
+            { key: "alle", label: "Alle", count: statusCounts.alle }
           ]}
         />
 
