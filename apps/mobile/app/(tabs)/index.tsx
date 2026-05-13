@@ -1,4 +1,5 @@
 import * as Haptics from "expo-haptics";
+import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import type { DashboardResponse } from "@hege/domain";
@@ -49,6 +50,7 @@ import { useThemedStyles } from "../../lib/use-themed-styles";
  *     Freigabe.
  */
 export default function HeuteScreen() {
+  const router = useRouter();
   const queue = useOfflineQueueSnapshot();
   const styles = useThemedStyles(createStyles);
   const [snapshot, setSnapshot] = useState<DashboardResponse | null>(null);
@@ -227,10 +229,33 @@ export default function HeuteScreen() {
         <>
           <RoleHeadline data={roleDashboard.headline} />
 
-          <ActivityFeed items={activityItems} />
+          <ActivityFeed
+            items={activityItems}
+            onItemPress={(item) => {
+              // Tap auf einen Feed-Eintrag fuehrt auf den passenden
+              // Listen-Tab. Tiefen-Deeplinks (z.B. auf den konkreten
+              // Fallwild-Vorgang) waeren ein eigenes Feature — momentan
+              // hat keine der Listen pro-Eintrag-Detail-Routen.
+              if (item.kind === "ansitz") {
+                router.push("/(tabs)/ansitze");
+              } else if (item.kind === "fallwild") {
+                router.push("/(tabs)/fallwild");
+              } else {
+                router.push("/benachrichtigungen");
+              }
+            }}
+          />
 
           {activeAnsitze.length > 0 ? (
-            <View style={styles.card}>
+            <Pressable
+              accessibilityRole="link"
+              accessibilityLabel={`Aktive Ansitze, ${activeAnsitze.length} Eintraege, oeffnen`}
+              onPress={() => {
+                void Haptics.selectionAsync();
+                router.push("/(tabs)/ansitze");
+              }}
+              style={({ pressed }) => [styles.card, pressed ? styles.cardPressed : null]}
+            >
               <Text style={styles.cardEyebrow}>Aktive Ansitze</Text>
               {activeAnsitze.slice(0, 4).map((entry) => (
                 <View key={entry.id} style={styles.ansitzRow}>
@@ -250,15 +275,23 @@ export default function HeuteScreen() {
                   +{activeAnsitze.length - 4} weitere im Ansitze-Tab.
                 </Text>
               ) : null}
-            </View>
+            </Pressable>
           ) : null}
 
           {snapshot.overview.naechsteSitzung ? (
-            <View style={styles.card}>
+            <Pressable
+              accessibilityRole="link"
+              accessibilityLabel={`Naechste Sitzung: ${snapshot.overview.naechsteSitzung.title}, Mehr-Tab oeffnen`}
+              onPress={() => {
+                void Haptics.selectionAsync();
+                router.push("/(tabs)/protokolle");
+              }}
+              style={({ pressed }) => [styles.card, pressed ? styles.cardPressed : null]}
+            >
               <Text style={styles.cardEyebrow}>Nächste Sitzung</Text>
               <Text style={styles.cardValue}>{snapshot.overview.naechsteSitzung.title}</Text>
               <Text style={styles.cardCopy}>{snapshot.overview.naechsteSitzung.locationLabel}</Text>
-            </View>
+            </Pressable>
           ) : null}
 
           <View style={styles.card}>
@@ -405,6 +438,9 @@ const createStyles = (theme: ThemeColors) =>
       borderRadius: 22,
       backgroundColor: theme.card,
       gap: 10
+    },
+    cardPressed: {
+      opacity: 0.85
     },
     cardEyebrow: {
       fontSize: 12,
