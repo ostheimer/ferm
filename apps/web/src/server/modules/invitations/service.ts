@@ -17,6 +17,7 @@ import { randomUUID } from "node:crypto";
 import { hashPassword } from "../../auth/passwords";
 import { assertRole } from "../../auth/service";
 import type { RequestContext } from "../../auth/context";
+import { buildCsv } from "../../csv/escape";
 import { getDb } from "../../db/client";
 import { memberInvitations, memberships, reviere, users } from "../../db/schema";
 import { issueSessionTokens } from "../../auth/tokens";
@@ -130,6 +131,48 @@ export async function listMemberInvitations(context: RequestContext): Promise<Me
     .where(eq(memberInvitations.revierId, context.revierId));
 
   return rows.map(toMemberInvitation).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+/**
+ * CSV-Export aller Mitglieds-Einladungen im aktiven Revier. Konsistent
+ * mit dem Pattern von `exportAnsitzeCsv` und `exportReviereinrichtungenCsv`:
+ * Auth wird wie bei `listMemberInvitations` enforciert (nur Inviter-Rollen).
+ *
+ * Bewusst KEINE Codes im Export — der Code ist eine vertraulich-pendend-
+ * verteilte Einmal-Information. Wer ihn nach Versand verlieren wollte,
+ * darf die Einladung widerrufen und neu anlegen.
+ */
+export async function exportMemberInvitationsCsv(context: RequestContext): Promise<string> {
+  const invitations = await listMemberInvitations(context);
+
+  return buildCsv(
+    [
+      "id",
+      "vorname",
+      "nachname",
+      "email",
+      "telefon",
+      "rolle",
+      "jagdzeichen",
+      "status",
+      "erstellt_am",
+      "gueltig_bis",
+      "angenommen_am"
+    ],
+    invitations.map((entry) => [
+      entry.id,
+      entry.firstName,
+      entry.lastName,
+      entry.email ?? "",
+      entry.phone ?? "",
+      entry.role,
+      entry.jagdzeichen,
+      entry.status,
+      entry.createdAt,
+      entry.expiresAt,
+      entry.acceptedAt ?? ""
+    ])
+  );
 }
 
 export async function revokeMemberInvitation(

@@ -334,6 +334,11 @@ export function MitgliederClient({ invitations, mailEnabled }: MitgliederClientP
             <p className="eyebrow">Verlauf</p>
             <h2>Bisherige Einladungen</h2>
           </div>
+          <div className="section-actions">
+            <a className="button-link" href="/api/v1/memberships/invitations/export.csv">
+              CSV-Export
+            </a>
+          </div>
         </header>
 
         <ListSearchBar
