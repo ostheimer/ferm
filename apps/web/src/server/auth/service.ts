@@ -197,14 +197,14 @@ function resolveActiveMembership(
   membershipId?: string
 ): AuthenticatedMembership {
   if (membershipsForUser.length === 0) {
-    throw new RouteError("Fuer diesen Benutzer existiert keine aktive Mitgliedschaft.", 403, "forbidden");
+    throw new RouteError("Für diesen Benutzer existiert keine aktive Mitgliedschaft.", 403, "forbidden");
   }
 
   if (membershipId) {
     const match = membershipsForUser.find((entry) => entry.id === membershipId);
 
     if (!match) {
-      throw new RouteError("Die angeforderte Mitgliedschaft gehoert nicht zum Benutzer.", 403, "forbidden");
+      throw new RouteError("Die angeforderte Mitgliedschaft gehört nicht zum Benutzer.", 403, "forbidden");
     }
 
     return match;
@@ -213,7 +213,7 @@ function resolveActiveMembership(
   const [firstMembership] = membershipsForUser;
 
   if (!firstMembership) {
-    throw new RouteError("Fuer diesen Benutzer existiert keine aktive Mitgliedschaft.", 403, "forbidden");
+    throw new RouteError("Für diesen Benutzer existiert keine aktive Mitgliedschaft.", 403, "forbidden");
   }
 
   return firstMembership;

@@ -10,7 +10,7 @@ import type { DashboardResponse, Role } from "@hege/domain";
  */
 
 export interface RoleHeadline {
-  /** Eyebrow-Label, z.B. "Schriftfuehrung", "Mein Beitrag", "Lagebild". */
+  /** Eyebrow-Label, z.B. "Schriftführung", "Mein Beitrag", "Lagebild". */
   eyebrow: string;
   /** Headline-Text, dynamisch aus Snapshot-Daten. */
   title: string;
@@ -66,18 +66,18 @@ function buildSchriftfuehrerDashboard(snapshot: DashboardResponse): RoleDashboar
         ? "1 Protokoll wartet auf Freigabe."
         : `${drafts} Protokolle warten auf Freigabe.`
       : nextSitzung
-        ? "Sitzungs-Pipeline laeuft sauber."
+        ? "Sitzungs-Pipeline läuft sauber."
         : "Keine Sitzung in Sicht.";
 
   const subtitle = nextSitzung
     ? tagesDelta !== null && tagesDelta >= 0
-      ? `Naechste Sitzung „${nextSitzung.title}" in ${formatTagesDelta(tagesDelta)}.`
-      : `Letzte Sitzung „${nextSitzung.title}" liegt zurueck — Protokoll nachziehen?`
-    : "Sobald die naechste Sitzung im Kalender steht, taucht sie hier auf.";
+      ? `Nächste Sitzung „${nextSitzung.title}" in ${formatTagesDelta(tagesDelta)}.`
+      : `Letzte Sitzung „${nextSitzung.title}" liegt zurück — Protokoll nachziehen?`
+    : "Sobald die nächste Sitzung im Kalender steht, taucht sie hier auf.";
 
   return {
     headline: {
-      eyebrow: "Schriftfuehrung",
+      eyebrow: "Schriftführung",
       title: headlineTitle,
       subtitle
     },
@@ -85,10 +85,10 @@ function buildSchriftfuehrerDashboard(snapshot: DashboardResponse): RoleDashboar
       {
         label: "In Freigabe",
         value: drafts,
-        detail: "Protokoll-Entwuerfe"
+        detail: "Protokoll-Entwürfe"
       },
       {
-        label: "Naechste Sitzung",
+        label: "Nächste Sitzung",
         value: tagesDelta !== null ? formatTagesDeltaShort(tagesDelta) : "–",
         detail: nextSitzung?.title ?? "Keine Termine geplant"
       },
@@ -118,9 +118,9 @@ function buildRevierAdminDashboard(snapshot: DashboardResponse): RoleDashboard {
 
   const subtitle =
     konflikt > 0
-      ? "Bitte kurz pruefen und klaeren — Schriftfuehrung weiss sonst nichts davon."
+      ? "Bitte kurz prüfen und klären — Schriftführung weiß sonst nichts davon."
       : wartungen > 0
-        ? 'Hochstaende und Fuetterungen warten auf Termin. Liste in „Mehr → Reviereinrichtungen".'
+        ? 'Hochstände und Fütterungen warten auf Termin. Liste in „Mehr → Reviereinrichtungen".'
         : `${ansitze} aktive Ansitze, ${aufgaben} offene Aufgaben. Routine.`;
 
   return {
@@ -165,12 +165,12 @@ function buildJaegerDashboard(snapshot: DashboardResponse): RoleDashboard {
       ? `Du sitzt auf „${myActiveAnsitze[0].standortName}".`
       : myFallwildToday > 0
         ? `Heute schon ${formatBeitrag(myFallwildToday)} erfasst.`
-        : "Bereit fuer Revier-Einsatz.";
+        : "Bereit für Revier-Einsatz.";
 
   const subtitle =
     myActiveAnsitze.length > 0
-      ? "Beim Beenden den Ansitz im Ansitze-Tab abschliessen — auch offline moeglich."
-      : 'Tipp auf „+ Erfassen" oder den Fallwild-Tab, sobald draussen etwas zu melden ist.';
+      ? "Beim Beenden den Ansitz im Ansitze-Tab abschließen — auch offline möglich."
+      : 'Tipp auf „+ Erfassen" oder den Fallwild-Tab, sobald draußen etwas zu melden ist.';
 
   return {
     headline: {
@@ -187,7 +187,7 @@ function buildJaegerDashboard(snapshot: DashboardResponse): RoleDashboard {
       {
         label: "Mein Fallwild",
         value: myFallwildToday,
-        detail: "Heute erfasste Eintraege"
+        detail: "Heute erfasste Einträge"
       },
       {
         label: "Aufgaben",
@@ -207,7 +207,7 @@ function buildAusgeherDashboard(snapshot: DashboardResponse): RoleDashboard {
     ansitze > 0
       ? `${ansitze} aktive Ansitze im Revier.`
       : fallwildHeute > 0
-        ? `${fallwildHeute} Fallwild-Vorgaenge heute.`
+        ? `${fallwildHeute} Fallwild-Vorgänge heute.`
         : "Lagebild ruhig.";
 
   const subtitle = `Heute ${fallwildHeute} Fallwild, ${wartungen} offene Wartungen. Karte zeigt aktuelle Pins.`;
@@ -227,7 +227,7 @@ function buildAusgeherDashboard(snapshot: DashboardResponse): RoleDashboard {
       {
         label: "Fallwild heute",
         value: fallwildHeute,
-        detail: "Heute erfasste Eintraege"
+        detail: "Heute erfasste Einträge"
       },
       {
         label: "Wartungen",
@@ -274,5 +274,5 @@ function isToday(iso: string, now: Date = new Date()): boolean {
 }
 
 function formatBeitrag(count: number): string {
-  return count === 1 ? "1 Eintrag" : `${count} Eintraege`;
+  return count === 1 ? "1 Eintrag" : `${count} Einträge`;
 }
