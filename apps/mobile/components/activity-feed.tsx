@@ -1,5 +1,6 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { StyleSheet, Text, View } from "react-native";
+import * as Haptics from "expo-haptics";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import {
   formatRelativeTime,
@@ -11,6 +12,12 @@ import { useThemedStyles } from "../lib/use-themed-styles";
 
 interface ActivityFeedProps {
   items: ReadonlyArray<ActivityItem>;
+  /**
+   * Tap auf eine Activity-Karte. Aufrufer entscheidet, wohin
+   * navigiert wird — typischerweise auf den passenden Listen-Tab
+   * (Ansitze / Fallwild / Benachrichtigungen).
+   */
+  onItemPress?: (item: ActivityItem) => void;
 }
 
 /**
@@ -22,7 +29,7 @@ interface ActivityFeedProps {
  * das macht `buildActivityFeed` im Helper. Hier nur Darstellung,
  * was den Code testbar haelt und Render-Logik klar trennt.
  */
-export function ActivityFeed({ items }: ActivityFeedProps) {
+export function ActivityFeed({ items, onItemPress }: ActivityFeedProps) {
   const styles = useThemedStyles(createStyles);
 
   return (
@@ -42,23 +49,42 @@ export function ActivityFeed({ items }: ActivityFeedProps) {
         </View>
       ) : (
         <View style={styles.list}>
-          {items.map((item, index) => (
-            <View key={item.id} style={styles.item}>
-              <ActivityIcon kind={item.kind} styles={styles} />
-              <View style={styles.itemBody}>
-                <View style={styles.itemHeader}>
-                  <Text numberOfLines={2} style={styles.itemTitle}>
-                    {item.title}
+          {items.map((item, index) => {
+            const interactive = Boolean(onItemPress);
+            const Wrapper: typeof Pressable | typeof View = interactive ? Pressable : View;
+            const wrapperProps = interactive
+              ? {
+                  accessibilityRole: "button" as const,
+                  accessibilityLabel: `${item.title}, ${item.subtitle}`,
+                  onPress: () => {
+                    void Haptics.selectionAsync();
+                    onItemPress?.(item);
+                  },
+                  style: ({ pressed }: { pressed: boolean }) => [
+                    styles.item,
+                    pressed ? styles.itemPressed : null
+                  ]
+                }
+              : { style: styles.item };
+
+            return (
+              <Wrapper key={item.id} {...wrapperProps}>
+                <ActivityIcon kind={item.kind} styles={styles} />
+                <View style={styles.itemBody}>
+                  <View style={styles.itemHeader}>
+                    <Text numberOfLines={2} style={styles.itemTitle}>
+                      {item.title}
+                    </Text>
+                    <Text style={styles.itemTime}>{formatRelativeTime(item.timestamp)}</Text>
+                  </View>
+                  <Text numberOfLines={2} style={styles.itemSubtitle}>
+                    {item.subtitle}
                   </Text>
-                  <Text style={styles.itemTime}>{formatRelativeTime(item.timestamp)}</Text>
                 </View>
-                <Text numberOfLines={2} style={styles.itemSubtitle}>
-                  {item.subtitle}
-                </Text>
-              </View>
-              {index < items.length - 1 ? <View style={styles.divider} /> : null}
-            </View>
-          ))}
+                {index < items.length - 1 ? <View style={styles.divider} /> : null}
+              </Wrapper>
+            );
+          })}
         </View>
       )}
     </View>
@@ -144,6 +170,9 @@ const createStyles = (theme: ThemeColors) =>
       gap: 12,
       position: "relative",
       paddingBottom: 14
+    },
+    itemPressed: {
+      opacity: 0.6
     },
     iconWrap: {
       width: 36,
