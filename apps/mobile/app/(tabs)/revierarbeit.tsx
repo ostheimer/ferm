@@ -25,6 +25,7 @@ import {
   applyAufgabeFilter,
   DEFAULT_AUFGABE_FILTER,
   isAufgabeFilterActive,
+  OFFEN_STATUSES,
   type AufgabeFilterState,
   type AufgabePrioritaetFilter,
   type AufgabeSortKey,
@@ -88,6 +89,23 @@ export default function RevierarbeitScreen() {
     () => isAufgabeFilterActive(aufgabeFilter),
     [aufgabeFilter]
   );
+
+  // Counts pro Status-Bucket fuer die Chip-Labels. Wenn offen+erledigt <
+  // alle ist, sieht der User direkt, dass abgelehnte/archivierte
+  // Aufgaben unter "Alle" versteckt sind und kann gezielt darauf
+  // wechseln.
+  const aufgabeStatusCounts = useMemo(() => {
+    let offen = 0;
+    let erledigt = 0;
+    for (const entry of aufgaben) {
+      if (entry.status === "erledigt") {
+        erledigt += 1;
+      } else if (OFFEN_STATUSES.includes(entry.status)) {
+        offen += 1;
+      }
+    }
+    return { offen, erledigt, alle: aufgaben.length };
+  }, [aufgaben]);
 
   useEffect(() => {
     void loadRevierarbeit();
@@ -324,9 +342,9 @@ export default function RevierarbeitScreen() {
                 onChange={(key) => setAufgabeFilter((current) => ({ ...current, status: key }))}
                 accessibilityLabel="Aufgaben-Status filtern"
                 options={[
-                  { key: "offen", label: "Offen" },
-                  { key: "erledigt", label: "Erledigt" },
-                  { key: "alle", label: "Alle" }
+                  { key: "offen", label: "Offen", count: aufgabeStatusCounts.offen },
+                  { key: "erledigt", label: "Erledigt", count: aufgabeStatusCounts.erledigt },
+                  { key: "alle", label: "Alle", count: aufgabeStatusCounts.alle }
                 ]}
               />
             </View>

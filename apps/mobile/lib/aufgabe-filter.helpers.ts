@@ -49,7 +49,12 @@ export const DEFAULT_AUFGABE_FILTER: AufgabeFilterState = {
   sort: "faellig-zuerst"
 };
 
-const OFFEN_STATUSES: ReadonlyArray<AufgabeStatus> = [
+/**
+ * Aktive AufgabeStatus-Werte fuer den 'offen'-Bucket. Exportiert,
+ * damit der Render-Code Counts pro Bucket berechnen kann (Status-Chip-
+ * Labels mit `(12)`-Hinweis), ohne die Bucket-Definition zu duplizieren.
+ */
+export const OFFEN_STATUSES: ReadonlyArray<AufgabeStatus> = [
   "offen",
   "angenommen",
   "in_arbeit",
