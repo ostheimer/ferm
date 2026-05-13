@@ -34,33 +34,33 @@ const ACTION_ORDER: ReadonlyArray<ErfassenAction> = ["ansitz", "fallwild", "wart
 export function ErfassenFab({ onSelectAction, bottomOffset = 92 }: ErfassenFabProps) {
   const styles = useThemedStyles(createStyles);
 
+  // Bewusster Android-Stopp: Bis ein nativer Bottom-Sheet/Dialog fuer
+  // die Aktion-Auswahl da ist, rendern wir den FAB auf Android nicht.
+  // Der frueher hier aktive Auto-Pick auf "fallwild" war ein Bug — der
+  // FAB-Label "Erfassen" verspricht eine Auswahl, die er auf Android
+  // nicht haelt. Aktuell haben wir keinen Android-Build im aktiven
+  // Test, deshalb verstecken statt umstellen.
+  if (Platform.OS !== "ios") {
+    return null;
+  }
+
   function open() {
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
-    if (Platform.OS === "ios") {
-      ActionSheetIOS.showActionSheetWithOptions(
-        {
-          title: "Was möchtest du erfassen?",
-          options: [...ACTION_ORDER.map((key) => ACTION_LABELS[key]), "Abbrechen"],
-          cancelButtonIndex: ACTION_ORDER.length
-        },
-        (buttonIndex) => {
-          const action = ACTION_ORDER[buttonIndex];
+    ActionSheetIOS.showActionSheetWithOptions(
+      {
+        title: "Was möchtest du erfassen?",
+        options: [...ACTION_ORDER.map((key) => ACTION_LABELS[key]), "Abbrechen"],
+        cancelButtonIndex: ACTION_ORDER.length
+      },
+      (buttonIndex) => {
+        const action = ACTION_ORDER[buttonIndex];
 
-          if (action) {
-            onSelectAction(action);
-          }
+        if (action) {
+          onSelectAction(action);
         }
-      );
-
-      return;
-    }
-
-    // Android-Fallback: erste Aktion direkt — fuer eine richtige
-    // Mehrfach-Auswahl-Optik braeuchten wir BottomSheet/Dialog. Auf
-    // Android reicht uns aktuell der Default-Weg, das Menu kann in einer
-    // Folge-PR mit eigenem Dialog ergaenzt werden.
-    onSelectAction("fallwild");
+      }
+    );
   }
 
   return (

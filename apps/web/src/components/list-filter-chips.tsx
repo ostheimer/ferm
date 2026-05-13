@@ -40,13 +40,19 @@ export function ListFilterChips<K extends string>({
         {options.map((option) => {
           const isActive = option.key === value;
           return (
+            // Innerhalb einer `radiogroup` muessen die Optionen `role="radio"`
+            // + `aria-checked` tragen (nicht `aria-pressed`, das waere ein
+            // Toggle-Button-Modell). Screenreader interpretieren die Auswahl
+            // sonst falsch — wir wollen "von 3 Optionen ist eine aktiv",
+            // nicht "drei unabhaengige Schalter".
             <button
-              aria-pressed={isActive}
+              aria-checked={isActive}
               className={
                 isActive ? "list-filter-chip list-filter-chip-active" : "list-filter-chip"
               }
               key={option.key as Key}
               onClick={() => onChange(option.key)}
+              role="radio"
               type="button"
             >
               {option.label}
