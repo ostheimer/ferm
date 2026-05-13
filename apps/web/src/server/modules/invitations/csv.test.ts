@@ -60,9 +60,9 @@ function invitation(overrides: Partial<MemberInvitation> & { id: string }): Memb
     createdAt: overrides.createdAt ?? "2026-05-13T10:00:00Z",
     expiresAt: overrides.expiresAt ?? "2026-06-13T10:00:00Z",
     acceptedAt: overrides.acceptedAt,
-    createdByMembershipId: "m1",
+    invitedByMembershipId: "m1",
     sendEmail: false
-  } as MemberInvitation;
+  } as unknown as MemberInvitation;
 }
 
 describe("Mitglieder-CSV-Export Vertrag", () => {
