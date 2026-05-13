@@ -41,6 +41,10 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 - Das Mobile-Dashboard zeigt Queue-Typ, Status, Fehlermeldung und Verwerf-Aktion fuer fehlgeschlagene Eintraege.
 - Der lokale Schnellstart fuer Web/API umfasst jetzt auch ein wiederholbares Storage-Setup fuer MinIO.
 
+### Mobile
+
+- Tab "Meldungen" wurde in "Revierarbeit" umbenannt (`revierarbeit.tsx`); der Tab bündelt jetzt Aufgaben, Reviermeldungen und Revierarbeit-Workflows
+
 ### Fixed
 
 - Web-Sidebar um eine sichtbare `Abmelden`-Aktion ergaenzt und den Logout-Flow ueber Cookie-Clear mit Redirect auf `/login` abgesichert.
