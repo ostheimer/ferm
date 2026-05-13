@@ -217,14 +217,17 @@ Diese Ressourcen bleiben für die nächste Ausbaustufe vorgesehen und werden fac
 
 ### Mitgliedschaften und Einladungen
 
-#### `POST /api/v1/memberships/invite`
+- `GET /api/v1/memberships/invitations`
+- `POST /api/v1/memberships/invitations`
 
-Sendet eine Einladung an eine E-Mail-Adresse für ein Revier.
+#### `POST /api/v1/memberships/invitations`
 
-- Auth: Bearer Token (Revier Admin oder Schriftführer)
-- Body: `{ email: string, role: "jaeger" | "schriftfuehrer" | "admin" }`
-- Response 200: `{ message: "Einladung gesendet" }`
-- Response 409: Benutzer ist bereits Mitglied
+Erstellt eine Mitgliedseinladung für ein Revier.
+
+- Auth: Bearer Token (Revier Admin)
+- Body: `{ firstName: string, lastName: string, role: string, jagdzeichen: string, sendEmail?: boolean, email?: string, phone?: string }`
+- Response 201: erstellte Einladung
+- Response 400: Pflichtfelder fehlen oder ungültiges JSON
 - Web-Route: `/einladung/[token]` zur Bestätigung
 
 ## Rollenregeln
