@@ -45,7 +45,7 @@ describe("computeRoleDashboard — Schriftfuehrer", () => {
       snapshot({ overview: { unveroeffentlichteProtokolle: 3 } })
     );
 
-    expect(result.headline.eyebrow).toBe("Schriftfuehrung");
+    expect(result.headline.eyebrow).toBe("Schriftführung");
     expect(result.headline.title).toContain("3 Protokolle");
     expect(result.tiles[0].label).toBe("In Freigabe");
     expect(result.tiles[0].value).toBe(3);
