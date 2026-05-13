@@ -104,8 +104,14 @@ export function AufgabenClient({ aufgaben, memberships }: AufgabenClientProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [updatingId, setUpdatingId] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  // Feedback-States bewusst aufgeteilt: Status-Mutation und Create-Form
+  // sind getrennte Flows, der Erfolg/Fehler der einen darf den der
+  // anderen nicht ueberschreiben. Frueherer Shared-State hat den
+  // Create-Success-Banner verschwinden lassen, sobald jemand danach
+  // eine Status-Aktion gestartet hat.
+  const [updateError, setUpdateError] = useState<string | null>(null);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [createSuccess, setCreateSuccess] = useState<string | null>(null);
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("offen");
@@ -154,8 +160,7 @@ export function AufgabenClient({ aufgaben, memberships }: AufgabenClientProps) {
 
   async function updateStatus(aufgabeId: string, status: AufgabeStatus) {
     setUpdatingId(aufgabeId);
-    setError(null);
-    setSuccess(null);
+    setUpdateError(null);
 
     const response = await fetch(`/api/v1/aufgaben/${aufgabeId}`, {
       method: "PATCH",
@@ -167,7 +172,7 @@ export function AufgabenClient({ aufgaben, memberships }: AufgabenClientProps) {
 
     if (!response.ok) {
       const body = await response.json().catch(() => null);
-      setError(readApiErrorMessage(body, "Aufgabe konnte nicht aktualisiert werden."));
+      setUpdateError(readApiErrorMessage(body, "Aufgabe konnte nicht aktualisiert werden."));
       return;
     }
 
@@ -188,12 +193,12 @@ export function AufgabenClient({ aufgaben, memberships }: AufgabenClientProps) {
     if (isCreating) return;
 
     setIsCreating(true);
-    setError(null);
-    setSuccess(null);
+    setCreateError(null);
+    setCreateSuccess(null);
 
     const trimmedTitle = createForm.title.trim();
     if (!trimmedTitle) {
-      setError("Bitte einen Titel angeben.");
+      setCreateError("Bitte einen Titel angeben.");
       setIsCreating(false);
       return;
     }
@@ -223,12 +228,12 @@ export function AufgabenClient({ aufgaben, memberships }: AufgabenClientProps) {
 
     if (!response.ok) {
       const body = await response.json().catch(() => null);
-      setError(readApiErrorMessage(body, "Aufgabe konnte nicht angelegt werden."));
+      setCreateError(readApiErrorMessage(body, "Aufgabe konnte nicht angelegt werden."));
       return;
     }
 
     setCreateForm(DEFAULT_CREATE_FORM);
-    setSuccess("Aufgabe wurde angelegt.");
+    setCreateSuccess("Aufgabe wurde angelegt.");
     startTransition(() => {
       router.refresh();
     });
@@ -308,9 +313,9 @@ export function AufgabenClient({ aufgaben, memberships }: AufgabenClientProps) {
           ]}
         />
 
-        {error ? (
+        {updateError ? (
           <p aria-live="polite" className="feedback feedback-error">
-            {error}
+            {updateError}
           </p>
         ) : null}
 
@@ -469,8 +474,10 @@ export function AufgabenClient({ aufgaben, memberships }: AufgabenClientProps) {
 
           <div className="form-footer field-full">
             <div aria-live="polite" className="form-messages">
-              {error ? <p className="feedback feedback-error">{error}</p> : null}
-              {success ? <p className="feedback feedback-success">{success}</p> : null}
+              {createError ? <p className="feedback feedback-error">{createError}</p> : null}
+              {createSuccess ? (
+                <p className="feedback feedback-success">{createSuccess}</p>
+              ) : null}
             </div>
             <button className="button-control" disabled={isCreating} type="submit">
               Aufgabe anlegen
