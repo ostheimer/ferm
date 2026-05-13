@@ -1,3 +1,4 @@
+import * as Haptics from "expo-haptics";
 import { useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import type { ReviereinrichtungListItem } from "@hege/domain";
@@ -32,6 +33,7 @@ export default function ReviereinrichtungenScreen() {
   const theme = useThemeColors();
   const [reviereinrichtungen, setReviereinrichtungen] = useState<ReviereinrichtungListItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<ViewMode>("liste");
   const [selectedPin, setSelectedPin] = useState<SelectedPin | null>(null);
@@ -49,8 +51,13 @@ export default function ReviereinrichtungenScreen() {
     void loadReviereinrichtungen();
   }, []);
 
-  async function loadReviereinrichtungen() {
-    setIsLoading(true);
+  async function loadReviereinrichtungen(options?: { refreshing?: boolean }) {
+    const refreshing = options?.refreshing ?? false;
+    if (refreshing) {
+      setIsRefreshing(true);
+    } else {
+      setIsLoading(true);
+    }
     setError(null);
 
     try {
@@ -60,6 +67,7 @@ export default function ReviereinrichtungenScreen() {
       setError(fetchError instanceof Error ? fetchError.message : "Unbekannter Fehler");
     } finally {
       setIsLoading(false);
+      setIsRefreshing(false);
     }
   }
 
@@ -85,6 +93,13 @@ export default function ReviereinrichtungenScreen() {
       eyebrow="Revier"
       title="Einrichtungen direkt im Gelände kontrollieren."
       subtitle="Zustand, Mängel und Wartungen werden aus dem zentralen Client gelesen."
+      refresh={{
+        refreshing: isRefreshing,
+        onRefresh: () => {
+          void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          void loadReviereinrichtungen({ refreshing: true });
+        }
+      }}
     >
       <View style={styles.toolbar}>
         <ViewToggle<ViewMode>
