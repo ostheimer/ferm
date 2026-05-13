@@ -1,6 +1,7 @@
 "use client";
 
 import type { Aufgabe, AufgabePrioritaet, AufgabeStatus } from "@hege/domain";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ChangeEvent, FormEvent } from "react";
 import { useMemo, useState, useTransition } from "react";
@@ -405,6 +406,9 @@ export function AufgabenClient({ aufgaben, memberships }: AufgabenClientProps) {
                       Wieder öffnen
                     </button>
                   )}
+                  <Link className="button-link" href={`/app/aufgaben/${entry.id}`}>
+                    Detail
+                  </Link>
                 </div>
               </article>
             ))}
