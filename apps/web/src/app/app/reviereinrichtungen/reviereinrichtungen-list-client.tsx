@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 
 import { ListFilterChips } from "../../../components/list-filter-chips";
 import { ListSearchBar } from "../../../components/list-search-bar";
+import { StateView } from "../../../components/state-view";
 import { filterBySearch, hasActiveSearch } from "../../../lib/list-search";
 
 type TypFilter = "alle" | EinrichtungTyp;
@@ -101,6 +102,13 @@ export function ReviereinrichtungenListClient({ entries }: ReviereinrichtungenLi
   const searchActive = hasActiveSearch(search);
   const filterActive =
     typFilter !== "alle" || zustandFilter !== "alle" || sortKey !== "nach-name";
+
+  function resetAllFilters() {
+    setSearch("");
+    setTypFilter("alle");
+    setZustandFilter("alle");
+    setSortKey("nach-name");
+  }
   const resultLabel =
     searchActive || filterActive
       ? `${visibleEntries.length} von ${entries.length}`
@@ -158,13 +166,16 @@ export function ReviereinrichtungenListClient({ entries }: ReviereinrichtungenLi
       />
 
       {entries.length > 0 && visibleEntries.length === 0 ? (
-        <article className="detail-card">
-          <strong>Keine Treffer</strong>
-          <p>
-            Mit der aktuellen Suche („{search}") findet sich keine Einrichtung. Andere Begriffe
-            versuchen oder Suche leeren.
-          </p>
-        </article>
+        <StateView
+          mode="empty"
+          title="Keine Treffer"
+          description={
+            searchActive
+              ? `Mit der aktuellen Suche („${search}") und den gesetzten Filtern findet sich keine Einrichtung.`
+              : "Mit den aktuellen Filtern findet sich keine Einrichtung."
+          }
+          action={{ label: "Filter zurücksetzen", onClick: resetAllFilters }}
+        />
       ) : (
         <div className="card-grid">
           {visibleEntries.map((entry) => (
