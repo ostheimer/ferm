@@ -44,7 +44,20 @@ export default async function AufgabeDetailPage({ params }: PageProps) {
   const [memberships, sourceMeldung] = await Promise.all([
     listRevierMemberships(),
     aufgabe.sourceType === "reviermeldung" && aufgabe.sourceId
-      ? getReviermeldungForRequest(aufgabe.sourceId, context).catch(() => undefined)
+      ? getReviermeldungForRequest(aufgabe.sourceId, context).catch((sourceError) => {
+          // Wir wollen NICHT crash-en, wenn die Source-Meldung geloescht
+          // wurde (404) — die Aufgabe bleibt valide. Andere Fehler
+          // (Netzwerk, Auth, 500) sollen aber nicht silent geschluckt
+          // werden, sonst verbergen wir echte Bugs hinter dem Fallback.
+          const status =
+            sourceError && typeof sourceError === "object" && "status" in sourceError
+              ? (sourceError as { status?: unknown }).status
+              : undefined;
+          if (status !== 404) {
+            console.error("Source-Meldung konnte nicht geladen werden", sourceError);
+          }
+          return undefined;
+        })
       : Promise.resolve(undefined)
   ]);
 

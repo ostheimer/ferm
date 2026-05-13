@@ -49,6 +49,11 @@ type StatusFilter = "alle" | "offen" | "erledigt";
 type PrioritaetFilter = "alle" | AufgabePrioritaet;
 type SortKey = "faellig-zuerst" | "prioritaet-hoch" | "neueste-zuerst" | "alphabetisch";
 
+// WICHTIG: Diese Liste muss synchron zu `OFFEN_STATUSES` in
+// `apps/mobile/lib/aufgabe-filter.helpers.ts` bleiben — sonst zeigen
+// Web und Mobile bei identischen Daten unterschiedliche Counts und
+// Filter-Reduktionen. Wenn ein neuer Status zum AufgabeStatus-Enum
+// kommt, beide Stellen anpassen.
 const OFFEN_STATUSES: ReadonlyArray<AufgabeStatus> = [
   "offen",
   "angenommen",
