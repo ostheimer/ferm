@@ -87,6 +87,21 @@ const STATUS_LABELS: Record<ReviermeldungStatus, string> = {
   archiviert: "Archiviert"
 };
 
+/**
+ * Auswahlbare Status-Werte in der Card-Drop-Down. Reihenfolge spiegelt
+ * den natuerlichen Workflow: neu -> geprueft -> in_bearbeitung ->
+ * erledigt / verworfen. 'archiviert' bleibt aus der Auswahl raus —
+ * Archivierung ist eher eine Admin-Operation und sollte nicht
+ * versehentlich per Drop-Down passieren.
+ */
+const STATUS_TRANSITION_OPTIONS: ReadonlyArray<ReviermeldungStatus> = [
+  "neu",
+  "geprueft",
+  "in_bearbeitung",
+  "erledigt",
+  "verworfen"
+];
+
 interface ReviermeldungenClientProps {
   meldungen: Reviermeldung[];
 }
@@ -101,6 +116,11 @@ export function ReviermeldungenClient({ meldungen }: ReviermeldungenClientProps)
   const [convertingId, setConvertingId] = useState<string | null>(null);
   const [conversionError, setConversionError] = useState<string | null>(null);
   const [conversionSuccess, setConversionSuccess] = useState<string | null>(null);
+  // Status-Mutation getrennt vom Conversion-Flow, damit die Banner sich
+  // gegenseitig nicht ueberschreiben (gleiche Lektion wie #96 mit
+  // Aufgaben-Client).
+  const [statusUpdatingId, setStatusUpdatingId] = useState<string | null>(null);
+  const [statusError, setStatusError] = useState<string | null>(null);
 
   const filteredByChips = useMemo(
     () =>
@@ -182,6 +202,40 @@ export function ReviermeldungenClient({ meldungen }: ReviermeldungenClientProps)
     // Liste auf (das ist die Meldungen-Liste), also waere ein Refresh
     // ohne sichtbaren Effekt. Wer die neue Aufgabe sehen will,
     // wechselt in /app/aufgaben.
+  }
+
+  /**
+   * Aendert den Status einer Reviermeldung. Schliesst die Workflow-
+   * Luecke: bisher konnte Schriftfuehrung den Status nur per API
+   * setzen, hier jetzt via Card-Buttons.
+   *
+   * Nach Erfolg: router.refresh() — die Card zeigt den neuen Status,
+   * und der Status-Filter-Chip re-greift (eine "erledigt"-Meldung
+   * verschwindet z.B. unter "neu"-Filter).
+   */
+  async function updateMeldungStatus(meldungId: string, status: ReviermeldungStatus) {
+    setStatusUpdatingId(meldungId);
+    setStatusError(null);
+
+    const response = await fetch(`/api/v1/reviermeldungen/${meldungId}`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ status })
+    });
+
+    setStatusUpdatingId(null);
+
+    if (!response.ok) {
+      const body = await response.json().catch(() => null);
+      setStatusError(
+        readApiErrorMessage(body, "Status konnte nicht geändert werden.")
+      );
+      return;
+    }
+
+    startTransition(() => {
+      router.refresh();
+    });
   }
 
   return (
@@ -274,6 +328,9 @@ export function ReviermeldungenClient({ meldungen }: ReviermeldungenClientProps)
           {conversionSuccess ? (
             <p className="feedback feedback-success">{conversionSuccess}</p>
           ) : null}
+          {statusError ? (
+            <p className="feedback feedback-error">{statusError}</p>
+          ) : null}
         </div>
 
         {meldungen.length === 0 ? (
@@ -311,14 +368,43 @@ export function ReviermeldungenClient({ meldungen }: ReviermeldungenClientProps)
                   </p>
                 ) : null}
                 <time>{formatDateTime(entry.occurredAt)}</time>
-                <button
-                  className="button-control button-control-secondary"
-                  disabled={convertingId === entry.id}
-                  onClick={() => void handleCreateAufgabe(entry)}
-                  type="button"
-                >
-                  {convertingId === entry.id ? "Wird angelegt …" : "Aufgabe daraus anlegen"}
-                </button>
+                <div className="form-footer">
+                  {entry.status !== "erledigt" && entry.status !== "archiviert" ? (
+                    <select
+                      aria-label={`Status für „${entry.title}" ändern`}
+                      className="button-control button-control-secondary"
+                      disabled={statusUpdatingId === entry.id}
+                      onChange={(event) => {
+                        const next = event.currentTarget.value as ReviermeldungStatus;
+                        // Reset des Select auf den aktuellen Wert,
+                        // weil das Element den State der Meldung
+                        // nicht direkt haelt — wir reden mit der API
+                        // und warten auf den Refresh.
+                        event.currentTarget.value = entry.status;
+                        if (next !== entry.status) {
+                          void updateMeldungStatus(entry.id, next);
+                        }
+                      }}
+                      value={entry.status}
+                    >
+                      {STATUS_TRANSITION_OPTIONS.map((status) => (
+                        <option key={status} value={status}>
+                          {status === entry.status
+                            ? `Status: ${STATUS_LABELS[status]}`
+                            : `→ ${STATUS_LABELS[status]}`}
+                        </option>
+                      ))}
+                    </select>
+                  ) : null}
+                  <button
+                    className="button-control button-control-secondary"
+                    disabled={convertingId === entry.id}
+                    onClick={() => void handleCreateAufgabe(entry)}
+                    type="button"
+                  >
+                    {convertingId === entry.id ? "Wird angelegt …" : "Aufgabe daraus anlegen"}
+                  </button>
+                </div>
               </article>
             ))}
           </div>
