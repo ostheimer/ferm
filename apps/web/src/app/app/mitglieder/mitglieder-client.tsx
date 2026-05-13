@@ -18,6 +18,28 @@ import { StateView } from "../../../components/state-view";
 
 type RoleFilter = "alle" | Role;
 type StatusFilter = "alle" | "pending" | "accepted" | "expired" | "revoked";
+type SortKey = "neueste-zuerst" | "aelteste-zuerst" | "name-az" | "name-za";
+
+function compareInvitations(left: MemberInvitation, right: MemberInvitation, key: SortKey): number {
+  switch (key) {
+    case "neueste-zuerst":
+      return right.createdAt.localeCompare(left.createdAt);
+    case "aelteste-zuerst":
+      return left.createdAt.localeCompare(right.createdAt);
+    case "name-az":
+      return (
+        left.lastName.localeCompare(right.lastName, "de-AT") ||
+        left.firstName.localeCompare(right.firstName, "de-AT")
+      );
+    case "name-za":
+      return (
+        right.lastName.localeCompare(left.lastName, "de-AT") ||
+        right.firstName.localeCompare(left.firstName, "de-AT")
+      );
+    default:
+      return 0;
+  }
+}
 
 interface MitgliederClientProps {
   invitations: MemberInvitation[];
@@ -61,6 +83,7 @@ export function MitgliederClient({ invitations, mailEnabled }: MitgliederClientP
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState<RoleFilter>("alle");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("alle");
+  const [sortKey, setSortKey] = useState<SortKey>("neueste-zuerst");
 
   const filteredByChips = useMemo(() => {
     return invitations.filter((entry) => {
@@ -72,7 +95,12 @@ export function MitgliederClient({ invitations, mailEnabled }: MitgliederClientP
 
   const visibleInvitations = useMemo(
     () =>
-      filterBySearch(filteredByChips, search, (entry) =>
+      // Pipeline: filter -> Volltextsuche -> sort. Wir kopieren das Array
+      // VOR dem sortieren, weil filterBySearch zwar einen neuen Array
+      // liefert, der Aufrufer aber Annahmen ueber Unveraenderlichkeit
+      // treffen koennte — defensiv klonen ist billiger als ein subtiler
+      // Bug.
+      [...filterBySearch(filteredByChips, search, (entry) =>
         [
           entry.firstName,
           entry.lastName,
@@ -81,11 +109,11 @@ export function MitgliederClient({ invitations, mailEnabled }: MitgliederClientP
           entry.role,
           entry.status
         ].join(" ")
-      ),
-    [filteredByChips, search]
+      )].sort((left, right) => compareInvitations(left, right, sortKey)),
+    [filteredByChips, search, sortKey]
   );
   const searchActive = hasActiveSearch(search);
-  const filterActive = roleFilter !== "alle" || statusFilter !== "alle";
+  const filterActive = roleFilter !== "alle" || statusFilter !== "alle" || sortKey !== "neueste-zuerst";
   const resultLabel =
     searchActive || filterActive
       ? `${visibleInvitations.length} von ${invitations.length}`
@@ -373,6 +401,19 @@ export function MitgliederClient({ invitations, mailEnabled }: MitgliederClientP
             { key: "schriftfuehrer", label: "Schriftführung" },
             { key: "ausgeher", label: "Ausgeher" },
             { key: "revier-admin", label: "Admin" }
+          ]}
+        />
+
+        <ListFilterChips<SortKey>
+          eyebrow="Sortierung"
+          ariaLabel="Sortierung waehlen"
+          value={sortKey}
+          onChange={setSortKey}
+          options={[
+            { key: "neueste-zuerst", label: "Neueste zuerst" },
+            { key: "aelteste-zuerst", label: "Älteste zuerst" },
+            { key: "name-az", label: "Name A→Z" },
+            { key: "name-za", label: "Name Z→A" }
           ]}
         />
 
