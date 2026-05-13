@@ -20,12 +20,17 @@ Diese Dokumentation beschreibt den aktuellen Stand des Repositories und den gepl
 - [UI-Audit 2026-05-07](./ui-audit-2026-05-07.md)
 - [Design-System v1](./design-system-v1.md)
 - [UX-Roadmap v2](./ux-roadmap-v2.md)
+- [UX-Roadmap Pfad 2: Autonome Features](./path-2-autonomous-features.md)
 - [Test-Accounts und Rollen-Übersicht](./test-accounts.md)
 - [Umsetzungsbacklog](./umsetzungsbacklog.md)
 - [Sprint 0 Backlog](./sprint-0-backlog.md)
 - [Sprint 1 Backlog](./sprint-1-backlog.md)
 - [Agent-Workstreams Sprint 0](./agent-workstreams-sprint-0.md)
 - [Agent-Workstreams Sprint 1](./agent-workstreams-sprint-1.md)
+
+## Qualitätssicherung
+
+- [Lighthouse-Baseline (2026-05-08)](./lighthouse-baseline-2026-05-08.md)
 
 ## Lesereihenfolge
 
