@@ -27,6 +27,7 @@ import {
   type AnsitzSortKey,
   type AnsitzZeitraumFilter
 } from "../../lib/ansitz-filter.helpers";
+import { computeAnsitzSmartDefaults } from "../../lib/ansitz-smart-defaults.helpers";
 import { formatDateTime } from "../../lib/format";
 import { buildGeoPoint, trimToUndefined } from "../../lib/form-utils";
 import { fetchLiveAnsitze, type CreateAnsitzRequest } from "../../lib/api";
@@ -104,7 +105,24 @@ export default function AnsitzeScreen() {
     setError(null);
 
     try {
-      setAnsitze(await fetchLiveAnsitze());
+      const entries = await fetchLiveAnsitze();
+      setAnsitze(entries);
+      // Smart-Defaults aus der Historie ableiten, sobald wir Daten haben.
+      // Nur das Pristine-Form wird gefuettert — wenn der User schon
+      // angefangen hat zu tippen (z.B. eigenen Standortnamen eingegeben),
+      // lassen wir die Eingabe stehen.
+      const defaults = computeAnsitzSmartDefaults(entries);
+      setForm((current) => {
+        if (current.standortName.trim().length > 0) {
+          return current;
+        }
+        return {
+          ...current,
+          standortName: defaults.standortName ?? current.standortName,
+          lat: defaults.location ? String(defaults.location.lat) : current.lat,
+          lng: defaults.location ? String(defaults.location.lng) : current.lng
+        };
+      });
     } catch (fetchError) {
       setAnsitze([]);
       setError(fetchError instanceof Error ? fetchError.message : "Unbekannter Fehler");
