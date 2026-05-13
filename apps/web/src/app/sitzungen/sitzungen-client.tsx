@@ -13,6 +13,29 @@ import { filterBySearch, hasActiveSearch } from "../../lib/list-search";
 import { StateView } from "../../components/state-view";
 
 type SitzungStatusFilter = "alle" | "entwurf" | "freigegeben";
+type SitzungSortKey = "termin-naechste" | "termin-letzte" | "nach-titel" | "nach-ort";
+
+function compareSitzung(left: Sitzung, right: Sitzung, key: SitzungSortKey): number {
+  switch (key) {
+    case "termin-naechste":
+      // Aufsteigend nach Termin: kommende Sitzungen zuerst.
+      return left.scheduledAt.localeCompare(right.scheduledAt);
+    case "termin-letzte":
+      return right.scheduledAt.localeCompare(left.scheduledAt);
+    case "nach-titel":
+      return (
+        left.title.localeCompare(right.title, "de-AT") ||
+        right.scheduledAt.localeCompare(left.scheduledAt)
+      );
+    case "nach-ort":
+      return (
+        left.locationLabel.localeCompare(right.locationLabel, "de-AT") ||
+        right.scheduledAt.localeCompare(left.scheduledAt)
+      );
+    default:
+      return 0;
+  }
+}
 
 interface MembershipOption {
   membershipId: string;
@@ -41,6 +64,7 @@ export function SitzungenClient({ entries, memberships }: SitzungenClientProps) 
   );
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<SitzungStatusFilter>("alle");
+  const [sortKey, setSortKey] = useState<SitzungSortKey>("termin-naechste");
 
   const filteredByChips = useMemo(() => {
     if (statusFilter === "alle") return entries;
@@ -49,13 +73,15 @@ export function SitzungenClient({ entries, memberships }: SitzungenClientProps) 
 
   const visibleEntries = useMemo(
     () =>
-      filterBySearch(filteredByChips, search, (entry) =>
-        [entry.title, entry.locationLabel, entry.status].join(" ")
-      ),
-    [filteredByChips, search]
+      [
+        ...filterBySearch(filteredByChips, search, (entry) =>
+          [entry.title, entry.locationLabel, entry.status].join(" ")
+        )
+      ].sort((left, right) => compareSitzung(left, right, sortKey)),
+    [filteredByChips, search, sortKey]
   );
   const searchActive = hasActiveSearch(search);
-  const filterActive = statusFilter !== "alle";
+  const filterActive = statusFilter !== "alle" || sortKey !== "termin-naechste";
   const resultLabel =
     searchActive || filterActive
       ? `${visibleEntries.length} von ${entries.length}`
@@ -150,6 +176,19 @@ export function SitzungenClient({ entries, memberships }: SitzungenClientProps) 
             { key: "alle", label: "Alle", count: entries.length },
             { key: "entwurf", label: "Entwürfe", count: entwurfCount },
             { key: "freigegeben", label: "Freigegeben", count: freigegebenCount }
+          ]}
+        />
+
+        <ListFilterChips<SitzungSortKey>
+          eyebrow="Sortierung"
+          ariaLabel="Sitzungen sortieren"
+          value={sortKey}
+          onChange={setSortKey}
+          options={[
+            { key: "termin-naechste", label: "Nächster Termin" },
+            { key: "termin-letzte", label: "Letzter Termin" },
+            { key: "nach-titel", label: "Nach Titel" },
+            { key: "nach-ort", label: "Nach Ort" }
           ]}
         />
 

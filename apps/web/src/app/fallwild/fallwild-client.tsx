@@ -12,6 +12,32 @@ import { filterBySearch, hasActiveSearch } from "../../lib/list-search";
 
 type BergungsFilter = "alle" | "erfasst" | "geborgen" | "entsorgt" | "an-behoerde-gemeldet";
 type ZeitraumFilter = "alle" | "heute" | "woche" | "monat";
+type FallwildSortKey = "neueste-zuerst" | "aelteste-zuerst" | "nach-wildart" | "nach-gemeinde";
+
+function compareFallwild(
+  left: FallwildClientEntry,
+  right: FallwildClientEntry,
+  key: FallwildSortKey
+): number {
+  switch (key) {
+    case "neueste-zuerst":
+      return right.recordedAt.localeCompare(left.recordedAt);
+    case "aelteste-zuerst":
+      return left.recordedAt.localeCompare(right.recordedAt);
+    case "nach-wildart":
+      return (
+        left.wildart.localeCompare(right.wildart, "de-AT") ||
+        right.recordedAt.localeCompare(left.recordedAt)
+      );
+    case "nach-gemeinde":
+      return (
+        left.gemeinde.localeCompare(right.gemeinde, "de-AT") ||
+        right.recordedAt.localeCompare(left.recordedAt)
+      );
+    default:
+      return 0;
+  }
+}
 
 function isWithinZeitraum(recordedAt: string, filter: ZeitraumFilter, now: Date): boolean {
   if (filter === "alle") return true;
@@ -63,6 +89,7 @@ export function FallwildClient({ entries }: FallwildClientProps) {
   const [search, setSearch] = useState("");
   const [bergungsFilter, setBergungsFilter] = useState<BergungsFilter>("alle");
   const [zeitraumFilter, setZeitraumFilter] = useState<ZeitraumFilter>("alle");
+  const [sortKey, setSortKey] = useState<FallwildSortKey>("neueste-zuerst");
 
   // Pipeline: Zeitraum -> Bergungsstatus -> Volltextsuche.
   // Reduktionen kommen zuerst, Volltext-Match zuletzt.
@@ -77,21 +104,24 @@ export function FallwildClient({ entries }: FallwildClientProps) {
 
   const visibleEntries = useMemo(
     () =>
-      filterBySearch(filteredByChips, search, (entry) =>
-        [
-          entry.wildart,
-          entry.gemeinde,
-          entry.streetLabel,
-          entry.note ?? "",
-          entry.locationLabel,
-          entry.addressLabel,
-          entry.bergungsStatus
-        ].join(" ")
-      ),
-    [filteredByChips, search]
+      [
+        ...filterBySearch(filteredByChips, search, (entry) =>
+          [
+            entry.wildart,
+            entry.gemeinde,
+            entry.streetLabel,
+            entry.note ?? "",
+            entry.locationLabel,
+            entry.addressLabel,
+            entry.bergungsStatus
+          ].join(" ")
+        )
+      ].sort((left, right) => compareFallwild(left, right, sortKey)),
+    [filteredByChips, search, sortKey]
   );
   const searchActive = hasActiveSearch(search);
-  const filterActive = bergungsFilter !== "alle" || zeitraumFilter !== "alle";
+  const filterActive =
+    bergungsFilter !== "alle" || zeitraumFilter !== "alle" || sortKey !== "neueste-zuerst";
   const resultLabel =
     searchActive || filterActive
       ? `${visibleEntries.length} von ${entries.length}`
@@ -214,6 +244,19 @@ export function FallwildClient({ entries }: FallwildClientProps) {
             { key: "heute", label: "Heute" },
             { key: "woche", label: "7 Tage" },
             { key: "monat", label: "30 Tage" }
+          ]}
+        />
+
+        <ListFilterChips<FallwildSortKey>
+          eyebrow="Sortierung"
+          ariaLabel="Fallwild sortieren"
+          value={sortKey}
+          onChange={setSortKey}
+          options={[
+            { key: "neueste-zuerst", label: "Neueste zuerst" },
+            { key: "aelteste-zuerst", label: "Älteste zuerst" },
+            { key: "nach-wildart", label: "Nach Wildart" },
+            { key: "nach-gemeinde", label: "Nach Gemeinde" }
           ]}
         />
 
