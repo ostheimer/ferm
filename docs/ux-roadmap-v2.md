@@ -2,7 +2,21 @@
 
 Drei aufeinander aufbauende Pfade nach dem [UI-Audit 2026-05-07](./ui-audit-2026-05-07.md). Der Audit hat 22 von 23 Hygiene-Findings geschlossen — diese Roadmap geht über Hygiene hinaus zu **markantem, premiumtauglichem Erscheinungsbild**.
 
-**Stand 2026-05-08:** Pfad 1 (Visual Polish) abgeschlossen — PR #45 bis #51. Pfad 2 startet als Nächstes, basierend auf User-Feedback. Pfad 3 bleibt zurueckgestellt, bis das Produkt fachlich abgesichert ist (Steuermodell, Bilanzierung, Mehr-Revier-Skalierung).
+**Stand 2026-05-13:** Pfad 1 (Visual Polish, PR #45-#51) und Pfad 2 (Workflow-Re-Imagination, PR #58-#76) abgeschlossen. Pfad 3 bleibt zurueckgestellt, bis das Produkt fachlich abgesichert ist (Steuermodell, Bilanzierung, Mehr-Revier-Skalierung).
+
+## Pfad-2-Status
+
+| Item | Titel | Status | PR(s) |
+|------|-------|--------|-------|
+| P2.1 | Mobile Map-First | ✅ als Toggle in Locations-Tabs (Map-First-Heute-Tab rückgaengig nach User-Feedback) | #58 (Skelett), #59 (Hotfix), #60-#63 (M1-M3), #76 (Compact Hero) |
+| P2.2 | Rollen-spezifische Dashboards | ✅ | #70 |
+| P2.3 | Notification-Center | ✅ Mobile + Web | #71, #73 |
+| P2.4 | Filter, Suche, Sortieren | ✅ Mobile (M1-M3) + Web (#75) | #60, #62, #63, #75 |
+| P2.5 | Onboarding-Flow | ✅ Web 4-Step-Wizard | #74 |
+| P2.6 | Smart Defaults | ✅ Fallwild-Form Mobile | #66 (Teil M4) |
+
+Plus zehn autonom-gelieferte Features (M1-M5 + W1-W5) gemäß
+[Pfad-2-Iteration](./path-2-autonomous-features.md).
 
 ## Pfad-1-Status
 
