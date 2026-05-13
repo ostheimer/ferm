@@ -10,12 +10,13 @@ import {
 } from "react-native";
 import type { Dispatch, SetStateAction } from "react";
 import type { AufgabeListItem, CreateReviermeldungRequest, ReviermeldungListItem } from "../../lib/api";
-import type { AufgabeStatus, ReviermeldungKategorie } from "@hege/domain";
+import type { AufgabePrioritaet, AufgabeStatus, ReviermeldungKategorie } from "@hege/domain";
 
 import { FilterChipRow } from "../../components/filter-chip-row";
 import { ScreenShell } from "../../components/screen-shell";
 import { SearchInput } from "../../components/search-input";
 import {
+  createAufgabe,
   createReviermeldung,
   fetchAufgabenList,
   fetchReviermeldungenList,
@@ -67,6 +68,22 @@ const CATEGORIES: Array<{
   { value: "sonstiges", label: "Sonstiges" }
 ];
 
+/**
+ * Default-Prioritaet je Reviermeldung-Kategorie. Gleiches Mapping wie
+ * im Web (#98), damit Mobile-erzeugte Aufgaben dieselben Prioritaeten
+ * bekommen wie Backoffice-erzeugte. Wer feiner steuern will, bearbeitet
+ * die Aufgabe danach in der Aufgaben-Liste.
+ */
+const KATEGORIE_TO_PRIORITAET: Record<ReviermeldungKategorie, AufgabePrioritaet> = {
+  gefahr: "dringend",
+  schaden: "hoch",
+  reviereinrichtung: "normal",
+  fuetterung: "normal",
+  wasserung: "normal",
+  sonstiges: "normal",
+  sichtung: "niedrig"
+};
+
 export default function RevierarbeitScreen() {
   const styles = useThemedStyles(createStyles);
   const theme = useThemeColors();
@@ -77,6 +94,7 @@ export default function RevierarbeitScreen() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [updatingTaskId, setUpdatingTaskId] = useState<string | null>(null);
+  const [convertingMeldungId, setConvertingMeldungId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [aufgabeFilter, setAufgabeFilter] = useState<AufgabeFilterState>(DEFAULT_AUFGABE_FILTER);
@@ -173,6 +191,45 @@ export default function RevierarbeitScreen() {
       setError(updateError instanceof Error ? updateError.message : "Aufgabe konnte nicht aktualisiert werden.");
     } finally {
       setUpdatingTaskId(null);
+    }
+  }
+
+  /**
+   * One-Click-Konversion einer Reviermeldung in eine Aufgabe. Mobile-
+   * Pendant zur Web-Konversion (#98): gleiches Prioritaets-Mapping,
+   * gleicher Tradeoff (kein editierbares Modal vor Submit). Jaeger im
+   * Feld sieht damit eine Schaden-Meldung und kann direkt eine
+   * Aufgabe daraus generieren, ohne ins Backoffice zu wechseln.
+   *
+   * Nach Erfolg: refresh, damit die neue Aufgabe oben in der
+   * "Meine Aufgaben"-Liste auftaucht (Default-Sort: faellig-zuerst,
+   * neue Aufgabe ohne dueAt landet weiter unten — aber sie ist da).
+   */
+  async function handleConvertToAufgabe(meldung: ReviermeldungListItem) {
+    if (convertingMeldungId) return;
+
+    setConvertingMeldungId(meldung.id);
+    setMessage(null);
+    setError(null);
+
+    try {
+      await createAufgabe({
+        title: meldung.title,
+        description: meldung.description || undefined,
+        priority: KATEGORIE_TO_PRIORITAET[meldung.category] ?? "normal",
+        sourceType: "reviermeldung",
+        sourceId: meldung.id
+      });
+      setMessage(`Aufgabe „${meldung.title}" wurde angelegt.`);
+      await loadRevierarbeit({ refreshing: true });
+    } catch (conversionError) {
+      setError(
+        conversionError instanceof Error
+          ? conversionError.message
+          : "Aufgabe konnte nicht aus der Meldung angelegt werden."
+      );
+    } finally {
+      setConvertingMeldungId(null);
     }
   }
 
@@ -479,6 +536,22 @@ export default function RevierarbeitScreen() {
             {entry.description ? <Text style={styles.copy}>{entry.description}</Text> : null}
             <Text style={styles.copy}>Zeitpunkt: {formatDateTime(entry.occurredAt)}</Text>
             {entry.location ? <Text style={styles.copy}>Standort: {entry.location.label ?? `${entry.location.lat}, ${entry.location.lng}`}</Text> : null}
+            <View style={styles.actionRow}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Aufgabe aus Meldung "${entry.title}" anlegen`}
+                style={[
+                  styles.secondaryButton,
+                  convertingMeldungId === entry.id ? styles.buttonDisabled : null
+                ]}
+                onPress={() => void handleConvertToAufgabe(entry)}
+                disabled={convertingMeldungId === entry.id}
+              >
+                <Text style={styles.secondaryButtonText}>
+                  {convertingMeldungId === entry.id ? "Wird angelegt …" : "Aufgabe daraus anlegen"}
+                </Text>
+              </Pressable>
+            </View>
           </View>
         ))}
       </ScrollView>
