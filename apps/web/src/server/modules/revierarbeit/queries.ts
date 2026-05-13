@@ -1,6 +1,7 @@
 import type { Aufgabe, Reviermeldung } from "@hege/domain";
 
 import { getRequestContext, type RequestContext } from "../../auth/context";
+import { buildCsv } from "../../csv/escape";
 import { createDemoStore } from "../../demo-store";
 import { getServerEnv } from "../../env";
 import {
@@ -61,6 +62,63 @@ export async function getAufgabeForRequest(aufgabeId: string, context?: RequestC
   }
 
   return getAufgabe(context ?? (await getRequestContext()), aufgabeId);
+}
+
+/**
+ * Exportiert alle Reviermeldungen des aktiven Reviers als CSV. Pendant
+ * zu den anderen CSV-Exports (Mitglieder, Fallwild, Sitzungen, Revier-
+ * einrichtungen). Schriftfuehrung kann sich damit den Jahres-Stream
+ * abziehen, ohne durch die Web-Pagination zu klicken.
+ *
+ * Spalten bewusst flach: Photos werden als Anzahl exportiert, nicht
+ * als Pfad-Liste — Detail liegt im Web-UI bzw. der Detail-API.
+ */
+export async function exportReviermeldungenCsv(context?: RequestContext): Promise<string> {
+  const entries = await listReviermeldungenForRequest(context);
+
+  return buildCsv(REVIERMELDUNGEN_CSV_HEADER, entries.map(toReviermeldungCsvRow));
+}
+
+export const REVIERMELDUNGEN_CSV_HEADER = [
+  "id",
+  "occurred_at",
+  "kategorie",
+  "status",
+  "titel",
+  "beschreibung",
+  "location_label",
+  "lat",
+  "lng",
+  "related_type",
+  "related_id",
+  "fotos_anzahl",
+  "created_at",
+  "updated_at"
+] as const;
+
+/**
+ * Spaltenfueller als reine Funktion — laesst sich ohne DB im
+ * Vertrags-Test pruefen (gleicher Stil wie `toSitzungCsvRow`).
+ */
+export function toReviermeldungCsvRow(
+  entry: Reviermeldung
+): ReadonlyArray<string | number> {
+  return [
+    entry.id,
+    entry.occurredAt,
+    entry.category,
+    entry.status,
+    entry.title,
+    entry.description ?? "",
+    entry.location?.label ?? "",
+    entry.location?.lat ?? "",
+    entry.location?.lng ?? "",
+    entry.relatedType ?? "",
+    entry.relatedId ?? "",
+    entry.photos.length,
+    entry.createdAt,
+    entry.updatedAt
+  ];
 }
 
 function listReviermeldungenFromDemoStore(): Reviermeldung[] {
