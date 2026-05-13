@@ -8,9 +8,35 @@ import type {
 } from "@hege/domain";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import type { ChangeEvent, FormEvent } from "react";
 import { useState, useTransition } from "react";
 
 import { readApiErrorMessage } from "../../../../lib/api-error";
+
+interface EditFormState {
+  title: string;
+  description: string;
+  priority: AufgabePrioritaet;
+  dueAt: string;
+  assigneeMembershipId: string;
+}
+
+/**
+ * `dueAt` aus der API ist ISO mit Zeitzone, das HTML datetime-local-
+ * Input erwartet aber `YYYY-MM-DDTHH:mm` ohne Zone. Wir konvertieren
+ * hier waehrend des Initialisierens — die Zone bleibt impliziert die
+ * Browser-Local-Zone (Europe/Vienna fuer unsere User).
+ */
+function formatDueAtForInput(iso?: string): string {
+  if (!iso) return "";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  // YYYY-MM-DDTHH:mm — kein Sekunden-Teil
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(
+    date.getHours()
+  )}:${pad(date.getMinutes())}`;
+}
 
 interface MembershipOption {
   membershipId: string;
@@ -52,6 +78,83 @@ export function AufgabeDetailClient({
   const [isPending, startTransition] = useTransition();
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Edit-Mode: standardmaessig aus, der Detail-View zeigt die Werte
+  // erst nur read-only. "Bearbeiten" toggle-button macht den Form-State
+  // sichtbar. Beim Toggle wird das Form-State frisch aus aufgabe-Props
+  // initialisiert — kein stale-state-Problem wenn router.refresh() im
+  // Hintergrund neue Daten holt.
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState<EditFormState>(() =>
+    buildEditForm(aufgabe)
+  );
+  const [isSaving, setIsSaving] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
+
+  function startEdit() {
+    setEditForm(buildEditForm(aufgabe));
+    setEditError(null);
+    setIsEditing(true);
+  }
+
+  function cancelEdit() {
+    setIsEditing(false);
+    setEditError(null);
+  }
+
+  function updateEditField<Key extends keyof EditFormState>(key: Key) {
+    return (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+      const value = event.currentTarget.value;
+      setEditForm((current) => ({ ...current, [key]: value }));
+    };
+  }
+
+  async function handleSave(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (isSaving) return;
+
+    const trimmedTitle = editForm.title.trim();
+    if (!trimmedTitle) {
+      setEditError("Titel darf nicht leer sein.");
+      return;
+    }
+
+    setIsSaving(true);
+    setEditError(null);
+
+    const trimmedDescription = editForm.description.trim();
+    const dueAt = editForm.dueAt ? new Date(editForm.dueAt).toISOString() : null;
+
+    const response = await fetch(`/api/v1/aufgaben/${aufgabe.id}`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        title: trimmedTitle,
+        // nullable: leer-String -> null, damit der Server die Beschreibung
+        // tatsaechlich loescht. Sonst koennte man die Beschreibung nie
+        // wieder los werden, sobald sie einmal gesetzt ist.
+        description: trimmedDescription.length > 0 ? trimmedDescription : null,
+        priority: editForm.priority,
+        dueAt,
+        assigneeMembershipIds: editForm.assigneeMembershipId
+          ? [editForm.assigneeMembershipId]
+          : []
+      })
+    });
+
+    setIsSaving(false);
+
+    if (!response.ok) {
+      const body = await response.json().catch(() => null);
+      setEditError(readApiErrorMessage(body, "Aufgabe konnte nicht gespeichert werden."));
+      return;
+    }
+
+    setIsEditing(false);
+    startTransition(() => {
+      router.refresh();
+    });
+  }
 
   // Memberships sind eine flache Lookup-Tabelle membershipId -> Name.
   // Wir resolven die IDs aus aufgabe.assigneeMembershipIds zu Namen
@@ -103,6 +206,16 @@ export function AufgabeDetailClient({
             <span className={statusPillClass(aufgabe.status)}>
               {STATUS_LABEL[aufgabe.status]}
             </span>
+            {!isEditing ? (
+              <button
+                className="button-control button-control-secondary"
+                disabled={isUpdating || isPending}
+                onClick={startEdit}
+                type="button"
+              >
+                Bearbeiten
+              </button>
+            ) : null}
           </div>
         </header>
 
@@ -110,6 +223,88 @@ export function AufgabeDetailClient({
           <p aria-live="polite" className="feedback feedback-error">
             {error}
           </p>
+        ) : null}
+
+        {isEditing ? (
+          <form className="ansitz-form" onSubmit={(event) => void handleSave(event)}>
+            <label className="field field-full" htmlFor="edit-title">
+              <span>Titel</span>
+              <input
+                id="edit-title"
+                maxLength={120}
+                onChange={updateEditField("title")}
+                required
+                value={editForm.title}
+              />
+            </label>
+
+            <label className="field field-full" htmlFor="edit-description">
+              <span>Details</span>
+              <textarea
+                id="edit-description"
+                onChange={updateEditField("description")}
+                rows={4}
+                value={editForm.description}
+              />
+            </label>
+
+            <label className="field" htmlFor="edit-priority">
+              <span>Priorität</span>
+              <select
+                id="edit-priority"
+                onChange={updateEditField("priority")}
+                value={editForm.priority}
+              >
+                <option value="niedrig">Niedrig</option>
+                <option value="normal">Normal</option>
+                <option value="hoch">Hoch</option>
+                <option value="dringend">Dringend</option>
+              </select>
+            </label>
+
+            <label className="field" htmlFor="edit-due-at">
+              <span>Fällig (optional)</span>
+              <input
+                id="edit-due-at"
+                onChange={updateEditField("dueAt")}
+                type="datetime-local"
+                value={editForm.dueAt}
+              />
+            </label>
+
+            <label className="field field-full" htmlFor="edit-assignee">
+              <span>Zugewiesen an</span>
+              <select
+                id="edit-assignee"
+                onChange={updateEditField("assigneeMembershipId")}
+                value={editForm.assigneeMembershipId}
+              >
+                <option value="">— Niemand zugewiesen —</option>
+                {memberships.map((entry) => (
+                  <option key={entry.membershipId} value={entry.membershipId}>
+                    {entry.userName} ({entry.role} · {entry.jagdzeichen})
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <div className="form-footer field-full">
+              <div aria-live="polite" className="form-messages">
+                {editError ? <p className="feedback feedback-error">{editError}</p> : null}
+              </div>
+              <button
+                className="button-control button-control-secondary"
+                disabled={isSaving}
+                onClick={cancelEdit}
+                type="button"
+              >
+                Abbrechen
+              </button>
+              <button className="button-control" disabled={isSaving} type="submit">
+                {isSaving ? "Speichert …" : "Änderungen speichern"}
+              </button>
+            </div>
+          </form>
         ) : null}
 
         <div className="simple-list">
@@ -196,6 +391,20 @@ export function AufgabeDetailClient({
       </section>
     </div>
   );
+}
+
+function buildEditForm(aufgabe: Aufgabe): EditFormState {
+  return {
+    title: aufgabe.title,
+    description: aufgabe.description ?? "",
+    priority: aufgabe.priority,
+    dueAt: formatDueAtForInput(aufgabe.dueAt),
+    // Multi-Assignee in der API, aber UI exponiert v1 nur einen.
+    // Wenn mehrere zugewiesen sind, nehmen wir den ersten — der User
+    // kann das speichern und damit die anderen entfernen. Spaeter
+    // koennen wir auf eine echte Mehrfach-Auswahl umstellen.
+    assigneeMembershipId: aufgabe.assigneeMembershipIds[0] ?? ""
+  };
 }
 
 function statusPillClass(status: AufgabeStatus): string {
