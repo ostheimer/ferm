@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -12,13 +12,24 @@ import type { Dispatch, SetStateAction } from "react";
 import type { AufgabeListItem, CreateReviermeldungRequest, ReviermeldungListItem } from "../../lib/api";
 import type { AufgabeStatus, ReviermeldungKategorie } from "@hege/domain";
 
+import { FilterChipRow } from "../../components/filter-chip-row";
 import { ScreenShell } from "../../components/screen-shell";
+import { SearchInput } from "../../components/search-input";
 import {
   createReviermeldung,
   fetchAufgabenList,
   fetchReviermeldungenList,
   updateAufgabe
 } from "../../lib/api";
+import {
+  applyAufgabeFilter,
+  DEFAULT_AUFGABE_FILTER,
+  isAufgabeFilterActive,
+  type AufgabeFilterState,
+  type AufgabePrioritaetFilter,
+  type AufgabeSortKey,
+  type AufgabeStatusFilter
+} from "../../lib/aufgabe-filter.helpers";
 import { formatDateTime } from "../../lib/format";
 import { buildGeoPoint, trimToUndefined } from "../../lib/form-utils";
 import { useThemeColors, type ThemeColors } from "../../lib/theme";
@@ -67,6 +78,16 @@ export default function RevierarbeitScreen() {
   const [updatingTaskId, setUpdatingTaskId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [aufgabeFilter, setAufgabeFilter] = useState<AufgabeFilterState>(DEFAULT_AUFGABE_FILTER);
+
+  const visibleAufgaben = useMemo(
+    () => applyAufgabeFilter(aufgaben, aufgabeFilter),
+    [aufgaben, aufgabeFilter]
+  );
+  const aufgabeFilterActive = useMemo(
+    () => isAufgabeFilterActive(aufgabeFilter),
+    [aufgabeFilter]
+  );
 
   useEffect(() => {
     void loadRevierarbeit();
@@ -285,6 +306,76 @@ export default function RevierarbeitScreen() {
         style={styles.listScroll}
       >
         <Text style={styles.listHeadline}>Meine Aufgaben</Text>
+
+        {!isLoading && aufgaben.length > 0 ? (
+          <View style={styles.filterSection}>
+            <SearchInput
+              value={aufgabeFilter.search}
+              onChangeText={(text) =>
+                setAufgabeFilter((current) => ({ ...current, search: text }))
+              }
+              placeholder="Suche Titel, Details oder Notiz ..."
+              accessibilityLabel="Aufgaben durchsuchen"
+            />
+            <View style={styles.filterGroup}>
+              <Text style={styles.filterEyebrow}>Status</Text>
+              <FilterChipRow<AufgabeStatusFilter>
+                value={aufgabeFilter.status}
+                onChange={(key) => setAufgabeFilter((current) => ({ ...current, status: key }))}
+                accessibilityLabel="Aufgaben-Status filtern"
+                options={[
+                  { key: "offen", label: "Offen" },
+                  { key: "erledigt", label: "Erledigt" },
+                  { key: "alle", label: "Alle" }
+                ]}
+              />
+            </View>
+            <View style={styles.filterGroup}>
+              <Text style={styles.filterEyebrow}>Prioritaet</Text>
+              <FilterChipRow<AufgabePrioritaetFilter>
+                value={aufgabeFilter.prioritaet}
+                onChange={(key) =>
+                  setAufgabeFilter((current) => ({ ...current, prioritaet: key }))
+                }
+                accessibilityLabel="Prioritaet filtern"
+                options={[
+                  { key: "alle", label: "Alle" },
+                  { key: "dringend", label: "Dringend" },
+                  { key: "hoch", label: "Hoch" },
+                  { key: "normal", label: "Normal" },
+                  { key: "niedrig", label: "Niedrig" }
+                ]}
+              />
+            </View>
+            <View style={styles.filterGroup}>
+              <Text style={styles.filterEyebrow}>Sortierung</Text>
+              <FilterChipRow<AufgabeSortKey>
+                value={aufgabeFilter.sort}
+                onChange={(key) => setAufgabeFilter((current) => ({ ...current, sort: key }))}
+                accessibilityLabel="Sortierung waehlen"
+                options={[
+                  { key: "faellig-zuerst", label: "Faellig zuerst" },
+                  { key: "prioritaet-hoch", label: "Wichtig zuerst" },
+                  { key: "neueste-zuerst", label: "Neueste zuerst" },
+                  { key: "alphabetisch", label: "A-Z" }
+                ]}
+              />
+            </View>
+            {aufgabeFilterActive ? (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Filter zuruecksetzen"
+                onPress={() => setAufgabeFilter(DEFAULT_AUFGABE_FILTER)}
+                style={styles.filterReset}
+              >
+                <Text style={styles.filterResetText}>
+                  Filter zuruecksetzen ({visibleAufgaben.length}/{aufgaben.length})
+                </Text>
+              </Pressable>
+            ) : null}
+          </View>
+        ) : null}
+
         {!isLoading && aufgaben.length === 0 ? (
           <View style={styles.stateCard}>
             <Text style={styles.stateTitle}>Keine Aufgaben</Text>
@@ -292,7 +383,17 @@ export default function RevierarbeitScreen() {
           </View>
         ) : null}
 
-        {aufgaben.map((entry) => (
+        {!isLoading && aufgaben.length > 0 && visibleAufgaben.length === 0 ? (
+          <View style={styles.stateCard}>
+            <Text style={styles.stateTitle}>Keine Treffer</Text>
+            <Text style={styles.stateCopy}>
+              Mit den aktuellen Filtern findet sich keine Aufgabe. Filter zuruecksetzen oder
+              Suchbegriff anpassen.
+            </Text>
+          </View>
+        ) : null}
+
+        {visibleAufgaben.map((entry) => (
           <View key={entry.id} style={styles.card}>
             <View style={styles.row}>
               <View style={styles.grow}>
@@ -515,6 +616,34 @@ const createStyles = (theme: ThemeColors) =>
   listContent: {
     gap: 12,
     paddingBottom: 24
+  },
+  filterSection: {
+    gap: 10,
+    padding: 14,
+    borderRadius: 18,
+    backgroundColor: theme.card
+  },
+  filterGroup: {
+    gap: 6
+  },
+  filterEyebrow: {
+    fontSize: 11,
+    textTransform: "uppercase",
+    letterSpacing: 1.1,
+    color: theme.muted,
+    fontWeight: "700"
+  },
+  filterReset: {
+    alignSelf: "flex-start",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 999,
+    backgroundColor: theme.accent
+  },
+  filterResetText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#fff9ef"
   },
   asideCard: {
     gap: 8
