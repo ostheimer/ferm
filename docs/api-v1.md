@@ -212,8 +212,20 @@ Diese Ressourcen bleiben für die nächste Ausbaustufe vorgesehen und werden fac
 
 - `GET /api/v1/roles`
 - `GET /api/v1/memberships`
-- `GET /api/v1/messages`
 - `POST /api/v1/messages`
+- `GET /api/v1/messages`
+
+### Mitgliedschaften und Einladungen
+
+#### `POST /api/v1/memberships/invite`
+
+Sendet eine Einladung an eine E-Mail-Adresse für ein Revier.
+
+- Auth: Bearer Token (Revier Admin oder Schriftführer)
+- Body: `{ email: string, role: "jaeger" | "schriftfuehrer" | "admin" }`
+- Response 200: `{ message: "Einladung gesendet" }`
+- Response 409: Benutzer ist bereits Mitglied
+- Web-Route: `/einladung/[token]` zur Bestätigung
 
 ## Rollenregeln
 
