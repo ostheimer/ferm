@@ -10,7 +10,12 @@ import {
 } from "react-native";
 import type { Dispatch, SetStateAction } from "react";
 import type { AufgabeListItem, CreateReviermeldungRequest, ReviermeldungListItem } from "../../lib/api";
-import type { AufgabePrioritaet, AufgabeStatus, ReviermeldungKategorie } from "@hege/domain";
+import type {
+  AufgabePrioritaet,
+  AufgabeStatus,
+  ReviermeldungKategorie,
+  ReviermeldungStatus
+} from "@hege/domain";
 
 import { FilterChipRow } from "../../components/filter-chip-row";
 import { ScreenShell } from "../../components/screen-shell";
@@ -20,7 +25,8 @@ import {
   createReviermeldung,
   fetchAufgabenList,
   fetchReviermeldungenList,
-  updateAufgabe
+  updateAufgabe,
+  updateReviermeldung
 } from "../../lib/api";
 import {
   applyAufgabeFilter,
@@ -74,6 +80,29 @@ const CATEGORIES: Array<{
  * bekommen wie Backoffice-erzeugte. Wer feiner steuern will, bearbeitet
  * die Aufgabe danach in der Aufgaben-Liste.
  */
+/**
+ * Auswahlbare Reviermeldungs-Status-Transitions im Mobile-Card-Pickers.
+ * Gleiche Liste wie Web #102 — natuerlicher Workflow neu -> geprueft ->
+ * in_bearbeitung -> erledigt / verworfen. 'archiviert' bleibt
+ * draussen, das ist eine Admin-Operation.
+ */
+const MELDUNG_STATUS_TRANSITIONS: ReadonlyArray<ReviermeldungStatus> = [
+  "neu",
+  "geprueft",
+  "in_bearbeitung",
+  "erledigt",
+  "verworfen"
+];
+
+const MELDUNG_STATUS_LABELS: Record<ReviermeldungStatus, string> = {
+  neu: "Neu",
+  geprueft: "Geprüft",
+  in_bearbeitung: "In Bearbeitung",
+  erledigt: "Erledigt",
+  verworfen: "Verworfen",
+  archiviert: "Archiviert"
+};
+
 const KATEGORIE_TO_PRIORITAET: Record<ReviermeldungKategorie, AufgabePrioritaet> = {
   gefahr: "dringend",
   schaden: "hoch",
@@ -95,6 +124,7 @@ export default function RevierarbeitScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [updatingTaskId, setUpdatingTaskId] = useState<string | null>(null);
   const [convertingMeldungId, setConvertingMeldungId] = useState<string | null>(null);
+  const [updatingMeldungStatusId, setUpdatingMeldungStatusId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [aufgabeFilter, setAufgabeFilter] = useState<AufgabeFilterState>(DEFAULT_AUFGABE_FILTER);
@@ -230,6 +260,37 @@ export default function RevierarbeitScreen() {
       );
     } finally {
       setConvertingMeldungId(null);
+    }
+  }
+
+  /**
+   * Status einer Reviermeldung aendern. Mobile-Pendant zu Web #102 —
+   * gleicher Endpoint, gleiches Behavior. Im Feld primaer fuer Jaeger,
+   * der eine Meldung als 'geprueft' markieren will, nachdem er den
+   * gemeldeten Schaden vor Ort verifiziert hat.
+   */
+  async function handleMeldungStatusChange(
+    meldungId: string,
+    next: ReviermeldungStatus
+  ) {
+    if (updatingMeldungStatusId) return;
+
+    setUpdatingMeldungStatusId(meldungId);
+    setMessage(null);
+    setError(null);
+
+    try {
+      await updateReviermeldung(meldungId, { status: next });
+      setMessage(`Meldungsstatus aktualisiert: ${MELDUNG_STATUS_LABELS[next]}.`);
+      await loadRevierarbeit({ refreshing: true });
+    } catch (statusError) {
+      setError(
+        statusError instanceof Error
+          ? statusError.message
+          : "Status konnte nicht geaendert werden."
+      );
+    } finally {
+      setUpdatingMeldungStatusId(null);
     }
   }
 
@@ -536,6 +597,29 @@ export default function RevierarbeitScreen() {
             {entry.description ? <Text style={styles.copy}>{entry.description}</Text> : null}
             <Text style={styles.copy}>Zeitpunkt: {formatDateTime(entry.occurredAt)}</Text>
             {entry.location ? <Text style={styles.copy}>Standort: {entry.location.label ?? `${entry.location.lat}, ${entry.location.lng}`}</Text> : null}
+            {entry.status !== "erledigt" && entry.status !== "archiviert" ? (
+              <View style={styles.actionRow}>
+                {MELDUNG_STATUS_TRANSITIONS.filter((status) => status !== entry.status).map(
+                  (status) => (
+                    <Pressable
+                      key={status}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Meldung auf ${MELDUNG_STATUS_LABELS[status]} setzen`}
+                      style={[
+                        styles.secondaryButton,
+                        updatingMeldungStatusId === entry.id ? styles.buttonDisabled : null
+                      ]}
+                      onPress={() => void handleMeldungStatusChange(entry.id, status)}
+                      disabled={updatingMeldungStatusId === entry.id}
+                    >
+                      <Text style={styles.secondaryButtonText}>
+                        → {MELDUNG_STATUS_LABELS[status]}
+                      </Text>
+                    </Pressable>
+                  )
+                )}
+              </View>
+            ) : null}
             <View style={styles.actionRow}>
               <Pressable
                 accessibilityRole="button"
