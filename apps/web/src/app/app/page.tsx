@@ -40,7 +40,7 @@ export default async function DashboardPage({
       <section className="hero-card">
         <div>
           <p className="eyebrow">Heute im Revier</p>
-          <h1>Was jetzt deine Aufmerksamkeit braucht.</h1>
+          <h1>Weidmannsheil {firstName(dashboard.user.name)}!</h1>
           <p className="hero-copy">
             Aktive Ansitze, offene Wartungen, freigabebereite Protokolle und neue Fallwild-Vorgänge — gebündelt
             für Revierleitung und Schriftführung.
@@ -154,4 +154,19 @@ function pickFirstParam(value: string | string[] | undefined): string | undefine
   }
 
   return value;
+}
+
+/**
+ * Extrahiert den Vornamen aus einem vollen Namen ("Andreas Ostheimer"
+ * → "Andreas"). Inline-Pendant zum gleichnamigen Mobile-Helper
+ * (`apps/mobile/lib/format.ts`). Fallback auf den Original-String bei
+ * Whitespace-only, damit der Hero nicht silently leer wird.
+ */
+function firstName(fullName: string): string {
+  const trimmed = fullName.trim();
+  if (trimmed.length === 0) {
+    return fullName;
+  }
+  const [first] = trimmed.split(/\s+/);
+  return first ?? trimmed;
 }

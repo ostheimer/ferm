@@ -106,7 +106,10 @@ export async function runSmoke(baseUrl, options = {}) {
     await checkHtmlPage(baseUrl, "/app", {
       label: "/app",
       headers: browserHeaders,
-      expectedText: ["Was jetzt deine Aufmerksamkeit braucht.", me.revier.name]
+      // Hero-Title ist seit #109 "Weidmannsheil {Vorname}!". Wir
+      // pruefen nur das stabile Wort "Weidmannsheil" — der Vorname
+      // wechselt mit dem Smoke-Test-User.
+      expectedText: ["Weidmannsheil", me.revier.name]
     });
   }
 
