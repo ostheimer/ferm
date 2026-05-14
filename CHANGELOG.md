@@ -8,6 +8,20 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 
 ### Added
 
+- Web-Seiten fuer Aufgaben (`/app/aufgaben`): Liste mit Filter/Sort/Statusaktionen, Erstellungsformular mit Assignee-Picker, Detail-Page mit Source-Link zur Reviermeldung und Edit-Form (PRs #93, #95, #101, #103).
+- Web-Seiten fuer Reviermeldungen (`/app/reviermeldungen`): Index mit Filter/Sort/CSV-Export und Status-Mutation ueber Karten-Dropdown (PRs #94, #102).
+- Reviermeldung zu Aufgabe One-Click-Konversion im Backoffice und in der Mobile-App (PRs #98, #99).
+- Filter/Sort/Suche-Pattern einheitlich auf alle zehn Hauptlisten ausgerollt (PRs #84-#90); alle fuenf Web-Paperwork-Listen haben CSV-Export.
+- Unread-Badge fuer Benachrichtigungen auf Mobile Mehr-Tab und Web Sidebar (PR #80).
+- Tappable Today-Tab-Cards auf Mobile (Activity, Ansitze, Sitzung) (PR #81).
+- Smart Defaults fuer Ansitz-Erfassung auf Mobile: Standort und Dauer aus History (PR #82).
+- Pull-to-Refresh in Reviereinrichtungen und Mehr-Tab auf Mobile (PR #83).
+- „Filter zuruecksetzen"-Aktion in Empty-States aller Web-Listen (PR #87).
+- Status-Count-Hints in Aufgaben-Filter-Chips: „Offen (12) · Erledigt (3) · Alle (18)" (PR #97).
+- Post-Pfad-2-Polish-Dokumentation in `docs/post-pfad-2-polish.md` (PR #100).
+- Aufgaben-Detail-Page (`/app/aufgaben/[id]`) mit Source-Link zur Reviermeldung (PR #101).
+- Status-Mutation fuer Reviermeldungen via Karten-Dropdown (PR #102).
+- Aufgaben-Edit-Form auf der Detail-Page (PR #103).
 - Echte Auth-Session mit Login, Refresh, `GET /api/v1/me` und serverseitigem Revierkontext fuer Web und App.
 - Neue API-Vertraege fuer `dashboard`, `reviereinrichtungen`, `protokolle`, `sitzungen` und `documents` auf der Web-Schicht eingefuehrt.
 - Public-Web-Block mit Landing auf `/`, Pricing-CTAs, Login-/Registrieren-Einstieg und Onboarding-Redirects fuer `/app` und `/app/setup` vorbereitet.
@@ -43,6 +57,12 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 
 ### Fixed
 
+- CSV-Escape fuer Carriage-Return (`\r`) in Export-Hilfsfunktionen korrigiert (PR #96).
+- Shared-State-Bug im Aufgaben-Client behoben: mehrere Formulare teilten denselben React-State (PR #96).
+- Destructive Assignee-Write auf der Aufgaben-Edit-Form behoben: Assignees wurden beim Oeffnen des Formulars auf den ersten zurueckgesetzt (PR #104).
+- Umlaute in Revierarbeit-Filter-Labels und `dashboard-role.helpers.ts` auf UTF-8 korrigiert (PRs #91, #92).
+- `ListFilterChips` ohne Arrow-Key-Navigation nachgezogen (PR #96).
+- Vier weitere P1-Bugs aus Batch-Audit #97-#103 behoben (PR #104).
 - Web-Sidebar um eine sichtbare `Abmelden`-Aktion ergaenzt und den Logout-Flow ueber Cookie-Clear mit Redirect auf `/login` abgesichert.
 - Login-Placeholder in Web und App zeigen keine konkreten Seed-Zugangsdaten mehr an.
 - Production-Fallback fuer Legacy-Schema eingebaut, damit Login ohne `users.username` und Fallwild-Reads ohne `media_assets` nicht mehr mit `500` scheitern.
