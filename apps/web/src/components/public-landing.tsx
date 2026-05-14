@@ -77,8 +77,8 @@ export function PublicLanding() {
               />
             </div>
             <div>
+              <strong>hege.app</strong>
               <p className="eyebrow">Reviermanagement</p>
-              <strong>hege</strong>
             </div>
           </div>
 
@@ -90,6 +90,18 @@ export function PublicLanding() {
               Preise ansehen
             </Link>
           </nav>
+
+          <details className="public-mobile-menu">
+            <summary aria-label="Menü öffnen">
+              <span className="public-mobile-menu-line" />
+              <span className="public-mobile-menu-line" />
+              <span className="public-mobile-menu-line" />
+            </summary>
+            <nav className="public-mobile-menu-panel" aria-label="Mobiler Schnellzugriff">
+              <Link href="/login">Anmelden</Link>
+              <Link href="#preise">Preise</Link>
+            </nav>
+          </details>
         </header>
 
         <section className="public-hero">
@@ -106,8 +118,9 @@ export function PublicLanding() {
             <p className="eyebrow">Revierdigitalisierung</p>
             <h1>Revierbetrieb, Protokolle und Feldmeldungen in einer klaren Oberfläche.</h1>
             <p className="public-hero-text">
-              hege verbindet die Arbeit im Backoffice mit der Erfassung draußen. Für Revierleitung,
-              Schriftführung und Jagdteam, die ohne Tool-Wirrwarr arbeiten wollen.
+              Die hege App für Android und iOS sowie die Webapp verbinden die Arbeit im Backoffice
+              mit der Erfassung draußen. Für Jagdleitung, Schriftführung und Jagdteam, die ohne
+              Tool-Wirrwarr arbeiten wollen.
             </p>
 
             <div className="public-hero-actions">

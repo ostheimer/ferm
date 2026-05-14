@@ -1452,6 +1452,8 @@ td span {
 }
 
 .public-topbar {
+  position: relative;
+  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1494,6 +1496,62 @@ td span {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+.public-mobile-menu {
+  display: none;
+  position: relative;
+  margin-left: auto;
+}
+
+.public-mobile-menu summary {
+  display: grid;
+  place-items: center;
+  gap: 5px;
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  background: rgba(36, 73, 58, 0.1);
+  cursor: pointer;
+  list-style: none;
+}
+
+.public-mobile-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.public-mobile-menu-line {
+  display: block;
+  width: 22px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--accent-strong);
+}
+
+.public-mobile-menu-panel {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 10px);
+  right: 0;
+  display: grid;
+  min-width: 160px;
+  gap: 4px;
+  padding: 8px;
+  border: 1px solid rgba(25, 57, 44, 0.12);
+  border-radius: 18px;
+  background: rgba(255, 252, 244, 0.96);
+  box-shadow: 0 24px 58px rgba(16, 35, 28, 0.18);
+}
+
+.public-mobile-menu-panel a {
+  padding: 12px 14px;
+  border-radius: 12px;
+  color: var(--accent-strong);
+  font-weight: 700;
+}
+
+.public-mobile-menu-panel a:hover {
+  background: rgba(36, 73, 58, 0.08);
 }
 
 .public-hero {
@@ -1605,8 +1663,9 @@ td span {
   position: relative;
   z-index: 2;
   align-self: stretch;
-  display: grid;
-  gap: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
   min-width: 0;
   padding: 28px;
   background: rgba(12, 29, 23, 0.78);
@@ -1646,6 +1705,7 @@ td span {
 .public-proof {
   display: grid;
   gap: 10px;
+  margin-top: auto;
   padding-top: 10px;
   border-top: 1px solid rgba(245, 241, 231, 0.16);
 }
@@ -1943,10 +2003,42 @@ td span {
       linear-gradient(90deg, rgba(8, 20, 16, 0.84), rgba(8, 20, 16, 0.46));
   }
 
-  .public-topbar,
   .public-cta-band {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .public-topbar {
+    flex-direction: row;
+    align-items: center;
+    padding: 12px 14px;
+  }
+
+  .public-brand {
+    gap: 10px;
+  }
+
+  .public-brand-mark {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+  }
+
+  .public-brand strong {
+    font-size: 1.2rem;
+  }
+
+  .public-brand .eyebrow {
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+  }
+
+  .public-topbar-actions {
+    display: none;
+  }
+
+  .public-mobile-menu {
+    display: block;
   }
 
   .public-hero-copy {
