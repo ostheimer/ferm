@@ -1505,15 +1505,35 @@ td span {
 }
 
 .public-mobile-menu summary {
-  display: grid;
-  place-items: center;
-  gap: 5px;
-  width: 46px;
-  height: 46px;
-  border-radius: 999px;
-  background: rgba(36, 73, 58, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: transparent;
   cursor: pointer;
   list-style: none;
+  outline: none;
+  transition:
+    background 160ms ease,
+    box-shadow 160ms ease;
+}
+
+@media (hover: hover) {
+  .public-mobile-menu summary:hover {
+    background: rgba(36, 73, 58, 0.06);
+  }
+}
+
+.public-mobile-menu summary:focus-visible {
+  box-shadow: 0 0 0 3px rgba(36, 73, 58, 0.2);
+}
+
+.public-mobile-menu[open] summary:focus-visible {
+  box-shadow: none;
 }
 
 .public-mobile-menu summary::-webkit-details-marker {
@@ -1522,8 +1542,8 @@ td span {
 
 .public-mobile-menu-line {
   display: block;
-  width: 22px;
-  height: 2px;
+  width: 28px;
+  height: 2.5px;
   border-radius: 999px;
   background: var(--accent-strong);
 }
