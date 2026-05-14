@@ -7,25 +7,36 @@ import { useThemedStyles } from "../lib/use-themed-styles";
 interface QueueStatusPillProps {
   count: number;
   failedCount: number;
+  /**
+   * Wenn `true`, hat die API gerade einen Read-Fehler geliefert (Dashboard-
+   * Fetch fehlgeschlagen). Bei leerer Warteschlange zeigen wir dann
+   * "API offline" statt "Sync OK" — die Pille soll nicht widerspruechlich
+   * gruenen Haken zeigen, waehrend daneben "API nicht erreichbar" steht.
+   */
+  apiOffline?: boolean;
 }
 
 /**
  * `<QueueStatusPill>` — kompakter Status-Anzeiger fuer die Offline-
  * Warteschlange im Hero des Heute-Tabs.
  *
- * Drei Zustaende:
+ * Vier Zustaende:
  * - **Sync OK**: alles synchronisiert. Neutrale, kleine Pille mit
  *   gruenem Haken und kurzem Label.
  * - **N warten**: Eintraege wollen hochgeladen werden. Akzent-Pille
  *   mit Cloud-Upload-Icon und Counter.
  * - **N Fehler**: Failed-Eintraege brauchen Aufmerksamkeit. Warning-
  *   farbene Pille mit Alert-Icon.
+ * - **API offline**: Queue ist leer, aber der letzte API-Read ist
+ *   gescheitert. Warning-Pille mit Cloud-Offline-Icon. Sonst wuerde
+ *   die Pille "Sync OK" zeigen, waehrend daneben ein API-Error-Card
+ *   sichtbar ist.
  *
  * Frueher war diese Info eine grosse Card unter dem Hero — die hat
  * ~30% des Heros gefressen. Die Pille passt jetzt rechts oben in den
  * Eyebrow-Row und macht Platz fuer den eigentlichen Inhalt.
  */
-export function QueueStatusPill({ count, failedCount }: QueueStatusPillProps) {
+export function QueueStatusPill({ count, failedCount, apiOffline }: QueueStatusPillProps) {
   const styles = useThemedStyles(createStyles);
   const theme = useThemeColors();
 
@@ -51,6 +62,19 @@ export function QueueStatusPill({ count, failedCount }: QueueStatusPillProps) {
       >
         <Ionicons color="#fff9ef" name="cloud-upload" size={14} />
         <Text style={[styles.label, styles.labelOnAccent]}>{count} warten</Text>
+      </View>
+    );
+  }
+
+  if (apiOffline) {
+    return (
+      <View
+        accessibilityRole="text"
+        accessibilityLabel="API nicht erreichbar"
+        style={[styles.pill, styles.pillFailed]}
+      >
+        <Ionicons color="#fff9ef" name="cloud-offline" size={14} />
+        <Text style={[styles.label, styles.labelOnAccent]}>API offline</Text>
       </View>
     );
   }

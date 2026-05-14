@@ -16,6 +16,7 @@ import {
 } from "../../lib/activity-feed.helpers";
 import { fetchDashboardSnapshot } from "../../lib/api";
 import { computeRoleDashboard } from "../../lib/dashboard-role.helpers";
+import { formatApiErrorDescription } from "../../lib/format";
 import {
   discardOfflineQueueEntry,
   retryOfflineQueueEntry,
@@ -180,7 +181,13 @@ export default function HeuteScreen() {
           void loadDashboard({ refreshing: true });
         }
       }}
-      aside={<QueueStatusPill count={queueCount} failedCount={failedQueueCount} />}
+      aside={
+        <QueueStatusPill
+          count={queueCount}
+          failedCount={failedQueueCount}
+          apiOffline={Boolean(error)}
+        />
+      }
     >
       {!queueIsEmpty ? (
         <View style={styles.toolbar}>
@@ -213,7 +220,7 @@ export default function HeuteScreen() {
         <StateView
           mode="error"
           title="API nicht erreichbar"
-          description={`${error} Tippe auf „Aktualisieren", sobald die Verbindung wieder steht.`}
+          description={formatApiErrorDescription(error)}
           action={{ label: "Aktualisieren", onPress: () => void loadDashboard({ refreshing: true }) }}
         />
       ) : null}
