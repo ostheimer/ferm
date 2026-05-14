@@ -1558,8 +1558,7 @@ td span {
   margin: 0;
   font-size: clamp(2.7rem, 6vw, 5.4rem);
   line-height: 0.95;
-  max-width: 11ch;
-  overflow-wrap: break-word;
+  max-width: 13ch;
 }
 
 .public-hero-text {
