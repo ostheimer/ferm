@@ -9,15 +9,18 @@ Diese Datei ist der schlanke Einstiegspunkt im Repo-Root. Die vollstaendige Road
 - `Sprint 1.5` ist produktiv sichtbar: Public Landing, Pricing-CTAs, Login, Registrierung, Setup-Redirects, neues Logo und Auth-UI sind auf `https://hege.app` deployed und per Playwright auf Desktop und Mobile geprüft.
 - `Sprint 2` und `Sprint 3` sind weit fortgeschritten: Mobile Login, lokales Face-ID-/Touch-ID-Entsperren gespeicherter Sitzungen, Dashboard, Ansitz- und Fallwild-Formulare, Read-Slices, Offline-Queue v2, R2-Foto-Upload und Fallwild-Standort v1 stehen. Der iPhone-/iOS-Smoke vom 2026-04-26 bestätigt den Queue-v2-Fehlerpfad; ein direkter Production-Foto-Upload gegen `hege.app` ist verifiziert. Der Face-ID-Flow wurde am 2026-05-06 auf dem angeschlossenen iPhone bestätigt.
 - Karten/Standort sind begonnen: Fallwild nutzt serverseitige Standortauflösung, speichert Standort-/Straßenkilometer-Metadaten, ergänzt Adresse/Straße über Google Reverse Geocoding und kann ohne externe Keys über lokale Gänserndorf-Testdaten im Mock-Provider geprüft werden. GIP bleibt die fachliche Zielquelle für österreichische Straßenkilometer; dafür stehen jetzt HTTP-Resolver, lokaler OGD-BEPU-JSON-Indexpfad und ein gebündelter regionaler Gänserndorf-Index bereit.
-- `Sprint 4` ist begonnen und nativ lokal abgenommen: Reviermeldungen und Aufgaben haben einen ersten Backend-/Mobile-Slice mit Tabellen, Seeds, Rollenprüfung, Aufgaben-Sichtbarkeit, Dashboard-Zähler und Mobile-Tab `Meldungen`; der iPhone-Smoke vom 2026-05-05 bestätigt Laden, Statusänderung und Meldungserfassung gegen den lokalen API-Stand.
+- `Sprint 4` ist im Web-Slice abgeschlossen: Reviermeldungen und Aufgaben haben vollständige Web-Seiten (`/app/aufgaben`, `/app/reviermeldungen`) mit Filter/Sort, CSV-Export, Statusaktionen, Erstellungsformular, Detail-Page, Edit-Form und One-Click-Konversion Reviermeldung → Aufgabe. Der Mobile-Slice (Tab `Meldungen`) ist produktiv und per iPhone-Smoke vom 2026-05-05 bestätigt. Noch offen: Foto-Upload für Reviermeldungen (Mobile), Mobile Standalone-Aufgaben-Erstellungsformular und Bulk-Aktionen auf Aufgaben.
 
 ## Aktueller Fokus
 
-1. iPhone-/iOS-Geräte-Smoke auf Production mit Foto-Upload, automatischer Standortauflösung und leerer Queue erneut ausführen
-2. Production-Fallwild-Standortauflösung mit gesetztem Google-Server-Key und gebündeltem GIP-Index im nativen iPhone-Smoke prüfen
-3. GIP-Bounding-Box mit dem tatsächlichen Revier abgleichen und bei Bedarf größeren Index in Preview/Production aktivieren
-4. Mobile-E2E-Strategie über den dokumentierten Geräte-Smoke hinaus festziehen
-5. Android-Emulator-Smoke als optionalen Zweitpfad bei Bedarf praktisch durchlaufen
+1. Kritische UI-Audit-Findings schließen: Sidebar rollen-aware filtern (F-01), Backoffice-Karte auf echte Google Maps migrieren (F-03), Mobile-Karte auf `react-native-maps` mit Google-Provider umstellen (F-14)
+2. Mobile Standalone-Aufgaben-Erstellungsformular fertigstellen (Web-Pendant in `/app/aufgaben/neu` vorhanden; Mobile hat nur den Konversionspfad über die Reviermeldung)
+3. Foto-Upload für Reviermeldungen in der Mobile-App nachziehen
+4. iPhone-/iOS-Geräte-Smoke auf Production mit Foto-Upload, automatischer Standortauflösung und leerer Queue erneut ausführen
+5. Production-Fallwild-Standortauflösung mit gesetztem Google-Server-Key und gebündeltem GIP-Index im nativen iPhone-Smoke prüfen
+6. GIP-Bounding-Box mit dem tatsächlichen Revier abgleichen und bei Bedarf größeren Index in Preview/Production aktivieren
+7. Mobile-E2E-Strategie über den dokumentierten Geräte-Smoke hinaus festziehen
+8. Android-Emulator-Smoke als optionalen Zweitpfad bei Bedarf praktisch durchlaufen
 
 ## Detaildokumente
 
