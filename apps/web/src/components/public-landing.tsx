@@ -63,11 +63,6 @@ const faq = [
 export function PublicLanding() {
   return (
     <main className="public-landing">
-      <div className="public-landing-backdrop" aria-hidden="true">
-        <div className="public-landing-orb public-landing-orb-left" />
-        <div className="public-landing-orb public-landing-orb-right" />
-      </div>
-
       <div className="public-landing-shell">
         <header className="public-topbar">
           <div className="public-brand">
@@ -98,6 +93,15 @@ export function PublicLanding() {
         </header>
 
         <section className="public-hero">
+          <Image
+            className="public-hero-image"
+            src="/landing/noe-hero-hochstand.jpg"
+            alt=""
+            fill
+            priority
+            sizes="(max-width: 1240px) 100vw, 1240px"
+          />
+          <div className="public-hero-overlay" aria-hidden="true" />
           <div className="public-hero-copy">
             <p className="eyebrow">Revierdigitalisierung</p>
             <h1>Revierbetrieb, Protokolle und Feldmeldungen in einer klaren Oberfläche.</h1>
@@ -147,6 +151,16 @@ export function PublicLanding() {
         </section>
 
         <PublicShowcase />
+
+        <section className="public-image-band" aria-label="Revierstimmung in Niederösterreich">
+          <Image
+            className="public-image-band-photo"
+            src="/landing/noe-rehwild-waldrand.jpg"
+            alt=""
+            fill
+            sizes="(max-width: 1240px) calc(100vw - 28px), 1240px"
+          />
+        </section>
 
         <section className="public-section" id="features">
           <div className="public-section-head">
@@ -247,6 +261,14 @@ export function PublicLanding() {
         </section>
 
         <section className="public-cta-band">
+          <Image
+            className="public-cta-image"
+            src="/landing/noe-revierarbeit-cta.jpg"
+            alt=""
+            fill
+            sizes="(max-width: 1240px) calc(100vw - 28px), 1240px"
+          />
+          <div className="public-cta-overlay" aria-hidden="true" />
           <div>
             <p className="eyebrow">Nächster Schritt</p>
             <h2>hege für dein Revier starten oder direkt einsteigen.</h2>

@@ -1437,39 +1437,8 @@ td span {
   overflow-y: auto;
   padding: 24px;
   background:
-    radial-gradient(circle at 12% 10%, rgba(157, 179, 111, 0.34), transparent 28%),
-    radial-gradient(circle at 88% 0%, rgba(36, 73, 58, 0.22), transparent 32%),
-    linear-gradient(180deg, rgba(250, 246, 235, 0.98), rgba(243, 239, 227, 0.98));
-}
-
-.public-landing-backdrop {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.public-landing-orb {
-  position: absolute;
-  border-radius: 999px;
-  filter: blur(12px);
-  opacity: 0.8;
-}
-
-.public-landing-orb-left {
-  top: -120px;
-  left: -80px;
-  width: 360px;
-  height: 360px;
-  background: rgba(157, 179, 111, 0.22);
-}
-
-.public-landing-orb-right {
-  right: -100px;
-  top: 220px;
-  width: 340px;
-  height: 340px;
-  background: rgba(36, 73, 58, 0.16);
+    linear-gradient(180deg, rgba(250, 246, 235, 0.98), rgba(243, 239, 227, 0.98)),
+    var(--bg);
 }
 
 .public-landing-shell {
@@ -1528,12 +1497,19 @@ td span {
 }
 
 .public-hero {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
   gap: 20px;
+  min-height: 650px;
+  padding: 34px;
+  overflow: hidden;
+  border-radius: 32px;
+  border: 1px solid rgba(25, 57, 44, 0.16);
+  color: #f5f1e7;
+  box-shadow: var(--shadow);
 }
 
-.public-hero-copy,
 .public-hero-panel,
 .public-card,
 .public-cta-band {
@@ -1543,10 +1519,39 @@ td span {
   box-shadow: var(--shadow);
 }
 
+.public-hero-image,
+.public-hero-overlay,
+.public-cta-image,
+.public-cta-overlay {
+  position: absolute;
+  inset: 0;
+}
+
+.public-hero-image,
+.public-cta-image,
+.public-image-band-photo {
+  object-fit: cover;
+}
+
+.public-hero-image {
+  object-position: center center;
+}
+
+.public-hero-overlay {
+  z-index: 1;
+  background:
+    linear-gradient(90deg, rgba(8, 20, 16, 0.94) 0%, rgba(11, 27, 21, 0.82) 42%, rgba(12, 29, 23, 0.36) 72%, rgba(12, 29, 23, 0.62) 100%),
+    linear-gradient(180deg, rgba(10, 21, 17, 0.28), rgba(10, 21, 17, 0.5));
+}
+
 .public-hero-copy {
+  position: relative;
+  z-index: 2;
   display: grid;
   gap: 18px;
-  padding: 34px;
+  align-content: center;
+  min-width: 0;
+  padding: 26px 12px;
 }
 
 .public-hero-copy h1 {
@@ -1554,12 +1559,13 @@ td span {
   font-size: clamp(2.7rem, 6vw, 5.4rem);
   line-height: 0.95;
   max-width: 11ch;
+  overflow-wrap: break-word;
 }
 
 .public-hero-text {
   max-width: 62ch;
   font-size: 1.06rem;
-  color: var(--muted);
+  color: rgba(245, 241, 231, 0.86);
 }
 
 .public-stat-row {
@@ -1574,7 +1580,9 @@ td span {
   gap: 8px;
   padding: 16px;
   border-radius: 20px;
-  background: rgba(36, 73, 58, 0.06);
+  background: rgba(245, 241, 231, 0.1);
+  border: 1px solid rgba(245, 241, 231, 0.14);
+  backdrop-filter: blur(8px);
 }
 
 .public-stat dt,
@@ -1591,15 +1599,21 @@ td span {
 
 .public-stat dd {
   margin: 0;
-  color: var(--muted);
+  color: rgba(245, 241, 231, 0.76);
 }
 
 .public-hero-panel {
+  position: relative;
+  z-index: 2;
+  align-self: stretch;
   display: grid;
   gap: 20px;
+  min-width: 0;
   padding: 28px;
-  background: linear-gradient(180deg, rgba(23, 51, 40, 0.98), rgba(17, 33, 27, 0.96));
+  background: rgba(12, 29, 23, 0.78);
+  border-color: rgba(245, 241, 231, 0.16);
   color: #f5f1e7;
+  backdrop-filter: blur(10px);
 }
 
 .public-hero-panel .eyebrow {
@@ -1651,6 +1665,25 @@ td span {
 .public-section {
   display: grid;
   gap: 18px;
+}
+
+.public-image-band {
+  position: relative;
+  min-height: clamp(220px, 34vw, 420px);
+  overflow: hidden;
+  border-radius: 28px;
+  border: 1px solid rgba(25, 57, 44, 0.11);
+  box-shadow: var(--shadow);
+}
+
+.public-image-band::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(10, 21, 17, 0.06), rgba(10, 21, 17, 0.18)),
+    linear-gradient(90deg, rgba(10, 21, 17, 0.24), transparent 34%, rgba(10, 21, 17, 0.12));
+  pointer-events: none;
 }
 
 .public-section-head {
@@ -1767,12 +1800,43 @@ td span {
 }
 
 .public-cta-band {
+  position: relative;
+  overflow: hidden;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 16px;
-  padding: 24px 26px;
-  background: linear-gradient(135deg, rgba(36, 73, 58, 0.96), rgba(23, 51, 40, 0.98));
+  min-height: 230px;
+  padding: 34px 36px;
+  background: #173328;
+  color: #f5f1e7;
+}
+
+.public-cta-band > *:not(.public-cta-image, .public-cta-overlay) {
+  position: relative;
+  z-index: 2;
+}
+
+.public-cta-image {
+  object-position: center center;
+}
+
+.public-cta-overlay {
+  z-index: 1;
+  background:
+    linear-gradient(90deg, rgba(10, 21, 17, 0.94) 0%, rgba(13, 32, 25, 0.82) 48%, rgba(13, 32, 25, 0.42) 100%),
+    linear-gradient(180deg, rgba(8, 16, 13, 0.18), rgba(8, 16, 13, 0.5));
+}
+
+.public-hero .button-control,
+.public-cta-band .button-control {
+  box-shadow: 0 12px 32px rgba(3, 9, 7, 0.22);
+}
+
+.public-hero .button-control-secondary,
+.public-cta-band .button-control-secondary {
+  border: 1px solid rgba(245, 241, 231, 0.28);
+  background: rgba(245, 241, 231, 0.12);
   color: #f5f1e7;
 }
 
@@ -1805,6 +1869,10 @@ td span {
   .public-section-head-row,
   .public-cta-band {
     grid-template-columns: 1fr;
+  }
+
+  .public-hero {
+    min-height: auto;
   }
 
   .public-section-note {
@@ -1861,6 +1929,21 @@ td span {
     border-radius: 22px;
   }
 
+  .public-hero {
+    padding: 18px;
+    border-radius: 24px;
+  }
+
+  .public-hero-image {
+    object-position: 62% center;
+  }
+
+  .public-hero-overlay {
+    background:
+      linear-gradient(180deg, rgba(8, 20, 16, 0.94) 0%, rgba(11, 27, 21, 0.82) 58%, rgba(11, 27, 21, 0.68) 100%),
+      linear-gradient(90deg, rgba(8, 20, 16, 0.84), rgba(8, 20, 16, 0.46));
+  }
+
   .public-topbar,
   .public-cta-band {
     align-items: flex-start;
@@ -1868,11 +1951,35 @@ td span {
   }
 
   .public-hero-copy {
-    padding: 24px;
+    padding: 18px 6px;
+  }
+
+  .public-hero-copy h1 {
+    font-size: 2.1rem;
+    line-height: 1.04;
+    max-width: 100%;
+  }
+
+  .public-hero-actions {
+    width: 100%;
+  }
+
+  .public-hero-actions .button-control {
+    flex: 1 1 100%;
   }
 
   .public-hero-panel {
     padding: 22px;
+  }
+
+  .public-image-band {
+    min-height: 220px;
+    border-radius: 22px;
+  }
+
+  .public-cta-band {
+    min-height: auto;
+    padding: 26px 24px;
   }
 
   .public-stat-row {
