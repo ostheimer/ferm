@@ -16,7 +16,7 @@ import {
 } from "../../lib/activity-feed.helpers";
 import { fetchDashboardSnapshot } from "../../lib/api";
 import { computeRoleDashboard } from "../../lib/dashboard-role.helpers";
-import { formatApiErrorDescription } from "../../lib/format";
+import { firstName, formatApiErrorDescription } from "../../lib/format";
 import {
   discardOfflineQueueEntry,
   retryOfflineQueueEntry,
@@ -165,13 +165,19 @@ export default function HeuteScreen() {
     ? computeRoleDashboard(snapshot.membership.role, snapshot)
     : null;
 
+  // Personalisierte Begruessung als Hero-Title. Wenn der Snapshot
+  // geladen ist, zeigen wir 'Weidmannsheil {firstName}!' — Revier-Name,
+  // Rolle und Jagdzeichen rutschen in den Subtitle. Vor dem Snapshot
+  // bleibt der neutrale Fallback 'Heute im Revier' aktiv.
+  const greeting = snapshot ? `Weidmannsheil ${firstName(snapshot.user.name)}!` : "Heute im Revier";
+
   return (
     <ScreenShell
       eyebrow={todayLabel}
-      title={snapshot?.revier.name ?? "Heute im Revier"}
+      title={greeting}
       subtitle={
         snapshot
-          ? `${snapshot.user.name} · ${formatRoleLabel(snapshot.membership.role)} · ${snapshot.membership.jagdzeichen}`
+          ? `${snapshot.revier.name} · ${formatRoleLabel(snapshot.membership.role)} · ${snapshot.membership.jagdzeichen}`
           : "Aktivität, Aufgaben und Warteschlange auf einen Blick."
       }
       refresh={{

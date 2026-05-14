@@ -42,3 +42,22 @@ export function formatApiErrorDescription(error: string): string {
   const cleaned = error.trim().replace(/(?:\.{3}|[.!?…])+$/, "");
   return `${cleaned}.\n\nTippe auf „Aktualisieren", sobald die Verbindung wieder steht.`;
 }
+
+/**
+ * Extrahiert den Vornamen aus einem vollen Namen ("Andreas Ostheimer"
+ * → "Andreas"). Fallback auf den ganzen String, wenn nur ein Token da
+ * ist oder der Input nach dem Trim leer wird.
+ *
+ * Wird im Heute-Tab fuer die Begruessung verwendet
+ * ('Weidmannsheil Andreas!'). Bewusst kein Capitalize-Fix — wir
+ * vertrauen darauf, dass die User-Daten korrekt eingegeben sind, sonst
+ * sehen wir das Problem als Bug im Onboarding.
+ */
+export function firstName(fullName: string): string {
+  const trimmed = fullName.trim();
+  if (trimmed.length === 0) {
+    return fullName;
+  }
+  const [first] = trimmed.split(/\s+/);
+  return first ?? trimmed;
+}
