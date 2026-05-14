@@ -8,6 +8,7 @@ import { FilterChipRow } from "../components/filter-chip-row";
 import { ScreenShell } from "../components/screen-shell";
 import { StateView } from "../components/state-view";
 import { fetchDashboardSnapshot } from "../lib/api";
+import { formatApiErrorDescription } from "../lib/format";
 import {
   countUnread,
   markAllNotificationsRead,
@@ -155,7 +156,7 @@ export default function BenachrichtigungenScreen() {
         <StateView
           mode="error"
           title="API nicht erreichbar"
-          description={`${error} Tippe auf „Aktualisieren", sobald die Verbindung wieder steht.`}
+          description={formatApiErrorDescription(error)}
           action={{ label: "Aktualisieren", onPress: () => void load({ refreshing: true }) }}
         />
       ) : null}
