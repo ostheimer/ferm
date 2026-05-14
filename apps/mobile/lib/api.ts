@@ -20,6 +20,7 @@ import type {
   ReviereinrichtungListItem,
   Reviermeldung,
   ReviermeldungKategorie,
+  ReviermeldungStatus,
   RevierResourceType,
   Role,
   FallwildVorgang,
@@ -100,6 +101,12 @@ export interface CreateAufgabeRequest {
   priority?: AufgabePrioritaet;
   dueAt?: string;
   assigneeMembershipIds?: string[];
+}
+
+export interface UpdateReviermeldungRequest {
+  status?: ReviermeldungStatus;
+  title?: string;
+  description?: string | null;
 }
 
 export interface UpdateAufgabeRequest {
@@ -286,6 +293,16 @@ export async function createAufgabe(payload: CreateAufgabeRequest): Promise<Muta
 
 export async function updateAufgabe(id: string, payload: UpdateAufgabeRequest): Promise<AufgabeListItem> {
   return requestJson<AufgabeListItem>(`/v1/aufgaben/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    body: payload
+  });
+}
+
+export async function updateReviermeldung(
+  id: string,
+  payload: UpdateReviermeldungRequest
+): Promise<ReviermeldungListItem> {
+  return requestJson<ReviermeldungListItem>(`/v1/reviermeldungen/${encodeURIComponent(id)}`, {
     method: "PATCH",
     body: payload
   });
