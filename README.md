@@ -35,6 +35,12 @@ Die bestehende NestJS-API bleibt als Referenzpfad im Repository. Die produktive 
 - Public Landing, Login, Registrierung und Setup-Flow mit neuem `hege`-Logo; die Website ist auf `https://hege.app` produktiv geprüft
 - Mobile-Screens für Dashboard, Ansitze, Fallwild, Reviereinrichtungen und Protokolle gegen denselben API-Slice
 - Mobile-Tab `Meldungen` für Reviermeldungen und Aufgaben: Meldung erfassen, Aufgaben lesen und Aufgabenstatus ändern
+- Web-Seiten für Aufgaben unter `/app/aufgaben`: Liste mit Filter, Sort und Statusaktionen, Erstellungsformular mit Assignee-Picker, Detail-Page mit Source-Link zur Reviermeldung und Edit-Form für Titel, Beschreibung, Priorität, Fälligkeit und Assignee
+- Web-Seiten für Reviermeldungen unter `/app/reviermeldungen`: Index mit Filter, Sort und CSV-Export sowie Status-Mutation über das Karten-Dropdown
+- Reviermeldung → Aufgabe One-Click-Konversion im Backoffice und in der Mobile-App; der Workflow ist durchgängig: Jäger erstellt eine Meldung, Schriftführung konvertiert sie direkt in eine Aufgabe
+- Filter/Sort/Suche-Pattern einheitlich auf alle zehn Hauptlisten ausgerollt (fünf Web-Listen, fünf Mobile-Listen); alle fünf Web-Paperwork-Listen haben CSV-Export
+- Status-Count-Hints in Aufgaben-Filter-Chips zeigen die Anzahl pro Status und verhindern stilles Verschwinden von Aufgaben bei aktivem Filter
+- Unread-Badge für Benachrichtigungen auf Mobile Mehr-Tab und Web Sidebar
 - lokaler iPhone-Smoke für `Meldungen` vom 2026-05-05: Login, Aufgabenliste, Statusänderung auf `In Arbeit` und neue Reviermeldung `Smoke Test` wurden gegen `http://10.0.0.242:3000/api/v1` mit `200`/`201` bestätigt
 - Mobile Fallwild-Fotoauswahl mit Queue-v2-Weitergabe, Retry-Backoff und sichtbaren Aktionen für problematische Uploads
 - dokumentierten iPhone-/iOS-Simulator-Smoke als primären nativen Expo-Abnahmepfad; der Lauf vom 2026-04-26 bestätigt Queue-v2-Fehleranzeigen, R2-Storage ist auf Production aktiviert und ein direkter Fallwild-Foto-Upload gegen `hege.app` ist verifiziert
@@ -146,6 +152,10 @@ Wichtige Testwege:
 - PDF-Erzeugung weiter härten
 - Android-Emulator-Smoke optional als Zweitpfad vorbereiten
 - Rollen-, Aufgaben- und Nachrichtenmodell fachlich weiter ausarbeiten
+- Mobile Standalone-Aufgaben-Erstellungsformular fertigstellen (Web hat bereits das Erstellen-Formular; Mobile hat nur den Konversionspfad über die Reviermeldung)
+- Foto-Upload für Reviermeldungen in der Mobile-App nachziehen
+- Bulk-Aktionen auf Aufgaben (mehrere gleichzeitig als erledigt markieren)
+- Kritische UI-Audit-Findings schließen: Sidebar rollen-aware filtern (F-01), Backoffice-Karte auf echte Google Maps migrieren (F-03), Mobile-Karte auf `react-native-maps` mit Google-Provider umstellen (F-14)
 
 ## Dokumentation
 
