@@ -79,6 +79,53 @@ export const memberships = pgTable(
   ]
 );
 
+export const contactLists = pgTable(
+  "contact_lists",
+  {
+    id: text("id").primaryKey(),
+    revierId: text("revier_id")
+      .notNull()
+      .references(() => reviere.id),
+    title: text("title").notNull(),
+    position: integer("position").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "string" }).notNull()
+  },
+  (table) => [
+    index("contact_lists_revier_idx").on(table.revierId),
+    index("contact_lists_position_idx").on(table.revierId, table.position)
+  ]
+);
+
+export const contactEntries = pgTable(
+  "contact_entries",
+  {
+    id: text("id").primaryKey(),
+    listId: text("list_id")
+      .notNull()
+      .references(() => contactLists.id, { onDelete: "cascade" }),
+    revierId: text("revier_id")
+      .notNull()
+      .references(() => reviere.id),
+    membershipId: text("membership_id").references(() => memberships.id),
+    name: text("name"),
+    phone: text("phone"),
+    revier: text("revier"),
+    funktion: text("funktion"),
+    note: text("note"),
+    position: integer("position").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "string" }).notNull()
+  },
+  (table) => [
+    index("contact_entries_list_idx").on(table.listId),
+    index("contact_entries_revier_idx").on(table.revierId),
+    index("contact_entries_membership_idx").on(table.membershipId),
+    index("contact_entries_position_idx").on(table.listId, table.position),
+    uniqueIndex("contact_entries_list_membership_unique").on(table.listId, table.membershipId)
+  ]
+);
+
 export const ansitzSessions = pgTable(
   "ansitz_sessions",
   {
@@ -460,6 +507,8 @@ export const dokumente = pgTable(
 export type UserRecord = typeof users.$inferSelect;
 export type RevierRecord = typeof reviere.$inferSelect;
 export type MembershipRecord = typeof memberships.$inferSelect;
+export type ContactListRecord = typeof contactLists.$inferSelect;
+export type ContactEntryRecord = typeof contactEntries.$inferSelect;
 export type AnsitzSessionRecord = typeof ansitzSessions.$inferSelect;
 export type FallwildVorgangRecord = typeof fallwildVorgaenge.$inferSelect;
 export type MediaAssetRecord = typeof mediaAssets.$inferSelect;

@@ -3,6 +3,7 @@
 ## Offen
 
 - iPhone-/iOS-Geräte-Smoke auf Production erneut auf erfolgreichen Foto-Upload, automatische Standortauflösung und leere Queue prüfen.
+- Kontaktlisten im nativen iPhone-Smoke prüfen: Mitgliederliste, freie Listen, Anrufen-Aktion und Pflege-Rechte für Schriftführung/Admin.
 - Echten WebAuthn-/Passkey-Login serverseitig planen; Mobile kann zunächst nur eine bestehende Sitzung lokal per Face ID entsperren.
 - GIP-Bounding-Box für Jagdgesellschaft Gänserndorf fachlich prüfen und bei Bedarf größeren Revier-Ausschnitt als `GIP_ROAD_KILOMETER_INDEX_PATH` deployen.
 - Mobile-spezifische E2E-Strategie für Expo und native Oberflächen über den dokumentierten Geräte-Smoke hinaus festziehen.
@@ -114,3 +115,4 @@ Pfad 1 aus [docs/ux-roadmap-v2.md](docs/ux-roadmap-v2.md). Reihenfolge: P1.0 zue
 - Google Maps Server-Key für Preview/Production gesetzt und `POST /api/v1/geo/fallwild-location` gegen `hege.app` auf Adresse, Gemeinde und Straße geprüft.
 - GIP-OGD-BEPU-Indexpfad umgesetzt: `GIP_ROAD_KILOMETER_INDEX_PATH`, Suchradius-Konfiguration, lokaler JSON-Resolver und `pnpm --filter @hege/web geo:gip:index` für den Export aus `gip_reference_ogd.gpkg`.
 - Regionaler GIP-OGD-BEPU-Index für Gänserndorf aus dem offiziellen Referenzexport geschnitten und als gebündelter Backend-Fallback für `HEGE_GEO_PROVIDER=live` eingebaut.
+- Kontaktlisten v1 umgesetzt: Drizzle-Tabellen, Seed-/Demo-Daten, `GET/POST/PATCH/DELETE /api/v1/contact-lists`, verlinkte registrierte Mitglieder mit Live-Name/-Telefon, freie externe Kontakte, Web-Seite `/app/kontakte` und Mobile-Screen `Kontakte` im Mehr-Menü.

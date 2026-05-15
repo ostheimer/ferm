@@ -2456,6 +2456,132 @@ export const demoData: DemoData = {
       ]
     }
   ],
+  contactLists: [
+    {
+      id: "contact-list-reviernachbarn",
+      revierId: "revier-attersee",
+      title: "Reviernachbarn",
+      position: 10,
+      createdAt: "2026-04-01T09:00:00+02:00",
+      updatedAt: "2026-04-01T09:00:00+02:00",
+      entries: [
+        {
+          id: "contact-entry-nachbar-1",
+          listId: "contact-list-reviernachbarn",
+          revierId: "revier-attersee",
+          name: "Josef Schneider",
+          phone: "+43 664 1204501",
+          revier: "Weikendorf Nord",
+          funktion: "Revierleiter",
+          position: 10,
+          createdAt: "2026-04-01T09:00:00+02:00",
+          updatedAt: "2026-04-01T09:00:00+02:00"
+        },
+        {
+          id: "contact-entry-nachbar-2",
+          listId: "contact-list-reviernachbarn",
+          revierId: "revier-attersee",
+          name: "Maria Leitner",
+          phone: "+43 676 8802304",
+          revier: "Marchfeld Süd",
+          funktion: "Jagdleiterin",
+          note: "Grenzabstimmung bei Schilfdamm und B8.",
+          position: 20,
+          createdAt: "2026-04-01T09:00:00+02:00",
+          updatedAt: "2026-04-01T09:00:00+02:00"
+        }
+      ]
+    },
+    {
+      id: "contact-list-weidkameraden",
+      revierId: "revier-attersee",
+      title: "Weidkameraden",
+      position: 20,
+      createdAt: "2026-04-01T09:00:00+02:00",
+      updatedAt: "2026-04-01T09:00:00+02:00",
+      entries: [
+        {
+          id: "contact-entry-weidkamerad-1",
+          listId: "contact-list-weidkameraden",
+          revierId: "revier-attersee",
+          membershipId: "member-admin",
+          name: "Anna Müller",
+          phone: "+43 660 1001001",
+          funktion: "Revierleitung",
+          position: 10,
+          createdAt: "2026-04-01T09:00:00+02:00",
+          updatedAt: "2026-04-01T09:00:00+02:00"
+        },
+        {
+          id: "contact-entry-weidkamerad-2",
+          listId: "contact-list-weidkameraden",
+          revierId: "revier-attersee",
+          membershipId: "member-schrift",
+          name: "Martin Mair",
+          phone: "+43 660 7008009",
+          funktion: "Schriftführung",
+          position: 20,
+          createdAt: "2026-04-01T09:00:00+02:00",
+          updatedAt: "2026-04-01T09:00:00+02:00"
+        },
+        {
+          id: "contact-entry-weidkamerad-3",
+          listId: "contact-list-weidkameraden",
+          revierId: "revier-attersee",
+          membershipId: "member-jaeger",
+          name: "Lukas Huber",
+          phone: "+43 676 1002003",
+          funktion: "Nachsuche",
+          position: 30,
+          createdAt: "2026-04-01T09:00:00+02:00",
+          updatedAt: "2026-04-01T09:00:00+02:00"
+        }
+      ]
+    },
+    {
+      id: "contact-list-notruf",
+      revierId: "revier-attersee",
+      title: "Notrufnummern",
+      position: 30,
+      createdAt: "2026-04-01T09:00:00+02:00",
+      updatedAt: "2026-04-01T09:00:00+02:00",
+      entries: [
+        {
+          id: "contact-entry-notruf-1",
+          listId: "contact-list-notruf",
+          revierId: "revier-attersee",
+          name: "Euro-Notruf",
+          phone: "112",
+          funktion: "Notruf",
+          position: 10,
+          createdAt: "2026-04-01T09:00:00+02:00",
+          updatedAt: "2026-04-01T09:00:00+02:00"
+        },
+        {
+          id: "contact-entry-notruf-2",
+          listId: "contact-list-notruf",
+          revierId: "revier-attersee",
+          name: "Polizei",
+          phone: "133",
+          funktion: "Sicherheitsnotruf",
+          position: 20,
+          createdAt: "2026-04-01T09:00:00+02:00",
+          updatedAt: "2026-04-01T09:00:00+02:00"
+        },
+        {
+          id: "contact-entry-notruf-3",
+          listId: "contact-list-notruf",
+          revierId: "revier-attersee",
+          name: "Rettung",
+          phone: "144",
+          funktion: "Medizinischer Notruf",
+          position: 30,
+          createdAt: "2026-04-01T09:00:00+02:00",
+          updatedAt: "2026-04-01T09:00:00+02:00"
+        }
+      ]
+    }
+  ],
   notifications: [
     {
       id: "notification-1",

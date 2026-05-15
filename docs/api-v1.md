@@ -182,6 +182,40 @@ Storage-Vertrag:
 - `GET /api/v1/notifications`
 - `GET /api/v1/documents/:id/download`
 
+### Kontaktlisten
+
+Kontaktlisten bilden Telefonnummern fuer Web und Mobile ab. Registrierte Mitglieder des aktiven Reviers werden automatisch aus `memberships + users` geliefert; freie Listen koennen zusaetzlich verlinkte Mitglieder oder externe Kontakte enthalten.
+
+- `GET /api/v1/contact-lists`
+- `POST /api/v1/contact-lists`
+- `PATCH /api/v1/contact-lists/:listId`
+- `DELETE /api/v1/contact-lists/:listId`
+- `POST /api/v1/contact-lists/:listId/entries`
+- `PATCH /api/v1/contact-lists/:listId/entries/:entryId`
+- `DELETE /api/v1/contact-lists/:listId/entries/:entryId`
+
+`GET /api/v1/contact-lists` liefert:
+
+- `registeredMembers`: automatisch gepflegte Mitgliederliste mit Name, Telefonnummer, Rolle und Jagdzeichen
+- `lists`: frei angelegte Kontaktlisten mit Eintraegen
+- `canManage`: ob die aktuelle Rolle Listen und Eintraege bearbeiten darf
+
+Ein Kontaktlisteneintrag hat entweder:
+
+- `membershipId` fuer ein registriertes Mitglied im aktiven Revier; Name und Telefonnummer werden live aus dem Benutzerprofil gelesen
+- oder freie Felder `name` und `phone` fuer externe Kontakte
+
+Optionale Zusatzfelder je Eintrag:
+
+- `revier`
+- `funktion`
+- `note`
+
+Rollen:
+
+- Lesen: alle authentifizierten Revierrollen
+- Bearbeiten: `revier-admin`, `schriftfuehrer`, `platform-admin`
+
 ### Reviermeldungen und Aufgaben
 
 Reviermeldungen und Aufgaben bilden den ersten fachlichen Arbeitsblock nach Fallwild/Queue v2. Beide Ressourcen sind pro aktivem Revier getrennt und nutzen die bestehende Mitgliedschaft aus der Auth-Session.

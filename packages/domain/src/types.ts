@@ -330,6 +330,47 @@ export interface NotificationItem {
   createdAt: string;
 }
 
+export interface RegisteredContact {
+  membershipId: string;
+  userId: string;
+  name: string;
+  phone: string;
+  role: Role;
+  jagdzeichen: string;
+}
+
+export interface ContactEntry {
+  id: string;
+  listId: string;
+  revierId: string;
+  membershipId?: string;
+  name: string;
+  phone: string;
+  revier?: string;
+  funktion?: string;
+  note?: string;
+  position: number;
+  createdAt: string;
+  updatedAt: string;
+  linkedMember?: RegisteredContact;
+}
+
+export interface ContactList {
+  id: string;
+  revierId: string;
+  title: string;
+  position: number;
+  entries: ContactEntry[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ContactDirectoryResponse {
+  registeredMembers: RegisteredContact[];
+  lists: ContactList[];
+  canManage: boolean;
+}
+
 export interface DashboardOverview {
   revier: Revier;
   aktiveAnsitze: number;
@@ -379,6 +420,7 @@ export interface DemoData {
   reviermeldungen: Reviermeldung[];
   aufgaben: Aufgabe[];
   sitzungen: Sitzung[];
+  contactLists: ContactList[];
   notifications: NotificationItem[];
 }
 
@@ -526,4 +568,30 @@ export interface AcceptInvitationPayload {
   /** Optional ueberschreibbar, falls der Eingeladene seine Daten korrigieren will. */
   username?: string;
   phone?: string;
+}
+
+export interface CreateContactListPayload {
+  title: string;
+}
+
+export interface UpdateContactListPayload {
+  title?: string;
+}
+
+export interface CreateContactEntryPayload {
+  membershipId?: string;
+  name?: string;
+  phone?: string;
+  revier?: string;
+  funktion?: string;
+  note?: string;
+}
+
+export interface UpdateContactEntryPayload {
+  membershipId?: string | null;
+  name?: string;
+  phone?: string;
+  revier?: string | null;
+  funktion?: string | null;
+  note?: string | null;
 }

@@ -7,6 +7,9 @@ import type {
   AuthContextResponse,
   AuthSessionResponse,
   BergungsStatus,
+  ContactDirectoryResponse,
+  ContactEntry,
+  ContactList,
   DashboardResponse,
   DocumentDownloadRef,
   FallwildRoadReference,
@@ -117,6 +120,32 @@ export interface UpdateAufgabeRequest {
   dueAt?: string | null;
   completionNote?: string | null;
   assigneeMembershipIds?: string[];
+}
+
+export interface CreateContactListRequest {
+  title: string;
+}
+
+export interface UpdateContactListRequest {
+  title?: string;
+}
+
+export interface CreateContactEntryRequest {
+  membershipId?: string;
+  name?: string;
+  phone?: string;
+  revier?: string;
+  funktion?: string;
+  note?: string;
+}
+
+export interface UpdateContactEntryRequest {
+  membershipId?: string | null;
+  name?: string;
+  phone?: string;
+  revier?: string | null;
+  funktion?: string | null;
+  note?: string | null;
 }
 
 export interface FallwildLocationSuggestionResponse {
@@ -263,6 +292,15 @@ export async function fetchAufgabenList(): Promise<AufgabeListItem[]> {
   });
 }
 
+export async function fetchContactDirectory(): Promise<ContactDirectoryResponse> {
+  return requestJson<ContactDirectoryResponse>("/v1/contact-lists", {
+    fallback: async () => {
+      const me = await fallbackCurrentUser();
+      return fallbackContactDirectory(me.revier.id, me.membership.role);
+    }
+  });
+}
+
 export async function createAnsitz(payload: CreateAnsitzRequest): Promise<MutationResponse> {
   return requestJson<MutationResponse>("/v1/ansitze", {
     method: "POST",
@@ -296,6 +334,59 @@ export async function updateAufgabe(id: string, payload: UpdateAufgabeRequest): 
     method: "PATCH",
     body: payload
   });
+}
+
+export async function createContactList(payload: CreateContactListRequest): Promise<ContactList> {
+  return requestJson<ContactList>("/v1/contact-lists", {
+    method: "POST",
+    body: payload
+  });
+}
+
+export async function updateContactList(id: string, payload: UpdateContactListRequest): Promise<ContactList> {
+  return requestJson<ContactList>(`/v1/contact-lists/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    body: payload
+  });
+}
+
+export async function deleteContactList(id: string): Promise<MutationResponse> {
+  return requestJson<MutationResponse>(`/v1/contact-lists/${encodeURIComponent(id)}`, {
+    method: "DELETE"
+  });
+}
+
+export async function createContactEntry(
+  listId: string,
+  payload: CreateContactEntryRequest
+): Promise<ContactEntry> {
+  return requestJson<ContactEntry>(`/v1/contact-lists/${encodeURIComponent(listId)}/entries`, {
+    method: "POST",
+    body: payload
+  });
+}
+
+export async function updateContactEntry(
+  listId: string,
+  entryId: string,
+  payload: UpdateContactEntryRequest
+): Promise<ContactEntry> {
+  return requestJson<ContactEntry>(
+    `/v1/contact-lists/${encodeURIComponent(listId)}/entries/${encodeURIComponent(entryId)}`,
+    {
+      method: "PATCH",
+      body: payload
+    }
+  );
+}
+
+export async function deleteContactEntry(listId: string, entryId: string): Promise<MutationResponse> {
+  return requestJson<MutationResponse>(
+    `/v1/contact-lists/${encodeURIComponent(listId)}/entries/${encodeURIComponent(entryId)}`,
+    {
+      method: "DELETE"
+    }
+  );
 }
 
 export async function updateReviermeldung(
@@ -564,6 +655,50 @@ async function fallbackAufgabenList(revierId?: string, membershipId?: string): P
         entry.createdByMembershipId === membershipId ||
         entry.assigneeMembershipIds.includes(membershipId)
     );
+}
+
+async function fallbackContactDirectory(
+  revierId?: string,
+  role: ContactDirectoryResponse["registeredMembers"][number]["role"] = "ausgeher"
+): Promise<ContactDirectoryResponse> {
+  const activeRevierId = revierId ?? demoData.reviere[0]?.id;
+  const registeredMembers = demoData.memberships
+    .filter((membership) => membership.revierId === activeRevierId)
+    .map((membership) => {
+      const user = demoData.users.find((candidate) => candidate.id === membership.userId);
+
+      return {
+        membershipId: membership.id,
+        userId: membership.userId,
+        name: user?.name ?? membership.userId,
+        phone: user?.phone ?? "",
+        role: membership.role,
+        jagdzeichen: membership.jagdzeichen
+      };
+    })
+    .sort((left, right) => left.name.localeCompare(right.name, "de-AT"));
+
+  return {
+    registeredMembers,
+    lists: demoData.contactLists
+      .filter((list) => list.revierId === activeRevierId)
+      .map((list) => ({
+        ...list,
+        entries: list.entries.map((entry) => {
+          const linkedMember = entry.membershipId
+            ? registeredMembers.find((member) => member.membershipId === entry.membershipId)
+            : undefined;
+
+          return {
+            ...entry,
+            name: linkedMember?.name ?? entry.name,
+            phone: linkedMember?.phone ?? entry.phone,
+            linkedMember
+          };
+        })
+      })),
+    canManage: role === "revier-admin" || role === "schriftfuehrer" || role === "platform-admin"
+  };
 }
 
 async function fallbackReviereinrichtungenList(revierId?: string): Promise<ReviereinrichtungListItem[]> {

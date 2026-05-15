@@ -1405,6 +1405,79 @@ td span {
   margin: 4px 0 0;
 }
 
+.contact-list-stack {
+  display: grid;
+  gap: 16px;
+}
+
+.contact-list-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.contact-list-card {
+  background: rgba(255, 255, 255, 0.42);
+}
+
+.contact-card {
+  display: grid;
+  gap: 10px;
+  min-height: 100%;
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(25, 57, 44, 0.08);
+}
+
+.contact-card h3 {
+  margin: 4px 0;
+  font-size: 1.06rem;
+}
+
+.contact-card a:not(.button-control) {
+  color: var(--accent-strong);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.contact-card p {
+  margin: 0;
+}
+
+.contact-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: auto;
+}
+
+.contact-entry-form {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(25, 57, 44, 0.08);
+}
+
+.contact-inline-form,
+.contact-edit-card {
+  display: grid;
+  gap: 12px;
+}
+
+.contact-inline-form {
+  width: min(100%, 620px);
+  grid-template-columns: minmax(220px, 1fr) auto auto;
+  align-items: end;
+}
+
+.contact-edit-card {
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(25, 57, 44, 0.12);
+}
+
 .checkbox-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -1988,6 +2061,10 @@ td span {
   }
 
   .ansitz-form {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-inline-form {
     grid-template-columns: 1fr;
   }
 

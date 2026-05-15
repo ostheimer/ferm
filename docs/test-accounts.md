@@ -32,6 +32,7 @@ Server-Seitige Rollen-Guards: [apps/web/src/server/auth/guards.ts:25-36](../apps
 | `/app/fallwild` | jede authentifizierte Rolle |
 | `/app/reviereinrichtungen` | jede authentifizierte Rolle |
 | `/app/protokolle` | jede authentifizierte Rolle |
+| `/app/kontakte` | jede authentifizierte Rolle |
 | `/app/sitzungen` | `schriftfuehrer`, `revier-admin` |
 | `/app/sitzungen/[id]` | `schriftfuehrer`, `revier-admin` |
 
@@ -46,6 +47,7 @@ Aus [apps/web/src/server/modules/sitzungen/service.ts:48-159](../apps/web/src/se
 | Sitzung anlegen / bearbeiten | `schriftfuehrer`, `revier-admin` |
 | Version anlegen / bearbeiten | `schriftfuehrer`, `revier-admin` |
 | Freigeben | `revier-admin` |
+| Kontaktlisten anlegen / bearbeiten / löschen | `schriftfuehrer`, `revier-admin`, `platform-admin` |
 
 ## Fehlende Rolle
 

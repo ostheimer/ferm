@@ -39,6 +39,12 @@ const MEHR_LINKS: ReadonlyArray<MehrLink> = [
     icon: "checkbox-outline"
   },
   {
+    href: "/kontakte",
+    label: "Kontakte",
+    description: "Mitglieder, Reviernachbarn und Notrufnummern.",
+    icon: "call-outline"
+  },
+  {
     href: "/(tabs)/protokolle",
     label: "Protokolle",
     description: "Sitzungs- und Beschlussprotokolle nachlesen.",
@@ -164,7 +170,7 @@ export default function MehrScreen() {
               key={entry.href}
               accessibilityRole="link"
               accessibilityLabel={a11yLabel}
-              onPress={() => router.push(entry.href)}
+              onPress={() => router.push(entry.href as Parameters<typeof router.push>[0])}
               style={({ pressed }) => [styles.linkRow, pressed ? styles.linkRowPressed : null]}
             >
               <View style={styles.linkIcon}>

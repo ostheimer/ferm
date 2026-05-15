@@ -4,6 +4,8 @@ import { createSeedPasswordHash } from "../auth/service";
 import type { HegeDb } from "./client";
 import {
   ansitzSessions,
+  contactEntries,
+  contactLists,
   dokumente,
   fallwildVorgaenge,
   mediaAssets,
@@ -24,7 +26,7 @@ import {
 } from "./schema";
 
 export const SEED_COMPLETION_MESSAGE =
-  "Seed completed for users, reviere, memberships, ansitz sessions, fallwild, reviermeldungen, aufgaben, media assets, notifications, reviereinrichtungen and sitzungen.";
+  "Seed completed for users, reviere, memberships, contact lists, ansitz sessions, fallwild, reviermeldungen, aufgaben, media assets, notifications, reviereinrichtungen and sitzungen.";
 
 export async function seedDatabase(db: HegeDb) {
   const passwordHash = createSeedPasswordHash();
@@ -104,6 +106,64 @@ export async function seedDatabase(db: HegeDb) {
           pushEnabled: entry.pushEnabled
         }
       });
+  }
+
+  for (const entry of demoData.contactLists) {
+    await db
+      .insert(contactLists)
+      .values({
+        id: entry.id,
+        revierId: entry.revierId,
+        title: entry.title,
+        position: entry.position,
+        createdAt: entry.createdAt,
+        updatedAt: entry.updatedAt
+      })
+      .onConflictDoUpdate({
+        target: contactLists.id,
+        set: {
+          revierId: entry.revierId,
+          title: entry.title,
+          position: entry.position,
+          updatedAt: entry.updatedAt
+        }
+      });
+
+    for (const contact of entry.entries) {
+      const isLinkedMember = Boolean(contact.membershipId);
+
+      await db
+        .insert(contactEntries)
+        .values({
+          id: contact.id,
+          listId: entry.id,
+          revierId: contact.revierId,
+          membershipId: contact.membershipId ?? null,
+          name: isLinkedMember ? null : contact.name,
+          phone: isLinkedMember ? null : contact.phone,
+          revier: contact.revier,
+          funktion: contact.funktion,
+          note: contact.note,
+          position: contact.position,
+          createdAt: contact.createdAt,
+          updatedAt: contact.updatedAt
+        })
+        .onConflictDoUpdate({
+          target: contactEntries.id,
+          set: {
+            listId: entry.id,
+            revierId: contact.revierId,
+            membershipId: contact.membershipId ?? null,
+            name: isLinkedMember ? null : contact.name,
+            phone: isLinkedMember ? null : contact.phone,
+            revier: contact.revier,
+            funktion: contact.funktion,
+            note: contact.note,
+            position: contact.position,
+            updatedAt: contact.updatedAt
+          }
+        });
+    }
   }
 
   for (const entry of demoData.notifications) {

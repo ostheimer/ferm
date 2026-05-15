@@ -44,7 +44,8 @@ Das Repository enthält bereits ein produktiv orientiertes Monorepo mit:
 - Next.js-Backoffice in `apps/web` inklusive produktivem API-Slice über Route Handler und Drizzle
 - Expo-Mobile-App mit Login, lokalem Face-ID-/Geräte-Entsperren, Dashboard, Ansitz, Fallwild, Reviereinrichtungen und Protokollen gegen denselben API-Slice
 - Shared Domain Package für Typen, Demo-Daten und Fachregeln
-- Route Handler für `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `reviereinrichtungen`, `protokolle`, `sitzungen`, `documents` und `geo`
+- Route Handler für `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `reviereinrichtungen`, `protokolle`, `sitzungen`, `documents`, `geo` und `contact-lists`
+- Kontaktlisten in Web und Mobile: automatische Mitgliederliste aus registrierten Reviermitgliedern, frei pflegbare Listen für Reviernachbarn, Weidkameraden, Notrufnummern und weitere Kontakte
 - Fallwild-Detail, Foto-Upload und S3-kompatible Storage-Schicht für MinIO lokal und R2 inklusive best-effort Rollback bei Medien-Insert-Fehlern
 - Fallwild-Standort v1 über `POST /api/v1/geo/fallwild-location`, Mobile-GPS, serverseitige Google-Adressauflösung, GIP-Index-/Endpoint-Resolver, Mock-Provider für Gänserndorf-Testdaten und gespeicherte Standort-/Straßenkilometer-Metadaten
 - Mobile Offline-Queue v2 für Ansitz und Fallwild inklusive separater Foto-Upload-Operationen, Retry-Backoff, Konfliktstatus, manuellem Retry und Verwerfen problematischer Einträge
@@ -57,13 +58,13 @@ Das Repository enthält bereits ein produktiv orientiertes Monorepo mit:
 - lokales Face-ID-/Touch-ID-Entsperren gespeicherter Mobile-Sessions; der iPhone-Flow wurde am 2026-05-06 auf dem angeschlossenen Gerät bestätigt
 - abgeschlossener iPhone-/iOS-Simulator-Smoke als primärer nativer Expo-Abnahmepfad; der Lauf vom 2026-04-26 bestätigt Queue-v2-Fehleranzeigen, R2-Storage ist in Production aktiv und ein direkter Fallwild-Foto-Upload gegen `hege.app` ist verifiziert
 - `apps/api` bleibt als Referenz- und Übergangspfad im Repository
-- Rollen, Aufgaben und Nachrichten werden als nächste Planungsstufe vorbereitet, inklusive späterer WhatsApp-/Telegram-Kanäle
+- Rollen, Aufgaben, Kontakte und Nachrichten werden als nächste Planungsstufe vorbereitet, inklusive späterer WhatsApp-/Telegram-Kanäle
 
 Kartenfunktionen werden projektweit auf Google Maps ausgerichtet; das stabile Ziel ist [Google-Maps-Ausrichtung](./maps-google-v1.md).
 
 Die fachliche Dokumentation beschreibt bereits die nächste Ausbaustufe mit echter Persistenz, Authentifizierung, Rollenprüfung und produktionsreifen Workflows.
 
-Der aktuelle Entwicklungsfokus liegt auf dem iPhone-/iOS-Geräte-Smoke mit erfolgreichem Foto-Upload, Fallwild-Standortauflösung und leerer Queue. Google Reverse Geocoding ist für Preview/Production vorbereitet; GIP-Straßenkilometer können über einen HTTP-Resolver, einen kompakten OGD-BEPU-JSON-Index oder den gebündelten regionalen Gänserndorf-Index angebunden werden. Danach folgen Mobile-E2E-Strategie und der weitere Ausbau von Reviermeldungen/Aufgaben.
+Der aktuelle Entwicklungsfokus liegt auf dem iPhone-/iOS-Geräte-Smoke mit erfolgreichem Foto-Upload, Fallwild-Standortauflösung, leerer Queue und den neuen Kontaktlisten. Google Reverse Geocoding ist für Preview/Production vorbereitet; GIP-Straßenkilometer können über einen HTTP-Resolver, einen kompakten OGD-BEPU-JSON-Index oder den gebündelten regionalen Gänserndorf-Index angebunden werden. Danach folgen Mobile-E2E-Strategie und der weitere Ausbau von Reviermeldungen/Aufgaben.
 
 Für den aktuellen Status sind [ROADMAP.md](../ROADMAP.md), [Roadmap v1](./roadmap-v1.md) und [TODO.md](../TODO.md) maßgeblich. Die Sprint-0/1-Backlogs und Agent-Workstreams bleiben als Planungsartefakte der zuletzt geschnittenen Arbeitsblöcke erhalten.
 

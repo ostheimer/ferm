@@ -9,7 +9,7 @@ import {
   Reviereinrichtung,
   Sitzung
 } from "@hege/icons";
-import { Bell, LayoutDashboard, ListTodo, MessageSquareWarning } from "lucide-react";
+import { Bell, ContactRound, LayoutDashboard, ListTodo, MessageSquareWarning } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -57,6 +57,7 @@ const navigation: ReadonlyArray<NavigationItem> = [
   { href: "/app/reviereinrichtungen", label: "Reviereinrichtungen", icon: Reviereinrichtung },
   { href: "/app/fallwild", label: "Fallwild", icon: Fallwild },
   { href: "/app/protokolle", label: "Protokolle", icon: Protokoll },
+  { href: "/app/kontakte", label: "Kontakte", icon: ContactRound },
   {
     href: "/app/mitglieder",
     label: "Mitglieder",

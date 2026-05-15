@@ -38,6 +38,10 @@ export default function RootLayout() {
           name="benachrichtigungen"
           options={{ headerShown: true, title: "Benachrichtigungen", headerBackTitle: "" }}
         />
+        <Stack.Screen
+          name="kontakte"
+          options={{ headerShown: true, title: "Kontakte", headerBackTitle: "" }}
+        />
       </Stack>
     </>
   );
