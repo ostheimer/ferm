@@ -85,7 +85,7 @@ export function SitzungenClient({ entries, memberships }: SitzungenClientProps) 
   const resultLabel =
     searchActive || filterActive
       ? `${visibleEntries.length} von ${entries.length}`
-      : `${entries.length} Eintraege`;
+      : `${entries.length} Einträge`;
 
   const entwurfCount = entries.filter((entry) => entry.status === "entwurf").length;
   const freigegebenCount = entries.filter((entry) => entry.status === "freigegeben").length;

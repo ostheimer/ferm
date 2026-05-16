@@ -35,7 +35,7 @@ export default defineConfig({
   },
   webServer: {
     command: "pnpm test:e2e:web",
-    url: `${e2eBaseUrl}/icon.svg`,
+    url: `${e2eBaseUrl}/icon.png`,
     timeout: 180_000,
     reuseExistingServer: false,
     env: {

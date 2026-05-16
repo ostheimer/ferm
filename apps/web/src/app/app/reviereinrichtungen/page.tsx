@@ -1,3 +1,4 @@
+import { TerritoryMap } from "../../../components/territory-map";
 import { requirePageAuth } from "../../../server/auth/guards";
 import { listReviereinrichtungen } from "../../../server/modules/reviereinrichtungen/queries";
 import { ReviereinrichtungenListClient } from "./reviereinrichtungen-list-client";
@@ -5,7 +6,7 @@ import { ReviereinrichtungenListClient } from "./reviereinrichtungen-list-client
 export const dynamic = "force-dynamic";
 
 export default async function ReviereinrichtungenPage() {
-  await requirePageAuth({ next: "/app/reviereinrichtungen" });
+  const context = await requirePageAuth({ next: "/app/reviereinrichtungen" });
   const entries = await listReviereinrichtungen();
   const offeneWartungen = entries.reduce((sum, entry) => sum + entry.offeneWartungen, 0);
   const kontrollenHeute = entries.filter((entry) => entry.letzteKontrolleAt).length;
@@ -51,6 +52,22 @@ export default async function ReviereinrichtungenPage() {
           <strong>{entries.filter((entry) => entry.location.label).length}</strong>
           <p>Mit verwertbarer Lagebezeichnung.</p>
         </article>
+      </section>
+
+      <section className="map-panel">
+        <header className="section-header">
+          <div>
+            <p className="eyebrow">Karte</p>
+            <h2>Einrichtungen im Revier</h2>
+          </div>
+          <span className="badge">{context.revier.name}</span>
+        </header>
+
+        <TerritoryMap
+          einrichtungen={entries}
+          revierCenter={context.revier.zentrum}
+          revierName={context.revier.name}
+        />
       </section>
 
       <section className="section-card">

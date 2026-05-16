@@ -112,7 +112,7 @@ export function ReviereinrichtungenListClient({ entries }: ReviereinrichtungenLi
   const resultLabel =
     searchActive || filterActive
       ? `${visibleEntries.length} von ${entries.length}`
-      : `${entries.length} Eintraege`;
+      : `${entries.length} Einträge`;
 
   return (
     <>

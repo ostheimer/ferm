@@ -2,6 +2,7 @@
 
 import type {
   AufgabePrioritaet,
+  GeoPoint,
   Reviermeldung,
   ReviermeldungKategorie,
   ReviermeldungStatus
@@ -12,6 +13,7 @@ import { useMemo, useState, useTransition } from "react";
 import { ListFilterChips } from "../../../components/list-filter-chips";
 import { ListSearchBar } from "../../../components/list-search-bar";
 import { StateView } from "../../../components/state-view";
+import { TerritoryMap, type TerritoryMarker } from "../../../components/territory-map";
 import { readApiErrorMessage } from "../../../lib/api-error";
 import { filterBySearch, hasActiveSearch } from "../../../lib/list-search";
 
@@ -104,9 +106,11 @@ const STATUS_TRANSITION_OPTIONS: ReadonlyArray<ReviermeldungStatus> = [
 
 interface ReviermeldungenClientProps {
   meldungen: Reviermeldung[];
+  revierName: string;
+  revierCenter: GeoPoint;
 }
 
-export function ReviermeldungenClient({ meldungen }: ReviermeldungenClientProps) {
+export function ReviermeldungenClient({ meldungen, revierCenter, revierName }: ReviermeldungenClientProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [search, setSearch] = useState("");
@@ -140,6 +144,10 @@ export function ReviermeldungenClient({ meldungen }: ReviermeldungenClientProps)
         )
       ].sort((left, right) => compareReviermeldungen(left, right, sortKey)),
     [filteredByChips, search, sortKey]
+  );
+  const mapMarkers = useMemo(
+    () => meldungen.flatMap((entry) => toMapMarker(entry)),
+    [meldungen]
   );
 
   const searchActive = hasActiveSearch(search);
@@ -240,6 +248,18 @@ export function ReviermeldungenClient({ meldungen }: ReviermeldungenClientProps)
 
   return (
     <div className="page-stack">
+      <section className="map-panel">
+        <header className="section-header">
+          <div>
+            <p className="eyebrow">Karte</p>
+            <h2>Reviermeldungen mit Standort</h2>
+          </div>
+          <span className="badge">{mapMarkers.length} Marker</span>
+        </header>
+
+        <TerritoryMap markers={mapMarkers} revierCenter={revierCenter} revierName={revierName} />
+      </section>
+
       <section className="section-card">
         <header className="section-header">
           <div>
@@ -419,4 +439,29 @@ function formatDateTime(value: string): string {
     timeStyle: "short",
     timeZone: "Europe/Vienna"
   }).format(new Date(value));
+}
+
+function toMapMarker(entry: Reviermeldung): TerritoryMarker[] {
+  if (!entry.location) {
+    return [];
+  }
+
+  return [
+    {
+      id: `reviermeldung-${entry.id}`,
+      type: "Reviermeldung",
+      title: entry.title,
+      position: {
+        lat: entry.location.lat,
+        lng: entry.location.lng
+      },
+      description: entry.location.label ?? entry.description,
+      meta: [
+        { label: "Kategorie", value: KATEGORIE_LABELS[entry.category] ?? entry.category },
+        { label: "Status", value: STATUS_LABELS[entry.status] ?? entry.status },
+        { label: "Zeitpunkt", value: formatDateTime(entry.occurredAt) }
+      ],
+      href: "/app/reviermeldungen"
+    }
+  ];
 }

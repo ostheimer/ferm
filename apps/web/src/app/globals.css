@@ -1081,6 +1081,7 @@ p {
   color: var(--text);
   text-align: center;
   z-index: 1;
+  overflow-wrap: anywhere;
 }
 
 .map-fallback-note code {
@@ -1088,6 +1089,25 @@ p {
   padding: 2px 6px;
   border-radius: 6px;
   font-size: 0.92em;
+  word-break: break-all;
+}
+
+.map-fallback-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  max-width: 720px;
+}
+
+.map-fallback-list span {
+  border: 1px solid rgba(36, 73, 58, 0.12);
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.6);
+  font-size: 0.82rem;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .map-grid {
@@ -1117,6 +1137,98 @@ p {
   font-size: 0.74rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+}
+
+.map-legend,
+.map-detail-card {
+  position: absolute;
+  z-index: 2;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(14px);
+}
+
+.map-legend {
+  top: 16px;
+  left: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.map-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: rgba(255, 249, 239, 0.9);
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.map-legend i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  box-shadow: 0 0 0 2px rgba(16, 34, 24, 0.16);
+}
+
+.map-detail-card {
+  right: 16px;
+  bottom: 16px;
+  width: min(320px, calc(100% - 32px));
+  display: grid;
+  gap: 8px;
+  border-radius: 18px;
+  padding: 16px;
+  background: rgba(255, 249, 239, 0.94);
+  color: var(--text);
+}
+
+.map-detail-card strong {
+  font-size: 1.05rem;
+}
+
+.map-detail-card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.map-detail-card dl {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+
+.map-detail-card dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid rgba(36, 73, 58, 0.1);
+  padding-top: 6px;
+}
+
+.map-detail-card dt {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.map-detail-card dd {
+  margin: 0;
+  text-align: right;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.map-detail-card a {
+  justify-self: start;
+  color: var(--accent-strong);
+  font-weight: 900;
+  text-decoration: none;
 }
 
 .timeline {
@@ -1403,6 +1515,14 @@ td span {
 
 .detail-card h2 {
   margin: 4px 0 0;
+  overflow-wrap: anywhere;
+}
+
+.detail-card,
+.detail-card-header,
+.detail-card-header > div,
+.simple-list {
+  min-width: 0;
 }
 
 .contact-list-stack {
@@ -2035,7 +2155,8 @@ td span {
 
 @media (max-width: 720px) {
   .app-shell {
-    padding: 14px;
+    gap: 14px;
+    padding: 12px;
   }
 
   .sidebar,
@@ -2048,11 +2169,157 @@ td span {
   }
 
   .sidebar {
-    padding: 20px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    min-width: 0;
+    overflow: hidden;
+    padding: 14px;
+  }
+
+  .brand-block {
+    min-width: 0;
+    gap: 10px;
+  }
+
+  .brand-mark {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+  }
+
+  .brand-block h1 {
+    font-size: 1.45rem;
+  }
+
+  .brand-block .eyebrow {
+    font-size: 0.66rem;
+    letter-spacing: 0.08em;
+  }
+
+  .nav-list {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 8px;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+
+  .nav-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-link {
+    flex: 0 0 auto;
+    gap: 8px;
+    min-height: 42px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    white-space: nowrap;
+  }
+
+  .nav-link:hover {
+    transform: none;
+  }
+
+  .sidebar-card {
+    grid-column: 1 / -1;
+    gap: 4px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    font-size: 0.86rem;
+  }
+
+  .sidebar-card .eyebrow {
+    display: none;
+  }
+
+  .sidebar-actions {
+    align-self: center;
+    margin-top: 0;
+  }
+
+  .sidebar-logout {
+    min-height: 40px;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+
+  .main-content {
+    min-width: 0;
+    padding: 0;
+  }
+
+  .page-stack {
+    gap: 16px;
   }
 
   .hero-card {
     padding: 22px;
+  }
+
+  .section-card,
+  .activity-panel,
+  .map-panel {
+    padding: 18px;
+  }
+
+  .section-header {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .section-actions {
+    justify-content: flex-start;
+  }
+
+  .list-search-input {
+    max-width: none;
+    min-width: 100%;
+  }
+
+  .card-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .detail-card {
+    overflow-wrap: anywhere;
+  }
+
+  .detail-card-header {
+    flex-wrap: wrap;
+  }
+
+  .map-stage {
+    min-height: 460px;
+    border-radius: 18px;
+  }
+
+  .map-fallback-note {
+    inset: 12px;
+    padding: 18px;
+  }
+
+  .map-fallback-list {
+    max-height: 190px;
+    overflow: auto;
+  }
+
+  .map-legend {
+    top: 12px;
+    left: 12px;
+    right: 12px;
+  }
+
+  .map-detail-card {
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+    width: auto;
   }
 
   .login-card {

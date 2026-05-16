@@ -233,6 +233,7 @@ Für eine spätere Umsetzung werden getrennte Keys je Laufzeit und Restriktion e
 ### Web
 
 - `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`
+- `NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_API_KEY` bleibt als rückwärtskompatibler Alias für bestehende Deployments nutzbar.
 - nur für Browser-Nutzung
 - Einschränkung über HTTP-Referrer
 - API-Einschränkung auf tatsächlich genutzte Web-APIs

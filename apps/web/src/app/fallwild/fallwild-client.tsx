@@ -1,6 +1,6 @@
 "use client";
 
-import type { FallwildVorgang } from "@hege/domain";
+import type { FallwildVorgang, GeoPoint } from "@hege/domain";
 import { useRouter } from "next/navigation";
 import type { ChangeEvent, FormEvent } from "react";
 import { useMemo, useState, useTransition } from "react";
@@ -8,6 +8,7 @@ import { useMemo, useState, useTransition } from "react";
 import { ListFilterChips } from "../../components/list-filter-chips";
 import { ListSearchBar } from "../../components/list-search-bar";
 import { StateView } from "../../components/state-view";
+import { TerritoryMap } from "../../components/territory-map";
 import { readApiErrorMessage } from "../../lib/api-error";
 import { filterBySearch, hasActiveSearch } from "../../lib/list-search";
 
@@ -64,6 +65,8 @@ export type FallwildClientEntry = FallwildVorgang & {
 
 interface FallwildClientProps {
   entries: FallwildClientEntry[];
+  revierName: string;
+  revierCenter: GeoPoint;
 }
 
 const DEFAULT_FORM_VALUES = {
@@ -81,7 +84,7 @@ const DEFAULT_FORM_VALUES = {
   note: ""
 };
 
-export function FallwildClient({ entries }: FallwildClientProps) {
+export function FallwildClient({ entries, revierCenter, revierName }: FallwildClientProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -126,7 +129,7 @@ export function FallwildClient({ entries }: FallwildClientProps) {
   const resultLabel =
     searchActive || filterActive
       ? `${visibleEntries.length} von ${entries.length}`
-      : `${entries.length} Eintraege`;
+      : `${entries.length} Einträge`;
 
   function resetAllFilters() {
     setSearch("");
@@ -193,6 +196,18 @@ export function FallwildClient({ entries }: FallwildClientProps) {
 
   return (
     <div className="page-stack">
+      <section className="map-panel">
+        <header className="section-header">
+          <div>
+            <p className="eyebrow">Karte</p>
+            <h2>Fallwild-Lage im Revier</h2>
+          </div>
+          <span className="badge">{entries.length} Vorgänge</span>
+        </header>
+
+        <TerritoryMap fallwild={entries} revierCenter={revierCenter} revierName={revierName} />
+      </section>
+
       <section className="section-card">
         <header className="section-header">
           <div>

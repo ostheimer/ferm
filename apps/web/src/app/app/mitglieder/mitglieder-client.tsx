@@ -117,7 +117,7 @@ export function MitgliederClient({ invitations, mailEnabled }: MitgliederClientP
   const resultLabel =
     searchActive || filterActive
       ? `${visibleInvitations.length} von ${invitations.length}`
-      : `${invitations.length} Eintraege`;
+      : `${invitations.length} Einträge`;
 
   const pendingCount = invitations.filter((entry) => entry.status === "pending").length;
   const acceptedCount = invitations.filter((entry) => entry.status === "accepted").length;

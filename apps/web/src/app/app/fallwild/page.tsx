@@ -5,10 +5,17 @@ import { FallwildClient, type FallwildClientEntry } from "../../fallwild/fallwil
 export const dynamic = "force-dynamic";
 
 export default async function FallwildPage() {
-  await requirePageAuth({ next: "/app/fallwild" });
-  const entries = (await listFallwild()).map((entry) => toFallwildClientEntry(entry));
+  const context = await requirePageAuth({ next: "/app/fallwild" });
+  const fallwild = await listFallwild();
+  const entries = fallwild.map((entry) => toFallwildClientEntry(entry));
 
-  return <FallwildClient entries={entries} />;
+  return (
+    <FallwildClient
+      entries={entries}
+      revierCenter={context.revier.zentrum}
+      revierName={context.revier.name}
+    />
+  );
 }
 
 function toFallwildClientEntry(entry: Awaited<ReturnType<typeof listFallwild>>[number]): FallwildClientEntry {

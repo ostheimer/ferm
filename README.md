@@ -108,7 +108,7 @@ Wichtige Env-Variablen:
 - `S3_*` für lokales MinIO und R2
 - `HEGE_GEO_PROVIDER=live|mock|disabled` für echte Standortprovider, lokale Gänserndorf-Testdaten oder rein manuelle Standortergänzung
 - `GOOGLE_MAPS_SERVER_API_KEY`, `GOOGLE_MAPS_REGION=AT`, `GOOGLE_MAPS_LANGUAGE=de` für serverseitige Fallwild-Adressauflösung
-- `NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_API_KEY` für die Backoffice-Karte (Next.js inlined `NEXT_PUBLIC_*` zur Build-Zeit). Optional: `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID` für ein eigenes Karten-Styling. Ohne Key rendert das Backoffice einen Fallback-Hinweis statt einer leeren Karte.
+- `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` für die Backoffice-Karte (Next.js inlined `NEXT_PUBLIC_*` zur Build-Zeit). Bestehende Deployments können weiterhin `NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_API_KEY` nutzen. Optional: `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID` für ein eigenes Karten-Styling. Ohne Key rendert das Backoffice einen Fallback-Hinweis statt einer leeren Karte.
 - `EXPO_PUBLIC_GOOGLE_MAPS_BROWSER_API_KEY` für `react-native-maps` mit Provider Google auf Android. iOS nutzt aktuell Apple Maps ohne Key; ohne Android-Key fällt die mobile Karte auf einen Hinweistext zurück.
 - `GIP_ROAD_KILOMETER_ENDPOINT` für einen internen Straßenkilometer-Resolver gegen GIP-OGD-Daten; der Resolver bekommt `lat`, `lng`, optional `roadName` und `accuracyMeters`
 - `GIP_ROAD_KILOMETER_INDEX_PATH` für einen kompakten JSON-Index aus GIP-OGD-BEPU-Punkten

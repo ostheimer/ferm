@@ -15,9 +15,15 @@ export const dynamic = "force-dynamic";
  * Sichtbar fuer dieselben Rollen wie die API.
  */
 export default async function ReviermeldungenPage() {
-  await requirePageRoles([...REVIERARBEIT_ALLOWED_ROLES], { next: "/app/reviermeldungen" });
+  const auth = await requirePageRoles([...REVIERARBEIT_ALLOWED_ROLES], { next: "/app/reviermeldungen" });
   const context = await getRequestContext();
   const meldungen = await listReviermeldungenForRequest(context);
 
-  return <ReviermeldungenClient meldungen={meldungen} />;
+  return (
+    <ReviermeldungenClient
+      meldungen={meldungen}
+      revierCenter={auth.revier.zentrum}
+      revierName={auth.revier.name}
+    />
+  );
 }
