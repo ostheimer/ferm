@@ -5,6 +5,7 @@ Diese Dokumentation beschreibt den aktuellen Stand des Repositories und den gepl
 ## Einstieg
 
 - [Gesamtplan](./reviermanagement-plan.md)
+- [Autonomer Umsetzungsplan ab 2026-05-17](./autonomer-umsetzungsplan-2026-05.md)
 - [Architektur](./architektur.md)
 - [Backend v1 für Schriftführer](./backend-schriftfuehrer-v1.md)
 - [Mobile App v1 für Jäger](./mobile-jaeger-v1.md)

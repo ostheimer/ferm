@@ -23,6 +23,7 @@ Diese Datei ist der schlanke Einstiegspunkt im Repo-Root. Die vollstaendige Road
 ## Detaildokumente
 
 - [Gesamtplan](./docs/reviermanagement-plan.md)
+- [Autonomer Umsetzungsplan ab 2026-05-17](./docs/autonomer-umsetzungsplan-2026-05.md)
 - [Architektur](./docs/architektur.md)
 - [API v1](./docs/api-v1.md)
 - [Roadmap v1](./docs/roadmap-v1.md)
