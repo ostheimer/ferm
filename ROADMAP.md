@@ -16,7 +16,7 @@ Diese Datei ist der schlanke Einstiegspunkt im Repo-Root. Die vollstaendige Road
 1. iPhone-/iOS-Geräte-Smoke auf Production mit Foto-Upload, automatischer Standortauflösung und leerer Queue erneut ausführen
 2. Production-Fallwild-Standortauflösung mit gesetztem Google-Server-Key und gebündeltem GIP-Index im nativen iPhone-Smoke prüfen
 3. GIP-Bounding-Box mit dem tatsächlichen Revier abgleichen und bei Bedarf größeren Index in Preview/Production aktivieren
-4. Kontaktlisten im nativen iPhone-Smoke prüfen: Mitgliederliste, freie Listen, Anrufen-Aktion und Rollenrechte für Schriftführung/Admin
+4. Kontaktlisten auf Production mit echtem Gerät prüfen: Mitgliederliste, freie Listen, Anrufen-Aktion und Rollenrechte für Schriftführung/Admin (Web + Mobile implementiert, iPhone-Smoke noch ausstehend)
 5. Mobile-E2E-Strategie über den dokumentierten Geräte-Smoke hinaus festziehen
 6. Android-Emulator-Smoke als optionalen Zweitpfad bei Bedarf praktisch durchlaufen
 
