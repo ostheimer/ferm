@@ -103,6 +103,10 @@ export function KontakteClient({ directory }: KontakteClientProps) {
     (entryForm.mode === "member"
       ? entryForm.membershipId
       : entryForm.name.trim() && entryForm.phone.trim());
+  const canSubmitEditingEntry =
+    editingForm.mode === "member"
+      ? Boolean(editingForm.membershipId)
+      : Boolean(editingForm.name.trim() && editingForm.phone.trim());
 
   function refresh() {
     startTransition(() => {
@@ -221,7 +225,7 @@ export function KontakteClient({ directory }: KontakteClientProps) {
     setEditingForm({
       listId: list.id,
       mode: entry.membershipId ? "member" : "external",
-      membershipId: entry.membershipId ?? "",
+      membershipId: entry.membershipId ?? directory.registeredMembers[0]?.membershipId ?? "",
       name: entry.membershipId ? "" : entry.name,
       phone: entry.membershipId ? "" : entry.phone,
       revier: entry.revier ?? "",
@@ -341,7 +345,9 @@ export function KontakteClient({ directory }: KontakteClientProps) {
                 id="contact-entry-mode"
                 value={entryForm.mode}
                 onChange={(event) =>
-                  setEntryForm((current) => ({ ...current, mode: event.currentTarget.value as EntryMode }))
+                  setEntryForm((current) =>
+                    withEntryModeDefaults(current, event.currentTarget.value as EntryMode, directory)
+                  )
                 }
               >
                 <option value="member">Registriertes Mitglied</option>
@@ -486,10 +492,9 @@ export function KontakteClient({ directory }: KontakteClientProps) {
                                 id={`contact-edit-mode-${entry.id}`}
                                 value={editingForm.mode}
                                 onChange={(event) =>
-                                  setEditingForm((current) => ({
-                                    ...current,
-                                    mode: event.currentTarget.value as EntryMode
-                                  }))
+                                  setEditingForm((current) =>
+                                    withEntryModeDefaults(current, event.currentTarget.value as EntryMode, directory)
+                                  )
                                 }
                               >
                                 <option value="member">Registriertes Mitglied</option>
@@ -501,6 +506,7 @@ export function KontakteClient({ directory }: KontakteClientProps) {
                                 <span>Mitglied</span>
                                 <select
                                   id={`contact-edit-member-${entry.id}`}
+                                  required
                                   value={editingForm.membershipId}
                                   onChange={updateEditingForm("membershipId")}
                                 >
@@ -547,7 +553,7 @@ export function KontakteClient({ directory }: KontakteClientProps) {
                               <textarea id={`contact-edit-note-${entry.id}`} value={editingForm.note} onChange={updateEditingForm("note")} />
                             </label>
                             <div className="form-footer field-full">
-                              <button className="button-control" disabled={busyAction === `update-entry-${entry.id}`} type="submit">
+                              <button className="button-control" disabled={!canSubmitEditingEntry || busyAction === `update-entry-${entry.id}`} type="submit">
                                 Kontakt aktualisieren
                               </button>
                               <button className="button-control button-control-secondary" onClick={() => setEditingEntry(null)} type="button">
@@ -596,6 +602,21 @@ function initialEntryForm(directory: ContactDirectoryResponse): EntryFormState {
     listId: directory.lists[0]?.id ?? "",
     membershipId: directory.registeredMembers[0]?.membershipId ?? "",
     mode: directory.registeredMembers.length > 0 ? "member" : "external"
+  };
+}
+
+function withEntryModeDefaults(
+  form: EntryFormState,
+  mode: EntryMode,
+  directory: ContactDirectoryResponse
+): EntryFormState {
+  return {
+    ...form,
+    mode,
+    membershipId:
+      mode === "member"
+        ? form.membershipId || directory.registeredMembers[0]?.membershipId || ""
+        : form.membershipId
   };
 }
 
