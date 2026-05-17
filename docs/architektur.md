@@ -222,7 +222,7 @@ Lokales Docker-Postgres bleibt ein rein lokaler Arbeitsmodus. Es ersetzt die Neo
 
 ## Aktueller Repository-Stand
 
-Authentifizierung (E-Mail/Benutzername + PIN, Face ID/Touch ID), Session-Management, Rollenprüfung und alle Kern-API-Routen sind produktiv. Stand Sprint 4 (Mai 2026): Reviermeldungen, Aufgaben, Kontaktlisten, Benachrichtigungen, Leaderboard, echte Karten (Google Maps Web via `@vis.gl/react-google-maps` + Mobile via `react-native-maps`) vollständig implementiert. 16+ API-Routen unter `apps/web/src/app/api/v1/` bedienen Web und Mobile mit konsistenter Rollenprüfung und Revier-Scoping. Den aktuellen Entwicklungsplan und offene Punkte beschreibt [docs/ux-roadmap-v2.md](./ux-roadmap-v2.md).
+Authentifizierung (E-Mail/Benutzername + PIN, Face ID/Touch ID), Session-Management, Rollenprüfung und alle Kern-API-Routen sind produktiv. Stand Sprint 4 (Mai 2026): Reviermeldungen, Aufgaben, Kontaktlisten, Benachrichtigungen, echte Karten (Google Maps Web via `@vis.gl/react-google-maps` + Mobile via `react-native-maps`) vollständig implementiert. 16+ API-Routen unter `apps/web/src/app/api/v1/` bedienen Web und Mobile mit konsistenter Rollenprüfung und Revier-Scoping. Den aktuellen Entwicklungsplan und offene Punkte beschreibt [docs/ux-roadmap-v2.md](./ux-roadmap-v2.md).
 
 ## Naechste technische Ausbaustufe
 
