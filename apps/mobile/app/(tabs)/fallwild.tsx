@@ -947,7 +947,7 @@ export default function FallwildScreen() {
         </View>
       ) : null}
 
-      {mode === "karte" ? (
+      {mode === "karte" && !isLoading ? (
         <EntityMap
           pins={pins}
           pinColor={theme.warning}

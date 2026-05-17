@@ -208,7 +208,7 @@ export default function ReviereinrichtungenScreen() {
         </View>
       ) : null}
 
-      {mode === "karte" ? (
+      {mode === "karte" && !isLoading ? (
         <EntityMap
           pins={pins}
           pinColor={theme.ink}

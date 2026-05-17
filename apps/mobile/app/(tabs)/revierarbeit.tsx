@@ -452,7 +452,7 @@ export default function RevierarbeitScreen() {
         </View>
       ) : null}
 
-      {mode === "karte" ? (
+      {mode === "karte" && !isLoading ? (
         <>
           <EntityMap
             pins={meldungPins}
