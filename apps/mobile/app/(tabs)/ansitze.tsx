@@ -69,7 +69,7 @@ export default function AnsitzeScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
-  const [mode, setMode] = useState<ViewMode>("liste");
+  const [mode, setMode] = useState<ViewMode>("karte");
   const [selectedPin, setSelectedPin] = useState<SelectedPin | null>(null);
   const [filter, setFilter] = useState<AnsitzFilterState>(DEFAULT_ANSITZ_FILTER);
 
@@ -86,6 +86,7 @@ export default function AnsitzeScreen() {
     () =>
       visibleAnsitze.map((entry) => ({
         id: entry.id,
+        kind: "ansitz",
         location: entry.location,
         title: entry.standortName,
         subtitle: entry.location.label ?? "Aktiver Ansitz"
@@ -400,7 +401,7 @@ export default function AnsitzeScreen() {
         </View>
       ) : null}
 
-      {mode === "karte" && visibleAnsitze.length > 0 ? (
+      {mode === "karte" ? (
         <EntityMap
           pins={pins}
           pinColor={theme.accent}

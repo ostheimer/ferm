@@ -5,9 +5,15 @@ import type {
   EinrichtungTyp,
   EinrichtungZustand,
   FallwildVorgang,
+  Reviermeldung,
   Reviereinrichtung
 } from "@hege/domain";
 
+import {
+  formatReviermeldungCategoryLabel,
+  formatReviermeldungStatusLabel,
+  formatRevierResourceTypeLabel
+} from "../lib/revierarbeit-map.helpers";
 import type { ThemeColors } from "../lib/theme";
 import { useThemeColors } from "../lib/theme";
 import { useThemedStyles } from "../lib/use-themed-styles";
@@ -30,7 +36,8 @@ import { useThemedStyles } from "../lib/use-themed-styles";
 export type SelectedPin =
   | { type: "ansitz"; data: AnsitzSession }
   | { type: "fallwild"; data: FallwildVorgang }
-  | { type: "einrichtung"; data: Reviereinrichtung };
+  | { type: "einrichtung"; data: Reviereinrichtung }
+  | { type: "reviermeldung"; data: Reviermeldung };
 
 interface PinDetailSheetProps {
   pin: SelectedPin | null;
@@ -85,6 +92,9 @@ export function PinDetailSheet({ pin, onClose, onOpenDetails }: PinDetailSheetPr
           {pin.type === "einrichtung" ? (
             <EinrichtungDetails einrichtung={pin.data} styles={styles} />
           ) : null}
+          {pin.type === "reviermeldung" ? (
+            <ReviermeldungDetails meldung={pin.data} styles={styles} />
+          ) : null}
         </ScrollView>
 
         {onOpenDetails ? (
@@ -113,15 +123,29 @@ interface PinHeaderProps {
 
 function PinHeader({ pin, styles, theme }: PinHeaderProps) {
   const dotColor =
-    pin.type === "ansitz" ? theme.accent : pin.type === "fallwild" ? theme.warning : theme.ink;
+    pin.type === "ansitz"
+      ? theme.accent
+      : pin.type === "fallwild"
+        ? theme.warning
+        : pin.type === "reviermeldung"
+          ? theme.danger
+          : theme.ink;
   const eyebrow =
-    pin.type === "ansitz" ? "Aktiver Ansitz" : pin.type === "fallwild" ? "Fallwild" : "Reviereinrichtung";
+    pin.type === "ansitz"
+      ? "Aktiver Ansitz"
+      : pin.type === "fallwild"
+        ? "Fallwild"
+        : pin.type === "reviermeldung"
+          ? "Reviermeldung"
+          : "Reviereinrichtung";
   const title =
     pin.type === "ansitz"
       ? pin.data.standortName
       : pin.type === "fallwild"
         ? pin.data.gemeinde ?? pin.data.location.label ?? "Fallwild-Eintrag"
-        : pin.data.name;
+        : pin.type === "reviermeldung"
+          ? pin.data.title
+          : pin.data.name;
 
   return (
     <View style={styles.headerCopy}>
@@ -251,6 +275,50 @@ function EinrichtungDetails({
         <View style={styles.noteBlock}>
           <Text style={styles.detailLabel}>Beschreibung</Text>
           <Text style={styles.noteText}>{einrichtung.beschreibung}</Text>
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+function ReviermeldungDetails({
+  meldung,
+  styles
+}: {
+  meldung: Reviermeldung;
+  styles: ReturnType<typeof createStyles>;
+}) {
+  return (
+    <View style={styles.detailGroup}>
+      <DetailRow
+        label="Kategorie"
+        value={formatReviermeldungCategoryLabel(meldung.category)}
+        styles={styles}
+      />
+      <DetailRow
+        label="Status"
+        value={formatReviermeldungStatusLabel(meldung.status)}
+        styles={styles}
+      />
+      <DetailRow label="Zeitpunkt" value={formatDateTime(meldung.occurredAt)} styles={styles} />
+      {meldung.location ? (
+        <DetailRow
+          label="Standort"
+          value={meldung.location.label ?? `${meldung.location.lat}, ${meldung.location.lng}`}
+          styles={styles}
+        />
+      ) : null}
+      {meldung.relatedType ? (
+        <DetailRow
+          label="Bezug"
+          value={formatRevierResourceTypeLabel(meldung.relatedType)}
+          styles={styles}
+        />
+      ) : null}
+      {meldung.description ? (
+        <View style={styles.noteBlock}>
+          <Text style={styles.detailLabel}>Beschreibung</Text>
+          <Text style={styles.noteText}>{meldung.description}</Text>
         </View>
       ) : null}
     </View>

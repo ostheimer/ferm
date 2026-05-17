@@ -146,7 +146,7 @@ export default function FallwildScreen() {
   const [feedback, setFeedback] = useState<FeedbackState>(null);
   const [locationHint, setLocationHint] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [mode, setMode] = useState<ViewMode>("liste");
+  const [mode, setMode] = useState<ViewMode>("karte");
   const [selectedPin, setSelectedPin] = useState<SelectedPin | null>(null);
   const [filter, setFilter] = useState<FallwildFilterState>(DEFAULT_FALLWILD_FILTER);
 
@@ -192,6 +192,7 @@ export default function FallwildScreen() {
     () =>
       visibleFallwild.map((entry) => ({
         id: entry.id,
+        kind: "fallwild",
         location: entry.location,
         title: entry.gemeinde ?? entry.location.label ?? "Fallwild",
         subtitle: `${entry.wildart} · ${entry.bergungsStatus}`
@@ -946,7 +947,7 @@ export default function FallwildScreen() {
         </View>
       ) : null}
 
-      {mode === "karte" && visibleFallwild.length > 0 ? (
+      {mode === "karte" ? (
         <EntityMap
           pins={pins}
           pinColor={theme.warning}

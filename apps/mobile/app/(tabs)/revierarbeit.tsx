@@ -17,9 +17,12 @@ import type {
   ReviermeldungStatus
 } from "@hege/domain";
 
+import { EntityMap, type EntityPin } from "../../components/entity-map";
 import { FilterChipRow } from "../../components/filter-chip-row";
+import { PinDetailSheet, type SelectedPin } from "../../components/pin-detail-sheet";
 import { ScreenShell } from "../../components/screen-shell";
 import { SearchInput } from "../../components/search-input";
+import { ViewToggle } from "../../components/view-toggle";
 import {
   createAufgabe,
   createReviermeldung,
@@ -40,8 +43,18 @@ import {
 } from "../../lib/aufgabe-filter.helpers";
 import { formatDateTime } from "../../lib/format";
 import { buildGeoPoint, trimToUndefined } from "../../lib/form-utils";
+import {
+  buildReviermeldungPins,
+  formatReviermeldungCategoryLabel,
+  formatReviermeldungStatusLabel,
+  formatRevierResourceTypeLabel,
+  REVIERMELDUNG_STATUS_LABELS
+} from "../../lib/revierarbeit-map.helpers";
 import { useThemeColors, type ThemeColors } from "../../lib/theme";
 import { useThemedStyles } from "../../lib/use-themed-styles";
+
+type ViewMode = "liste" | "karte";
+const MAP_HEIGHT = 380;
 
 interface ReviermeldungFormState {
   category: ReviermeldungKategorie;
@@ -94,15 +107,6 @@ const MELDUNG_STATUS_TRANSITIONS: ReadonlyArray<ReviermeldungStatus> = [
   "verworfen"
 ];
 
-const MELDUNG_STATUS_LABELS: Record<ReviermeldungStatus, string> = {
-  neu: "Neu",
-  geprueft: "Geprüft",
-  in_bearbeitung: "In Bearbeitung",
-  erledigt: "Erledigt",
-  verworfen: "Verworfen",
-  archiviert: "Archiviert"
-};
-
 const KATEGORIE_TO_PRIORITAET: Record<ReviermeldungKategorie, AufgabePrioritaet> = {
   gefahr: "dringend",
   schaden: "hoch",
@@ -127,6 +131,8 @@ export default function RevierarbeitScreen() {
   const [updatingMeldungStatusId, setUpdatingMeldungStatusId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [mode, setMode] = useState<ViewMode>("karte");
+  const [selectedPin, setSelectedPin] = useState<SelectedPin | null>(null);
   const [aufgabeFilter, setAufgabeFilter] = useState<AufgabeFilterState>(DEFAULT_AUFGABE_FILTER);
 
   const visibleAufgaben = useMemo(
@@ -136,6 +142,10 @@ export default function RevierarbeitScreen() {
   const aufgabeFilterActive = useMemo(
     () => isAufgabeFilterActive(aufgabeFilter),
     [aufgabeFilter]
+  );
+  const meldungPins: ReadonlyArray<EntityPin> = useMemo(
+    () => buildReviermeldungPins(meldungen),
+    [meldungen]
   );
 
   // Counts pro Status-Bucket fuer die Chip-Labels. Wenn offen+erledigt <
@@ -281,13 +291,13 @@ export default function RevierarbeitScreen() {
 
     try {
       await updateReviermeldung(meldungId, { status: next });
-      setMessage(`Meldungsstatus aktualisiert: ${MELDUNG_STATUS_LABELS[next]}.`);
+      setMessage(`Meldungsstatus aktualisiert: ${REVIERMELDUNG_STATUS_LABELS[next]}.`);
       await loadRevierarbeit({ refreshing: true });
     } catch (statusError) {
       setError(
         statusError instanceof Error
           ? statusError.message
-          : "Status konnte nicht geaendert werden."
+          : "Status konnte nicht geändert werden."
       );
     } finally {
       setUpdatingMeldungStatusId(null);
@@ -401,6 +411,15 @@ export default function RevierarbeitScreen() {
       </View>
 
       <View style={styles.toolbar}>
+        <ViewToggle<ViewMode>
+          value={mode}
+          onChange={setMode}
+          accessibilityLabel="Anzeige umschalten"
+          options={[
+            { key: "liste", label: "Liste", icon: "list" },
+            { key: "karte", label: "Karte", icon: "map" }
+          ]}
+        />
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Revierarbeit aktualisieren"
@@ -433,15 +452,41 @@ export default function RevierarbeitScreen() {
         </View>
       ) : null}
 
-      <ScrollView
-        nestedScrollEnabled
-        refreshControl={
-          <RefreshControl refreshing={isRefreshing} onRefresh={() => void loadRevierarbeit({ refreshing: true })} />
-        }
-        contentContainerStyle={styles.listContent}
-        style={styles.listScroll}
-      >
-        <Text style={styles.listHeadline}>Meine Aufgaben</Text>
+      {mode === "karte" ? (
+        <>
+          <EntityMap
+            pins={meldungPins}
+            pinColor={theme.danger}
+            height={MAP_HEIGHT}
+            onPinPress={(pin) => {
+              const target = meldungen.find((entry) => entry.id === pin.id);
+              if (target) {
+                setSelectedPin({ type: "reviermeldung", data: target });
+              }
+            }}
+          />
+          {meldungPins.length === 0 && !isLoading && !error ? (
+            <View style={styles.stateCard}>
+              <Text style={styles.stateTitle}>Keine Standorte</Text>
+              <Text style={styles.stateCopy}>
+                Reviermeldungen ohne Koordinaten bleiben in der Liste sichtbar. Sobald ein Standort
+                erfasst ist, erscheint er als Pin in der Karte.
+              </Text>
+            </View>
+          ) : null}
+        </>
+      ) : null}
+
+      {mode === "liste" ? (
+        <ScrollView
+          nestedScrollEnabled
+          refreshControl={
+            <RefreshControl refreshing={isRefreshing} onRefresh={() => void loadRevierarbeit({ refreshing: true })} />
+          }
+          contentContainerStyle={styles.listContent}
+          style={styles.listScroll}
+        >
+          <Text style={styles.listHeadline}>Meine Aufgaben</Text>
 
         {!isLoading && aufgaben.length > 0 ? (
           <View style={styles.filterSection}>
@@ -544,7 +589,9 @@ export default function RevierarbeitScreen() {
             </View>
             {entry.description ? <Text style={styles.copy}>{entry.description}</Text> : null}
             {entry.dueAt ? <Text style={styles.copy}>Fällig: {formatDateTime(entry.dueAt)}</Text> : null}
-            {entry.sourceType ? <Text style={styles.copy}>Bezug: {formatSourceLabel(entry.sourceType)}</Text> : null}
+            {entry.sourceType ? (
+              <Text style={styles.copy}>Bezug: {formatRevierResourceTypeLabel(entry.sourceType)}</Text>
+            ) : null}
             <View style={styles.actionRow}>
               {entry.status !== "in_arbeit" && entry.status !== "erledigt" ? (
                 <Pressable
@@ -590,9 +637,9 @@ export default function RevierarbeitScreen() {
           </View>
         ) : null}
 
-        {meldungen.slice(0, 6).map((entry) => (
+          {meldungen.slice(0, 6).map((entry) => (
           <View key={entry.id} style={styles.card}>
-            <Text style={styles.badgeText}>{`${formatCategoryLabel(entry.category)} / ${formatMeldungStatusLabel(entry.status)}`}</Text>
+            <Text style={styles.badgeText}>{`${formatReviermeldungCategoryLabel(entry.category)} / ${formatReviermeldungStatusLabel(entry.status)}`}</Text>
             <Text style={styles.title}>{entry.title}</Text>
             {entry.description ? <Text style={styles.copy}>{entry.description}</Text> : null}
             <Text style={styles.copy}>Zeitpunkt: {formatDateTime(entry.occurredAt)}</Text>
@@ -604,7 +651,7 @@ export default function RevierarbeitScreen() {
                     <Pressable
                       key={status}
                       accessibilityRole="button"
-                      accessibilityLabel={`Meldung auf ${MELDUNG_STATUS_LABELS[status]} setzen`}
+                      accessibilityLabel={`Meldung auf ${REVIERMELDUNG_STATUS_LABELS[status]} setzen`}
                       style={[
                         styles.secondaryButton,
                         updatingMeldungStatusId === entry.id ? styles.buttonDisabled : null
@@ -613,7 +660,7 @@ export default function RevierarbeitScreen() {
                       disabled={updatingMeldungStatusId === entry.id}
                     >
                       <Text style={styles.secondaryButtonText}>
-                        → {MELDUNG_STATUS_LABELS[status]}
+                        → {REVIERMELDUNG_STATUS_LABELS[status]}
                       </Text>
                     </Pressable>
                   )
@@ -637,8 +684,18 @@ export default function RevierarbeitScreen() {
               </Pressable>
             </View>
           </View>
-        ))}
-      </ScrollView>
+          ))}
+        </ScrollView>
+      ) : null}
+
+      <PinDetailSheet
+        pin={selectedPin}
+        onClose={() => setSelectedPin(null)}
+        onOpenDetails={() => {
+          setSelectedPin(null);
+          setMode("liste");
+        }}
+      />
     </ScreenShell>
   );
 }
@@ -673,29 +730,6 @@ function buildReviermeldungPayload(form: ReviermeldungFormState): CreateRevierme
     occurredAt: new Date().toISOString(),
     location: hasLat && hasLng ? buildGeoPoint(form.lat, form.lng, form.locationLabel, "Mobil gemeldet") : undefined
   };
-}
-
-function formatCategoryLabel(value: ReviermeldungKategorie) {
-  return CATEGORIES.find((category) => category.value === value)?.label ?? value;
-}
-
-function formatMeldungStatusLabel(value: ReviermeldungListItem["status"]) {
-  switch (value) {
-    case "neu":
-      return "Neu";
-    case "geprueft":
-      return "Geprüft";
-    case "in_bearbeitung":
-      return "In Bearbeitung";
-    case "erledigt":
-      return "Erledigt";
-    case "verworfen":
-      return "Verworfen";
-    case "archiviert":
-      return "Archiviert";
-    default:
-      return value;
-  }
 }
 
 function formatTaskStatusLabel(value: AufgabeStatus) {
@@ -761,23 +795,6 @@ function formatPriorityLabel(value: AufgabeListItem["priority"]) {
       return "Hoch";
     case "dringend":
       return "Dringend";
-    default:
-      return value;
-  }
-}
-
-function formatSourceLabel(value: NonNullable<AufgabeListItem["sourceType"]>) {
-  switch (value) {
-    case "reviermeldung":
-      return "Reviermeldung";
-    case "reviereinrichtung":
-      return "Reviereinrichtung";
-    case "fallwild_vorgang":
-      return "Fallwild";
-    case "sitzung":
-      return "Sitzung";
-    case "beschluss":
-      return "Beschluss";
     default:
       return value;
   }

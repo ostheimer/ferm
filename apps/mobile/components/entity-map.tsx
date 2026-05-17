@@ -24,6 +24,8 @@ export interface EntityPin {
   location: GeoPoint;
   title: string;
   subtitle?: string;
+  color?: string;
+  kind?: "ansitz" | "fallwild" | "einrichtung" | "reviermeldung";
 }
 
 interface EntityMapProps {
@@ -32,32 +34,32 @@ interface EntityMapProps {
   /** Pin-Farbe — Domain-Tab-spezifisch. Default theme.accent (Ansitz). */
   pinColor?: string;
   /**
-   * Tap auf einen Pin. Aufrufer kann z.B. ein Detail-Sheet oeffnen
+   * Tap auf einen Pin. Aufrufer kann z.B. ein Detail-Sheet öffnen
    * oder zur Detail-Route navigieren.
    */
   onPinPress?: (pin: EntityPin) => void;
   /**
-   * Fixe Hoehe in px. Default `null` = `flex: 1`, fuellt den Eltern-
+   * Fixe Höhe in px. Default `null` = `flex: 1`, füllt den Eltern-
    * Container. Praktisch zum Einbetten in ScrollView-Tabs, wo man
-   * eine begrenzte Hoehe braucht.
+   * eine begrenzte Höhe braucht.
    */
   height?: number | null;
 }
 
 /**
- * `<EntityMap>` — schlanke Single-Layer-Karte fuer Locations-Tabs
+ * `<EntityMap>` — schlanke Single-Layer-Karte für Locations-Tabs
  * (Ansitze / Fallwild / Reviereinrichtungen).
  *
- * Anders als `<MapStage>` (das Multi-Layer fuer das Heute-Dashboard
+ * Anders als `<MapStage>` (das Multi-Layer für das Heute-Dashboard
  * war): keine Filter-Chips, kein Bottom-Banner, kein
  * Tagesuebersicht-Hook. Eine Liste Pins, eine Pin-Farbe, optional
  * ein `onPinPress`-Callback. Die Region wird beim ersten Render auf
  * die Bounding-Box der Pins gerechnet; `react-native-maps` ignoriert
- * spaetere `initialRegion`-Updates ohnehin.
+ * spätere `initialRegion`-Updates ohnehin.
  *
- * Auf Android ohne Google-Key faellt die Komponente auf einen
- * Hinweis-Fallback zurueck — der Verhaltenspatch matched
- * `<MapPreview>` und `<MapStage>`, damit sich alle drei Karten
+ * Auf Android ohne Google-Key fällt die Komponente auf einen
+ * Hinweis-Fallback zurück. Das Verhalten entspricht
+ * `<MapPreview>` und `<MapStage>`, damit sich alle Karten
  * gleich verhalten.
  */
 export function EntityMap({
@@ -108,7 +110,7 @@ export function EntityMap({
           <Marker
             key={pin.id}
             coordinate={{ latitude: pin.location.lat, longitude: pin.location.lng }}
-            pinColor={pinColor ?? theme.accent}
+            pinColor={pin.color ?? pinColor ?? theme.accent}
             onPress={() => {
               if (!onPinPress) {
                 return;

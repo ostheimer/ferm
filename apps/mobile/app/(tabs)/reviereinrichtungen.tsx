@@ -35,7 +35,7 @@ export default function ReviereinrichtungenScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [mode, setMode] = useState<ViewMode>("liste");
+  const [mode, setMode] = useState<ViewMode>("karte");
   const [selectedPin, setSelectedPin] = useState<SelectedPin | null>(null);
   const [filter, setFilter] = useState<ReviereinrichtungFilterState>(
     DEFAULT_REVIEREINRICHTUNG_FILTER
@@ -81,6 +81,7 @@ export default function ReviereinrichtungenScreen() {
     () =>
       visibleEntries.map((entry) => ({
         id: entry.id,
+        kind: "einrichtung",
         location: entry.location,
         title: entry.name,
         subtitle: `${entry.type} · ${entry.status}`
@@ -207,7 +208,7 @@ export default function ReviereinrichtungenScreen() {
         </View>
       ) : null}
 
-      {mode === "karte" && visibleEntries.length > 0 ? (
+      {mode === "karte" ? (
         <EntityMap
           pins={pins}
           pinColor={theme.ink}

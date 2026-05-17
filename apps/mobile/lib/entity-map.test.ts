@@ -18,6 +18,7 @@ import type { EntityPin } from "../components/entity-map";
 function ansitzToPin(entry: AnsitzSession): EntityPin {
   return {
     id: entry.id,
+    kind: "ansitz",
     location: entry.location,
     title: entry.standortName,
     subtitle: entry.location.label ?? "Aktiver Ansitz"
@@ -27,6 +28,7 @@ function ansitzToPin(entry: AnsitzSession): EntityPin {
 function fallwildToPin(entry: FallwildVorgang): EntityPin {
   return {
     id: entry.id,
+    kind: "fallwild",
     location: entry.location,
     title: entry.gemeinde ?? entry.location.label ?? "Fallwild",
     subtitle: `${entry.wildart} · ${entry.bergungsStatus}`
@@ -36,6 +38,7 @@ function fallwildToPin(entry: FallwildVorgang): EntityPin {
 function einrichtungToPin(entry: Reviereinrichtung): EntityPin {
   return {
     id: entry.id,
+    kind: "einrichtung",
     location: entry.location,
     title: entry.name,
     subtitle: `${entry.type} · ${entry.status}`
@@ -52,6 +55,7 @@ describe("EntityPin-Mapping fuer Locations-Tabs", () => {
 
     const pin = ansitzToPin(ansitz);
     expect(pin.id).toBe("a1");
+    expect(pin.kind).toBe("ansitz");
     expect(pin.title).toBe("Hochstand 4");
     expect(pin.subtitle).toBe("Waldrand");
   });
