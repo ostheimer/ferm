@@ -22,8 +22,8 @@ Vollständiger Befund mit Code-Verweisen und Reproduktion: [docs/ui-audit-2026-0
 
 - ~~[krit] E2E-Test-Datenmüll aus Production löschen (alle Sitzungen/Protokolle/Fallwild mit Prefix `E2E `) und E2E-Suite auf separaten Neon-Branch umstellen — siehe Audit F-02.~~ Erledigt 2026-05-07: Cleanup-Skript via PR #33 verifiziert, Dry-Run gegen Production zeigte 0 verbleibende E2E-Datensätze; E2E-Trennung auf separaten Neon-Branch ist als Nachfolge-Pflege offen, aber Production ist sauber.
 - [krit] Sidebar rollen-aware filtern und stillen Redirect auf `/app` durch sichtbaren Hinweis ersetzen — siehe Audit F-01.
-- [krit] Backoffice-„Kartenlage" durch echte Google Maps JS API ersetzen — siehe Audit F-03.
-- [krit] Mobile MapPreview durch `react-native-maps` ersetzen — siehe Audit F-14.
+- ~~[krit] Backoffice-„Kartenlage" durch echte Google Maps JS API ersetzen — siehe Audit F-03.~~ Implementiert: `@vis.gl/react-google-maps` in `apps/web/package.json`, Commit `c6ad21eb` „feat: expand web maps".
+- ~~[krit] Mobile MapPreview durch `react-native-maps` ersetzen — siehe Audit F-14.~~ Implementiert: `react-native-maps` 1.20.1 in `apps/mobile/package.json`, UX-Roadmap P2.1 ✅.
 
 #### Hoch
 
@@ -32,7 +32,7 @@ Vollständiger Befund mit Code-Verweisen und Reproduktion: [docs/ui-audit-2026-0
 - [hoch] Mobile-Tabs von 6 auf 4 + „Mehr"-Sheet reduzieren, Logout in Profil verlegen — siehe Audit F-12 und F-15.
 - [hoch] Mobile-Login-Wortmarke „hege" durch ein einzelnes Logo-Asset ersetzen — siehe Audit F-13.
 - ~~[hoch] Member-Invite-Flow planen, damit andere Rollen ohne Seed-/SQL-Eingriff angelegt werden können — siehe Audit F-20.~~ Erledigt 2026-05-07 als Hybrid mit Code als sichtbarem Default und optionaler Mail-Versand.
-- [hoch] Geteilte Design-Tokens (`@hege/tokens`) für Web und Mobile einführen — siehe Audit F-21.
+- ~~[hoch] Geteilte Design-Tokens (`@hege/tokens`) für Web und Mobile einführen — siehe Audit F-21.~~ Implementiert: `packages/tokens` existiert als Workspace-Package, in `apps/web/package.json` und `apps/mobile/package.json` als Dependency eingetragen.
 
 #### Mittel
 
@@ -50,7 +50,7 @@ Vollständiger Befund mit Code-Verweisen und Reproduktion: [docs/ui-audit-2026-0
 - [niedrig] Mobile Choice-Chips für Wildart/Geschlecht/Altersklasse/Bergungsstatus durch Picker oder Action Sheet ersetzen — siehe Audit F-17.
 - [niedrig] Mobile Mikrocopy-Pass: „Queue" → „Warteschlange", „1 gespeicherte Stände" → „1 Version gespeichert" — siehe Audit F-18.
 - [niedrig] Mobile `userInterfaceStyle` auf `automatic` und Dark-Mode-Tokens vorbereiten — siehe Audit F-19.
-- [niedrig] Icon-Set für Web einführen (Sidebar, Buttons, Status) — siehe Audit F-22.
+- ~~[niedrig] Icon-Set für Web einführen (Sidebar, Buttons, Status) — siehe Audit F-22.~~ Implementiert: `packages/icons` existiert als Workspace-Package, in `apps/web/package.json` als Dependency eingetragen, UX-Roadmap P1.5 ✅.
 - [niedrig] Visuelle Evidenz unter `docs/assets/ui-audit-2026-05-07/` nachreichen, sobald das Screenshot-Tooling stabil ist.
 
 ### UX-Roadmap v2 — Pfad 1 (Visual Polish)
@@ -58,15 +58,15 @@ Vollständiger Befund mit Code-Verweisen und Reproduktion: [docs/ui-audit-2026-0
 Pfad 1 aus [docs/ux-roadmap-v2.md](docs/ux-roadmap-v2.md). Reihenfolge: P1.0 zuerst, dann P1.3 als Layout-Quick-Win, danach parallelisierbar.
 
 - [ ] P1.0 — EAS-Preview-iOS-Build mit allen bisherigen Audit-Fixes auf TestFlight pushen, damit der Mobile-Stand auf dem iPhone aktuell ist.
-- [ ] P1.1 — Demo-Daten erweitern auf realistische Volumina (~20 Sitzungen, ~30 Fallwild, ~12 Reviereinrichtungen, ~8 Mitglieder, dazu passende Reviermeldungen/Aufgaben).
-- [ ] P1.2 — Wortmarken-Logo als SVG-Asset-Satz (Mark+Wortmarke kombiniert + monochrome Varianten) für Header, Favicon, OG-Image, Mobile-Login, Mobile-Splash.
-- [ ] P1.3 — Mobile Heute-Tab Layout-Fixes: Bottom-Padding für Tab-Bar (Tiles werden nicht mehr abgeschnitten), Aside-Card kollabiert auf 0-Wert, Slash-Trennung der Personenzeile durch Punkt-Trennung ersetzt, Hero-Title mit Auto-Shrink, Toolbar-Buttons in Header-Aside oder Pull-to-Refresh.
-- [ ] P1.4 — Vereinheitlichte `<StateView>`-Komponente für Empty/Loading/Error in Web und Mobile, ad-hoc-Cards migrieren.
-- [ ] P1.5 — Custom Domain-Iconographie als neues `packages/icons`-Workspace-Package (Hochstand, Fütterung, Ansitz, Fallwild, Reviereinrichtung, Sitzung, Protokoll, Mitglied), Web + Mobile.
-- [ ] P1.6 — Mikrointeraktionen: Web View Transitions, Hover/Press-Feedback; Mobile Sheet-Slides + Reanimated Pressable-Skalierung + Haptik bei Save/Send/Discard.
-- [ ] P1.7 — Hero-Visuals auf Public-Landing: Backoffice-Mockup mit echter Karte und iPhone-Mock mit Fallwild-Form als statische Assets in `apps/web/public/landing/`.
-- [ ] P1.8 — Dark Mode Mobile durchziehen: Components von `colors.x` auf `useThemeColors()` migrieren, sodass `userInterfaceStyle: automatic` wirklich greift.
-- [ ] P1.9 — Lighthouse 95+ auf Public-Landing, Login und Backoffice-Dashboard, Audit + Maßnahmen.
+- [x] P1.1 — Demo-Daten erweitern auf realistische Volumina (~20 Sitzungen, ~30 Fallwild, ~12 Reviereinrichtungen, ~8 Mitglieder, dazu passende Reviermeldungen/Aufgaben). (PR #46)
+- [x] P1.2 — Wortmarken-Logo als SVG-Asset-Satz (Mark+Wortmarke kombiniert + monochrome Varianten) für Header, Favicon, OG-Image, Mobile-Login, Mobile-Splash. (PR #47)
+- [x] P1.3 — Mobile Heute-Tab Layout-Fixes: Bottom-Padding für Tab-Bar (Tiles werden nicht mehr abgeschnitten), Aside-Card kollabiert auf 0-Wert, Slash-Trennung der Personenzeile durch Punkt-Trennung ersetzt, Hero-Title mit Auto-Shrink, Toolbar-Buttons in Header-Aside oder Pull-to-Refresh. (vor PR #45)
+- [x] P1.4 — Vereinheitlichte `<StateView>`-Komponente für Empty/Loading/Error in Web und Mobile, ad-hoc-Cards migrieren. (PR #45)
+- [x] P1.5 — Custom Domain-Iconographie als neues `packages/icons`-Workspace-Package (Hochstand, Fütterung, Ansitz, Fallwild, Reviereinrichtung, Sitzung, Protokoll, Mitglied), Web + Mobile. (PR #47)
+- [x] P1.6 — Mikrointeraktionen: Web View Transitions, Hover/Press-Feedback; Mobile Sheet-Slides + Reanimated Pressable-Skalierung + Haptik bei Save/Send/Discard. (PR #47, #48)
+- [x] P1.7 — Hero-Visuals auf Public-Landing: Backoffice-Mockup mit echter Karte und iPhone-Mock mit Fallwild-Form als statische Assets in `apps/web/public/landing/`. (PR #50)
+- [x] P1.8 — Dark Mode Mobile durchziehen: Components von `colors.x` auf `useThemeColors()` migrieren, sodass `userInterfaceStyle: automatic` wirklich greift. (PR #49)
+- [x] P1.9 — Lighthouse 95+ auf Public-Landing, Login und Backoffice-Dashboard, Audit + Maßnahmen. (PR #51)
 
 ## Erledigt
 
