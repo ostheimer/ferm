@@ -10,7 +10,7 @@ Die Plattform besteht aus drei Hauptanwendungen:
 - `apps/mobile`: mobile App fuer Jaeger im Feld
 - `apps/api`: bestehende Uebergangs-API fuer das Demo-Geruest und die schrittweise Migration
 
-Das Shared Package `packages/domain` enthaelt gemeinsame Typen, Statuswerte, Demo-Daten und Fachregeln.
+Das Shared Package `packages/domain` enthaelt gemeinsame Typen, Statuswerte, Demo-Daten und Fachregeln. `packages/icons` stellt das Custom-Domain-Icon-Set fuer Web und Mobile bereit. `packages/tokens` enthaelt geteilte Design-Tokens fuer Web und Mobile.
 
 ## Monorepo-Struktur
 
@@ -21,6 +21,8 @@ apps/
   api/
 packages/
   domain/
+  icons/
+  tokens/
 docs/
 ```
 
@@ -220,18 +222,8 @@ Lokales Docker-Postgres bleibt ein rein lokaler Arbeitsmodus. Es ersetzt die Neo
 
 ## Aktueller Repository-Stand
 
-- gemeinsames Domain-Modell vorhanden
-- API-Endpunkte fuer die Kernmodule in `apps/api` vorhanden
-- erster Vercel-native Datenpfad fuer `me`, `ansitze` und `fallwild` in `apps/web` vorhanden
-- Web- und Mobile-UIs als sichtbares Grundgeruest vorhanden
-- Domain- und Env-Grundlage fuer `hege.app` vorhanden
-- produktive Persistenz, Authentifizierung und Rechtepruefung noch offen
+Authentifizierung (E-Mail/Benutzername + PIN, Face ID/Touch ID), Session-Management, Rollenprüfung und alle Kern-API-Routen sind produktiv. Stand Sprint 4 (Mai 2026): Reviermeldungen, Aufgaben, Kontaktlisten, Benachrichtigungen, Leaderboard, echte Karten (Google Maps Web via `@vis.gl/react-google-maps` + Mobile via `react-native-maps`) vollständig implementiert. 16+ API-Routen unter `apps/web/src/app/api/v1/` bedienen Web und Mobile mit konsistenter Rollenprüfung und Revier-Scoping. Den aktuellen Entwicklungsplan und offene Punkte beschreibt [docs/ux-roadmap-v2.md](./ux-roadmap-v2.md).
 
 ## Naechste technische Ausbaustufe
 
-1. Dashboard-Slice auf echte API und Persistenz erweitern
-2. Datenbank-Slice auf weitere Module erweitern
-3. Authentifizierung und Rollenmodell serverseitig aktivieren
-4. Demo-Store durch persistente Services ersetzen
-5. Uploads, PDFs und Benachrichtigungen produktionsreif machen
-6. Google-Maps-Integration in Web und Mobile konkretisieren
+Den aktuellen Stand offener Punkte und geplanter Features beschreibt [docs/ux-roadmap-v2.md](./ux-roadmap-v2.md).
