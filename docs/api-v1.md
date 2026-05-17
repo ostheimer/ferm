@@ -319,8 +319,8 @@ Kernressourcen:
 
 Bereits produktiv ueber `apps/web` vorhanden:
 
-- `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `reviereinrichtungen`, `protokolle`, `sitzungen` und `documents`
-- Drizzle-Migrationen fuer Auth, Ansitze, Fallwild, `media_assets`, Reviereinrichtungen, Sitzungen, Protokolle, Dokumente und Notifications
+- `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `reviereinrichtungen`, `protokolle`, `sitzungen`, `documents`, `contact-lists`, `reviermeldungen`, `aufgaben`, `memberships`, `reviere` und `public`
+- Drizzle-Migrationen fuer Auth, Ansitze, Fallwild, `media_assets`, Reviereinrichtungen, Sitzungen, Protokolle, Dokumente, Notifications, Reviermeldungen, Aufgaben und Kontaktlisten
 - S3-kompatible Storage-Schicht fuer lokales MinIO und spaeteres R2 inklusive best-effort Rollback bei Medien-Insert-Fehlern
 
 `apps/api` bleibt als Referenz und Uebergangspfad im Repository, ist aber nicht die produktive Zielarchitektur.
@@ -328,5 +328,5 @@ Bereits produktiv ueber `apps/web` vorhanden:
 ## Naechste API-Themen
 
 1. gehaerteten Medien-/Queue-v2-Pfad per iPhone-/iOS-Simulator-Smoke mit Testkonto und Test-Revier erneut abnehmen
-2. Reviermeldungen und Aufgaben v1 auf dieselbe API-Linie heben
+2. ~~Reviermeldungen und Aufgaben v1 auf dieselbe API-Linie heben~~ — erledigt (PRs #88–#109)
 3. Rollen-, Nachrichten- und Veranstaltungsressourcen danach auf denselben Rechte- und Fehlervertrag setzen

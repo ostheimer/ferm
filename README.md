@@ -6,6 +6,8 @@ Reviermanagement-Plattform für Jagdgesellschaften in Österreich. Das Repositor
 - `apps/web`: Next.js-Backoffice für Admins und Schriftführung
 - `apps/mobile`: Expo-Mobile-App für Jäger im Feld
 - `packages/domain`: gemeinsames Domain-Modell, Demo-Daten und Fachregeln
+- `packages/icons`: Custom-Domain-Icon-Set für Web und Mobile
+- `packages/tokens`: geteilte Design-Tokens für Web und Mobile
 
 ## Stand
 
@@ -16,14 +18,22 @@ Die erste produktive Ausbaustufe liefert jetzt gemeinsame Typen, persistente Rou
 - Fallwild dokumentieren
 - Fallwild-Fotos hochladen
 - Sitzungen und Protokolle bearbeiten und lesen
+- Aufgaben verwalten (Web: `/app/aufgaben`, Mobile: Tab `Meldungen`)
+- Reviermeldungen erfassen und verwalten (Web: `/app/reviermeldungen`, Mobile: Tab `Meldungen`)
+- Kontaktlisten verwalten (Web: `/app/kontakte`, Mobile: Screen `Kontakte`)
+- Benachrichtigungen / Postfach lesen (Web: `/app/benachrichtigungen`, Mobile: `benachrichtigungen.tsx`)
+- Mitglieder verwalten (Web: `/app/mitglieder`)
 
 Die bestehende NestJS-API bleibt als Referenzpfad im Repository. Die produktive Linie läuft aber in `apps/web` über Vercel-native Route Handler und Drizzle:
 
-- Drizzle-Konfiguration und Migrationen für Auth, Ansitze, Fallwild, `media_assets`, Reviereinrichtungen, Sitzungen, Protokolle, Dokumente, Notifications und Fallwild-Standortmetadaten
-- Route Handler für `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `reviereinrichtungen`, `protokolle`, `sitzungen`, `documents` und `geo`
+- Drizzle-Konfiguration und Migrationen für Auth, Ansitze, Fallwild, `media_assets`, Reviereinrichtungen, Sitzungen, Protokolle, Dokumente, Notifications, Reviermeldungen, Aufgaben und Kontaktlisten
+- Route Handler für `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `reviereinrichtungen`, `protokolle`, `sitzungen`, `documents`, `geo`, `contact-lists`, `reviermeldungen`, `aufgaben`, `memberships`, `reviere` und `public`
 - Fallwild-Detail und Foto-Upload über `GET /api/v1/fallwild/:id` und `POST /api/v1/fallwild/:id/fotos`
 - Fallwild-Standort v1 über `POST /api/v1/geo/fallwild-location`, iPhone-GPS, serverseitige Google-Adressauflösung, GIP-Index-/Endpoint-Resolver und gespeicherte Standort-/Straßenkilometer-Metadaten
-- Reviermeldungen und Aufgaben als API-/Datenmodell-Slice über `GET/POST/PATCH /api/v1/reviermeldungen` und `/api/v1/aufgaben`
+- Reviermeldungen und Aufgaben als vollständiger API-/Datenmodell-/Web-/Mobile-Slice mit Filter, Sort, Detail, Status-Mutation, CSV-Export und Reviermeldung→Aufgabe-Konvertierung
+- Kontaktlisten v1 mit Mitgliederliste, freien Listen, Anrufen-Aktion und Rollenrechten
+- Benachrichtigungen / Postfach in Web und Mobile
+- Echte Karten: Web über `@vis.gl/react-google-maps`, Mobile über `react-native-maps` 1.20.1
 - S3-kompatible Storage-Schicht für lokales MinIO und Cloudflare R2 inklusive best-effort Rollback nach fehlgeschlagenem Medien-Insert
 - Seed-Skript auf Basis der bestehenden Demo-Daten
 - Login in Web und App über E-Mail oder Benutzername plus vierstellige PIN
@@ -33,7 +43,7 @@ Die bestehende NestJS-API bleibt als Referenzpfad im Repository. Die produktive 
 - Web-Fallwildseite mit Erfassung, CSV-Export und mobilem Layout gegen denselben API-Pfad
 - Web-Dashboard, Reviereinrichtungen, Protokolle und Sitzungen gegen dieselbe Server-Schicht
 - Public Landing, Login, Registrierung und Setup-Flow mit neuem `hege`-Logo; die Website ist auf `https://hege.app` produktiv geprüft
-- Mobile-Screens für Dashboard, Ansitze, Fallwild, Reviereinrichtungen und Protokolle gegen denselben API-Slice
+- Mobile-Screens für Dashboard, Ansitze, Fallwild, Reviereinrichtungen, Protokolle, Meldungen/Aufgaben, Kontakte, Benachrichtigungen (`benachrichtigungen.tsx`) und Über hege (`ueber-hege.tsx`) gegen denselben API-Slice
 - Mobile-Tab `Meldungen` für Reviermeldungen und Aufgaben: Meldung erfassen, Aufgaben lesen und Aufgabenstatus ändern
 - lokaler iPhone-Smoke für `Meldungen` vom 2026-05-05: Login, Aufgabenliste, Statusänderung auf `In Arbeit` und neue Reviermeldung `Smoke Test` wurden gegen `http://10.0.0.242:3000/api/v1` mit `200`/`201` bestätigt
 - Mobile Fallwild-Fotoauswahl mit Queue-v2-Weitergabe, Retry-Backoff und sichtbaren Aktionen für problematische Uploads

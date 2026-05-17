@@ -22,6 +22,15 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 - Mobile Fallwild-Fotoauswahl ueber `expo-image-picker` mit bis zu drei Bibliotheksbildern eingefuehrt.
 - Android-Smoke-Helfer fuer Expo, Testbild-Erzeugung und `adb`-basierte Ablaufpruefung ergaenzt.
 - Seed-Account fuer Andreas Ostheimer als Admin mit Username-Login eingefuehrt.
+- Echte Google Maps Karten: Web-Backoffice über `@vis.gl/react-google-maps` (PR #88ff.), Mobile über `react-native-maps` 1.20.1 (PR #58ff., UX-Roadmap P2.1 ✅).
+- Kontaktlisten v1 vollständig: Drizzle-Tabellen, Seed-/Demo-Daten, `GET/POST/PATCH/DELETE /api/v1/contact-lists`, Web-Seite `/app/kontakte`, Mobile-Screen `Kontakte` mit Anrufen-Aktion.
+- Reviermeldungen mit Filter, Sort, Detail-Page, Status-Mutation und CSV-Export (Web + Mobile).
+- Aufgaben mit Filter, Sort, Detail-Page und Reviermeldung→Aufgabe-Konvertierung (Web + Mobile).
+- Benachrichtigungen / Postfach: Web-Seite `/app/benachrichtigungen` und Mobile-Screen `benachrichtigungen.tsx` mit Read/Unread-Verwaltung.
+- Mitglieder-Verwaltung: Web-Seite `/app/mitglieder` mit Rollen-Übersicht und Einladungs-Flow.
+- Personalisierte Begrüßungen und rollenspezifische Dashboard-Kacheln.
+- UX-Roadmap Pfad 1 (Visual Polish, PRs #45–#51) vollständig abgeschlossen: Demo-Daten-Volumina, Icons-Package (`packages/icons`), Design-Tokens-Package (`packages/tokens`), StateView-Komponente, Mikrointeraktionen, Hero-Visuals, Dark-Mode-Mobile, Lighthouse-Baseline.
+- UX-Roadmap Pfad 2 (Workflow-Re-Imagination, PRs #58–#76) vollständig abgeschlossen: Mobile Map-First, rollen-spezifische Dashboards, Notification-Center, Filter/Suche/Sortieren, Onboarding-Flow, Smart Defaults.
 
 ### Changed
 
@@ -32,7 +41,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 - Public Landing und Onboarding-Redirects fuer Gast-, Login- und Setup-Pfade als neue Sprint-1.5-Teilflaeche eingefuehrt.
 - Mobile-Dashboard liest `DashboardResponse` und zeigt Queue, naechste Sitzung und letzte Benachrichtigung aus der API.
 - Web-Auth, Session-Kontext und Fehlerformat auf echte Token- und JSON-Responses umgestellt.
-- Seeds und DB-Schema um Reviereinrichtungen, Kontrollen, Sitzungen, Protokollversionen, Beschluesse, Dokumente und Notifications erweitert.
+- Seeds und DB-Schema um Reviereinrichtungen, Kontrollen, Sitzungen, Protokollversionen, Beschluesse, Dokumente, Notifications, Reviermeldungen, Aufgaben und Kontaktlisten erweitert.
 - Mobile `Ansitz` und `Fallwild` koennen Schnellmeldungen direkt senden oder bei Verbindungsfehlern in die Queue legen.
 - Mobile `Ansitz` und `Fallwild` wurden auf echte Eingabeformulare mit Queue-Fallback umgestellt.
 - Der lokale Playwright-Harness setzt die E2E-Datenbank jetzt vollstaendig zurueck und startet die Web-App ohne Wiederverwendung alter Test-Server.
