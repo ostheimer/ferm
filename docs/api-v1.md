@@ -246,8 +246,23 @@ Diese Ressourcen bleiben für die nächste Ausbaustufe vorgesehen und werden fac
 
 - `GET /api/v1/roles`
 - `GET /api/v1/memberships`
-- `GET /api/v1/messages`
 - `POST /api/v1/messages`
+- `GET /api/v1/messages`
+
+### Mitgliedschaften und Einladungen
+
+- `GET /api/v1/memberships/invitations`
+- `POST /api/v1/memberships/invitations`
+
+#### `POST /api/v1/memberships/invitations`
+
+Erstellt eine Mitgliedseinladung für ein Revier.
+
+- Auth: Bearer Token (Revier Admin)
+- Body: `{ firstName: string, lastName: string, role: string, jagdzeichen: string, sendEmail?: boolean, email?: string, phone?: string }`
+- Response 201: erstellte Einladung
+- Response 400: Pflichtfelder fehlen oder ungültiges JSON
+- Web-Route: `/einladung/[token]` zur Bestätigung
 
 ## Rollenregeln
 
