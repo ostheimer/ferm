@@ -22,17 +22,17 @@ Vollständiger Befund mit Code-Verweisen und Reproduktion: [docs/ui-audit-2026-0
 
 - ~~[krit] E2E-Test-Datenmüll aus Production löschen (alle Sitzungen/Protokolle/Fallwild mit Prefix `E2E `) und E2E-Suite auf separaten Neon-Branch umstellen — siehe Audit F-02.~~ Erledigt 2026-05-07: Cleanup-Skript via PR #33 verifiziert, Dry-Run gegen Production zeigte 0 verbleibende E2E-Datensätze; E2E-Trennung auf separaten Neon-Branch ist als Nachfolge-Pflege offen, aber Production ist sauber.
 - [krit] Sidebar rollen-aware filtern und stillen Redirect auf `/app` durch sichtbaren Hinweis ersetzen — siehe Audit F-01.
-- [krit] Backoffice-„Kartenlage" durch echte Google Maps JS API ersetzen — siehe Audit F-03.
-- [krit] Mobile MapPreview durch `react-native-maps` ersetzen — siehe Audit F-14.
+- ~~[krit] Backoffice-„Kartenlage“ durch echte Google Maps JS API ersetzen — siehe Audit F-03.~~ Erledigt 2026-05-16: Commit `c6ad21e` (`feat: expand web maps`).
+- ~~[krit] Mobile MapPreview durch `react-native-maps` ersetzen — siehe Audit F-14.~~ Erledigt 2026-05-17: Commits `9565c0b`/`1cd8f19` (`feat: enable native mobile maps`).
 
 #### Hoch
 
-- [hoch] Sitzung-Detail bei Status `freigegeben` sperren und „Neue Version öffnen"-Pfad bauen — siehe Audit F-04.
+- [hoch] Sitzung-Detail bei Status `freigegeben` sperren und „Neue Version öffnen“-Pfad bauen — siehe Audit F-04.
 - [hoch] Detail-Link in Sitzungen-Liste auf `/sitzungen/[id]` (ohne `/app`-Prefix) auf Auth-Guard prüfen oder Route nach `/app/sitzungen/[id]` umziehen — siehe Audit F-05.
-- [hoch] Mobile-Tabs von 6 auf 4 + „Mehr"-Sheet reduzieren, Logout in Profil verlegen — siehe Audit F-12 und F-15.
-- [hoch] Mobile-Login-Wortmarke „hege" durch ein einzelnes Logo-Asset ersetzen — siehe Audit F-13.
+- [hoch] Mobile-Tabs von 6 auf 4 + „Mehr“-Sheet reduzieren, Logout in Profil verlegen — siehe Audit F-12 und F-15.
+- [hoch] Mobile-Login-Wortmarke „hege“ durch ein einzelnes Logo-Asset ersetzen — siehe Audit F-13.
 - ~~[hoch] Member-Invite-Flow planen, damit andere Rollen ohne Seed-/SQL-Eingriff angelegt werden können — siehe Audit F-20.~~ Erledigt 2026-05-07 als Hybrid mit Code als sichtbarem Default und optionaler Mail-Versand.
-- [hoch] Geteilte Design-Tokens (`@hege/tokens`) für Web und Mobile einführen — siehe Audit F-21.
+- ~~[hoch] Geteilte Design-Tokens (`@hege/tokens`) für Web und Mobile einführen — siehe Audit F-21.~~ Erledigt: `packages/tokens` ist im Repository vorhanden.
 
 #### Mittel
 
@@ -46,9 +46,9 @@ Vollständiger Befund mit Code-Verweisen und Reproduktion: [docs/ui-audit-2026-0
 #### Niedrig
 
 - [niedrig] Demo-Account `user-revierleitung` mit echtem Personennamen befüllen — siehe Audit F-09.
-- [niedrig] Fallwild-Liste im Web mit Eyebrow „Erfassung läuft über die hege-App" — siehe Audit F-11.
+- [niedrig] Fallwild-Liste im Web mit Eyebrow „Erfassung läuft über die hege-App“ — siehe Audit F-11.
 - [niedrig] Mobile Choice-Chips für Wildart/Geschlecht/Altersklasse/Bergungsstatus durch Picker oder Action Sheet ersetzen — siehe Audit F-17.
-- [niedrig] Mobile Mikrocopy-Pass: „Queue" → „Warteschlange", „1 gespeicherte Stände" → „1 Version gespeichert" — siehe Audit F-18.
+- [niedrig] Mobile Mikrocopy-Pass: „Queue“ → „Warteschlange“, „1 gespeicherte Stände“ → „1 Version gespeichert“ — siehe Audit F-18.
 - [niedrig] Mobile `userInterfaceStyle` auf `automatic` und Dark-Mode-Tokens vorbereiten — siehe Audit F-19.
 - [niedrig] Icon-Set für Web einführen (Sidebar, Buttons, Status) — siehe Audit F-22.
 - [niedrig] Visuelle Evidenz unter `docs/assets/ui-audit-2026-05-07/` nachreichen, sobald das Screenshot-Tooling stabil ist.
