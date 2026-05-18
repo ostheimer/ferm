@@ -6,6 +6,7 @@ import type {
 import { describe, expect, it } from "vitest";
 
 import type { EntityPin } from "../components/entity-map";
+import { buildEntityMapRegionKey } from "../components/entity-map.helpers";
 
 /**
  * `<EntityMap>` selbst rendert Native-MapView, was Native-Module-Mocking
@@ -109,5 +110,41 @@ describe("EntityPin-Mapping fuer Locations-Tabs", () => {
     const pin = einrichtungToPin(einrichtung);
     expect(pin.title).toBe("Salzlecke West");
     expect(pin.subtitle).toBe("salzlecke · wartung-faellig");
+  });
+});
+
+describe("buildEntityMapRegionKey", () => {
+  it("bleibt stabil, wenn dieselben Pins nur anders sortiert sind", () => {
+    const first = buildEntityMapRegionKey(undefined, [
+      { id: "b", location: { lat: 48.2, lng: 16.4 } },
+      { id: "a", location: { lat: 48.1, lng: 16.3 } }
+    ]);
+    const second = buildEntityMapRegionKey(undefined, [
+      { id: "a", location: { lat: 48.1, lng: 16.3 } },
+      { id: "b", location: { lat: 48.2, lng: 16.4 } }
+    ]);
+
+    expect(first).toBe(second);
+  });
+
+  it("ändert sich, wenn nach einem Refresh neue Pin-Koordinaten ankommen", () => {
+    const empty = buildEntityMapRegionKey(undefined, []);
+    const withPin = buildEntityMapRegionKey(undefined, [
+      { id: "a", location: { lat: 48.1, lng: 16.3 } }
+    ]);
+    const movedPin = buildEntityMapRegionKey(undefined, [
+      { id: "a", location: { lat: 48.4, lng: 16.6 } }
+    ]);
+
+    expect(withPin).not.toBe(empty);
+    expect(movedPin).not.toBe(withPin);
+  });
+
+  it("ändert sich, wenn ein anderes Revier-Zentrum gesetzt wird", () => {
+    const pins = [{ id: "a", location: { lat: 48.1, lng: 16.3 } }];
+
+    expect(buildEntityMapRegionKey({ lat: 48, lng: 16 }, pins)).not.toBe(
+      buildEntityMapRegionKey({ lat: 47, lng: 15 }, pins)
+    );
   });
 });

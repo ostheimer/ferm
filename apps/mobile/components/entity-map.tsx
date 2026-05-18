@@ -7,6 +7,7 @@ import type { GeoPoint } from "@hege/domain";
 import type { ThemeColors } from "../lib/theme";
 import { useThemeColors } from "../lib/theme";
 import { useThemedStyles } from "../lib/use-themed-styles";
+import { buildEntityMapRegionKey } from "./entity-map.helpers";
 import {
   AUSTRIA_DEFAULT_CENTER,
   buildInitialRegion,
@@ -54,8 +55,9 @@ interface EntityMapProps {
  * war): keine Filter-Chips, kein Bottom-Banner, kein
  * Tagesuebersicht-Hook. Eine Liste Pins, eine Pin-Farbe, optional
  * ein `onPinPress`-Callback. Die Region wird beim ersten Render auf
- * die Bounding-Box der Pins gerechnet; `react-native-maps` ignoriert
- * spätere `initialRegion`-Updates ohnehin.
+ * die Bounding-Box der Pins gerechnet. Wenn sich Center oder
+ * Pin-Koordinaten ändern, remounten wir die native Map gezielt, weil
+ * `react-native-maps` spätere `initialRegion`-Updates ignoriert.
  *
  * Auf Android ohne Google-Key fällt die Komponente auf einen
  * Hinweis-Fallback zurück. Das Verhalten entspricht
@@ -72,14 +74,15 @@ export function EntityMap({
   const styles = useThemedStyles(createStyles);
   const theme = useThemeColors();
 
+  const regionKey = useMemo(
+    () => buildEntityMapRegionKey(revierCenter, pins),
+    [pins, revierCenter]
+  );
+
   const initialRegion = useMemo(() => {
     const center = revierCenter ?? AUSTRIA_DEFAULT_CENTER;
     return buildInitialRegion(center, pins);
-    // Pins-Identitaet wechselt selten genug, dass wir bewusst nicht
-    // bei jedem Update neu rechnen — die Map ignoriert `initialRegion`
-    // nach dem ersten Render ohnehin.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [pins, revierCenter]);
 
   const containerStyle =
     height === null ? styles.containerFlex : [styles.containerFixed, { height }];
@@ -98,6 +101,7 @@ export function EntityMap({
   return (
     <View style={containerStyle}>
       <MapView
+        key={regionKey}
         provider={MAP_PROVIDER}
         style={StyleSheet.absoluteFillObject}
         initialRegion={initialRegion}
