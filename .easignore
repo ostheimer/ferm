@@ -1,0 +1,26 @@
+node_modules
+.turbo
+.next
+dist
+coverage
+.expo
+.expo-shared
+.vercel
+*.env.local
+.env*.local
+.playwright-cli
+output
+*.tsbuildinfo
+.DS_Store
+
+apps/web
+docs
+
+apps/mobile/ios/build
+apps/mobile/ios/Pods
+apps/mobile/ios/*.xcarchive
+apps/mobile/ios/*.ipa
+*.xcuserstate
+
+**/* 2.*
+.vercelignore 2
