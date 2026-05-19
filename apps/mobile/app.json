@@ -29,7 +29,7 @@
     "ios": {
       "bundleIdentifier": "app.hege.revier",
       "icon": "./assets/icon.png",
-      "runtimeVersion": "1.0.0",
+      "runtimeVersion": "1.0.1",
       "infoPlist": {
         "CFBundleDevelopmentRegion": "de",
         "CFBundleLocalizations": ["de"],
