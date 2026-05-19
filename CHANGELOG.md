@@ -8,6 +8,11 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 
 ### Added
 
+- Kontaktlisten v1: Drizzle-Tabellen, Seed-/Demo-Daten, `GET/POST/PATCH/DELETE /api/v1/contact-lists`, verlinkte registrierte Mitglieder mit Live-Name/-Telefon, freie externe Kontakte, Web-Seite `/app/kontakte` und Mobile-Screen `Kontakte` im Mehr-Menü.
+- Native Mobile Maps mit `react-native-maps` und Google Maps Provider aktiviert; Region-Tracking und Map-Mount-Initialisierung in Folge-Commits stabilisiert.
+- Autonomen Umsetzungsplan (`docs/autonomer-umsetzungsplan-2026-05.md`) als durchsuchbares Planungsdokument hinzugefügt.
+- `packages/icons` als neues Workspace-Package für Custom Domain-Iconographie (Hochstand, Fütterung, Ansitz, Fallwild, Reviereinrichtung, Sitzung, Protokoll, Mitglied) eingeführt.
+- `packages/tokens` als neues Workspace-Package für geteilte Design-Tokens (Web und Mobile) eingeführt.
 - Echte Auth-Session mit Login, Refresh, `GET /api/v1/me` und serverseitigem Revierkontext fuer Web und App.
 - Neue API-Vertraege fuer `dashboard`, `reviereinrichtungen`, `protokolle`, `sitzungen` und `documents` auf der Web-Schicht eingefuehrt.
 - Public-Web-Block mit Landing auf `/`, Pricing-CTAs, Login-/Registrieren-Einstieg und Onboarding-Redirects fuer `/app` und `/app/setup` vorbereitet.
@@ -25,6 +30,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 
 ### Changed
 
+- Web Maps-Integration auf Google Maps JS API erweitert (Backoffice-Kartenlage nutzt nun echte Kartendaten).
 - Login-Vertrag auf `identifier` plus vierstellige `pin` erweitert und serverseitig auf E-Mail oder Username aufgeloest.
 - Login-Oberflaechen in Web und App ohne sichtbare Demo-Konten-Hinweise umgestellt.
 - Dashboard im Web von `demoData` auf die Server-Schicht mit Session-/Revier-Kontext umgestellt.
@@ -43,6 +49,11 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 
 ### Fixed
 
+- Mobile Map Region-Refresh-Bug behoben: Karte aktualisiert die angezeigte Region korrekt nach Standortänderungen.
+- Mobile Map Mount-Initialisierung stabilisiert: Karte rendert beim ersten Öffnen zuverlässig ohne leere Fläche.
+- Standard-Mitglied beim Bearbeiten von Kontakten wird jetzt korrekt vorbelegt.
+- Mobiles Routengruppen-Back-Label ausgeblendet, sodass der zurück-Pfeil in verschachtelten Routen sauber erscheint.
+- Web Landing-Header und Mobile-Menü visuell verfeinert (Menü-Icon und Header-Abstimmung).
 - Web-Sidebar um eine sichtbare `Abmelden`-Aktion ergaenzt und den Logout-Flow ueber Cookie-Clear mit Redirect auf `/login` abgesichert.
 - Login-Placeholder in Web und App zeigen keine konkreten Seed-Zugangsdaten mehr an.
 - Production-Fallback fuer Legacy-Schema eingebaut, damit Login ohne `users.username` und Fallwild-Reads ohne `media_assets` nicht mehr mit `500` scheitern.

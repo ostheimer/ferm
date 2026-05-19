@@ -221,7 +221,7 @@
 
 - `pnpm test:e2e -- apps/web/e2e/ansitze.spec.ts apps/web/e2e/fallwild.spec.ts` ausfuehren
 - Erwartung: Desktop- und Mobile-Viewport stimmen mit den Snapshots ueberein
-- Erwartung: Ansitz-Start/Ende, Fallwild-Erfassung und CSV-Export laufen grün durch
+- Erwartung: Ansitz-Start/Ende, Fallwild-Erfassung und CSV-Export laufen grün durch
 
 ### TC-AUTO-WEB-04: Playwright fuer Leitstand, Reviereinrichtungen und Protokolle
 
@@ -405,6 +405,84 @@
 - Seite `/fallwild` in schmaler Browserbreite oeffnen
 - Erwartung: Formular, Liste und Aktionsleiste bleiben ohne horizontales Chaos bedienbar
 - Erwartung: kein Hydration- oder Konsolenfehler tritt auf
+
+## Web Kontaktlisten
+
+### TC-WEB-KONTAKTE-01: Kontaktlistenseite laedt aus der Server-Schicht
+
+- Web-App lokal mit aktiver DB starten und mit `revier-admin`- oder `schriftfuehrer`-Session anmelden
+- Seite `/app/kontakte` oeffnen
+- Erwartung: `GET /api/v1/contact-lists` antwortet mit `200`
+- Erwartung: verlinkte Mitglieder erscheinen mit aktuellem Namen und Telefonnummer aus der `users`-Tabelle
+- Erwartung: freie externe Kontakte erscheinen mit manuell gepflegten Daten
+- Erwartung: die Seite rendert ohne Serverfehler auf Desktop- und Mobile-Viewport
+
+### TC-WEB-KONTAKTE-02: Neue Kontaktliste anlegen
+
+- Seite `/app/kontakte` oeffnen
+- Formular fuer eine neue Liste mit Bezeichnung und optionaler Beschreibung ausfuellen
+- `Speichern` ausloesen
+- Erwartung: `POST /api/v1/contact-lists` antwortet mit `201`
+- Erwartung: die neue Liste erscheint nach dem Refresh in der Übersicht
+
+### TC-WEB-KONTAKTE-03: Kontaktliste bearbeiten und loeschen
+
+- Eine bestehende Kontaktliste in der Übersicht oeffnen
+- Bezeichnung aendern und speichern
+- Erwartung: `PATCH /api/v1/contact-lists/:id` antwortet mit `200`
+- Erwartung: die geänderte Bezeichnung erscheint nach dem Refresh
+- `Loeschen` ausloesen und Bestaetigung geben
+- Erwartung: `DELETE /api/v1/contact-lists/:id` antwortet mit `200`
+- Erwartung: die Liste verschwindet aus der Übersicht
+
+### TC-WEB-KONTAKTE-04: Rollenbasierte Zugriffskontrolle
+
+- Web-App mit `jaeger`-Session starten
+- `GET /api/v1/contact-lists` aufrufen
+- Erwartung: der Endpunkt antwortet mit `403` oder liefert nur die erlaubten Listen
+- Erwartung: die Seite `/app/kontakte` zeigt keinen Bearbeitungs-Button fuer Jaeger-Rolle
+
+### TC-MOB-KONTAKTE-01: Mobile Kontakte-Screen im Mehr-Menu
+
+- App oeffnen und zum `Mehr`-Tab navigieren
+- `Kontakte` auswaehlen
+- Erwartung: der Screen laedt per `GET /api/v1/contact-lists`
+- Erwartung: verlinkte Mitglieder zeigen den Anrufen-Button
+- Erwartung: die Anrufen-Aktion loest einen nativen Telefonanruf aus
+- Erwartung: freie externe Kontakte werden klar als nicht registrierte Eintraege dargestellt
+
+## Web Mitgliederverwaltung (Member-Invite-Flow)
+
+### TC-WEB-MEMBER-01: Neues Mitglied per Code einladen
+
+- Web-App mit `revier-admin`-Session starten
+- Mitglieder-Verwaltungsseite oeffnen
+- `Mitglied hinzufügen` ausloesen
+- Erwartung: ein Einladungscode wird generiert und angezeigt
+- Erwartung: der Code kann kopiert und an das neue Mitglied weitergegeben werden
+- Erwartung: kein SQL-Eingriff oder Seed-Lauf ist notwendig
+
+### TC-WEB-MEMBER-02: Optionaler Mail-Versand beim Einladen
+
+- Web-App mit `revier-admin`-Session starten
+- Mitglieder-Verwaltungsseite oeffnen
+- `Mitglied hinzufügen` ausloesen und optional eine E-Mail-Adresse eingeben
+- `Einladung per E-Mail senden` aktivieren und absenden
+- Erwartung: bei ausgefüllter Adresse wird eine Einladungsmail versandt
+- Erwartung: ohne E-Mail-Adresse bleibt das Feature ohne Fehler deaktiviert
+
+### TC-WEB-MEMBER-03: Einladungscode einloesen und Rolle erhalten
+
+- Registrierungsseite mit einem gültigen Einladungscode aufrufen
+- Registrierung abschliessen
+- Erwartung: das neue Konto erhält die beim Einladen festgelegte Rolle
+- Erwartung: das Mitglied erscheint nach dem Login in der Mitgliederliste des Reviers
+
+### TC-WEB-MEMBER-04: Abgelaufener oder ungültiger Code
+
+- Registrierungsseite mit einem ungültigen oder bereits verbrauchten Code aufrufen
+- Erwartung: die Seite zeigt eine klare Fehlermeldung
+- Erwartung: kein Konto wird mit dieser Anfrage angelegt
 
 ## Mobile Dashboard
 
