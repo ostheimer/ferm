@@ -6,6 +6,20 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 
 ## [Unreleased]
 
+### Added (Sprint 4 Abschluss, Mai 2026)
+
+- Kontaktlisten: Mitgliederliste und freie Kontaktlisten im Web und Mobile mit Anruf-Aktion und rollenbasierter Sichtbarkeit für Schriftführung und Admin.
+- Personalisierte Begrüßung „Weidmannsheil {Vorname}!" im Heute-Tab (Mobile) und Heute-Dashboard (Web); Revier-Name und Rolle in den Untertitel verschoben.
+- Status-Mutation für Reviermeldungen via Action-Buttons in der Mobile-App (→ Geprüft, → In Bearbeitung, → Erledigt, → Verworfen); erledigte/archivierte Meldungen erhalten keine Buttons mehr.
+- Jagdbilder auf der Landing-Page und verbessertes mobiles Menü (verfeinerte Icons, Wortumbruch-Fix im Hero).
+- `formatApiErrorDescription`-Helper normalisiert API-Fehlertexte (Trennung von Meldung und Hint, einheitlicher Punkt am Ende).
+- Neuer `apiOffline`-Zustand in `QueueStatusPill`: zeigt „API offline" statt irreführendem „Sync OK", wenn die Queue leer ist, aber die API nicht erreichbar ist.
+
+### Fixed (Sprint 4, Mai 2026)
+
+- Fehlermeldung und Hinweistext liefen ohne Trennung ineinander (betraf Heute-Tab und Benachrichtigungen-Screen).
+- Sync-Pill zeigte „Sync OK" (grüner Haken) parallel zu „API nicht erreichbar" — visueller Widerspruch behoben.
+
 ### Added
 
 - Echte Auth-Session mit Login, Refresh, `GET /api/v1/me` und serverseitigem Revierkontext fuer Web und App.
