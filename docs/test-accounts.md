@@ -6,7 +6,7 @@ Zentraler Überblick der Demo-/Test-Logins für hege. Wird für UI-Tests, Demos 
 
 ## Demo-PIN
 
-Alle Seed-User teilen dieselbe PIN. Quelle ist die Umgebungsvariable `DEMO_PASSWORD` ([apps/web/src/server/auth/service.ts:132-138](../apps/web/src/server/auth/service.ts#L132-L138)).
+Alle Seed-User teilen dieselbe PIN. Quelle ist die Umgebungsvariable `HEGE_DEMO_PASSWORD` ([apps/web/src/server/auth/service.ts:132-138](../apps/web/src/server/auth/service.ts#L132-L138)).
 
 Aktueller Wert in Production: `9526`. Das ist ein Demo-Wert, nicht hochsensibel — der Seed legt vier Test-Accounts mit identischem Hash an.
 
@@ -43,7 +43,7 @@ Server-Seitige Rollen-Guards: [apps/web/src/server/auth/guards.ts:25-36](../apps
 Aus [apps/web/src/server/modules/sitzungen/service.ts:48-159](../apps/web/src/server/modules/sitzungen/service.ts#L48-L159):
 
 | Aktion | Erlaubt |
-|--------|---------|
+|--------|----------|
 | Sitzung anlegen / bearbeiten | `schriftfuehrer`, `revier-admin` |
 | Version anlegen / bearbeiten | `schriftfuehrer`, `revier-admin` |
 | Freigeben | `revier-admin` |
