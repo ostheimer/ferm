@@ -226,7 +226,7 @@ Lokales Docker-Postgres bleibt ein rein lokaler Arbeitsmodus. Es ersetzt die Neo
 - vollstaendige produktive Persistenz via Drizzle/Neon fuer alle Kernmodule vorhanden
 - Authentifizierung (PIN-Login, Face ID/Touch ID, JWT) serverseitig aktiv
 - Rollenmodell und serverseitige Guards aktiv (Revier Admin, Schriftfuehrer, Jaeger, Ausgeher)
-- Route Handler fuer `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `reviereinrichtungen`, `sitzungen`, `protokolle`, `documents`, `geo`, `reviermeldungen`, `aufgaben`, `memberships` (inkl. Einladungsflow), `benachrichtigungen`, `kontakte` und `usage` produktiv
+- Route Handler fuer `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `reviereinrichtungen`, `sitzungen`, `protokolle`, `documents`, `geo`, `reviermeldungen`, `aufgaben`, `memberships` (inkl. Einladungsflow), `contact-lists`, `reviere` und `public` produktiv
 - Web-Backoffice mit Aufgaben, Reviermeldungen, Mitglieder, Benachrichtigungen, Kontakte und Sitzungen vollstaendig nutzbar
 - Einladungsflow fuer Mitglieder vollstaendig implementiert (Web-Seite `/einladung/[token]` + API)
 - Mobile-App mit 4 sichtbaren Tabs (Heute, Ansitze, Fallwild, Mehr) und Mehr-Sheet
@@ -241,7 +241,7 @@ Lokales Docker-Postgres bleibt ein rein lokaler Arbeitsmodus. Es ersetzt die Neo
 1. iPhone-/iOS-Geraete-Smoke fuer Foto-Upload, Standortaufloesung und leere Queue nachziehen
 2. GIP-Bounding-Box mit dem tatsaechlichen Revier abgleichen; bei Bedarf groesseren Index aktivieren
 3. Mobile-E2E-Strategie ueber den dokumentierten Geraete-Smoke hinaus festziehen
-4. PDF-Erzeugung weiterhärten
+4. PDF-Erzeugung weiterhaerten
 5. Rollen-, Aufgaben- und Nachrichtenmodell fachlich weiter ausarbeiten
 6. Android-Emulator-Smoke optional als Zweitpfad vorbereiten
 7. `turbo.json` globalPassThroughEnv um `S3_*`, `GOOGLE_MAPS_*`, `GIP_*` und `HEGE_GEO_PROVIDER` ergaenzen
