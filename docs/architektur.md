@@ -21,6 +21,8 @@ apps/
   api/
 packages/
   domain/
+  icons/
+  tokens/
 docs/
 ```
 
@@ -220,18 +222,26 @@ Lokales Docker-Postgres bleibt ein rein lokaler Arbeitsmodus. Es ersetzt die Neo
 
 ## Aktueller Repository-Stand
 
-- gemeinsames Domain-Modell vorhanden
-- API-Endpunkte fuer die Kernmodule in `apps/api` vorhanden
-- erster Vercel-native Datenpfad fuer `me`, `ansitze` und `fallwild` in `apps/web` vorhanden
-- Web- und Mobile-UIs als sichtbares Grundgeruest vorhanden
-- Domain- und Env-Grundlage fuer `hege.app` vorhanden
-- produktive Persistenz, Authentifizierung und Rechtepruefung noch offen
+- gemeinsames Domain-Modell vorhanden (`packages/domain`, `packages/icons`, `packages/tokens`)
+- vollstaendige produktive Persistenz via Drizzle/Neon fuer alle Kernmodule vorhanden
+- Authentifizierung (PIN-Login, Face ID/Touch ID, JWT) serverseitig aktiv
+- Rollenmodell und serverseitige Guards aktiv (Revier Admin, Schriftfuehrer, Jaeger, Ausgeher)
+- Route Handler fuer `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `reviereinrichtungen`, `sitzungen`, `protokolle`, `documents`, `geo`, `reviermeldungen`, `aufgaben`, `memberships` (inkl. Einladungsflow), `benachrichtigungen`, `kontakte` und `usage` produktiv
+- Web-Backoffice mit Aufgaben, Reviermeldungen, Mitglieder, Benachrichtigungen, Kontakte und Sitzungen vollstaendig nutzbar
+- Einladungsflow fuer Mitglieder vollstaendig implementiert (Web-Seite `/einladung/[token]` + API)
+- Mobile-App mit 4 sichtbaren Tabs (Heute, Ansitze, Fallwild, Mehr) und Mehr-Sheet
+- Foto-Upload und S3/R2-Storage produktiv
+- Standortaufloesung via Google Maps und GIP-Index fuer Fallwild aktiv
+- Google-Maps-Karte im Backoffice aktiv (`@vis.gl/react-google-maps` als Dependency eingebunden)
+- SEO produktiv: robots.ts, sitemap.ts, OG-Image, JSON-LD (Lighthouse-Baseline 2026-05-08)
+- Self-Serve-Registrierung unter `/registrieren` aktiv
 
 ## Naechste technische Ausbaustufe
 
-1. Dashboard-Slice auf echte API und Persistenz erweitern
-2. Datenbank-Slice auf weitere Module erweitern
-3. Authentifizierung und Rollenmodell serverseitig aktivieren
-4. Demo-Store durch persistente Services ersetzen
-5. Uploads, PDFs und Benachrichtigungen produktionsreif machen
-6. Google-Maps-Integration in Web und Mobile konkretisieren
+1. iPhone-/iOS-Geraete-Smoke fuer Foto-Upload, Standortaufloesung und leere Queue nachziehen
+2. GIP-Bounding-Box mit dem tatsaechlichen Revier abgleichen; bei Bedarf groesseren Index aktivieren
+3. Mobile-E2E-Strategie ueber den dokumentierten Geraete-Smoke hinaus festziehen
+4. PDF-Erzeugung weiterhärten
+5. Rollen-, Aufgaben- und Nachrichtenmodell fachlich weiter ausarbeiten
+6. Android-Emulator-Smoke optional als Zweitpfad vorbereiten
+7. `turbo.json` globalPassThroughEnv um `S3_*`, `GOOGLE_MAPS_*`, `GIP_*` und `HEGE_GEO_PROVIDER` ergaenzen
